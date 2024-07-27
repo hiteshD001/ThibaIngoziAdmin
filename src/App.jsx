@@ -4,6 +4,7 @@ import "./App.css";
 import { Login } from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import RequestHardware from "./pages/RequestHardware";
+import PaymentSuceed from "./pages/PaymentSuceed";
 function App() {
   return (
     <>
@@ -11,6 +12,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/request-hardware" element={<RequestHardware />}></Route>
+        <Route path="/payment-suceed" element={<PaymentSuceed />}></Route>
       </Routes>
     </>
   );
