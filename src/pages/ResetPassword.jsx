@@ -20,20 +20,19 @@ const ResetPassword = () => {
       seterr("");
       setPassword("");
       setConfirmPassword("");
-      ``;
       console.log(password);
     }
   };
 
   return (
-    <div className="container">
+    <div className="reset-container">
       <div className="wrapper">
         <div className="logo">
           {/* <img src={logo} alt="Guardian Link" /> */}
         </div>
         <h2>Reset Password</h2>
         <form className="form">
-          <span style={{ position: "relative" }}>
+          <span style={{ display: "flex", alignItems: "center" }}>
             <input
               id="password"
               type={showpass ? "text" : "password"}
@@ -43,10 +42,14 @@ const ResetPassword = () => {
               required
             />
             <p className="icon" onClick={() => setshowpass(!showpass)}>
-              *
+              {showconfirmpass ? (
+                <i className="fa fa-solid fa-eye-slash"></i>
+              ) : (
+                <i className="fa fa-eye"></i>
+              )}
             </p>
           </span>
-          <span style={{ position: "relative" }}>
+          <span style={{ display: "flex", alignItems: "center" }}>
             <input
               id="confirmPassword"
               type={showconfirmpass ? "text" : "password"}
@@ -59,7 +62,11 @@ const ResetPassword = () => {
               className="icon"
               onClick={() => setshowconfirmpass(!showconfirmpass)}
             >
-              *
+              {showconfirmpass ? (
+                <i className="fa fa-eye-slash"></i>
+              ) : (
+                <i className="fa fa-eye"></i>
+              )}
             </p>
           </span>
           <p className="err">{err}</p>
