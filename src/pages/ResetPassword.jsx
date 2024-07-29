@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import "../css/reset-password.css";
-import axios from "axios";
+import { useMutation } from "@tanstack/react-query";
+import { resetPassword } from "../API Calls/API";
+
+import { toast } from "react-toastify";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
@@ -9,50 +12,44 @@ const ResetPassword = () => {
   const [showpass, setshowpass] = useState(false);
   const [showconfirmpass, setshowconfirmpass] = useState(false);
   const [err, seterr] = useState("");
-  const [message, setMessage] = useState("");
+  const [p] = useSearchParams()
 
-  const location = useLocation();
+  const resetpass = useMutation({
+    mutationKey: ['reset pass', p.get('token')],
+    mutationFn: resetPassword,
+    onError: (data) => toast.error(data.error.response?.data?.message || "Error", toastOption),
+   onSuccess: (data) => toast.success(data.data.message, toastOption)
+  })
 
-  const getTokenFromUrl = () => {
-    const params = new URLSearchParams(location.search);
-    return params.get("token");
-  };
+  // const getTokenFromUrl = () => {
+  //   const params = new URLSearchParams(location.search);
+  //   console.log(params)
+  //   return params.get("token");
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = getTokenFromUrl();
-    if (!token) {
-      setMessage("Invalid or missing token");
-      return;
-    }
-
+    // const token = p.get('token')
     if (password !== confirmPassword) {
       seterr("Password does not match");
-    } else {
-      seterr("");
-      setPassword("");
-      setConfirmPassword("");
-      console.log(password);
     }
 
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/users/reset-password/${token}`,
-        { newPassword: password }
-      );
-      setMessage(response.data.message);
-    } catch (error) {
-      setMessage(error.response?.data?.message || "An error occurred");
+    // else if (!token) {
+    //   toast.error("Invalid or missing token", toastOption)
+    //   return;
+    // }
+
+    else {
+
+      seterr(""); setPassword(""); setConfirmPassword("");
+      resetpass.mutate({ password, token: p.get('token') });
     }
   };
-
   return (
     <div className="reset-container">
       <div className="wrapper">
-        <div className="logo">
-          {/* <img src={logo} alt="Guardian Link" /> */}
-        </div>
+        {/* <img className="logo" src={logo} alt="Guardian Link" /> */}
         <h2>Reset Password</h2>
         <form className="form">
           <span style={{ display: "flex", alignItems: "center" }}>
@@ -64,13 +61,10 @@ const ResetPassword = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            <p className="icon" onClick={() => setshowpass(!showpass)}>
-              {showconfirmpass ? (
-                <i className="fa fa-solid fa-eye-slash"></i>
-              ) : (
-                <i className="fa fa-eye"></i>
-              )}
-            </p>
+            <i
+              onClick={() => setshowpass(!showpass)}
+              className={`fa ${showpass ? "fa-eye" : "fa-eye-slash"} showpass-icon`}
+            />
           </span>
           <span style={{ display: "flex", alignItems: "center" }}>
             <input
@@ -81,23 +75,17 @@ const ResetPassword = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-            <p
-              className="icon"
+            <i
               onClick={() => setshowconfirmpass(!showconfirmpass)}
-            >
-              {showconfirmpass ? (
-                <i className="fa fa-eye-slash"></i>
-              ) : (
-                <i className="fa fa-eye"></i>
-              )}
-            </p>
+              className={`fa ${showconfirmpass ? "fa-eye" : "fa-eye-slash"} showpass-icon`}
+            />
           </span>
           <p className="err">{err}</p>
-          <button onClick={handleSubmit} className="button" type="submit">
+          <button disabled={resetpass.isPending} onClick={handleSubmit} className={`button ${resetpass.isPending && "load"}`} type="submit">
             Reset
           </button>
         </form>
-        {message && <p>{message}</p>}
+        {/* {message && <p className="err">{message}</p>} */}
 
         <footer>© 2024 Guardian Link</footer>
       </div>
@@ -106,3 +94,10 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
+
+const toastOption = {
+  autoClose: false,
+  position: "top-center",
+  hideProgressBar: true,
+  closeOnClick: true
+}
