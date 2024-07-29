@@ -1,18 +1,31 @@
 import { useState } from "react";
-// import logo from "../../../assets/Images/layout/logo.svg";
+import { useLocation } from "react-router-dom";
 import "../css/reset-password.css";
+import axios from "axios";
 
 const ResetPassword = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
   const [showpass, setshowpass] = useState(false);
   const [showconfirmpass, setshowconfirmpass] = useState(false);
-
   const [err, seterr] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e) => {
+  const location = useLocation();
+
+  const getTokenFromUrl = () => {
+    const params = new URLSearchParams(location.search);
+    return params.get("token");
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const token = getTokenFromUrl();
+    if (!token) {
+      setMessage("Invalid or missing token");
+      return;
+    }
 
     if (password !== confirmPassword) {
       seterr("Password does not match");
@@ -21,6 +34,16 @@ const ResetPassword = () => {
       setPassword("");
       setConfirmPassword("");
       console.log(password);
+    }
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/users/reset-password/${token}`,
+        { newPassword: password }
+      );
+      setMessage(response.data.message);
+    } catch (error) {
+      setMessage(error.response?.data?.message || "An error occurred");
     }
   };
 
@@ -74,6 +97,8 @@ const ResetPassword = () => {
             Reset
           </button>
         </form>
+        {message && <p>{message}</p>}
+
         <footer>© 2024 Guardian Link</footer>
       </div>
     </div>

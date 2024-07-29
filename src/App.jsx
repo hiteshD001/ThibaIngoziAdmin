@@ -11,8 +11,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/request-hardware" element={<RequestHardware />}></Route>
-        <Route path="/payment-suceed" element={<PaymentSuceed />}></Route>
+        <Route path="/request-hardware" element={<RequestHardware />} />
+        <Route path="/payment-suceed" element={<PaymentSuceed />} />
       </Routes>
     </>
   );
