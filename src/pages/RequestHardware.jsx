@@ -4,8 +4,7 @@ import sosHardware from "../assets/images/soshardware.png";
 
 const RequestHardware = () => {
   const [quantity, setQuantity] = useState(1);
-  const [price, setPrice] = useState(100);
-  console.log("setPricezz", setPrice);
+  const price = 100;
 
   return (
     <div className="reqhardware-container">
@@ -34,11 +33,13 @@ const RequestHardware = () => {
         </div>
 
         <form action="https://sandbox.payfast.co.za/eng/process" method="post">
-          <input type="hidden" name="merchant_id" value="YOUR_MERCHANT_ID" />
-          <input type="hidden" name="merchant_key" value="YOUR_MERCHANT_KEY" />
-          <input type="hidden" name="return_url" value="YOUR_RETURN_URL" />
-          <input type="hidden" name="cancel_url" value="YOUR_CANCEL_URL" />
-          <input type="hidden" name="notify_url" value="YOUR_NOTIFY_URL" />
+          <input type="hidden" name="merchant_id" value="10000100" />
+          <input type="hidden" name="merchant_key" value="46f0cd694581a" />
+          <input
+            type="hidden"
+            name="return_url"
+            value="http://localhost:5173/payment-suceed"
+          />
           <input type="hidden" name="amount" value={quantity * price} />
           <input type="hidden" name="item_name" value="Test Item" />
           <button className="paybutton" type="submit">
