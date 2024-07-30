@@ -4,100 +4,99 @@ import "../css/reset-password.css";
 import { useMutation } from "@tanstack/react-query";
 import { resetPassword } from "../API Calls/API";
 
+// import logo from "../assets/images/logo-1.png"
 import { toast } from "react-toastify";
+import { useFormik } from "formik";
+import * as yup from "yup"
 
 const ResetPassword = () => {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showpass, setshowpass] = useState(false);
-  const [showconfirmpass, setshowconfirmpass] = useState(false);
-  const [err, seterr] = useState("");
-  const [p] = useSearchParams()
+    const [showpass, setshowpass] = useState(false);
+    const [showconfirmpass, setshowconfirmpass] = useState(false);
+    const [p] = useSearchParams()
 
-  const resetpass = useMutation({
-    mutationKey: ['reset pass', p.get('token')],
-    mutationFn: resetPassword,
-    onError: (data) => toast.error(data.error.response?.data?.message || "Error", toastOption),
-   onSuccess: (data) => toast.success(data.data.message, toastOption)
-  })
+    const resetValidation = yup.object({
+        password: yup.string()
+            .required("Password is Required")
+            .min(8, "Password must be at least 8 characters")
+            .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+            .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+            .matches(/[0-9]/, 'Password must contain at least one number')
+            .matches(/[!@#$%^&*]/, 'Password must contain at least one special character'),
 
-  // const getTokenFromUrl = () => {
-  //   const params = new URLSearchParams(location.search);
-  //   console.log(params)
-  //   return params.get("token");
-  // };
+        confirmPassword: yup.string()
+            .required("Confirm Password is Required")
+            .oneOf([yup.ref('password'), null], 'Passwords must match')
+    })
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    const resetForm = useFormik({
+        initialValues: {
+            password: "",
+            confirmPassword: ""
+        },
+        validationSchema: resetValidation,
+        onSubmit: (val) => resetpass.mutate({ password: val?.password, token: p.get('token') })
+    })
 
-    // const token = p.get('token')
-    if (password !== confirmPassword) {
-      seterr("Password does not match");
-    }
+    const resetpass = useMutation({
+        mutationKey: ['reset pass', p.get('token')],
+        mutationFn: resetPassword,
+        onError: (error) => toast.error(error.response.data.message || "Error", toastOption),
+        onSuccess: (data) => toast.success(data.data.message, toastOption),
+        retry: false
+    })
 
-    // else if (!token) {
-    //   toast.error("Invalid or missing token", toastOption)
-    //   return;
-    // }
+    return (
+        <div className="reset-container">
+            <div className="wrapper">
+                {/* <img className="logo" src={logo} alt="Guardian Link" /> */}
+                <h2>Reset Password</h2>
+                <form className="form" onSubmit={resetForm.handleSubmit}>
+                    <span>
+                        <input
+                            id="password"
+                            name="password"
+                            type={showpass ? "text" : "password"}
+                            placeholder="New Password"
+                            value={resetForm.values.password}
+                            onChange={resetForm.handleChange}
+                        />
+                        <i
+                            onClick={() => setshowpass(!showpass)}
+                            className={`fa ${showpass ? "fa-eye" : "fa-eye-slash"} showpass-icon`}
+                        />
+                        {resetForm.touched.password && <p className="err">{resetForm.errors.password}</p>}
+                    </span>
+                    <span>
+                        <input
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            type={showconfirmpass ? "text" : "password"}
+                            placeholder="Confirm new password"
+                            value={resetForm.values.confirmPassword}
+                            onChange={resetForm.handleChange}
+                        />
+                        <i
+                            onClick={() => setshowconfirmpass(!showconfirmpass)}
+                            className={`fa ${showconfirmpass ? "fa-eye" : "fa-eye-slash"} showpass-icon`}
+                        />
+                        {resetForm.touched.confirmPassword && <p className="err">{resetForm.errors.confirmPassword}</p>}
+                    </span>
+                    <button disabled={resetpass.isPending} className={`button ${resetpass.isPending && "load"}`} type="submit">
+                        Reset
+                    </button>
+                </form>
 
-    else {
-
-      seterr(""); setPassword(""); setConfirmPassword("");
-      resetpass.mutate({ password, token: p.get('token') });
-    }
-  };
-  return (
-    <div className="reset-container">
-      <div className="wrapper">
-        {/* <img className="logo" src={logo} alt="Guardian Link" /> */}
-        <h2>Reset Password</h2>
-        <form className="form">
-          <span style={{ display: "flex", alignItems: "center" }}>
-            <input
-              id="password"
-              type={showpass ? "text" : "password"}
-              placeholder="New Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <i
-              onClick={() => setshowpass(!showpass)}
-              className={`fa ${showpass ? "fa-eye" : "fa-eye-slash"} showpass-icon`}
-            />
-          </span>
-          <span style={{ display: "flex", alignItems: "center" }}>
-            <input
-              id="confirmPassword"
-              type={showconfirmpass ? "text" : "password"}
-              placeholder="Confirm new password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            <i
-              onClick={() => setshowconfirmpass(!showconfirmpass)}
-              className={`fa ${showconfirmpass ? "fa-eye" : "fa-eye-slash"} showpass-icon`}
-            />
-          </span>
-          <p className="err">{err}</p>
-          <button disabled={resetpass.isPending} onClick={handleSubmit} className={`button ${resetpass.isPending && "load"}`} type="submit">
-            Reset
-          </button>
-        </form>
-        {/* {message && <p className="err">{message}</p>} */}
-
-        <footer>© 2024 Guardian Link</footer>
-      </div>
-    </div>
-  );
+                <footer>© 2024 Guardian Link</footer>
+            </div>
+        </div>
+    );
 };
 
 export default ResetPassword;
 
 const toastOption = {
-  autoClose: false,
-  position: "top-center",
-  hideProgressBar: true,
-  closeOnClick: true
+    autoClose: false,
+    position: "top-center",
+    hideProgressBar: true,
+    closeOnClick: true
 }

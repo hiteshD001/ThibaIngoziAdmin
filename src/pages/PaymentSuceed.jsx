@@ -1,7 +1,7 @@
 import '../css/PaymentSuceed.css'
 const PaymentSuceed = () => {
     return (
-        <div className="container">
+        <div className="sucess-container">
             <div>
                 <div className="icon">&#10003;</div>
                 <h1>Payment Successful!</h1>

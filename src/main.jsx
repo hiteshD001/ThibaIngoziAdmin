@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const client = new QueryClient();
 
