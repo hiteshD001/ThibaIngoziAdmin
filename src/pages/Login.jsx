@@ -1,6 +1,10 @@
 import "../css/style.css";
 import log_1 from "../assets/images/logo-1.png";
+import { useNavigate } from "react-router-dom";
+
 export const Login = () => {
+  const nav = useNavigate()
+
   return (
     <>
       <div className="login-page">
@@ -28,7 +32,7 @@ export const Login = () => {
                   <div className="forgotpwd text-end">
                     <a href="#">Forgot Password?</a>
                   </div>
-                  <button type="submit" className="btn btn-dark d-block">
+                  <button onClick={() => nav("/home")} type="submit" className="btn btn-dark d-block">
                     Sign In
                   </button>
 
