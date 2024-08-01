@@ -6,34 +6,21 @@ import { resetPassword } from "../API Calls/API";
 
 // import logo from "../assets/images/logo-1.png"
 import { toast } from "react-toastify";
+import { toastOption } from "../common/ToastOptions";
 import { useFormik } from "formik";
-import * as yup from "yup"
+import { resetPasswordValidation } from "../common/FormValidation";
 
 const ResetPassword = () => {
     const [showpass, setshowpass] = useState(false);
     const [showconfirmpass, setshowconfirmpass] = useState(false);
     const [p] = useSearchParams()
 
-    const resetValidation = yup.object({
-        password: yup.string()
-            .required("Password is Required")
-            .min(8, "Password must be at least 8 characters")
-            .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-            .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-            .matches(/[0-9]/, 'Password must contain at least one number')
-            .matches(/[!@#$%^&*]/, 'Password must contain at least one special character'),
-
-        confirmPassword: yup.string()
-            .required("Confirm Password is Required")
-            .oneOf([yup.ref('password'), null], 'Passwords must match')
-    })
-
-    const resetForm = useFormik({
+    const resetPasswordForm = useFormik({
         initialValues: {
             password: "",
             confirmPassword: ""
         },
-        validationSchema: resetValidation,
+        validationSchema: resetPasswordValidation,
         onSubmit: (val) => resetpass.mutate({ password: val?.password, token: p.get('token') })
     })
 
@@ -43,43 +30,42 @@ const ResetPassword = () => {
         onError: (error) => toast.error(error.response.data.message || "Error", toastOption),
         onSuccess: (data) => toast.success(data.data.message, toastOption),
         retry: false
-    })
+    }
+    )
 
     return (
         <div className="reset-container">
             <div className="wrapper">
                 {/* <img className="logo" src={logo} alt="Guardian Link" /> */}
                 <h2>Reset Password</h2>
-                <form className="form" onSubmit={resetForm.handleSubmit}>
+                <form className="form" onSubmit={resetPasswordForm.handleSubmit}>
                     <span>
                         <input
-                            id="password"
                             name="password"
                             type={showpass ? "text" : "password"}
                             placeholder="New Password"
-                            value={resetForm.values.password}
-                            onChange={resetForm.handleChange}
+                            value={resetPasswordForm.values.password}
+                            onChange={resetPasswordForm.handleChange}
                         />
                         <i
                             onClick={() => setshowpass(!showpass)}
                             className={`fa ${showpass ? "fa-eye" : "fa-eye-slash"} showpass-icon`}
                         />
-                        {resetForm.touched.password && <p className="err">{resetForm.errors.password}</p>}
+                        {resetPasswordForm.touched.password && <p className="err">{resetPasswordForm.errors.password}</p>}
                     </span>
                     <span>
                         <input
-                            id="confirmPassword"
                             name="confirmPassword"
                             type={showconfirmpass ? "text" : "password"}
                             placeholder="Confirm new password"
-                            value={resetForm.values.confirmPassword}
-                            onChange={resetForm.handleChange}
+                            value={resetPasswordForm.values.confirmPassword}
+                            onChange={resetPasswordForm.handleChange}
                         />
                         <i
                             onClick={() => setshowconfirmpass(!showconfirmpass)}
                             className={`fa ${showconfirmpass ? "fa-eye" : "fa-eye-slash"} showpass-icon`}
                         />
-                        {resetForm.touched.confirmPassword && <p className="err">{resetForm.errors.confirmPassword}</p>}
+                        {resetPasswordForm.touched.confirmPassword && <p className="err">{resetPasswordForm.errors.confirmPassword}</p>}
                     </span>
                     <button disabled={resetpass.isPending} className={`button ${resetpass.isPending && "load"}`} type="submit">
                         Reset
@@ -93,10 +79,3 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
-
-const toastOption = {
-    autoClose: false,
-    position: "top-center",
-    hideProgressBar: true,
-    closeOnClick: true
-}

@@ -1,6 +1,22 @@
+// import { useFormik } from "formik"
 import car from "../assets/images/car.png"
 
 const VehicleInformation = () => {
+    // const companyForm = useFormik({
+    //     initialValues: {
+    //         email: "",
+    //         password: "",
+    //         role: "company",
+    //         company_name: "",
+    //         mobile_no: "",
+    //         address: "",
+    //         id_no: "",
+    //         company_bio: ""
+    //     },
+    //     // validationSchema: companyValidation,
+    //     onSubmit: (values) => { console.log(values) }
+    // })
+
     return (
         <div className="container-fluid">
             <div className="row">

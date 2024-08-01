@@ -39,7 +39,7 @@ const CustomChart = ({ ...props }) => {
                 pointRadius: 3,
                 fill: false,
                 borderWidth: 4,
-                tension: 0.5,
+                tension: 0.3,
                 data: props.data1,
             },
             {
@@ -55,7 +55,7 @@ const CustomChart = ({ ...props }) => {
                 pointRadius: 3,
                 fill: false,
                 borderWidth: 4,
-                tension: 0.5,
+                tension: 0.3,
                 data: props.data2
             },
         ],
