@@ -53,22 +53,26 @@ const PaymentSuceed = () => {
   }, []);
 
   return (
-    <div className="success-container">
+    <>
       {loading ? (
-        <div className="spinner-border" role="status">
-          <span className="sr-only">Loading...</span>
+        <div className="container-fluid vh-100 d-flex align-items-center justify-content-center">
+          <div className="spinner-grow text-primary" role="status">
+            <span className="sr-only">Loading...</span>
+          </div>
         </div>
       ) : (
-        <div>
-          <div className="icon">&#10003;</div>
-          <h1>Payment Successful!</h1>
-          <p>
-            Thank you for your purchase. Your payment was processed
-            successfully.
-          </p>
+        <div className="sucess-container">
+          <div>
+            <div className="icon">&#10003;</div>
+            <h1>Payment Successful!</h1>
+            <p>
+              Thank you for your purchase. Your payment was processed
+              successfully.
+            </p>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
