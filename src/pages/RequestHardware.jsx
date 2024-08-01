@@ -1,52 +1,86 @@
-import { useState } from "react";
 import "../css/RequestHardware.css";
 import sosHardware from "../assets/images/soshardware.png";
+import { useEffect, useState } from "react";
 
 const RequestHardware = () => {
-    const [quantity, setQuantity] = useState(1);
-    const price = 100;
+  const [quantity, setQuantity] = useState(1);
+  const [address, setAddress] = useState("");
+  const [username, setUsername] = useState("");
+  const [token, setToken] = useState("");
+  const [product, setProduct] = useState("");
+  const [price, setPrice] = useState("");
 
-    return (
-        <div className="reqhardware-container">
-            <div className="wrapper">
-                <h3 className="heading">Request Hardware</h3>
-                <img src={sosHardware} />
-                <span>
-                    <p className="title">Name</p>
-                    <h2 className="name">Kenneth C. King</h2>
-                </span>
-                <span>
-                    <p className="title">Delivery Address</p>
-                    <p className="address">
-                        Alameda dos Palmitos, 332, <br /> Randburg, Johannesburg
-                    </p>
-                </span>
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const qty = params.get("qty");
+    const addr = params.get("address");
+    const user = params.get("username");
+    const tkn = params.get("token");
+    const product_name = params.get("product");
+    const product_price = params.get("price");
 
-                <div className="price-container">
-                    <div className="quantity">
-                        <p onClick={() => setQuantity((p) => p > 1 ? p - 1 : p)}>-</p>
-                        <p>{quantity}</p>
-                        <p onClick={() => setQuantity((p) => p + 1)}>+</p>
-                    </div>
+    if (qty) setQuantity(parseInt(qty, 10));
+    if (addr) setAddress(addr);
+    if (user) setUsername(user);
+    if (tkn) setToken(tkn);
+    if (product_name) setProduct(product_name);
+    if (product_price) setPrice(product_price);
+  }, []);
 
-                    <h1 className="price">{quantity * price}</h1>
-                </div>
+  // const price = 100;
 
-                <form action="https://sandbox.payfast.co.za/eng/process" method="post">
-                    <input type="hidden" name="merchant_id" value="10000100" />
-                    <input type="hidden" name="merchant_key" value="46f0cd694581a" />
-                    <input
-                        type="hidden"
-                        name="return_url"
-                        value="http://localhost:5173/payment-suceed"
-                    />
-                    <input type="hidden" name="amount" value={quantity * price} />
-                    <input type="hidden" name="item_name" value="Test Item" />
-                    <button className="paybutton" type="submit"> Pay Now </button>
-                </form>
-            </div>
+  return (
+    <div className="reqhardware-container">
+      <div className="wrapper">
+        <h3 className="heading">Request Hardware</h3>
+        <img src={sosHardware} />
+        <span>
+          <p className="title">Name</p>
+          <h2 className="name">{username}</h2>
+        </span>
+        <span>
+          <p className="title">Delivery Address</p>
+          <p className="address">{address}</p>
+        </span>
+
+        <div className="price-container">
+          <div className="quantity">
+            <p>Quantity : {quantity}</p>
+          </div>
+
+          <h1 className="price">{quantity * price}</h1>
         </div>
-    );
+
+        <form action={import.meta.env.VITE_PAYFAST_ACTION_URL} method="post">
+          <input
+            type="hidden"
+            name="merchant_id"
+            value={import.meta.env.VITE_MERCHANT_ID}
+          />
+          <input
+            type="hidden"
+            name="merchant_key"
+            value={import.meta.env.VITE_MERCHANT_KEY}
+          />
+          <input
+            type="hidden"
+            name="return_url"
+            value={`${import.meta.env.VITE_WEB_BASE_URL}/payment-suceed?qty=${quantity}&address=${address}&token=${token}`}
+          />
+          {/* <input
+            type="hidden"
+            name="cancel_url"
+            value={`${import.meta.env.VITE_WEB_BASE_URL}}/payment-failed`}
+          /> */}
+          <input type="hidden" name="amount" value={quantity * price} />
+          <input type="hidden" name="item_name" value={product} />
+          <button className="paybutton" type="submit">
+            Pay Now
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default RequestHardware;
