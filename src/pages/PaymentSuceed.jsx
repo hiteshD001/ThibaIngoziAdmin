@@ -18,7 +18,7 @@ const PaymentSuceed = () => {
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/payment/payment-success`,
+          `${import.meta.env.VITE_API_BASEURL}/payment/payment-success`,
           {
             method: "POST",
             headers: {
