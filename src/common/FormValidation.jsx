@@ -39,7 +39,6 @@ export const loginValidation = yup.object({
 export const profileValidation = yup.object({
     username: Username,
     email: Email,
-    password: Password,
     mobile_no: MobileNumber,
     address: Address,
 })
@@ -48,9 +47,10 @@ export const companyValidation = yup.object({
     email: Email,
     password: Password,
     company_name: Username,
+    contact_name: Username,
     mobile_no: MobileNumber,
     address: Address,
-    id_no: yup.number("Plase enter a valid ID").required("Plase enter a valid ID"),
+    id_no: yup.number().required("Plase enter a valid ID").typeError("Plase enter a valid ID"),
     company_bio: yup.string().required("Bio is required")
 })
 
@@ -59,4 +59,6 @@ export const driverValidation = yup.object({
     email: Email,
     password: Password,
     mobile_no: MobileNumber,
+    address: Address,
+    id_no: yup.number().required("Plase enter a valid ID").typeError("Plase enter a valid ID"),
 })

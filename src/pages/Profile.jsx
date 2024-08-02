@@ -1,25 +1,47 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useFormik } from "formik"
 import { profileValidation } from "../common/FormValidation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { getUser, updateUser } from "../API Calls/API"
 
 const Profile = () => {
     const [edit, setedit] = useState(false)
+    const client = useQueryClient();
+
+    const userinfo = useQuery({
+        queryKey: ["userinfo", localStorage.getItem("userID")],
+        queryFn: getUser,
+        staleTime: Infinity
+    })
 
     const profileForm = useFormik({
-        initialValues: {
-            username: "Kenneth King",
-            email: "kenneth.king@guard.co",
-            password: "Example@1234",
-            address: "address",
-            role: "driver",
-            mobile_no: 9825098250
-        },
+        initialValues: { username: "", email: "", address: "", role: "", mobile_no: "" },
         validationSchema: profileValidation,
         onSubmit: (values) => {
             setedit(false)
             console.log(values)
+            mutate(values)
         }
     })
+
+    const { mutate } = useMutation({
+        mutationKey: ["update user"],
+        mutationFn: updateUser,
+        onSuccess: () => { client.invalidateQueries("userinfo") },
+        onError: (error) => { console.log(error) }
+    })
+
+    useEffect(() => {
+        console.log(userinfo.data)
+        profileForm.setValues({
+            username: userinfo.data?.data.username || "",
+            email: userinfo.data?.data.email || "",
+            address: userinfo.data?.data.address || "",
+            role: userinfo.data?.data.role || "",
+            mobile_no: userinfo.data?.data.mobile_no || "",
+        })
+    }, [userinfo.data])
 
     return (
         <div className="container-fluid">
@@ -41,8 +63,9 @@ const Profile = () => {
                                         onChange={profileForm.handleChange}
                                         disabled={!edit}
                                     />
+                                    {profileForm.touched.username && <p className="err">{profileForm.errors.username}</p>}
                                 </div>
-                                <div className="col-md-6">
+                                {/* <div className="col-md-6">
                                     <input
                                         type="password"
                                         name="password"
@@ -52,7 +75,8 @@ const Profile = () => {
                                         onChange={profileForm.handleChange}
                                         disabled={!edit}
                                     />
-                                </div>
+                                    {profileForm.touched.password && <p className="err">{profileForm.errors.password}</p>}
+                                </div> */}
                                 <div className="col-md-6">
                                     <input
                                         type="text"
@@ -63,19 +87,21 @@ const Profile = () => {
                                         onChange={profileForm.handleChange}
                                         disabled={!edit}
                                     />
+                                    {profileForm.touched.email && <p className="err">{profileForm.errors.email}</p>}
                                 </div>
                                 <div className="col-md-6">
                                     <input
                                         type="text"
-                                        name="mobileno"
+                                        name="mobile_no"
                                         placeholder="Mobile No."
                                         className="form-control"
                                         value={profileForm.values.mobile_no}
                                         onChange={profileForm.handleChange}
                                         disabled={!edit}
                                     />
+                                    {profileForm.touched.mobile_no && <p className="err">{profileForm.errors.mobile_no}</p>}
                                 </div>
-                                <div className="col-md-12">
+                                <div className="col-md-6">
                                     <input
                                         type="text"
                                         name="address"
@@ -85,6 +111,7 @@ const Profile = () => {
                                         onChange={profileForm.handleChange}
                                         disabled={!edit}
                                     />
+                                    {profileForm.touched.address && <p className="err">{profileForm.errors.address}</p>}
                                 </div>
                             </div>
                         </form>

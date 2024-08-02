@@ -12,7 +12,9 @@ function Layout() {
                 <SideBar />
                 <div className="content">
                     <Navbar />
-                    <Outlet />
+                    <div className="outlet">
+                        <Outlet />
+                    </div>
                 </div>
             </div>
         </div>

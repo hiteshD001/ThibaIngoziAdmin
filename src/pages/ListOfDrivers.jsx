@@ -1,8 +1,25 @@
 import { useNavigate } from "react-router-dom"
-import dp from "../assets/images/driver-profile.png"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteUser, userList } from "../API Calls/API";
+
+import nouser from "../assets/images/NoUser.png"
 
 const ListOfDrivers = () => {
     const nav = useNavigate();
+    const client = useQueryClient()
+
+    const driverList = useQuery({
+        queryKey: ["driver list", "driver"],
+        queryFn: userList,
+        staleTime: 15 * 60 * 1000
+    })
+
+    const deleteDriver = useMutation({
+        mutationKey: ["delete user"],
+        mutationFn: deleteUser,
+        onSuccess: (res) => { console.log(res); client.invalidateQueries("driver list")}, 
+        onError: (res) => console.log(res) 
+    })
 
     return (
         <div className="container-fluid">
@@ -42,18 +59,21 @@ const ListOfDrivers = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {Driverdata.map(driver =>
-                                    <tr key={driver.id}>
+                                {driverList.data?.data.users.toReversed().map(driver =>
+                                    <tr key={driver._id}>
                                         <td>
                                             <div className="prof">
-                                                <img src={driver.img} />
-                                                {driver.name}
+                                                <img className="profilepicture" src={driver.profileImage ? driver.profileImage : nouser} />
+                                                {driver.username}
                                             </div>
                                         </td>
-                                        <td>{driver.company}</td>
-                                        <td>{driver.contactNo}</td>
+                                        <td>{driver.id_no}</td>
+                                        <td>{driver?.contacts && driver?.contacts[0]}</td>
                                         <td>{driver.email}</td>
-                                        <td><span className="tbl-gray">Delete</span> <span onClick={() => nav("vehicle-information")} className="tbl-btn">view</span></td>
+                                        <td>
+                                            <span onClick={() => deleteDriver.mutate(driver._id)} className="tbl-gray">Delete</span>
+                                            <span onClick={() => nav("vehicle-information")} className="tbl-btn">view</span>
+                                        </td>
                                     </tr>
                                 )}
                             </tbody>
@@ -67,15 +87,3 @@ const ListOfDrivers = () => {
 }
 
 export default ListOfDrivers
-
-const Driverdata = [
-    { id: 1, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 2, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 3, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 4, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 5, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 6, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 7, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 8, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 9, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-]

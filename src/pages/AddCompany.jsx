@@ -1,12 +1,14 @@
 import { useFormik } from "formik"
 import { companyValidation } from "../common/FormValidation"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { register } from "../API Calls/API"
-import { useEffect } from "react"
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 
 const AddCompany = () => {
+    const client = useQueryClient();
+
+
     const companyForm = useFormik({
         initialValues: {
             email: "",
@@ -16,24 +18,26 @@ const AddCompany = () => {
             address: "",
             id_no: "",
             company_bio: "",
+            contact_name: "",
             role: "company",
             type: "email_pass"
         },
         validationSchema: companyValidation,
-        onSubmit: (values) => { 
+        onSubmit: (values) => {
             console.log(values)
-            newcompany.mutate(values) 
+            newcompany.mutate(values)
         }
     })
 
     const newcompany = useMutation({
         mutationKey: ['create new company'],
         mutationFn: register,
-        onSuccess: (data) => console.log(data),
+        onSuccess: () => {
+            companyForm.resetForm()
+            client.invalidateQueries("company list")
+        },
         onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption)
     })
-
-    useEffect(() => {console.log(companyForm.errors)},[companyForm.errors])
 
     return (
         <div className="container-fluid">
@@ -125,22 +129,28 @@ const AddCompany = () => {
                                 <div className="col-md-6">
                                     <input
                                         type="text"
-                                        name="role"
-                                        placeholder="Role"
+                                        name="contact_name"
+                                        placeholder="Contact Name"
                                         className="form-control"
-                                        value={companyForm.values.role}
+                                        value={companyForm.values.contact_name}
                                         onChange={companyForm.handleChange}
-                                        disabled
                                     />
-                                    {companyForm.touched.role && <p className="err">{companyForm.errors.role}</p>}
+                                    {companyForm.touched.contact_name && <p className="err">{companyForm.errors.company_name}</p>}
                                 </div>
                             </div>
                         </form>
                     </div>
-                </div> 
+                </div>
                 <div className="col-md-12 text-end">
                     <div className="saveform">
-                        <button type="submit" onClick={companyForm.handleSubmit} className="btn btn-dark">Save</button>
+                        <button
+                            type="submit"
+                            onClick={companyForm.handleSubmit}
+                            className="btn btn-dark"
+                            disabled={newcompany.isPending}
+                        >
+                            Save
+                        </button>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@ import log_1 from "../assets/images/logo-1.png";
 import { useNavigate } from "react-router-dom";
 
 import { useFormik } from "formik";
-import { loginValidation } from "../common/FormValidation";
+// import { loginValidation } from "../common/FormValidation";
 
 import { useMutation } from "@tanstack/react-query";
 import { userlogin } from "../API Calls/API";
@@ -20,7 +20,7 @@ export const Login = () => {
             password: '',
             fcm_token: "fcm_token"
         },
-        validationSchema: loginValidation,
+        // validationSchema: loginValidation,
         onSubmit: (values) => loginfn.mutate(values),
     })
 
@@ -31,6 +31,7 @@ export const Login = () => {
         onSuccess: (res) => {
             console.log(res)
             localStorage.setItem("accessToken", res.data.accessToken)
+            localStorage.setItem("userID", res.data.user._id)
             nav("/home")
         }
     })

@@ -7,6 +7,9 @@ import { ToastContainer } from 'react-toastify'
 
 import App from './App.jsx'
 
+import { Provider } from 'react-redux';
+import store from './Redux Store/Store.jsx';
+
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css'
@@ -15,9 +18,11 @@ const client = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <QueryClientProvider client={client}>
+    <Provider store={store}>
+      <QueryClientProvider client={client}>
         <ToastContainer />
         <App />
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </Provider>
   </React.StrictMode>,
 )

@@ -3,15 +3,20 @@ import { driverValidation } from "../common/FormValidation"
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 import { register } from "../API Calls/API"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 
 const AddDriver = () => {
+    const client = useQueryClient();
+
+
     const driverForm = useFormik({
         initialValues: {
             username: "",
             email: "",
             password: "",
             mobile_no: "",
+            address: "",
+            id_no: "",
             role: "driver",
             type: "email_pass",
             fcm_token: "fcm_token",
@@ -26,7 +31,10 @@ const AddDriver = () => {
     const newdriver = useMutation({
         mutationKey: ['create new driver'],
         mutationFn: register,
-        onSuccess: (data) => console.log(data),
+        onSuccess: () => {
+            driverForm.resetForm()
+            client.invalidateQueries("company list")
+        },
         onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption)
     })
 
@@ -80,24 +88,26 @@ const AddDriver = () => {
                                     />
                                     {driverForm.touched.mobile_no && <p className="err">{driverForm.errors.mobile_no}</p>}
                                 </div>
-                                {/* <div className="col-md-6">
+                                <div className="col-md-6">
                                     <input type="text"
                                         name="address"
                                         placeholder="Address"
                                         className="form-control"
-                                        value={driverForm.values.a}
+                                        value={driverForm.values.address}
                                         onChange={driverForm.handleChange}
                                     />
+                                    {driverForm.touched.address && <p className="err">{driverForm.errors.address}</p>}
                                 </div>
                                 <div className="col-md-6">
                                     <input type="text"
-                                        name="idno"
+                                        name="id_no"
                                         placeholder="ID No."
                                         className="form-control"
-                                        value={driverForm.values.}
+                                        value={driverForm.values.id_no}
                                         onChange={driverForm.handleChange}
                                     />
-                                </div> */}
+                                    {driverForm.touched.id_no && <p className="err">{driverForm.errors.id_no}</p>}
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -106,7 +116,14 @@ const AddDriver = () => {
                 </div>
                 <div className="col-md-12 text-end">
                     <div className="saveform">
-                        <button type="submit" onClick={driverForm.handleSubmit} className="btn btn-dark">Save</button>
+                        <button
+                            type="submit"
+                            onClick={driverForm.handleSubmit}
+                            className="btn btn-dark"
+                            disabled={newdriver.isPending}
+                        >
+                            Save
+                        </button>
                     </div>
                 </div>
             </div>

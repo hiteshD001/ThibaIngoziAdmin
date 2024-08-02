@@ -1,10 +1,20 @@
 import { useNavigate } from "react-router-dom"
-import dp from "../assets/images/driver-profile.png"
 import icon from "../assets/images/icon.png"
 import search from "../assets/images/search.png"
+import { userList } from "../API Calls/API"
+import { useQuery } from "@tanstack/react-query"
+
+import nouser from "../assets/images/NoUser.png"
+
 
 const ListOfCompanies = () => {
     const nav = useNavigate();
+
+    const companyList = useQuery({
+        queryKey: ["company list", "company"],
+        queryFn: userList,
+        staleTime: 15 * 60 * 1000
+    })
 
     return (
         <div className="container-fluid">
@@ -34,16 +44,16 @@ const ListOfCompanies = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {companyData.map(data =>
-                                    <tr key={data.id}>
-                                        <td>{data.company}</td>
+                                {companyList.data?.data.users.toReversed().map(data =>
+                                    <tr key={data._id}>
+                                        <td>{data.company_name}</td>
                                         <td>
                                             <div className="prof">
-                                                <img src={data.img}/>
+                                                <img className="profilepicture" src={data.profileImage || nouser} />
                                                 {data.name}
                                             </div>
                                         </td>
-                                        <td>{data.contactNo}</td>
+                                        <td>{data?.mobile_no}</td>
                                         <td>{data.email}</td>
                                         <td><span className="tbl-btn">view</span></td>
                                     </tr>
@@ -59,14 +69,60 @@ const ListOfCompanies = () => {
 
 export default ListOfCompanies
 
-const companyData = [
-    { id: 1, name: "Natali Craig",img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 2, name: "Natali Craig",img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 3, name: "Natali Craig",img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 4, name: "Natali Craig",img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 5, name: "Natali Craig",img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 6, name: "Natali Craig",img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 7, name: "Natali Craig",img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 8, name: "Natali Craig",img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-    { id: 9, name: "Natali Craig",img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
-]
+// const companyData = [
+//     { id: 1, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
+//     { id: 2, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
+//     { id: 3, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
+//     { id: 4, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
+//     { id: 5, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
+//     { id: 6, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
+//     { id: 7, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
+//     { id: 8, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
+//     { id: 9, name: "Natali Craig", img: dp, company: "Grandin & Co.", contactNo: "+27 98250 98250", email: "demon@grandin.com" },
+// ]
+
+// access_token
+// :
+// "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJ0ZXN0dXNlcjAwMkBnbWFpbC5jb20iLCJyb2xlIjoiY29tcGFueSIsImlhdCI6MTcxOTk5OTQ5MywiZXhwIjoxNzIwMDAzMDkzfQ.fhVKfo7BtKXVqQymAh_KP9O1OeVli08HlD0H94GB1qM"
+// address
+// :
+// "address"
+// company_bio
+// :
+// "company_bio"
+// company_name
+// :
+// "company_name"
+// contacts
+// :
+// []
+// createdAt
+// :
+// "2024-07-03T09:38:13.022Z"
+// email
+// :
+// "testuser002@gmail.com"
+// fcm_token
+// :
+// "123123"
+// id_no
+// :
+// 789456
+// mobile_no
+// :
+// 1234567890
+// password
+// :
+// "$2a$10$tnw0NochKHax7QFCcL80n.urygMclk7tfH3eoVGPSjwNEiTZ5kWcO"
+// refresh_token
+// :
+// "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiJ0ZXN0dXNlcjAwMkBnbWFpbC5jb20iLCJyb2xlIjoiY29tcGFueSIsImlhdCI6MTcxOTk5OTQ5MywiZXhwIjoxNzIwNjA0MjkzfQ.WWhbSMm5CqZG1IDJxRSpmG12EbVsZqmWS1kjZ9aoXLM"
+// role
+// :
+// "company"
+// __v
+// :
+// 0
+// _id
+// :
+// "66851c0592d8f5885602f80f"

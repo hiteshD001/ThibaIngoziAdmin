@@ -40,24 +40,25 @@ const CustomChart = ({ ...props }) => {
                 fill: false,
                 borderWidth: 4,
                 tension: 0.3,
-                data: props.data1,
+                // eslint-disable-next-line react/prop-types
+                data: props.data,
             },
-            {
-                label: "Year",
-                borderColor: "#1C1C1C",
-                pointBorderColor: "#1C1C1C",
-                pointBackgroundColor: "#1C1C1C",
-                pointHoverBackgroundColor: "#1C1C1C",
-                pointHoverBorderColor: "#1C1C1C",
-                pointBorderWidth: 1,
-                pointHoverRadius: 1,
-                pointHoverBorderWidth: 1,
-                pointRadius: 3,
-                fill: false,
-                borderWidth: 4,
-                tension: 0.3,
-                data: props.data2
-            },
+            // {
+            //     label: "Year",
+            //     borderColor: "#1C1C1C",
+            //     pointBorderColor: "#1C1C1C",
+            //     pointBackgroundColor: "#1C1C1C",
+            //     pointHoverBackgroundColor: "#1C1C1C",
+            //     pointHoverBorderColor: "#1C1C1C",
+            //     pointBorderWidth: 1,
+            //     pointHoverRadius: 1,
+            //     pointHoverBorderWidth: 1,
+            //     pointRadius: 3,
+            //     fill: false,
+            //     borderWidth: 4,
+            //     tension: 0.3,
+            //     data: props.data2
+            // },
         ],
     };
 
