@@ -1,6 +1,8 @@
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteUser, userList } from "../API Calls/API";
+import Prev from "../assets/images/left.png"
+import Next from "../assets/images/right.png"
 
 import nouser from "../assets/images/NoUser.png"
 
@@ -78,6 +80,19 @@ const ListOfDrivers = () => {
                                 )}
                             </tbody>
                         </table>
+                        <div className="pagiation">
+                            <div className="pagiation-left">
+                                <Link to="/"><img src={Prev} />  Prev</Link>
+                            </div>
+                            <div className="pagiation-number">
+                                <Link to="/" className="active">1</Link>
+                                <Link to="/">2</Link>
+                                <Link to="/">3</Link>
+                            </div>
+                            <div className="pagiation-right">
+                                <Link to="/">Next <img src={Next} /></Link>
+                            </div>
+                        </div>
 
                     </div>
                 </div>

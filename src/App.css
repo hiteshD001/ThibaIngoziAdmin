@@ -343,6 +343,7 @@ canvas {
     justify-content: space-between;
     margin-bottom: 30px;
     margin-top: 30px;
+    gap: 10px;
 }
 
 .location span {
@@ -399,6 +400,7 @@ canvas {
 .theme-table table tbody tr td {
     border-color: rgb(0 0 0 / 5%) !important;
     vertical-align: middle;
+    line-break: anywhere;
 }
 
 .theme-table table thead {
@@ -549,6 +551,7 @@ canvas {
     font-size: 18px;
     font-weight: 600;
     line-height: 28px;
+    line-break: anywhere;
 }
 
 .vehiclpic {
@@ -567,7 +570,8 @@ canvas {
 }
 
 .carimages img {
-    max-width: 100%;
+    max-width: 33%;
+    width: 33%;
 }
 
 .carimages {
@@ -625,4 +629,54 @@ span.Cancel-btn:hover {
     font-size: 14px;
     margin-left: -30px;
     transform: translateX(-50%);
+}
+.pagiation {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.pagiation img {
+    width: 12px;
+    margin: 0 10px;
+}
+.pagiation-number a.active, .pagiation-number a:hover {
+    background: #1474b9;
+    color: #fff;
+}
+
+.pagiation-number a {
+    text-decoration: none;
+    margin: 0 4px;
+    height: 36px;
+    width: 36px;
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
+    line-height: 36px;
+    padding: 0;
+    border-radius: 50%;
+    background: #f2f2f2;
+    color: #1C1C1C;
+    transition: all 0.3s;
+}
+.pagiation-left a, .pagiation-right a {
+    text-decoration: none;
+    margin: 0 14px;
+    color: #1c1c1c;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+.pagiation-left a:hover, .pagiation-right a:hover {
+    opacity: 0.7;
+}
+.theme-table table tbody tr td:nth-last-of-type(1) {
+    line-break: unset;
+}
+@media only screen and (max-width: 1200px) {
+    .theme-table thead tr th, .theme-table table tr td {
+        padding: 12px 10px !important;
+    }
 }
