@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const token = localStorage.getItem("accessToken");
-const userid = localStorage.getItem("userID");
+// const userid = localStorage.getItem("userID");
 
 export const userlogin = async (data) => {
     return await axios.post(`${import.meta.env.VITE_BASEURL}/users/login`, data);
@@ -11,8 +11,8 @@ export const register = async (data) => {
     return await axios.post(`${import.meta.env.VITE_BASEURL}/users/register`, data);
 }
 
-export const updateUser = async (data) => {
-    return await axios.put(`${import.meta.env.VITE_BASEURL}/users/${userid}`, data,
+export const updateUser = async ({ id, data }) => {
+    return await axios.put(`${import.meta.env.VITE_BASEURL}/users/${id}`, data,
         {
             headers: {
                 "Authorization": `Bearer ${token}`
@@ -21,7 +21,8 @@ export const updateUser = async (data) => {
     );
 }
 
-export const getUser = async () => {
+export const getUser = async ({ queryKey }) => {
+    const userid = queryKey[1]
     return await axios.get(`${import.meta.env.VITE_BASEURL}/users/${userid}`,
         {
             headers: {
@@ -44,10 +45,12 @@ export const deleteUser = async (id) => {
 
 export const userList = async ({ queryKey }) => {
     const role = queryKey[1];
+    const page = queryKey[2] || 0;
+    const limit = queryKey[3] || 100;
 
     return await axios.get(`${import.meta.env.VITE_BASEURL}/users`,
         {
-            params: { role },
+            params: { role, page, limit },
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -55,9 +58,13 @@ export const userList = async ({ queryKey }) => {
     );
 }
 
-export const getAllOrders = async () => {
+export const getAllOrders = async ({ queryKey }) => {
+    const page = queryKey[1] || 0;
+    const limit = queryKey[2] || 100;
+
     return await axios.get(`${import.meta.env.VITE_BASEURL}/payment/getAllOrders`,
         {
+            params: { page, limit },
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -65,8 +72,8 @@ export const getAllOrders = async () => {
     );
 }
 
-export const updateStatus = async ({id, quantity, status}) => {
-    return await axios.put(`${import.meta.env.VITE_BASEURL}/payment/updateOrder/${id}`, 
+export const updateStatus = async ({ id, quantity, status }) => {
+    return await axios.put(`${import.meta.env.VITE_BASEURL}/payment/updateOrder/${id}`,
         {
             item_quantity: quantity,
             status
@@ -99,9 +106,12 @@ export const getchartData = async () => {
     );
 }
 
-export const getHotspot = async () => {
+export const getHotspot = async ({ queryKey }) => {
+    const type = queryKey[1]
+
     return await axios.get(`${import.meta.env.VITE_BASEURL}/location/hotspot`,
         {
+            params: { type },   
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -109,7 +119,9 @@ export const getHotspot = async () => {
     );
 }
 
-export const getVehicleInfo = async (id) => {
+export const getVehicleInfo = async ({ queryKey }) => {
+    const id = queryKey[1]
+
     return await axios.get(`${import.meta.env.VITE_BASEURL}/vehicle/${id}`,
         {
             headers: {

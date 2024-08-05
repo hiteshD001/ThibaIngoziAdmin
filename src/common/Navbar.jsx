@@ -2,10 +2,11 @@ import bell from "../assets/images/bell.png";
 import search from "../assets/images/search.png"
 import icon from "../assets/images/icon.png"
 import { useEffect, useState } from "react";
-import { menulist } from "./Menulist";
+import { companyadmin_menulist, superadmin_menulist } from "./Menulist";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const [menulist] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : companyadmin_menulist)
   const [currentMenu, setCurrentMenu] = useState("Home")
   const [open, setopen] = useState(false)
 
@@ -27,9 +28,9 @@ const Navbar = () => {
               <span>Dashboards</span>
               <span>/</span>
               <span onClick={() => nav(currentMenu.submenu.path)}>{currentMenu.submenu ? currentMenu.submenu.name : currentMenu.name}</span>
-              {location.pathname.split("/").length === 4 && <>
+              {location.pathname.split("/").length > 3 && <>
                 <span>/</span>
-                <span>{ location.pathname.split("/")[3] === "vehicle-information" ? currentMenu.info : currentMenu.add }</span>
+                <span>{location.pathname.split("/")[3] === "vehicle-information" ? currentMenu.info : currentMenu.add}</span>
               </>}
             </div>
           </div>

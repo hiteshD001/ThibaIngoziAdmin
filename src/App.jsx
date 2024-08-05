@@ -16,6 +16,7 @@ import HardwareManagement from "./pages/HardwareManagement";
 import Profile from "./pages/Profile";
 
 import "./App.css";
+import { AuthGuard, LogGuard, RouteGuard } from "./common/Guard";
 
 function App() {
     return (
@@ -28,26 +29,26 @@ function App() {
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <Login />
+        element: <LogGuard><Login /></LogGuard>
     },
     {
         path: "/home",
-        element: <Layout />,
+        element: <AuthGuard><Layout /></AuthGuard>,
         children: [
             {
                 path: "",
-                element: <Home />
+                element: <AuthGuard><Home /></AuthGuard>
             },
             {
                 path: "total-companies",
                 children: [
                     {
                         path: "",
-                        element: <ListOfCompanies />
+                        element: <RouteGuard><ListOfCompanies /></RouteGuard>
                     },
                     {
                         path: "add-company",
-                        element: <AddCompany />
+                        element: <RouteGuard><AddCompany /></RouteGuard>
                     }
                 ]
             },
@@ -63,14 +64,14 @@ const router = createBrowserRouter([
                         element: <AddDriver />
                     },
                     {
-                        path: "vehicle-information",
+                        path: "vehicle-information/:id",
                         element: <VehicleInformation />
                     }
                 ]
             },
             {
                 path: "hardware-management",
-                element: <HardwareManagement />
+                element: <RouteGuard><HardwareManagement /></RouteGuard>
             },
             {
                 path: "profile",

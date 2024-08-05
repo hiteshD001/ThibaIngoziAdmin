@@ -4,6 +4,8 @@ import { profileValidation } from "../common/FormValidation"
 import { useEffect, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getUser, updateUser } from "../API Calls/API"
+import { toast } from "react-toastify"
+import { toastOption } from "../common/ToastOptions"
 
 const Profile = () => {
     const [edit, setedit] = useState(false)
@@ -21,7 +23,7 @@ const Profile = () => {
         onSubmit: (values) => {
             setedit(false)
             console.log(values)
-            mutate(values)
+            mutate({ id: localStorage.getItem("userID"), data: values })
         }
     })
 
@@ -29,17 +31,17 @@ const Profile = () => {
         mutationKey: ["update user"],
         mutationFn: updateUser,
         onSuccess: () => { client.invalidateQueries("userinfo") },
-        onError: (error) => { console.log(error) }
+        onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption)
     })
 
     useEffect(() => {
         console.log(userinfo.data)
         profileForm.setValues({
-            username: userinfo.data?.data.username || "",
-            email: userinfo.data?.data.email || "",
-            address: userinfo.data?.data.address || "",
-            role: userinfo.data?.data.role || "",
-            mobile_no: userinfo.data?.data.mobile_no || "",
+            username: userinfo.data?.data.user.username || userinfo.data?.data.user.contact_name || "",
+            email: userinfo.data?.data.user.email || "",
+            address: userinfo.data?.data.user.address || "",
+            role: userinfo.data?.data.user.role || "",
+            mobile_no: userinfo.data?.data.user.mobile_no || "",
         })
     }, [userinfo.data])
 

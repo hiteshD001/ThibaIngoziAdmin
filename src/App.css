@@ -175,8 +175,8 @@ input[type=checkbox] {
     overflow: auto;
 }
 
-.outlet{
-    margin-top: 100px;
+.outlet {
+    margin-top: 90px;
 }
 
 header {
@@ -314,6 +314,7 @@ canvas {
     padding: 24px;
     border-radius: 16px;
     margin-bottom: 30px;
+    height: 500px;
 }
 
 .chart-heading h3 {
@@ -328,6 +329,8 @@ canvas {
     padding: 24px;
     border-radius: 16px;
     margin-bottom: 30px;
+    height: 500px;
+    overflow-y: auto;
 }
 
 .hotspot h1 {
@@ -369,7 +372,7 @@ canvas {
     gap: 10px;
 }
 
-.profilepicture{
+.profilepicture {
     width: 30px;
     border-radius: 50%;
     aspect-ratio: 1/1;
@@ -379,7 +382,7 @@ canvas {
     background: #F7F9FB;
     padding: 24px;
     border-radius: 16px;
-    margin-bottom: 30px;
+    /* margin-bottom: 30px; */
 }
 
 .tab-heading {
@@ -578,11 +581,12 @@ canvas {
     display: flex;
     align-items: center;
     gap: 20px;
+    overflow-x: auto;
 }
 
-span.order_received-btn,
-span.delivered-btn,
-span.Cancel-btn {
+button.order_received-btn,
+button.delivered-btn,
+button.Cancel-btn {
     background: gray;
     width: 170px;
     display: inline-block;
@@ -593,23 +597,25 @@ span.Cancel-btn {
     border-radius: 6px;
     transition: all 0.3s;
     cursor: pointer;
+    outline: none;
+    border: none;
 }
 
-span.order_received-btn {
+button.order_received-btn {
     background: #1C1C1C;
 }
 
-span.delivered-btn {
+button.delivered-btn {
     background: #27AE60;
 }
 
-span.Cancel-btn {
+button.Cancel-btn {
     background: #EB5757;
 }
 
-span.order_received-btn:hover,
-span.delivered-btn:hover,
-span.Cancel-btn:hover {
+button.order_received-btn:hover,
+button.delivered-btn:hover,
+button.Cancel-btn:hover {
     opacity: 0.8;
 }
 
@@ -630,23 +636,28 @@ span.Cancel-btn:hover {
     margin-left: -30px;
     transform: translateX(-50%);
 }
+
 .pagiation {
     text-align: center;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     margin-bottom: 10px;
+    padding-top: 10px;
 }
+
 .pagiation img {
     width: 12px;
     margin: 0 10px;
 }
-.pagiation-number a.active, .pagiation-number a:hover {
+
+.pagiation-number button.active,
+.pagiation-number button:hover {
     background: #1474b9;
     color: #fff;
 }
 
-.pagiation-number a {
+.pagiation-number button {
     text-decoration: none;
     margin: 0 4px;
     height: 36px;
@@ -661,22 +672,44 @@ span.Cancel-btn:hover {
     color: #1C1C1C;
     transition: all 0.3s;
 }
-.pagiation-left a, .pagiation-right a {
+
+.pagiation-left button,
+.pagiation-right button {
     text-decoration: none;
     margin: 0 14px;
     color: #1c1c1c;
     display: flex;
     align-items: center;
+    border: none;
+    outline: none;
+    background: transparent;
     transition: all 0.3s;
 }
-.pagiation-left a:hover, .pagiation-right a:hover {
+
+.pagiation-left button:hover,
+.pagiation-right button:hover,
+.pagiation-left button:disabled,
+.pagiation-right button:disabled {
     opacity: 0.7;
 }
+
 .theme-table table tbody tr td:nth-last-of-type(1) {
     line-break: unset;
 }
+
+.loader {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-content: center;
+    background: transparent;
+}
+
+
 @media only screen and (max-width: 1200px) {
-    .theme-table thead tr th, .theme-table table tr td {
+
+    .theme-table thead tr th,
+    .theme-table table tr td {
         padding: 12px 10px !important;
     }
 }

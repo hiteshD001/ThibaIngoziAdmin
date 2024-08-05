@@ -1,13 +1,19 @@
 import logo1 from "../assets/images/logo-1.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { menulist } from "./Menulist";
+import { superadmin_menulist, companyadmin_menulist } from "./Menulist";
 
 const SideBar = () => {
+    const [menulist ] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : companyadmin_menulist)
     const [currentMenu, setcurrentMenu] = useState("home")
 
     const location = useLocation();
     const nav = useNavigate()
+
+    const handleLogout = () => {
+        localStorage.clear()
+        nav("/")
+    }
 
     useEffect(() => {
         const currentPath = location.pathname.split("/")
@@ -22,9 +28,9 @@ const SideBar = () => {
 
             <ul>
                 {menulist.map(menu =>
-                    <li key={menu.name} onClick={() => menu.id === "logout" ? nav("/") : nav(menu.path)}>
-                        <span 
-                        className={`${currentMenu === menu.id ? "active" : ""}${menu.name === "Logout" ? " logout" : ""}`} ><img src={menu.image} />{menu.name}</span>
+                    <li key={menu.name} onClick={() => menu.id === "logout" ? handleLogout() : nav(menu.path)}>
+                        <span
+                            className={`${currentMenu === menu.id ? "active" : ""}${menu.name === "Logout" ? " logout" : ""}`} ><img src={menu.image} />{menu.name}</span>
                         {menu.submenu && <ul>
                             <li onClick={() => nav(menu.submenu.path)}><span><img src={menu.submenu.image} />{menu.submenu.name}</span></li>
                         </ul>}

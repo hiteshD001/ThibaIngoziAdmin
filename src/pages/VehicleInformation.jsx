@@ -1,11 +1,17 @@
 import { useFormik } from "formik"
-import car from "../assets/images/car.png"
 import { vehicleValidation } from "../common/FormValidation"
-import { useQuery } from "@tanstack/react-query"
-import { getVehicleInfo } from "../API Calls/API"
-import { useEffect } from "react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { getUser, updateUser } from "../API Calls/API"
+import { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
+import { toast } from "react-toastify"
+import { toastOption } from "../common/ToastOptions"
 
 const VehicleInformation = () => {
+    const [edit, setedit] = useState(false)
+    const params = useParams();
+    const client = useQueryClient()
+
     const vehicleForm = useFormik({
         initialValues: {
             username: "",
@@ -22,16 +28,47 @@ const VehicleInformation = () => {
             emergency_contact_2_email: "",
         },
         validationSchema: vehicleValidation,
-        onSubmit: (values) => { console.log(values) }
+        onSubmit: (values) => {
+            const payload = { username: values.username, company_name: values.company_name, email: values.email, mobile_no: values.mobile_no }
+            console.log(values);
+            setedit(false);
+            mutate({ id: params.id, data: payload })
+        }
     })
 
     const vehicleInfo = useQuery({
-        queryKey: ['vehicle Information'],
-        queryFn: getVehicleInfo,
-        staleTime: 15 * 60 * 1000
+        queryKey: ["userinfo", params.id],
+        queryFn: getUser,
+        staleTime: Infinity
     })
 
-    useEffect(() => {}, vehicleInfo)
+    const { mutate } = useMutation({
+        mutationKey: ["update user"],
+        mutationFn: updateUser,
+        onSuccess: (res) => {
+            client.invalidateQueries("driver list")
+            console.log(res)
+        },
+        onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption)
+    })
+
+    useEffect(() => {
+        console.log(vehicleInfo.data)
+        vehicleForm.setValues({
+            username: vehicleInfo.data?.data.user.username || "",
+            company_name: vehicleInfo.data?.data.user.company_name || "",
+            email: vehicleInfo.data?.data.user.email || "",
+            mobile_no: vehicleInfo.data?.data.user.mobile_no || "",
+            vehicle_name: vehicleInfo.data?.data.vehicle[0].vehicle_name || "",
+            type: vehicleInfo.data?.data.vehicle[0].type || "",
+            reg_no: vehicleInfo.data?.data.vehicle[0].reg_no || "",
+            images: Array.from({ length: 5 }, (_, i) => vehicleInfo.data?.data.vehicle[0][`image_${i + 1}`] || null).filter(Boolean),
+            emergency_contact_1_contact: vehicleInfo.data?.data.vehicle[0].emergency_contact_1_contact || "",
+            emergency_contact_1_email: vehicleInfo.data?.data.vehicle[0].emergency_contact_1_email || "",
+            emergency_contact_2_contact: vehicleInfo.data?.data.vehicle[0].emergency_contact_2_contact || "",
+            emergency_contact_2_email: vehicleInfo.data?.data.vehicle[0].emergency_contact_2_email || "",
+        })
+    }, [vehicleInfo.data])
 
     return (
         <div className="container-fluid">
@@ -44,16 +81,52 @@ const VehicleInformation = () => {
                         <form>
                             <div className="row">
                                 <div className="col-md-6">
-                                    <input type="text" name="drivername" placeholder="Driver Name" className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="username"
+                                        placeholder="Driver Name"
+                                        className="form-control"
+                                        value={vehicleForm.values.username}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled={!edit}
+                                    />
+                                    {vehicleForm.touched.username && <p className="err">{vehicleForm.errors.username}</p>}
                                 </div>
                                 <div className="col-md-6">
-                                    <input type="text" name="companyname" placeholder="Company Name" className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="company_name"
+                                        placeholder="Company Name"
+                                        className="form-control"
+                                        value={vehicleForm.values.company_name}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled={!edit}
+                                    />
+                                    {vehicleForm.touched.company_name && <p className="err">{vehicleForm.errors.company_name}</p>}
                                 </div>
                                 <div className="col-md-6">
-                                    <input type="text" name="email" placeholder="Email" className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="email"
+                                        placeholder="Email"
+                                        className="form-control"
+                                        value={vehicleForm.values.email}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled={!edit}
+                                    />
+                                    {vehicleForm.touched.email && <p className="err">{vehicleForm.errors.email}</p>}
                                 </div>
                                 <div className="col-md-6">
-                                    <input type="text" name="mobileno" placeholder="Mobile No." className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="mobile_no"
+                                        placeholder="Mobile No."
+                                        className="form-control"
+                                        value={vehicleForm.values.mobile_no}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled={!edit}
+                                    />
+                                    {vehicleForm.touched.mobile_no && <p className="err">{vehicleForm.errors.mobile_no}</p>}
                                 </div>
                             </div>
                         </form>
@@ -66,23 +139,45 @@ const VehicleInformation = () => {
                         <form>
                             <div className="row">
                                 <div className="col-md-6">
-                                    <input type="text" name="vehicleno" placeholder="Vehicle No." className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="vehicle_name"
+                                        placeholder="Vehicle Name"
+                                        className="form-control"
+                                        value={vehicleForm.values.vehicle_name}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled
+                                    />
                                 </div>
                                 <div className="col-md-6">
-                                    <input type="text" name="vehicletype" placeholder="Vehicle Type" className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="type"
+                                        placeholder="Vehicle Type"
+                                        className="form-control"
+                                        value={vehicleForm.values.type}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled
+                                    />
                                 </div>
                                 <div className="col-md-6">
                                     <div className="vehiclpic">
                                         <span>Car Images </span>
                                         <div className="carimages">
-                                            <img src={car} />
-                                            <img src={car} />
-                                            <img src={car} />
+                                            {vehicleForm.values.images && vehicleForm.values.images.map((image, i) => <img key={i} src={image} />)}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="col-md-6">
-                                    <input type="text" name="vehicleregistrationno" placeholder="Vehicle Registration No." className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="reg_no"
+                                        placeholder="Vehicle Registration No."
+                                        className="form-control"
+                                        value={vehicleForm.values.reg_no}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled
+                                    />
                                 </div>
                             </div>
                         </form>
@@ -95,16 +190,48 @@ const VehicleInformation = () => {
                         <form>
                             <div className="row">
                                 <div className="col-md-6">
-                                    <input type="text" name="email" placeholder="emergencycontact@gu.link" className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="emergency_contact_1_email"
+                                        placeholder="emergencycontact@gu.link"
+                                        className="form-control"
+                                        value={vehicleForm.values.emergency_contact_1_email}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled
+                                    />
                                 </div>
                                 <div className="col-md-6">
-                                    <input type="text" name="password" placeholder="password" className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="emergency_contact_1_contact"
+                                        placeholder="Contact No."
+                                        className="form-control"
+                                        value={vehicleForm.values.emergency_contact_1_contact}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled
+                                    />
                                 </div>
                                 <div className="col-md-6">
-                                    <input type="text" name="email" placeholder="emergencycontact@gu.link" className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="emergency_contact_2_email"
+                                        placeholder="emergencycontact@gu.link"
+                                        className="form-control"
+                                        value={vehicleForm.values.emergency_contact_2_email}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled
+                                    />
                                 </div>
                                 <div className="col-md-6">
-                                    <input type="text" name="password" placeholder="password" className="form-control" />
+                                    <input
+                                        type="text"
+                                        name="emergency_contact_2_contact"
+                                        placeholder="Contact No."
+                                        className="form-control"
+                                        value={vehicleForm.values.emergency_contact_2_contact}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled
+                                    />
                                 </div>
                             </div>
                         </form>
@@ -112,7 +239,9 @@ const VehicleInformation = () => {
                 </div>
                 <div className="col-md-12 text-end">
                     <div className="saveform">
-                        <button className="btn btn-dark">Edit</button>
+                        {edit ?
+                            <button type="submit" onClick={vehicleForm.handleSubmit} className="btn btn-dark">Save</button> :
+                            <button onClick={() => setedit(true)} className="btn btn-dark">Edit</button>}
                     </div>
                 </div>
             </div>

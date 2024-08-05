@@ -7,7 +7,7 @@ import logout from "../assets/images/logout.png";
 import comapnies from "../assets/images/companies.png";
 import hardware from "../assets/images/hardware.png";
 
-export const menulist = [
+export const superadmin_menulist = [
     {
         id: "home",
         name: "Home",
@@ -45,6 +45,46 @@ export const menulist = [
         name: "Hardware Management",
         path: "/home/hardware-management",
         image: hardware
+    },
+    {
+        id: "settings",
+        name: "Settings",
+        path: "",
+        image: settings
+    },
+    {
+        id: "profile",
+        name: "Profile",
+        path: "/home/profile",
+        image: profile
+    },
+    {
+        id: "logout",
+        name: "Logout",
+        image: logout
+    },
+]
+
+export const companyadmin_menulist = [
+    {
+        id: "home",
+        name: "Home",
+        path: "/home",
+        image: home
+    },
+    {
+        id: "total-drivers",
+        name: "Total Drivers",
+        path: "/home/total-drivers",
+        image: drivers,
+        submenu: {
+            name: "List of Drivers",
+            path: "/home/total-drivers",
+            image: arrowLeft
+        },
+        add: "Add Drivers",
+        info: "Vehicle Information"
+
     },
     {
         id: "settings",

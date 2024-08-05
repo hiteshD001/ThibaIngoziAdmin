@@ -10,7 +10,6 @@ import {
     Tooltip,
     Legend
 } from 'chart.js';
-import PropTypes from 'prop-types';
 
 ChartJS.register(
     CategoryScale,
@@ -75,7 +74,7 @@ const CustomChart = ({ ...props }) => {
                     fontColor: "rgba(0,0,0,0.5)",
                     fontStyle: "bold",
                     beginAtZero: true,
-                    stepSize: 10, // Set step size
+                    stepSize: 10,
                     padding: 20,
                 },
                 grid: {
@@ -100,8 +99,3 @@ const CustomChart = ({ ...props }) => {
 };
 
 export default CustomChart;
-
-CustomChart.propTypes = {
-    data1: PropTypes.arrayOf(PropTypes.number).isRequired,
-    data2: PropTypes.arrayOf(PropTypes.number).isRequired,
-};

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { register } from "../API Calls/API"
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
+import Loader from "../common/Loader"
 
 const AddCompany = () => {
     const client = useQueryClient();
@@ -149,7 +150,7 @@ const AddCompany = () => {
                             className="btn btn-dark"
                             disabled={newcompany.isPending}
                         >
-                            Save
+                            {newcompany.isPending ? <Loader /> :  "Save"}
                         </button>
                     </div>
                 </div>

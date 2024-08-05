@@ -4,6 +4,7 @@ import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 import { register } from "../API Calls/API"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import Loader from "../common/Loader"
 
 const AddDriver = () => {
     const client = useQueryClient();
@@ -122,7 +123,7 @@ const AddDriver = () => {
                             className="btn btn-dark"
                             disabled={newdriver.isPending}
                         >
-                            Save
+                            {newdriver.isPending ? <Loader /> :  "Save"}
                         </button>
                     </div>
                 </div>

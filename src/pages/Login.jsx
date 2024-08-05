@@ -10,6 +10,7 @@ import { userlogin } from "../API Calls/API";
 
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
+import Loader from "../common/Loader";
 
 export const Login = () => {
     const nav = useNavigate()
@@ -32,6 +33,7 @@ export const Login = () => {
             console.log(res)
             localStorage.setItem("accessToken", res.data.accessToken)
             localStorage.setItem("userID", res.data.user._id)
+            localStorage.setItem("role", res.data.user.role)
             nav("/home")
         }
     })
@@ -70,7 +72,7 @@ export const Login = () => {
                                         <a href="#">Forgot Password?</a>
                                     </div>
                                     <button disabled={loginfn.isPending} type="submit" className="btn btn-dark d-block">
-                                        Sign In
+                                        {loginfn.isPending ? <Loader /> :  "Sign In"}
                                     </button>
 
                                     <div className="keep-signed">
