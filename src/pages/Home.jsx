@@ -3,6 +3,9 @@ import CustomChart from "../common/CustomChart"
 import { getchartData, getHotspot, getRecentSOS, userList } from "../API Calls/API"
 import nouser from "../assets/images/NoUser.png"
 import { useEffect, useState } from "react"
+import {Link} from "react-router-dom"
+import Prev from "../assets/images/left.png"
+import Next from "../assets/images/right.png"
 
 const Home = () => {
     const [chartData, setchartData] = useState(new Array(12).fill(0));
@@ -141,6 +144,19 @@ const Home = () => {
                                 )}
                             </tbody>
                         </table>
+                        <div className="pagiation">
+                            <div className="pagiation-left">
+                                <Link to="/"><img src={Prev} />  Prev</Link>
+                            </div>
+                            <div className="pagiation-number">
+                                <Link to="/" className="active">1</Link>
+                                <Link to="/">2</Link>
+                                <Link to="/">3</Link>
+                            </div>
+                            <div className="pagiation-right">
+                                <Link to="/">Next <img src={Next} /></Link>
+                            </div>
+                        </div>
 
                     </div>
                 </div>
