@@ -109,6 +109,16 @@ export const getHotspot = async () => {
     );
 }
 
+export const getVehicleInfo = async (id) => {
+    return await axios.get(`${import.meta.env.VITE_BASEURL}/vehicle/${id}`,
+        {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        }
+    );
+}
+
 export const resetPassword = async ({ password, token }) => {
     console.log(password, token)
     return await axios.post(`${import.meta.env.VITE_BASEURL}/users/reset-password/${token}`, { newPassword: password });

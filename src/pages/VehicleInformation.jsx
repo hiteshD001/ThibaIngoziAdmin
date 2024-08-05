@@ -1,21 +1,37 @@
-// import { useFormik } from "formik"
+import { useFormik } from "formik"
 import car from "../assets/images/car.png"
+import { vehicleValidation } from "../common/FormValidation"
+import { useQuery } from "@tanstack/react-query"
+import { getVehicleInfo } from "../API Calls/API"
+import { useEffect } from "react"
 
 const VehicleInformation = () => {
-    // const companyForm = useFormik({
-    //     initialValues: {
-    //         email: "",
-    //         password: "",
-    //         role: "company",
-    //         company_name: "",
-    //         mobile_no: "",
-    //         address: "",
-    //         id_no: "",
-    //         company_bio: ""
-    //     },
-    //     // validationSchema: companyValidation,
-    //     onSubmit: (values) => { console.log(values) }
-    // })
+    const vehicleForm = useFormik({
+        initialValues: {
+            username: "",
+            company_name: "",
+            email: "",
+            mobile_no: "",
+            vehicle_name: "",
+            type: "",
+            reg_no: "",
+            images: [],
+            emergency_contact_1_contact: "",
+            emergency_contact_1_email: "",
+            emergency_contact_2_contact: "",
+            emergency_contact_2_email: "",
+        },
+        validationSchema: vehicleValidation,
+        onSubmit: (values) => { console.log(values) }
+    })
+
+    const vehicleInfo = useQuery({
+        queryKey: ['vehicle Information'],
+        queryFn: getVehicleInfo,
+        staleTime: 15 * 60 * 1000
+    })
+
+    useEffect(() => {}, vehicleInfo)
 
     return (
         <div className="container-fluid">

@@ -17,8 +17,8 @@ const ListOfDrivers = () => {
     const deleteDriver = useMutation({
         mutationKey: ["delete user"],
         mutationFn: deleteUser,
-        onSuccess: (res) => { console.log(res); client.invalidateQueries("driver list")}, 
-        onError: (res) => console.log(res) 
+        onSuccess: (res) => { console.log(res); client.invalidateQueries("driver list") },
+        onError: (res) => console.log(res)
     })
 
     return (

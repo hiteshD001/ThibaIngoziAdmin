@@ -7,6 +7,8 @@ const Address = yup.string().required("Address is Required")
 
 const Email = yup.string().required("Email is Required").email("Please Enter a valid Email ID")
 
+const ID = yup.number().required("Plase enter a valid ID").typeError("Plase enter a valid ID")
+
 const Password = yup.string()
     .required("Password is Required")
     .min(8, "Password must be at least 8 characters")
@@ -50,7 +52,7 @@ export const companyValidation = yup.object({
     contact_name: Username,
     mobile_no: MobileNumber,
     address: Address,
-    id_no: yup.number().required("Plase enter a valid ID").typeError("Plase enter a valid ID"),
+    id_no: ID,
     company_bio: yup.string().required("Bio is required")
 })
 
@@ -60,5 +62,19 @@ export const driverValidation = yup.object({
     password: Password,
     mobile_no: MobileNumber,
     address: Address,
-    id_no: yup.number().required("Plase enter a valid ID").typeError("Plase enter a valid ID"),
+    id_no: ID,
+})
+
+export const vehicleValidation = yup.object({
+    username: Username,
+    company_name: Username,
+    email: Email,
+    mobile_no: MobileNumber,
+    vehicle_name: Username,
+    type: Username,
+    reg_no: ID,
+    emergency_contact_1_contact: MobileNumber,
+    emergency_contact_1_email: Email,
+    emergency_contact_2_contact: MobileNumber,
+    emergency_contact_2_email: Email,
 })
