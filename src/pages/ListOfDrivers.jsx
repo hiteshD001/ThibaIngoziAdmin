@@ -1,19 +1,29 @@
-import { useNavigate } from "react-router-dom"
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { deleteUser, userList } from "../API Calls/API";
+import { useNavigate, useParams } from "react-router-dom"
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { getUser, userList } from "../API Calls/API";
 import Prev from "../assets/images/left.png"
 import Next from "../assets/images/right.png"
 
 import nouser from "../assets/images/NoUser.png"
-import { toast } from "react-toastify";
-import { toastOption } from "../common/ToastOptions";
+import search from "../assets/images/search.png"
+import icon from "../assets/images/icon.png"
 import { useState } from "react";
 import Loader from "../common/Loader";
+import { DeleteConfirm } from "../common/ConfirmationPOPup";
 
 const ListOfDrivers = () => {
     const nav = useNavigate();
+    const params = useParams()
     const [page, setpage] = useState(1)
-    const client = useQueryClient()
+    const [filter, setfilter] = useState("")
+    const [confirmation, setconfirmation] = useState("")
+
+    const companyInfo = useQuery({
+        queryKey: ["userinfo", params.id],
+        queryFn: getUser,
+        staleTime: Infinity,
+        enabled: params.id ? true : false
+    })
 
     const driverList = useQuery({
         queryKey: ["driver list", "driver", page, 5],
@@ -22,38 +32,39 @@ const ListOfDrivers = () => {
         placeholderData: keepPreviousData
     })
 
-    const deleteDriver = useMutation({
-        mutationKey: ["delete user"],
-        mutationFn: deleteUser,
-        onSuccess: (res) => { console.log(res); client.invalidateQueries("driver list") },
-        onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption)
-    })
-
     return (
         <div className="container-fluid">
             <div className="row">
                 <div className="col-md-12">
-                        {/* <div className="company-info">
+                    {params.id &&
+                        <div className="company-info">
                             <div className="comapny-titles">Company Information</div>
                             <div className="comapny-det">
                                 <div className="c-info">
                                     <span>Company</span>
-                                    <p>Grandin & Co.</p>
+                                    <p>{companyInfo.data?.data.user.company_name}</p>
                                 </div>
                                 <div className="c-info">
                                     <span>Contact No.</span>
-                                    <p>+27 98250 98250</p>
+                                    <p>{companyInfo.data?.data.user.mobile_no}</p>
                                 </div>
                                 <div className="c-info">
                                     <span>Contact Email</span>
-                                    <p>demon@grandin.com</p>
+                                    <p>{companyInfo.data?.data.user.email}</p>
                                 </div>
                             </div>
-                        </div> */}
+                        </div>}
                     <div className="theme-table">
                         <div className="tab-heading">
                             <h3>Total Drivers</h3>
-                            <button onClick={() => nav("add-driver")} className="btn btn-primary">+ Add Driver</button>
+                            <div className="tbl-filter">
+                                <div className="input-group">
+                                    <span className="input-group-text"><img src={search} /></span>
+                                    <input type="text" value={filter} onChange={(e) => setfilter(e.target.value)} className="form-control" placeholder="Search" />
+                                    <span className="input-group-text"><img src={icon} /></span>
+                                </div>
+                                <button onClick={() => nav("/home/total-drivers/add-driver")} className="btn btn-primary">+ Add Driver</button>
+                            </div>
                         </div>
                         {driverList.isFetching ? <Loader /> : <table id="example" className="table table-striped nowrap" style={{ width: "100%" }}>
                             <thead>
@@ -70,17 +81,18 @@ const ListOfDrivers = () => {
                                 {driverList.data?.data.users.map(driver =>
                                     <tr key={driver._id}>
                                         <td>
-                                            <div className="prof">
+                                            <div className={!driver.username ? "prof nodata" : "prof"}>
                                                 <img className="profilepicture" src={driver.profileImage ? driver.profileImage : nouser} />
                                                 {driver.username}
                                             </div>
                                         </td>
-                                        <td>{driver.id_no}</td>
-                                        <td>{driver?.mobile_no}</td>
-                                        <td>{driver.email}</td>
+                                        <td className={!driver.id_no ? "nodata" : ""} >{driver.id_no}</td>
+                                        <td className={!driver?.mobile_no ? "nodata" : ""} >{driver?.mobile_no}</td>
+                                        <td className={!driver.email ? "nodata" : ""} >{driver.email}</td>
                                         <td>
-                                            <span onClick={() => deleteDriver.mutate(driver._id)} className="tbl-gray">Delete</span>
-                                            <span onClick={() => nav(`vehicle-information/${driver._id}`)} className="tbl-btn">view</span>
+                                            <span onClick={() => setconfirmation(driver._id)} className="tbl-gray">Delete</span>
+                                            {confirmation === driver._id && <DeleteConfirm id={driver._id} setconfirmation={setconfirmation} />}
+                                            <span onClick={() => nav(`/home/total-drivers/vehicle-information/${driver._id}`)} className="tbl-btn">view</span>
                                         </td>
                                     </tr>
                                 )}

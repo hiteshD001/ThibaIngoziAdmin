@@ -57,20 +57,23 @@ const HardwareManagement = () => {
                                 {orderList.data?.data.orders.map(order =>
                                     <tr key={order._id}>
                                         <td>
-                                            <div className="prof">
+                                            <div className={!order.user_id?.username ? "prof nodata" : "prof"}>
                                                 <img className="profilepicture" src={order.user_id?.profileImage || nouser} />
                                                 {order.user_id?.username}
                                             </div>
                                         </td>
-                                        <td>{order.user_id?.address}</td>
-                                        <td>{order.user_id?.mobile_no}</td>
-                                        <td>{order.user_id?.email}</td>
+                                        <td className={!order.user_id?.address ? "nodata" : ""}>{order.user_id?.address}</td>
+                                        <td className={!order.user_id?.mobile_no ? "nodata" : ""} >{order.user_id?.mobile_no}</td>
+                                        <td className={!order.user_id?.email ? "nodata" : ""} >{order.user_id?.email}</td>
                                         <td>
                                             <button
                                                 className={`${order.status}-btn`}
                                                 onClick={() => handleToggle(order._id, order.item_quantity, order.status)}
                                             >
-                                                {toggleStatus.isPending && toggle === order._id ? <Loader /> : order.status === "order_received" ? "Order Received" : order.status === "delivered" ? "Delivered" : ""}
+                                                {toggleStatus.isPending && toggle === order._id
+                                                    ? <Loader color="white" />
+                                                    : order.status === "order_received" ? "Order Received" : "Delivered"
+                                                }
                                             </button>
                                         </td>
                                     </tr>

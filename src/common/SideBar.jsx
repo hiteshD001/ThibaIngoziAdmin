@@ -2,8 +2,10 @@ import logo1 from "../assets/images/logo-1.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { superadmin_menulist, companyadmin_menulist } from "./Menulist";
+import { LogoutConfirm } from "./ConfirmationPOPup";
 
 const SideBar = () => {
+    const [confirm, setconfirm] = useState(false)
     const [menulist ] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : companyadmin_menulist)
     const [currentMenu, setcurrentMenu] = useState("home")
 
@@ -28,7 +30,7 @@ const SideBar = () => {
 
             <ul>
                 {menulist.map(menu =>
-                    <li key={menu.name} onClick={() => menu.id === "logout" ? handleLogout() : nav(menu.path)}>
+                    <li key={menu.name} onClick={() => menu.id === "logout" ? setconfirm(true) : nav(menu.path)}>
                         <span
                             className={`${currentMenu === menu.id ? "active" : ""}${menu.name === "Logout" ? " logout" : ""}`} ><img src={menu.image} />{menu.name}</span>
                         {menu.submenu && <ul>
@@ -37,6 +39,7 @@ const SideBar = () => {
                     </li>
                 )}
             </ul>
+            {confirm && <LogoutConfirm setconfirm={setconfirm} handleLogout={handleLogout}/>}
         </div>
     )
 }

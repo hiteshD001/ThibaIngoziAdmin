@@ -37,7 +37,7 @@ const router = createBrowserRouter([
         children: [
             {
                 path: "",
-                element: <AuthGuard><Home /></AuthGuard>
+                element: <Home />
             },
             {
                 path: "total-companies",
@@ -57,6 +57,10 @@ const router = createBrowserRouter([
                 children: [
                     {
                         path: "",
+                        element: <ListOfDrivers />
+                    },
+                    {
+                        path: ":id",
                         element: <ListOfDrivers />
                     },
                     {

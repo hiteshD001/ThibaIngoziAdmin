@@ -7,7 +7,7 @@ const Address = yup.string().required("Address is Required")
 
 const Email = yup.string().required("Email is Required").email("Please Enter a valid Email ID")
 
-const ID = yup.number().required("Plase enter a valid ID").typeError("Plase enter a valid ID")
+const ID = yup.string().required("Plase enter a valid ID").typeError("Plase enter a valid ID")
 
 const Password = yup.string()
     .required("Password is Required")
@@ -38,8 +38,16 @@ export const loginValidation = yup.object({
     password: Password,
 })
 
-export const profileValidation = yup.object({
-    username: Username,
+export const profileValidation_s = yup.object({
+    first_name: Username,
+    last_name: Username,
+    email: Email,
+    mobile_no: MobileNumber,
+    address: Address,
+})
+
+export const profileValidation_c = yup.object({
+    contact_name: Username,
     email: Email,
     mobile_no: MobileNumber,
     address: Address,
@@ -57,6 +65,7 @@ export const companyValidation = yup.object({
 })
 
 export const driverValidation = yup.object({
+    company_id: yup.string().required(),
     username: Username,
     email: Email,
     password: Password,
@@ -67,7 +76,7 @@ export const driverValidation = yup.object({
 
 export const vehicleValidation = yup.object({
     username: Username,
-    company_name: Username,
+    company_id: yup.string().required(),
     email: Email,
     mobile_no: MobileNumber,
     // vehicle_name: Username,

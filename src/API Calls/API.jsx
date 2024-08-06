@@ -1,7 +1,6 @@
 import axios from "axios";
 
 const token = localStorage.getItem("accessToken");
-// const userid = localStorage.getItem("userID");
 
 export const userlogin = async (data) => {
     return await axios.post(`${import.meta.env.VITE_BASEURL}/users/login`, data);
@@ -47,10 +46,11 @@ export const userList = async ({ queryKey }) => {
     const role = queryKey[1];
     const page = queryKey[2] || 0;
     const limit = queryKey[3] || 100;
+    const filter = queryKey[4] || "";
 
     return await axios.get(`${import.meta.env.VITE_BASEURL}/users`,
         {
-            params: { role, page, limit },
+            params: { role, page, limit, filter },
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -111,7 +111,7 @@ export const getHotspot = async ({ queryKey }) => {
 
     return await axios.get(`${import.meta.env.VITE_BASEURL}/location/hotspot`,
         {
-            params: { type },   
+            params: { type },
             headers: {
                 "Authorization": `Bearer ${token}`
             }

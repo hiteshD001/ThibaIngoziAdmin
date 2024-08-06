@@ -72,7 +72,7 @@ export const Login = () => {
                                         <a href="#">Forgot Password?</a>
                                     </div>
                                     <button disabled={loginfn.isPending} type="submit" className="btn btn-dark d-block">
-                                        {loginfn.isPending ? <Loader /> :  "Sign In"}
+                                        {loginfn.isPending ? <Loader color="white" /> :  "Sign In"}
                                     </button>
 
                                     <div className="keep-signed">

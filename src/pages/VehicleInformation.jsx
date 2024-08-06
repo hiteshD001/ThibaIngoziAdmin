@@ -1,7 +1,7 @@
 import { useFormik } from "formik"
 import { vehicleValidation } from "../common/FormValidation"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { getUser, updateUser } from "../API Calls/API"
+import { getUser, updateUser, userList } from "../API Calls/API"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { toast } from "react-toastify"
@@ -15,7 +15,7 @@ const VehicleInformation = () => {
     const vehicleForm = useFormik({
         initialValues: {
             username: "",
-            company_name: "",
+            company_id: "",
             email: "",
             mobile_no: "",
             vehicle_name: "",
@@ -29,7 +29,7 @@ const VehicleInformation = () => {
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
-            const payload = { username: values.username, company_name: values.company_name, email: values.email, mobile_no: values.mobile_no }
+            const payload = { username: values.username, company_id: values.company_id, email: values.email, mobile_no: values.mobile_no }
             console.log(values);
             setedit(false);
             mutate({ id: params.id, data: payload })
@@ -40,6 +40,12 @@ const VehicleInformation = () => {
         queryKey: ["userinfo", params.id],
         queryFn: getUser,
         staleTime: Infinity
+    })
+
+    const companyList = useQuery({
+        queryKey: ["company list", "company"],
+        queryFn: userList,
+        staleTime: 15 * 60 * 1000,
     })
 
     const { mutate } = useMutation({
@@ -56,17 +62,17 @@ const VehicleInformation = () => {
         console.log(vehicleInfo.data)
         vehicleForm.setValues({
             username: vehicleInfo.data?.data.user.username || "",
-            company_name: vehicleInfo.data?.data.user.company_name || "",
+            company_id: vehicleInfo.data?.data.user.company_id || "",
             email: vehicleInfo.data?.data.user.email || "",
             mobile_no: vehicleInfo.data?.data.user.mobile_no || "",
-            vehicle_name: vehicleInfo.data?.data.vehicle[0].vehicle_name || "",
-            type: vehicleInfo.data?.data.vehicle[0].type || "",
-            reg_no: vehicleInfo.data?.data.vehicle[0].reg_no || "",
-            images: Array.from({ length: 5 }, (_, i) => vehicleInfo.data?.data.vehicle[0][`image_${i + 1}`] || null).filter(Boolean),
-            emergency_contact_1_contact: vehicleInfo.data?.data.vehicle[0].emergency_contact_1_contact || "",
-            emergency_contact_1_email: vehicleInfo.data?.data.vehicle[0].emergency_contact_1_email || "",
-            emergency_contact_2_contact: vehicleInfo.data?.data.vehicle[0].emergency_contact_2_contact || "",
-            emergency_contact_2_email: vehicleInfo.data?.data.vehicle[0].emergency_contact_2_email || "",
+            vehicle_name: vehicleInfo.data?.data.vehicle[0]?.vehicle_name || "",
+            type: vehicleInfo.data?.data.vehicle[0]?.type || "",
+            reg_no: vehicleInfo.data?.data.vehicle[0]?.reg_no || "",
+            images: Array.from({ length: 5 }, (_, i) => vehicleInfo.data?.data.vehicle[0]?.[`image_${i + 1}`] || null).filter(Boolean),
+            emergency_contact_1_contact: vehicleInfo.data?.data.vehicle[0]?.emergency_contact_1_contact || "",
+            emergency_contact_1_email: vehicleInfo.data?.data.vehicle[0]?.emergency_contact_1_email || "",
+            emergency_contact_2_contact: vehicleInfo.data?.data.vehicle[0]?.emergency_contact_2_contact || "",
+            emergency_contact_2_email: vehicleInfo.data?.data.vehicle[0]?.emergency_contact_2_email || "",
         })
     }, [vehicleInfo.data])
 
@@ -93,6 +99,19 @@ const VehicleInformation = () => {
                                     {vehicleForm.touched.username && <p className="err">{vehicleForm.errors.username}</p>}
                                 </div>
                                 <div className="col-md-6">
+                                    <select
+                                        name="company_id"
+                                        className="form-control"
+                                        value={vehicleForm.values.company_id}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled={!edit}
+                                    >
+                                        <option value="" hidden>Company Name</option>
+                                        {companyList.data?.data.users.map(user => <option key={user._id} value={user._id}>{user.company_name}</option>)}
+                                    </select>
+                                    {vehicleForm.touched.company_id && <p className="err">{vehicleForm.errors.company_id}</p>}
+                                </div>
+                                {/* <div className="col-md-6">
                                     <input
                                         type="text"
                                         name="company_name"
@@ -103,7 +122,7 @@ const VehicleInformation = () => {
                                         disabled={!edit}
                                     />
                                     {vehicleForm.touched.company_name && <p className="err">{vehicleForm.errors.company_name}</p>}
-                                </div>
+                                </div> */}
                                 <div className="col-md-6">
                                     <input
                                         type="text"

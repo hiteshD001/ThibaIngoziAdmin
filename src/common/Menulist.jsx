@@ -37,8 +37,8 @@ export const superadmin_menulist = [
             image: arrowLeft
         },
         add: "Add Drivers",
-        info: "Vehicle Information"
-
+        info: "Vehicle Information",
+        company: "Company Information"
     },
     {
         id: "hardware-management",
@@ -75,15 +75,16 @@ export const companyadmin_menulist = [
     {
         id: "total-drivers",
         name: "Total Drivers",
-        path: "/home/total-drivers",
+        path: `/home/total-drivers/${localStorage.getItem("userID")}`,
         image: drivers,
         submenu: {
             name: "List of Drivers",
-            path: "/home/total-drivers",
+            path: `/home/total-drivers/${localStorage.getItem("userID")}`,
             image: arrowLeft
         },
         add: "Add Drivers",
-        info: "Vehicle Information"
+        info: "Vehicle Information",
+        company: "Company Information"
 
     },
     {

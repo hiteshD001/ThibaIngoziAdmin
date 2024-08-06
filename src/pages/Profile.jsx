@@ -1,13 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useFormik } from "formik"
-import { profileValidation } from "../common/FormValidation"
+import { profileValidation_c, profileValidation_s } from "../common/FormValidation"
 import { useEffect, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getUser, updateUser } from "../API Calls/API"
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
+import Loader from "../common/Loader"
 
 const Profile = () => {
+    const [role] = useState(localStorage.getItem("role"))
     const [edit, setedit] = useState(false)
     const client = useQueryClient();
 
@@ -18,8 +20,8 @@ const Profile = () => {
     })
 
     const profileForm = useFormik({
-        initialValues: { username: "", email: "", address: "", role: "", mobile_no: "" },
-        validationSchema: profileValidation,
+        initialValues: role === "super_admin" ? super_admin : company,
+        validationSchema: role === "super_admin" ? profileValidation_s : profileValidation_c,
         onSubmit: (values) => {
             setedit(false)
             console.log(values)
@@ -27,22 +29,31 @@ const Profile = () => {
         }
     })
 
-    const { mutate } = useMutation({
+    const { mutate, isPending } = useMutation({
         mutationKey: ["update user"],
         mutationFn: updateUser,
-        onSuccess: () => { client.invalidateQueries("userinfo") },
+        onSuccess: () => client.invalidateQueries("userinfo"),
         onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption)
     })
 
     useEffect(() => {
-        console.log(userinfo.data)
-        profileForm.setValues({
-            username: userinfo.data?.data.user.username || userinfo.data?.data.user.contact_name || "",
-            email: userinfo.data?.data.user.email || "",
-            address: userinfo.data?.data.user.address || "",
-            role: userinfo.data?.data.user.role || "",
-            mobile_no: userinfo.data?.data.user.mobile_no || "",
-        })
+        profileForm.setValues(role === "super_admin" ?
+            {
+                first_name: userinfo.data?.data.user?.first_name || "",
+                last_name: userinfo.data?.data.user?.last_name || "",
+                email: userinfo.data?.data.user?.email || "",
+                address: userinfo.data?.data.user?.address || "",
+                role: userinfo.data?.data.user?.role || "",
+                mobile_no: userinfo.data?.data.user?.mobile_no || "",
+            } :
+            {
+                contact_name: userinfo.data?.data.user?.contact_name || "",
+                email: userinfo.data?.data.user?.email || "",
+                address: userinfo.data?.data.user?.address || "",
+                role: userinfo.data?.data.user?.role || "",
+                mobile_no: userinfo.data?.data.user?.mobile_no || "",
+            }
+        )
     }, [userinfo.data])
 
     return (
@@ -55,30 +66,47 @@ const Profile = () => {
                         </div>
                         <form>
                             <div className="row">
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
-                                        name="username"
-                                        placeholder="Username"
-                                        className="form-control"
-                                        value={profileForm.values.username}
-                                        onChange={profileForm.handleChange}
-                                        disabled={!edit}
-                                    />
-                                    {profileForm.touched.username && <p className="err">{profileForm.errors.username}</p>}
-                                </div>
-                                {/* <div className="col-md-6">
-                                    <input
-                                        type="password"
-                                        name="password"
-                                        placeholder="Last Name"
-                                        className="form-control"
-                                        value={profileForm.values.password}
-                                        onChange={profileForm.handleChange}
-                                        disabled={!edit}
-                                    />
-                                    {profileForm.touched.password && <p className="err">{profileForm.errors.password}</p>}
-                                </div> */}
+                                {role === "super_admin" ?
+                                    <>
+                                        <div className="col-md-6">
+                                            <input
+                                                type="text"
+                                                name="first_name"
+                                                placeholder="First Name"
+                                                className="form-control"
+                                                value={profileForm.values.first_name}
+                                                onChange={profileForm.handleChange}
+                                                disabled={!edit}
+                                            />
+                                            {profileForm.touched.first_name && <p className="err">{profileForm.errors.first_name}</p>}
+                                        </div>
+                                        <div className="col-md-6">
+                                            <input
+                                                type="text"
+                                                name="last_name"
+                                                placeholder="Last Name"
+                                                className="form-control"
+                                                value={profileForm.values.last_name}
+                                                onChange={profileForm.handleChange}
+                                                disabled={!edit}
+                                            />
+                                            {profileForm.touched.last_name && <p className="err">{profileForm.errors.last_name}</p>}
+                                        </div>
+                                    </>
+                                    :
+                                    <div className="col-md-6">
+                                        <input
+                                            type="text"
+                                            name="contact_name"
+                                            placeholder="Username"
+                                            className="form-control"
+                                            value={profileForm.values.contact_name}
+                                            onChange={profileForm.handleChange}
+                                            disabled={!edit}
+                                        />
+                                        {profileForm.touched.contact_name && <p className="err">{profileForm.errors.contact_name}</p>}
+                                    </div>
+                                }
                                 <div className="col-md-6">
                                     <input
                                         type="text"
@@ -103,7 +131,7 @@ const Profile = () => {
                                     />
                                     {profileForm.touched.mobile_no && <p className="err">{profileForm.errors.mobile_no}</p>}
                                 </div>
-                                <div className="col-md-6">
+                                <div className={role === "super_admin" ? "col-md-12" : "col-md-6"}>
                                     <input
                                         type="text"
                                         name="address"
@@ -124,7 +152,9 @@ const Profile = () => {
                 <div className="col-md-12 text-end">
                     <div className="saveform">
                         {edit ?
-                            <button onClick={profileForm.handleSubmit} type="submit" className="btn btn-dark">Save</button> :
+                            <button onClick={profileForm.handleSubmit} type="submit" className="btn btn-dark">
+                                {isPending ? <Loader color="white" /> : "Save"}
+                            </button> :
                             <button onClick={() => setedit(true)} className="btn btn-dark">Edit</button>}
                     </div>
                 </div>
@@ -134,3 +164,6 @@ const Profile = () => {
 }
 
 export default Profile
+
+const super_admin = { first_name: "", last_name: "", email: "", address: "", role: "", mobile_no: "" }
+const company = { contact_name: "", email: "", address: "", role: "", mobile_no: "" }

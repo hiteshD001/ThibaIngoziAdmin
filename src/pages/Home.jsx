@@ -4,6 +4,7 @@ import { getchartData, getHotspot, getRecentSOS, userList } from "../API Calls/A
 import nouser from "../assets/images/NoUser.png"
 import { useEffect, useState } from "react"
 import Loader from "../common/Loader"
+import { Link } from "react-router-dom"
 
 
 const Home = () => {
@@ -43,28 +44,31 @@ const Home = () => {
 
     const handlChange = (e) => {
         settime(e.target.value)
+
     }
 
     useEffect(() => {
-        console.log(driverList.data?.data.totalActiveDriversToday)
         switch (time) {
             case "today":
-                setactiveUser(driverList.data?.data.totalActiveDriversToday)
+                setactiveUser(driverList.data?.data.totalActiveDriversToday || 0)
                 break;
             case "yesterday":
-                setactiveUser(driverList.data?.data.totalActiveDriversYesterday)
+                setactiveUser(driverList.data?.data.totalActiveDriversYesterday || 0)
                 break;
             case "this_week":
-                setactiveUser(driverList.data?.data.totalActiveDriversThisWeek)
+                setactiveUser(driverList.data?.data.totalActiveDriversThisWeek || 0)
                 break;
             case "this_month":
-                setactiveUser(driverList.data?.data.totalActiveDriversThisMonth)
+                setactiveUser(driverList.data?.data.totalActiveDriversThisMonth || 0)
                 break;
             case "this_year":
-                setactiveUser(driverList.data?.data.totalActiveDriversThisYear)
+                setactiveUser(driverList.data?.data.totalActiveDriversThisYear || 0)
+                break;
+            default:
+                setactiveUser(0)
                 break;
         }
-    }, [time])
+    }, [driverList.data, time])
 
     useEffect(() => {
         const newdata = [...chartData];
@@ -142,16 +146,18 @@ const Home = () => {
                 <div className="col-md-4">
                     <div className="hotspot">
                         <h1>Hotspot</h1>
-                        {hotspot.isFetching ? <Loader /> :
-                            hotspot.data?.data.length === 0 ? <p>No data Found</p> : hotspot.data?.data.map((d, index) =>
-                                <div className="location" key={index}>
-                                    <span>{d.address}</span>
-                                    <div className="progress">
+                        <div className="location-list">
+                            {hotspot.isFetching ? <Loader /> :
+                                hotspot.data?.data.length === 0 ? <p>No data Found</p> : hotspot.data?.data.sort((a, b) => a.timesCalled > b.timesCalled ? -1 : 1).map((d, index) =>
+                                    <div className="location" key={index}>
+                                        <span>{d.address}</span>
+                                        {/* <div className="progress">
                                         <div className="progress-bar" role="progressbar" style={{ width: `${d.percentage}%` }} aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div> */}
+                                        <span>{d.timesCalled}</span>
                                     </div>
-                                    <span>{d.timesCalled}</span>
-                                </div>
-                            )}
+                                )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -162,7 +168,7 @@ const Home = () => {
                         <div className="tab-heading">
                             <h3>Recent Active Driver</h3>
                         </div>
-                        <table id="example" className="table table-striped nowrap" style={{ width: "100%" }}>
+                        {recentSOS.isFetching ? <Loader /> : <table id="example" className="table table-striped nowrap" style={{ width: "100%" }}>
                             <thead>
                                 <tr>
                                     <th>Driver</th>
@@ -173,22 +179,21 @@ const Home = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {recentSOS.isFetching && <Loader />}
                                 {recentSOS.data?.data.toReversed().map(row =>
                                     <tr key={row._id}>
                                         <td>
-                                            <div className="prof">
+                                            <div className={!row.user_id?.username ? "prof nodata" : "prof"}>
                                                 <img className="profilepicture" src={row.user_id?.profileImage || nouser} />
                                                 {row.user_id?.username}
                                             </div>
                                         </td>
-                                        <td>{row.user_id?.company_name}</td>
-                                        <td>{row.address}</td>
-                                        <td><a href="#" className="tbl-btn">view</a></td>
+                                        <td className={!row.user_id?.company_name ? "nodata" : ""}>{row.user_id?.company_name}</td>
+                                        <td className={!row.address ? "nodata" : ""} >{row.address}</td>
+                                        <td><Link to={`total-drivers/vehicle-information/${row.user_id._id}`} className="tbl-btn">view</Link></td>
                                     </tr>
                                 )}
                             </tbody>
-                        </table>
+                        </table>}
                     </div>
                 </div>
             </div>

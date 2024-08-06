@@ -5,9 +5,11 @@ import { register } from "../API Calls/API"
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 import Loader from "../common/Loader"
+import { useNavigate } from "react-router-dom"
 
 const AddCompany = () => {
     const client = useQueryClient();
+    const nav = useNavigate()
 
 
     const companyForm = useFormik({
@@ -36,6 +38,7 @@ const AddCompany = () => {
         onSuccess: () => {
             companyForm.resetForm()
             client.invalidateQueries("company list")
+            nav("/home/total-companies")
         },
         onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption)
     })
@@ -64,24 +67,13 @@ const AddCompany = () => {
                                 <div className="col-md-6">
                                     <input
                                         type="text"
-                                        name="email"
-                                        placeholder="Email"
+                                        name="contact_name"
+                                        placeholder="Contact Name"
                                         className="form-control"
-                                        value={companyForm.values.email}
+                                        value={companyForm.values.contact_name}
                                         onChange={companyForm.handleChange}
                                     />
-                                    {companyForm.touched.email && <p className="err">{companyForm.errors.email}</p>}
-                                </div>
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
-                                        name="mobile_no"
-                                        placeholder="Mobile No."
-                                        className="form-control"
-                                        value={companyForm.values.mobile_no}
-                                        onChange={companyForm.handleChange}
-                                    />
-                                    {companyForm.touched.mobile_no && <p className="err">{companyForm.errors.mobile_no}</p>}
+                                    {companyForm.touched.contact_name && <p className="err">{companyForm.errors.company_name}</p>}
                                 </div>
                                 <div className="col-md-6">
                                     <input
@@ -108,13 +100,13 @@ const AddCompany = () => {
                                 <div className="col-md-6">
                                     <input
                                         type="text"
-                                        name="id_no"
-                                        placeholder="ID No."
+                                        name="email"
+                                        placeholder="Email"
                                         className="form-control"
-                                        value={companyForm.values.id_no}
+                                        value={companyForm.values.email}
                                         onChange={companyForm.handleChange}
                                     />
-                                    {companyForm.touched.id_no && <p className="err">{companyForm.errors.id_no}</p>}
+                                    {companyForm.touched.email && <p className="err">{companyForm.errors.email}</p>}
                                 </div>
                                 <div className="col-md-6">
                                     <input
@@ -130,13 +122,24 @@ const AddCompany = () => {
                                 <div className="col-md-6">
                                     <input
                                         type="text"
-                                        name="contact_name"
-                                        placeholder="Contact Name"
+                                        name="mobile_no"
+                                        placeholder="Mobile No."
                                         className="form-control"
-                                        value={companyForm.values.contact_name}
+                                        value={companyForm.values.mobile_no}
                                         onChange={companyForm.handleChange}
                                     />
-                                    {companyForm.touched.contact_name && <p className="err">{companyForm.errors.company_name}</p>}
+                                    {companyForm.touched.mobile_no && <p className="err">{companyForm.errors.mobile_no}</p>}
+                                </div>
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="id_no"
+                                        placeholder="ID No."
+                                        className="form-control"
+                                        value={companyForm.values.id_no}
+                                        onChange={companyForm.handleChange}
+                                    />
+                                    {companyForm.touched.id_no && <p className="err">{companyForm.errors.id_no}</p>}
                                 </div>
                             </div>
                         </form>
@@ -150,7 +153,7 @@ const AddCompany = () => {
                             className="btn btn-dark"
                             disabled={newcompany.isPending}
                         >
-                            {newcompany.isPending ? <Loader /> :  "Save"}
+                            {newcompany.isPending ? <Loader color="white" /> : "Save"}
                         </button>
                     </div>
                 </div>
