@@ -20,7 +20,7 @@ const ListOfCompanies = () => {
     const [confirmation, setconfirmation] = useState("")
 
     const companyList = useQuery({
-        queryKey: ["company list", "company", page, 5, filter],
+        queryKey: ["company list", "company", "", page, 5, filter],
         queryFn: userList,
         staleTime: 15 * 60 * 1000,
         placeholderData: keepPreviousData

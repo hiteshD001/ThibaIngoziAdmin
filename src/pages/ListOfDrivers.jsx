@@ -26,7 +26,7 @@ const ListOfDrivers = () => {
     })
 
     const driverList = useQuery({
-        queryKey: ["driver list", "driver", page, 5],
+        queryKey: ["driver list", "driver", params.id, page, 5],
         queryFn: userList,
         staleTime: 15 * 60 * 1000,
         placeholderData: keepPreviousData

@@ -44,13 +44,14 @@ export const deleteUser = async (id) => {
 
 export const userList = async ({ queryKey }) => {
     const role = queryKey[1];
-    const page = queryKey[2] || 0;
-    const limit = queryKey[3] || 100;
-    const filter = queryKey[4] || "";
+    const company_id = queryKey[2];
+    const page = queryKey[3] || 0;
+    const limit = queryKey[5] || 100;
+    const filter = queryKey[5] || "";
 
     return await axios.get(`${import.meta.env.VITE_BASEURL}/users`,
         {
-            params: { role, page, limit, filter },
+            params: { role, page, limit, filter, company_id },
             headers: {
                 "Authorization": `Bearer ${token}`
             }
