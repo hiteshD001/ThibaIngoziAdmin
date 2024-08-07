@@ -28,8 +28,8 @@ const HardwareManagement = () => {
   const toggleStatus = useMutation({
     mutationKey: ["Toggle Status"],
     mutationFn: updateStatus,
-    onSuccess: (res) => {
-      console.log(res);
+    onSuccess: () => {
+      toast.success("Order Updated Successfully.");
       client.invalidateQueries("order list");
     },
     onError: (error) =>

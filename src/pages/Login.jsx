@@ -30,7 +30,7 @@ export const Login = () => {
         mutationFn: userlogin,
         onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption),
         onSuccess: (res) => {
-            console.log(res)
+            toast.success("Logged In successfully.");
             localStorage.setItem("accessToken", res.data.accessToken)
             localStorage.setItem("userID", res.data.user._id)
             localStorage.setItem("role", res.data.user.role)

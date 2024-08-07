@@ -52,6 +52,7 @@ const VehicleInformation = () => {
         mutationKey: ["update user"],
         mutationFn: updateUser,
         onSuccess: (res) => {
+            toast.success("User Updated Successfully.");
             client.invalidateQueries("driver list")
             console.log(res)
         },

@@ -9,7 +9,7 @@ import Loader from "../common/Loader";
 
 const AddDriver = () => {
   const client = useQueryClient();
-//   const nav = useNavigate();
+  //   const nav = useNavigate();
 
   const driverForm = useFormik({
     initialValues: {
@@ -40,9 +40,10 @@ const AddDriver = () => {
     mutationKey: ["create new driver"],
     mutationFn: register,
     onSuccess: () => {
+      toast.success("Driver added successfully.");
       driverForm.resetForm();
       client.invalidateQueries("company list");
-    //   nav(`/home/total-drivers/${data._id}`);
+      //   nav(`/home/total-drivers/${data._id}`);
     },
     onError: (error) =>
       toast.error(
