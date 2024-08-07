@@ -27,7 +27,6 @@ const AddDriver = () => {
         },
         validationSchema: driverValidation,
         onSubmit: (values) => {
-            console.log(values)
             newdriver.mutate(values)
         }
     })
@@ -44,7 +43,7 @@ const AddDriver = () => {
         onSuccess: () => {
             driverForm.resetForm()
             client.invalidateQueries("company list")
-            nav("/home/total-drivers")
+            // nav("/home/total-drivers/")
         },
         onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption)
     })
