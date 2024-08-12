@@ -47,7 +47,7 @@ const Navbar = () => {
                                     <span className="input-group-text"><img src={icon} /></span>
                                 </div>
                             </div> */}
-                            <div className="dropdown">
+                            {/* <div className="dropdown">
                                 <button className="btn btn-secondary dropdown-toggle" id="dropdownMenuButton1" onClick={() => setopen(p => !p)}>
                                     <img src={bell} />
                                 </button>
@@ -56,7 +56,7 @@ const Navbar = () => {
                                     <li><a className="dropdown-item" href="#">Another action</a></li>
                                     <li><a className="dropdown-item" href="#">Something else here</a></li>
                                 </ul>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
