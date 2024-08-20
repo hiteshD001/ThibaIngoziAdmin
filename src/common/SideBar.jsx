@@ -1,12 +1,12 @@
 import logo1 from "../assets/images/logo-1.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { superadmin_menulist, companyadmin_menulist } from "./Menulist";
+import { superadmin_menulist, Companyadmin_menulist } from "./Menulist";
 import { LogoutConfirm } from "./ConfirmationPOPup";
 
 const SideBar = () => {
     const [confirm, setconfirm] = useState(false)
-    const [menulist ] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : companyadmin_menulist)
+    const [menulist ] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : Companyadmin_menulist)
     const [currentMenu, setcurrentMenu] = useState("home")
 
     const location = useLocation();
