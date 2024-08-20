@@ -6,6 +6,7 @@ import profile from "../assets/images/profile.png";
 import logout from "../assets/images/logout.png";
 import comapnies from "../assets/images/companies.png";
 import hardware from "../assets/images/hardware.png";
+import { useEffect, useState } from "react";
 
 export const superadmin_menulist = [
     {
@@ -65,43 +66,51 @@ export const superadmin_menulist = [
     },
 ]
 
-export const companyadmin_menulist = [
-    {
-        id: "home",
-        name: "Home",
-        path: "/home",
-        image: home
-    },
-    {
-        id: "total-drivers",
-        name: "Total Drivers",
-        path: `/home/total-drivers/${localStorage.getItem("userID")}`,
-        image: drivers,
-        submenu: {
-            name: "List of Drivers",
-            path: `/home/total-drivers/${localStorage.getItem("userID")}`,
-            image: arrowLeft
-        },
-        add: "Add Drivers",
-        info: "Vehicle Information",
-        company: "Company Information"
+export const Companyadmin_menulist = () => {
+    const [id, setid] = useState("")
 
-    },
-    {
-        id: "settings",
-        name: "Settings",
-        path: "",
-        image: settings
-    },
-    {
-        id: "profile",
-        name: "Profile",
-        path: "/home/profile",
-        image: profile
-    },
-    {
-        id: "logout",
-        name: "Logout",
-        image: logout
-    },
-]
+    useEffect(() => {
+        setid(localStorage.getItem("userID"))
+    },[])
+
+    return [
+        {
+            id: "home",
+            name: "Home",
+            path: "/home",
+            image: home
+        },
+        {
+            id: "total-drivers",
+            name: "Total Drivers",
+            path: `/home/total-drivers/${id}`,
+            image: drivers,
+            submenu: {
+                name: "List of Drivers",
+                path: `/home/total-drivers/${id}`,
+                image: arrowLeft
+            },
+            add: "Add Drivers",
+            info: "Vehicle Information",
+            company: "Company Information"
+
+        },
+        {
+            id: "settings",
+            name: "Settings",
+            path: "",
+            image: settings
+        },
+        {
+            id: "profile",
+            name: "Profile",
+            path: "/home/profile",
+            image: profile
+        },
+        {
+            id: "logout",
+            name: "Logout",
+            image: logout
+        },
+    ]
+} 
