@@ -6,7 +6,7 @@ import profile from "../assets/images/profile.png";
 import logout from "../assets/images/logout.png";
 import comapnies from "../assets/images/companies.png";
 import hardware from "../assets/images/hardware.png";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export const superadmin_menulist = [
     {
@@ -67,7 +67,7 @@ export const superadmin_menulist = [
 ]
 
 export const Companyadmin_menulist = () => {
-    const [id, setid] = useState(localStorage.getItem("userID"))
+    const [id] = useState(localStorage.getItem("userID"))
 
     // setid(localStorage.getItem("userID"))
 
