@@ -6,7 +6,7 @@ import { Companyadmin_menulist, superadmin_menulist } from "./Menulist";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-    const [menulist] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : Companyadmin_menulist)
+    const [menulist] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : Companyadmin_menulist())
     const [currentMenu, setCurrentMenu] = useState("Home")
 
     const location = useLocation()

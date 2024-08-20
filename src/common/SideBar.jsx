@@ -5,8 +5,9 @@ import { superadmin_menulist, Companyadmin_menulist } from "./Menulist";
 import { LogoutConfirm } from "./ConfirmationPOPup";
 
 const SideBar = () => {
+    console.log(Companyadmin_menulist())
     const [confirm, setconfirm] = useState(false)
-    const [menulist ] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : Companyadmin_menulist)
+    const [menulist ] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : Companyadmin_menulist())
     const [currentMenu, setcurrentMenu] = useState("home")
 
     const location = useLocation();

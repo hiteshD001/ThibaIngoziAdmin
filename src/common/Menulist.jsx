@@ -69,11 +69,7 @@ export const superadmin_menulist = [
 export const Companyadmin_menulist = () => {
     const [id, setid] = useState("")
 
-    useEffect(() => {
-        setid(localStorage.getItem("userID"))
-    },[])
-
-    return [
+    const menulist = [
         {
             id: "home",
             name: "Home",
@@ -113,4 +109,10 @@ export const Companyadmin_menulist = () => {
             image: logout
         },
     ]
+
+    useEffect(() => {
+        setid(localStorage.getItem("userID"))
+    },[])
+
+    return menulist
 } 
