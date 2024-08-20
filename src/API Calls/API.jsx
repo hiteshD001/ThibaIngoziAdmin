@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const token = localStorage.getItem("accessToken");
+// const token = localStorage.getItem("accessToken");
 
 export const userlogin = async (data) => {
     return await axios.post(`${import.meta.env.VITE_BASEURL}/users/login`, data);
@@ -11,6 +11,8 @@ export const register = async (data) => {
 }
 
 export const updateUser = async ({ id, data }) => {
+    const token = localStorage.getItem("accessToken");
+
     return await axios.put(`${import.meta.env.VITE_BASEURL}/users/${id}`, data,
         {
             headers: {
@@ -21,6 +23,8 @@ export const updateUser = async ({ id, data }) => {
 }
 
 export const getUser = async ({ queryKey }) => {
+    const token = localStorage.getItem("accessToken");
+
     const userid = queryKey[1]
     return await axios.get(`${import.meta.env.VITE_BASEURL}/users/${userid}`,
         {
@@ -32,6 +36,8 @@ export const getUser = async ({ queryKey }) => {
 }
 
 export const deleteUser = async (id) => {
+    const token = localStorage.getItem("accessToken");
+
     console.log(id)
     return await axios.delete(`${import.meta.env.VITE_BASEURL}/users/${id}`,
         {
@@ -43,6 +49,8 @@ export const deleteUser = async (id) => {
 }
 
 export const userList = async ({ queryKey }) => {
+    const token = localStorage.getItem("accessToken");
+
     const role = queryKey[1];
     const company_id = queryKey[2];
     const page = queryKey[3] || 0;
@@ -60,6 +68,8 @@ export const userList = async ({ queryKey }) => {
 }
 
 export const getAllOrders = async ({ queryKey }) => {
+    const token = localStorage.getItem("accessToken");
+
     const page = queryKey[1] || 0;
     const limit = queryKey[2] || 100;
 
@@ -74,6 +84,8 @@ export const getAllOrders = async ({ queryKey }) => {
 }
 
 export const updateStatus = async ({ id, quantity, status }) => {
+    const token = localStorage.getItem("accessToken");
+
     return await axios.put(`${import.meta.env.VITE_BASEURL}/payment/updateOrder/${id}`,
         {
             item_quantity: quantity,
@@ -88,6 +100,8 @@ export const updateStatus = async ({ id, quantity, status }) => {
 }
 
 export const getRecentSOS = async () => {
+    const token = localStorage.getItem("accessToken");
+
     return await axios.get(`${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`,
         {
             headers: {
@@ -98,6 +112,8 @@ export const getRecentSOS = async () => {
 }
 
 export const getchartData = async () => {
+    const token = localStorage.getItem("accessToken");
+
     return await axios.get(`${import.meta.env.VITE_BASEURL}/location/sos-month?start_date=2023-01-01&end_date=2024-12-31`,
         {
             headers: {
@@ -108,6 +124,8 @@ export const getchartData = async () => {
 }
 
 export const getHotspot = async ({ queryKey }) => {
+    const token = localStorage.getItem("accessToken");
+
     const type = queryKey[1]
 
     return await axios.get(`${import.meta.env.VITE_BASEURL}/location/hotspot`,
@@ -121,6 +139,8 @@ export const getHotspot = async ({ queryKey }) => {
 }
 
 export const getVehicleInfo = async ({ queryKey }) => {
+    const token = localStorage.getItem("accessToken");
+
     const id = queryKey[1]
 
     return await axios.get(`${import.meta.env.VITE_BASEURL}/vehicle/${id}`,
@@ -133,6 +153,5 @@ export const getVehicleInfo = async ({ queryKey }) => {
 }
 
 export const resetPassword = async ({ password, token }) => {
-    console.log(password, token)
     return await axios.post(`${import.meta.env.VITE_BASEURL}/users/reset-password/${token}`, { newPassword: password });
 }   

@@ -1,4 +1,4 @@
-import bell from "../assets/images/bell.png";
+// import bell from "../assets/images/bell.png";
 // import search from "../assets/images/search.png"
 // import icon from "../assets/images/icon.png"
 import { useEffect, useState } from "react";
@@ -8,7 +8,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 const Navbar = () => {
     const [menulist] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : companyadmin_menulist)
     const [currentMenu, setCurrentMenu] = useState("Home")
-    const [open, setopen] = useState(false)
 
     const location = useLocation()
     const nav = useNavigate();

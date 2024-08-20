@@ -31,6 +31,7 @@ export const Login = () => {
         onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption),
         onSuccess: (res) => {
             toast.success("Logged In successfully.");
+            localStorage.clear()
             localStorage.setItem("accessToken", res.data.accessToken)
             localStorage.setItem("userID", res.data.user._id)
             localStorage.setItem("role", res.data.user.role)
