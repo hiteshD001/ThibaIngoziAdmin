@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 const Home = () => {
   const [chartData, setchartData] = useState(new Array(12).fill(0));
   const [time, settime] = useState("today");
+  const [timeTitle, settimeTitle] = useState("Today");
   const [activeUser, setactiveUser] = useState(0);
 
   const soscount = useQuery({
@@ -54,21 +55,27 @@ const Home = () => {
     switch (time) {
       case "today":
         setactiveUser(driverList.data?.data.totalActiveDriversToday || 0);
+        settimeTitle("Today")
         break;
       case "yesterday":
         setactiveUser(driverList.data?.data.totalActiveDriversYesterday || 0);
+        settimeTitle("Yesterday")
         break;
       case "this_week":
         setactiveUser(driverList.data?.data.totalActiveDriversThisWeek || 0);
+        settimeTitle("This Week")
         break;
       case "this_month":
         setactiveUser(driverList.data?.data.totalActiveDriversThisMonth || 0);
+        settimeTitle("This Month")
         break;
       case "this_year":
         setactiveUser(driverList.data?.data.totalActiveDriversThisYear || 0);
+        settimeTitle("This Year")
         break;
       default:
         setactiveUser(0);
+        settimeTitle("Today")
         break;
     }
   }, [driverList.data, time]);
@@ -114,7 +121,7 @@ const Home = () => {
           </div>
           <div className="col-md-4">
             <div className="dash-counter">
-              <span>Driver Active This Month</span>
+              <span>Driver Active {timeTitle}</span>
               <h3>{activeUser}</h3>
             </div>
           </div>
@@ -129,7 +136,7 @@ const Home = () => {
           </div>
           <div className="col-md-6">
             <div className="dash-counter">
-              <span>Driver Active This Month</span>
+              <span>Driver Active {timeTitle}</span>
               <h3>{driverList.data?.data.totalActiveDriversThisMonth || 0}</h3>
             </div>
           </div>
