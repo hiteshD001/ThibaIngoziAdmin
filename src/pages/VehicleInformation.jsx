@@ -107,7 +107,7 @@ const VehicleInformation = () => {
                                         onChange={vehicleForm.handleChange}
                                         disabled={!edit}
                                     >
-                                        <option value="" hidden>Company Name</option>
+                                        <option value="" hidden>Others</option>
                                         {companyList.data?.data.users.map(user => <option key={user._id} value={user._id}>{user.company_name}</option>)}
                                     </select>
                                     {vehicleForm.touched.company_id && <p className="err">{vehicleForm.errors.company_id}</p>}

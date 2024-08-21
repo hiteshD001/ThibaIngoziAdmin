@@ -69,10 +69,6 @@ export const superadmin_menulist = [
 export const Companyadmin_menulist = () => {
     const [id] = useState(localStorage.getItem("userID"))
 
-    // setid(localStorage.getItem("userID"))
-
-    console.log(id)
-
     return [
         {
             id: "home",

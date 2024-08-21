@@ -65,7 +65,7 @@ export const companyValidation = yup.object({
 })
 
 export const driverValidation = yup.object({
-    company_id: yup.string().required(),
+    company_id: yup.string(),
     username: Username,
     email: Email,
     password: Password,
