@@ -10,11 +10,13 @@ import icon from "../assets/images/icon.png";
 import { useState } from "react";
 import Loader from "../common/Loader";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
+import Analytics from "../common/Analytics";
 
 const ListOfDrivers = () => {
 
   const nav = useNavigate();
   const params = useParams();
+  const [role] = useState(localStorage.getItem("role"))
   const [page, setpage] = useState(1);
   const [filter, setfilter] = useState("");
   const [confirmation, setconfirmation] = useState("");
@@ -56,9 +58,12 @@ const ListOfDrivers = () => {
               </div>
             </div>
           )}
+
+          {role === 'super_admin' && params.id && <Analytics />}
+
           <div className="theme-table">
             <div className="tab-heading">
-              <h3>Total Drivers</h3>
+              <h3>Total Drivers ({driverList.isSuccess && driverList.data.data.totalUsers || 0})</h3>
               <div className="tbl-filter">
                 <div className="input-group">
                   <span className="input-group-text">
@@ -98,6 +103,7 @@ const ListOfDrivers = () => {
                         <tr>
                           <th>Driver</th>
                           <th>Driver ID</th>
+                          <th>Company</th>
                           <th>Contact No.</th>
                           <th>Contact Email</th>
                           <th>&nbsp;</th>
@@ -125,6 +131,9 @@ const ListOfDrivers = () => {
                             </td>
                             <td className={!driver.id_no ? "nodata" : ""}>
                               {driver.id_no}
+                            </td>
+                            <td className={!driver.company_name ? "companynamenodata" : ""}>
+                              {driver.company_name}
                             </td>
                             <td className={!driver?.mobile_no ? "nodata" : ""}>
                               {driver?.mobile_no}

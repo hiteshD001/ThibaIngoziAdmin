@@ -31,7 +31,7 @@ const ListOfCompanies = () => {
         <div className="col-md-12">
           <div className="theme-table">
             <div className="tab-heading">
-              <h3>List of Companies</h3>
+              <h3>List of Companies ({companyList.isSuccess && companyList.data?.data.totalUsers || 0})</h3>
               <div className="tbl-filter">
                 <div className="input-group">
                   <span className="input-group-text">

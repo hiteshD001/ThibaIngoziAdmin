@@ -54,7 +54,7 @@ export const userList = async ({ queryKey }) => {
     const role = queryKey[1];
     const company_id = queryKey[2];
     const page = queryKey[3] || 0;
-    const limit = queryKey[5] || 100;
+    const limit = queryKey[4] || 10
     const filter = queryKey[5] || "";
 
     return await axios.get(`${import.meta.env.VITE_BASEURL}/users`,
