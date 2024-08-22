@@ -717,6 +717,12 @@ button.Cancel-btn:hover {
     margin-left: 5px;
   }
 }
+.companynamenodata {
+  &::after {
+    content: "OTHERS";
+    margin-left: 5px;
+  }
+}
 
 .popup-overlay {
   position: fixed;

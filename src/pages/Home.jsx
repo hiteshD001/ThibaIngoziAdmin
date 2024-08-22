@@ -214,7 +214,7 @@ const Home = () => {
                           </td>
                           <td
                             className={
-                              !row.user_id?.company_name ? "nodata" : ""
+                              !row.user_id?.company_name ? "companynamenodata" : ""
                             }
                           >
                             {row.user_id?.company_name}

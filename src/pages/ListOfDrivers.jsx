@@ -12,6 +12,7 @@ import Loader from "../common/Loader";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 
 const ListOfDrivers = () => {
+
   const nav = useNavigate();
   const params = useParams();
   const [page, setpage] = useState(1);
@@ -26,7 +27,7 @@ const ListOfDrivers = () => {
   });
 
   const driverList = useQuery({
-    queryKey: ["driver list", "driver", params.id, page, 5],
+    queryKey: ["driver list", "driver", params.id, page, 5, filter],
     queryFn: userList,
     staleTime: 15 * 60 * 1000,
     placeholderData: keepPreviousData,
