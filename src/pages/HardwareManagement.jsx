@@ -1,16 +1,15 @@
-import {
-  keepPreviousData,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { getAllOrders, updateStatus } from "../API Calls/API";
+import { useState } from "react";
+
+import { useQueryClient } from "@tanstack/react-query";
+import { useGetAllOrders, useUpdateStatus } from "../API Calls/API";
+
 import nouser from "../assets/images/NoUser.png";
 import Prev from "../assets/images/left.png";
 import Next from "../assets/images/right.png";
+
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
-import { useState } from "react";
+
 import Loader from "../common/Loader";
 
 const HardwareManagement = () => {
@@ -18,34 +17,21 @@ const HardwareManagement = () => {
   const [page, setpage] = useState(1);
   const [toggle, settoggle] = useState("");
 
-  const orderList = useQuery({
-    queryKey: ["order list", page, 7],
-    queryFn: getAllOrders,
-    staleTime: 15 * 60 * 1000,
-    placeholderData: keepPreviousData,
-  });
 
-  const toggleStatus = useMutation({
-    mutationKey: ["Toggle Status"],
-    mutationFn: updateStatus,
-    onSuccess: () => {
-      toast.success("Order Updated Successfully.");
-      client.invalidateQueries("order list");
-    },
-    onError: (error) =>
-      toast.error(
-        error.response.data.message || "Something went Wrong",
-        toastOption
-      ),
-  });
+  const onSuccess = () => {
+    toast.success("Order Updated Successfully.");
+    client.invalidateQueries("order list");
+  }
+  const onError = (error) => {
+    toast.error(error.response.data.message || "Something went Wrong", toastOption)
+  }
+
+  const orderList = useGetAllOrders(page, 10)
+  const toggleStatus = useUpdateStatus(onSuccess, onError)
 
   const handleToggle = (id, quantity, status) => {
     settoggle(id);
-    toggleStatus.mutate({
-      id,
-      quantity,
-      status: status === "delivered" ? "order_received" : "delivered",
-    });
+    toggleStatus.mutate({ id, quantity, status: status === "delivered" ? "order_received" : "delivered" })
   };
 
   return (
@@ -125,7 +111,7 @@ const HardwareManagement = () => {
                                 }
                               >
                                 {toggleStatus.isPending &&
-                                toggle === order._id ? (
+                                  toggle === order._id ? (
                                   <Loader color="white" />
                                 ) : order.status === "order_received" ? (
                                   "Order Received"

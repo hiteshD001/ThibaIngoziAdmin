@@ -1,9 +1,12 @@
-import { useFormik } from "formik"
-import { vehicleValidation } from "../common/FormValidation"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { getUser, updateUser, userList } from "../API Calls/API"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+
+import { useFormik } from "formik"
+import { vehicleValidation } from "../common/FormValidation"
+
+import { useQueryClient } from "@tanstack/react-query"
+import { useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API"
+
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 
@@ -36,28 +39,17 @@ const VehicleInformation = () => {
         }
     })
 
-    const vehicleInfo = useQuery({
-        queryKey: ["userinfo", params.id],
-        queryFn: getUser,
-        staleTime: Infinity
-    })
+    const vehicleInfo = useGetUser(params.id)
+    const companyList = useGetUserList("company list", "company")
 
-    const companyList = useQuery({
-        queryKey: ["company list", "company"],
-        queryFn: userList,
-        staleTime: 15 * 60 * 1000,
-    })
+    const onSuccess = (res) => {
+        toast.success("User Updated Successfully.");
+        client.invalidateQueries("driver list")
+        console.log(res)
+    }
+    const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
 
-    const { mutate } = useMutation({
-        mutationKey: ["update user"],
-        mutationFn: updateUser,
-        onSuccess: (res) => {
-            toast.success("User Updated Successfully.");
-            client.invalidateQueries("driver list")
-            console.log(res)
-        },
-        onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption)
-    })
+    const { mutate } = useUpdateUser(onSuccess, onError)
 
     useEffect(() => {
         console.log(vehicleInfo.data)

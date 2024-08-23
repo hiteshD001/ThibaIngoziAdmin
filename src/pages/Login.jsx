@@ -3,14 +3,12 @@ import log_1 from "../assets/images/logo-1.png";
 import { useNavigate } from "react-router-dom";
 
 import { useFormik } from "formik";
-// import { loginValidation } from "../common/FormValidation";
-
-import { useMutation } from "@tanstack/react-query";
-import { userlogin } from "../API Calls/API";
+import { loginValidation } from "../common/FormValidation";
 
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
+import { useUserLogin } from "../API Calls/API";
 
 export const Login = () => {
     const nav = useNavigate()
@@ -21,23 +19,21 @@ export const Login = () => {
             password: '',
             fcm_token: "fcm_token"
         },
-        // validationSchema: loginValidation,
+        validationSchema: loginValidation,
         onSubmit: (values) => loginfn.mutate(values),
     })
 
-    const loginfn = useMutation({
-        mutationKey: ['login'],
-        mutationFn: userlogin,
-        onError: (error) => toast.error(error.response.data.message || "Something went Wrong", toastOption),
-        onSuccess: (res) => {
-            toast.success("Logged In successfully.");
-            localStorage.clear()
-            localStorage.setItem("accessToken", res.data.accessToken)
-            localStorage.setItem("userID", res.data.user._id)
-            localStorage.setItem("role", res.data.user.role)
-            nav("/home")
-        }
-    })
+    const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
+    const onSuccess = (res) => {
+        toast.success("Logged In successfully.");
+        localStorage.clear()
+        localStorage.setItem("accessToken", res.data.accessToken)
+        localStorage.setItem("userID", res.data.user._id)
+        localStorage.setItem("role", res.data.user.role)
+        nav("/home")
+    }
+
+    const loginfn = useUserLogin(onSuccess, onError)
 
     return (
         <>
@@ -73,7 +69,7 @@ export const Login = () => {
                                         <a href="#">Forgot Password?</a>
                                     </div>
                                     <button disabled={loginfn.isPending} type="submit" className="btn btn-dark d-block">
-                                        {loginfn.isPending ? <Loader color="white" /> :  "Sign In"}
+                                        {loginfn.isPending ? <Loader color="white" /> : "Sign In"}
                                     </button>
 
                                     <div className="keep-signed">

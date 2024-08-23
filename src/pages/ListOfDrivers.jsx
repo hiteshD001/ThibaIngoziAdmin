@@ -1,37 +1,29 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { getUser, userList } from "../API Calls/API";
+
+import { useGetUser, useGetUserList } from "../API Calls/API";
+
 import Prev from "../assets/images/left.png";
 import Next from "../assets/images/right.png";
-
 import nouser from "../assets/images/NoUser.png";
 import search from "../assets/images/search.png";
 import icon from "../assets/images/icon.png";
-import { useState } from "react";
+
 import Loader from "../common/Loader";
+import Analytics from "../common/Analytics";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 
 const ListOfDrivers = () => {
 
   const nav = useNavigate();
   const params = useParams();
+  const [role] = useState(localStorage.getItem("role"))
   const [page, setpage] = useState(1);
   const [filter, setfilter] = useState("");
   const [confirmation, setconfirmation] = useState("");
 
-  const companyInfo = useQuery({
-    queryKey: ["userinfo", params.id],
-    queryFn: getUser,
-    staleTime: Infinity,
-    enabled: params.id ? true : false,
-  });
-
-  const driverList = useQuery({
-    queryKey: ["driver list", "driver", params.id, page, 5, filter],
-    queryFn: userList,
-    staleTime: 15 * 60 * 1000,
-    placeholderData: keepPreviousData,
-  });
+  const companyInfo = useGetUser(params.id)
+  const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter)
 
   return (
     <div className="container-fluid">
@@ -56,9 +48,15 @@ const ListOfDrivers = () => {
               </div>
             </div>
           )}
+
+          {role === 'super_admin' && params.id && <Analytics id={params.id} />}
+
           <div className="theme-table">
             <div className="tab-heading">
+              <div className="count">
               <h3>Total Drivers</h3>
+                <p>{driverList.isSuccess && driverList.data.data.totalUsers || 0}</p>
+              </div>
               <div className="tbl-filter">
                 <div className="input-group">
                   <span className="input-group-text">
@@ -98,6 +96,7 @@ const ListOfDrivers = () => {
                         <tr>
                           <th>Driver</th>
                           <th>Driver ID</th>
+                          <th>Company</th>
                           <th>Contact No.</th>
                           <th>Contact Email</th>
                           <th>&nbsp;</th>
@@ -125,6 +124,9 @@ const ListOfDrivers = () => {
                             </td>
                             <td className={!driver.id_no ? "nodata" : ""}>
                               {driver.id_no}
+                            </td>
+                            <td className={!driver.company_name ? "companynamenodata" : ""}>
+                              {driver.company_name}
                             </td>
                             <td className={!driver?.mobile_no ? "nodata" : ""}>
                               {driver?.mobile_no}

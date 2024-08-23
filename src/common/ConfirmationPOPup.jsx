@@ -1,25 +1,36 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteUser } from "../API Calls/API";
+import { useQueryClient } from "@tanstack/react-query";
+import { useDeleteUser } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 
 export const DeleteConfirm = ({ ...p }) => {
   const client = useQueryClient();
 
-  const deleteDriver = useMutation({
-    mutationKey: ["delete user"],
-    mutationFn: deleteUser,
-    onSuccess: (res) => {
-      toast.success("Delete User Successfully.");
-      console.log(res);
-      client.invalidateQueries("driver list");
-    },
-    onError: (error) =>
-      toast.error(
-        error.response.data.message || "Something went Wrong",
-        toastOption
-      ),
-  });
+  // const deleteDriver = useMutation({
+  //   mutationKey: ["delete user"],
+  //   mutationFn: deleteUser,
+  //   onSuccess: (res) => {
+  //     toast.success("Delete User Successfully.");
+  //     console.log(res);
+  //     client.invalidateQueries("driver list");
+  //   },
+  //   onError: (error) =>
+  //     toast.error(
+  //       error.response.data.message || "Something went Wrong",
+  //       toastOption
+  //     ),
+  // });
+
+  const onSuccess = (res) => {
+    toast.success("Delete User Successfully.");
+    console.log(res);
+    client.invalidateQueries("driver list");
+  }
+  const onError = (error) => {
+    toast.error(error.response.data.message || "Something went Wrong", toastOption)
+  }
+
+  const deleteDriver = useDeleteUser(onSuccess, onError)
 
   return (
     <div className="popup-overlay">

@@ -1,13 +1,17 @@
-import { useFormik } from "formik";
-import { driverValidation } from "../common/FormValidation";
-import { toast } from "react-toastify";
-import { toastOption } from "../common/ToastOptions";
-import { register, userList } from "../API Calls/API";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Loader from "../common/Loader";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import { useNavigate } from "react-router-dom";
+
+import { toast } from "react-toastify";
+import { toastOption } from "../common/ToastOptions";
+
+import { driverValidation } from "../common/FormValidation";
+
+import { useFormik } from "formik";
+
+import { useGetUserList, useRegister } from "../API Calls/API";
+import { useQueryClient } from "@tanstack/react-query";
+
+import Loader from "../common/Loader";
 
 const AddDriver = () => {
     const client = useQueryClient();
@@ -22,27 +26,18 @@ const AddDriver = () => {
         },
     });
 
-    const companyList = useQuery({
-        queryKey: ["company list", "company"],
-        queryFn: userList,
-        staleTime: 15 * 60 * 1000,
-    });
+    const onSuccess = () => {
+        toast.success("Driver added successfully.");
+        driverForm.resetForm();
+        client.invalidateQueries("company list");
+        nav(role === 'super_admin' ? "/home/total-drivers" : `/home/total-drivers/${localStorage.getItem("userID")}`);
+    }
+    const onError = (error) => {
+        toast.error(error.response.data.message || "Something went Wrong", toastOption)
+    }
 
-    const newdriver = useMutation({
-        mutationKey: ["create new driver"],
-        mutationFn: register,
-        onSuccess: () => {
-            toast.success("Driver added successfully.");
-            driverForm.resetForm();
-            client.invalidateQueries("company list");
-            nav(role === 'super_admin' ? "/home/total-drivers" : `/home/total-drivers/${localStorage.getItem("userID")}`);
-        },
-        onError: (error) =>
-            toast.error(
-                error.response.data.message || "Something went Wrong",
-                toastOption
-            ),
-    });
+    const newdriver = useRegister(onSuccess, onError)
+    const companyList = useGetUserList("company list", "company")
 
     return (
         <div className="container-fluid">

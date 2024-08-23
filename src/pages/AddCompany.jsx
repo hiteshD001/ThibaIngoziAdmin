@@ -1,11 +1,16 @@
+import { useNavigate } from "react-router-dom";
+
 import { useFormik } from "formik";
 import { companyValidation } from "../common/FormValidation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { register } from "../API Calls/API";
+
+import { useQueryClient } from "@tanstack/react-query";
+
+import { useRegister } from "../API Calls/API";
+
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
+
 import Loader from "../common/Loader";
-import { useNavigate } from "react-router-dom";
 
 const AddCompany = () => {
   const client = useQueryClient();
@@ -31,21 +36,17 @@ const AddCompany = () => {
     },
   });
 
-  const newcompany = useMutation({
-    mutationKey: ["create new company"],
-    mutationFn: register,
-    onSuccess: () => {
-      toast.success("Company Added Successfully.");
-      companyForm.resetForm();
-      client.invalidateQueries("company list");
-      nav("/home/total-companies");
-    },
-    onError: (error) =>
-      toast.error(
-        error.response.data.message || "Something went Wrong",
-        toastOption
-      ),
-  });
+  const onSuccess = () => {
+    toast.success("Company Added Successfully.");
+    companyForm.resetForm();
+    client.invalidateQueries("company list");
+    nav("/home/total-companies");
+  }
+  const onError = (error) => {
+    toast.error(error.response.data.message || "Something went Wrong", toastOption)
+  }
+
+  const newcompany = useRegister(onSuccess, onError)
 
   return (
     <div className="container-fluid">

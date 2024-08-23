@@ -1,16 +1,15 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import icon from "../assets/images/icon.png";
 import search from "../assets/images/search.png";
-import { userList } from "../API Calls/API";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import Prev from "../assets/images/left.png";
 import Next from "../assets/images/right.png";
-
 import nouser from "../assets/images/NoUser.png";
-import { useState } from "react";
-import Loader from "../common/Loader";
+
+import { useGetUserList } from "../API Calls/API";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
-// import { debounce } from "lodash"
+import Loader from "../common/Loader";
 
 const ListOfCompanies = () => {
   const nav = useNavigate();
@@ -18,12 +17,7 @@ const ListOfCompanies = () => {
   const [filter, setfilter] = useState("");
   const [confirmation, setconfirmation] = useState("");
 
-  const companyList = useQuery({
-    queryKey: ["company list", "company", "", page, 5, filter],
-    queryFn: userList,
-    staleTime: 15 * 60 * 1000,
-    placeholderData: keepPreviousData,
-  });
+  const companyList = useGetUserList("company list", "company", "", page, 10, filter)
 
   return (
     <div className="container-fluid">
