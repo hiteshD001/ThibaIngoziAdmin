@@ -1,38 +1,21 @@
-import { useQuery } from "@tanstack/react-query";
+/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { getchartData, getHotspot, userList } from "../API Calls/API";
+
+import { useGetChartData, useGetHotspot, useGetUserList } from "../API Calls/API";
+
 import Loader from "./Loader";
+
 import CustomChart from "./CustomChart";
 
-const Analytics = () => {
-    const [chartData, setchartData] = useState(new Array(12).fill(0));
+const Analytics = ({ id }) => {
     const [time, settime] = useState("today");
     const [timeTitle, settimeTitle] = useState("Today");
     const [activeUser, setactiveUser] = useState(0);
 
-    const soscount = useQuery({
-        queryKey: ["chart data"],
-        queryFn: getchartData,
-        staleTime: 15 * 60 * 1000,
-    });
-
-    const driverList = useQuery({
-        queryKey: ["driver list", "driver"],
-        queryFn: userList,
-        staleTime: 15 * 60 * 1000,
-    });
-
-    const companyList = useQuery({
-        queryKey: ["company list", "company"],
-        queryFn: userList,
-        staleTime: 15 * 60 * 1000,
-    });
-
-    const hotspot = useQuery({
-        queryKey: ["hotspot", time],
-        queryFn: getHotspot,
-        staleTime: 15 * 60 * 1000,
-    });
+    const driverList = useGetUserList("driver list", "driver", id)
+    const companyList = useGetUserList("company list", "company")
+    const hotspot = useGetHotspot(time)
+    const chartData = useGetChartData()
 
     const handlChange = (e) => {
         settime(e.target.value);
@@ -67,15 +50,6 @@ const Analytics = () => {
         }
     }, [driverList.data, time]);
 
-    useEffect(() => {
-        const newdata = [...chartData];
-        soscount.data?.data.forEach((item) => {
-            newdata[item.month - 1] = item.count;
-        });
-
-        setchartData(newdata);
-    }, [soscount.data]);
-
     return (
         <div>
             <div className="row">
@@ -92,7 +66,7 @@ const Analytics = () => {
                 </div>
             </div>
             <div className="clearfix"></div>
-            {localStorage.getItem("role") === "super_admin" ? (
+            {localStorage.getItem("role") === "super_admin" && !id ? (
                 <div className="row">
                     <div className="col-md-4">
                         <div className="dash-counter">

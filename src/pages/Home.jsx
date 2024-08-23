@@ -1,19 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
-import {
-    getRecentSOS,
-} from "../API Calls/API";
-import nouser from "../assets/images/NoUser.png";
-import Loader from "../common/Loader";
 import { Link } from "react-router-dom";
+
+import { useGetRecentSOS } from "../API Calls/API";
+
+import nouser from "../assets/images/NoUser.png";
+
+import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 
 const Home = () => {
-
-    const recentSOS = useQuery({
-        queryKey: ["recent SOS"],
-        queryFn: getRecentSOS,
-        staleTime: 15 * 60 * 1000,
-    });
+    const recentSOS = useGetRecentSOS()
 
     return (
         <div className="container-fluid">

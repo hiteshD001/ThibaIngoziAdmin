@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import "../css/reset-password.css";
-import { useMutation } from "@tanstack/react-query";
-import { resetPassword } from "../API Calls/API";
 
-// import logo from "../assets/images/logo-1.png"
+import { useResetPassword } from "../API Calls/API";
+
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
+
 import { useFormik } from "formik";
 import { resetPasswordValidation } from "../common/FormValidation";
+
+import "../css/reset-password.css";
 
 const ResetPassword = () => {
     const [showpass, setshowpass] = useState(false);
@@ -24,19 +25,14 @@ const ResetPassword = () => {
         onSubmit: (val) => resetpass.mutate({ password: val?.password, token: p.get('token') })
     })
 
-    const resetpass = useMutation({
-        mutationKey: ['reset pass', p.get('token')],
-        mutationFn: resetPassword,
-        onError: (error) => toast.error(error.response.data.message || "Error", toastOption),
-        onSuccess: (data) => toast.success(data.data.message, toastOption),
-        retry: false
-    }
+    const resetpass = useResetPassword(
+        (error) => toast.error(error.response.data.message || "Error", toastOption),
+        (data) => toast.success(data.data.message, toastOption)
     )
 
     return (
         <div className="reset-container">
             <div className="wrapper">
-                {/* <img className="logo" src={logo} alt="Guardian Link" /> */}
                 <h2>Reset Password</h2>
                 <form className="form" onSubmit={resetPasswordForm.handleSubmit}>
                     <span>

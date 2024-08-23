@@ -5,8 +5,8 @@ import {
   profileValidation_s,
 } from "../common/FormValidation";
 import { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getUser, updateUser } from "../API Calls/API";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGetUser, useUpdateUser } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
@@ -16,11 +16,16 @@ const Profile = () => {
   const [edit, setedit] = useState(false);
   const client = useQueryClient();
 
-  const userinfo = useQuery({
-    queryKey: ["userinfo", localStorage.getItem("userID")],
-    queryFn: getUser,
-    staleTime: Infinity,
-  });
+  const onSuccess = () => {
+    toast.success("Profile Update Successfully.");
+    client.invalidateQueries("userinfo");
+  }
+  const onError = (error) => {
+    toast.error(error.response.data.message || "Something went Wrong", toastOption)
+  }
+
+  const { mutate, isPending } = useUpdateUser(onSuccess, onError)
+  const userinfo = useGetUser(localStorage.getItem("userID"))
 
   const profileForm = useFormik({
     initialValues: role === "super_admin" ? super_admin : company,
@@ -33,38 +38,24 @@ const Profile = () => {
     },
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationKey: ["update user"],
-    mutationFn: updateUser,
-    onSuccess: () => {
-      toast.success("Profile Update Successfully.");
-      client.invalidateQueries("userinfo");
-    },
-    onError: (error) =>
-      toast.error(
-        error.response.data.message || "Something went Wrong",
-        toastOption
-      ),
-  });
-
   useEffect(() => {
     profileForm.setValues(
       role === "super_admin"
         ? {
-            first_name: userinfo.data?.data.user?.first_name || "",
-            last_name: userinfo.data?.data.user?.last_name || "",
-            email: userinfo.data?.data.user?.email || "",
-            address: userinfo.data?.data.user?.address || "",
-            role: userinfo.data?.data.user?.role || "",
-            mobile_no: userinfo.data?.data.user?.mobile_no || "",
-          }
+          first_name: userinfo.data?.data.user?.first_name || "",
+          last_name: userinfo.data?.data.user?.last_name || "",
+          email: userinfo.data?.data.user?.email || "",
+          address: userinfo.data?.data.user?.address || "",
+          role: userinfo.data?.data.user?.role || "",
+          mobile_no: userinfo.data?.data.user?.mobile_no || "",
+        }
         : {
-            contact_name: userinfo.data?.data.user?.contact_name || "",
-            email: userinfo.data?.data.user?.email || "",
-            address: userinfo.data?.data.user?.address || "",
-            role: userinfo.data?.data.user?.role || "",
-            mobile_no: userinfo.data?.data.user?.mobile_no || "",
-          }
+          contact_name: userinfo.data?.data.user?.contact_name || "",
+          email: userinfo.data?.data.user?.email || "",
+          address: userinfo.data?.data.user?.address || "",
+          role: userinfo.data?.data.user?.role || "",
+          mobile_no: userinfo.data?.data.user?.mobile_no || "",
+        }
     );
   }, [userinfo.data]);
 
