@@ -1,33 +1,9 @@
 import "../css/RequestHardware.css";
 import sosHardware from "../assets/images/soshardware.png";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const RequestHardware = () => {
-  const [quantity, setQuantity] = useState(1);
-  const [address, setAddress] = useState("");
-  const [username, setUsername] = useState("");
-  const [token, setToken] = useState("");
-  const [product, setProduct] = useState("");
-  const [price, setPrice] = useState("");
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const qty = params.get("qty");
-    const addr = params.get("address");
-    const user = params.get("username");
-    const tkn = params.get("token");
-    const product_name = params.get("product");
-    const product_price = params.get("price");
-
-    if (qty) setQuantity(parseInt(qty, 10));
-    if (addr) setAddress(addr);
-    if (user) setUsername(user);
-    if (tkn) setToken(tkn);
-    if (product_name) setProduct(product_name);
-    if (product_price) setPrice(product_price);
-  }, []);
-
-  // const price = 100;
+  const [params] = useSearchParams()
 
   return (
     <div className="reqhardware-container">
@@ -36,22 +12,39 @@ const RequestHardware = () => {
         <img src={sosHardware} />
         <span>
           <p className="title">Name</p>
-          <h2 className="name">{username}</h2>
+          <h2 className="name">{params.get("username")}</h2>
         </span>
         <span>
           <p className="title">Delivery Address</p>
-          <p className="address">{address}</p>
+          <table>
+            <tr>
+              <td className="key">Address 1:</td>
+              <td className="value">{params.get("address1")}</td>
+            </tr>
+            <tr>
+              <td className="key">Address 2:</td>
+              <td className="value">{params.get("address2")}</td>
+            </tr>
+            <tr>
+              <td className="key">City:</td>
+              <td className="value">{params.get("city")}</td>
+            </tr>
+            <tr>
+              <td className="key">Postal Code:</td>
+              <td className="value">{params.get("postal_code")}</td>
+            </tr>
+          </table>
         </span>
 
         <div className="price-container">
           <div className="quantity">
-            <p>Quantity : {quantity}</p>
+            <p>Quantity : {params.get("qty")}</p>
           </div>
 
-          <h1 className="price">{quantity * price}</h1>
+          <h1 className="price">{(params.get("qty") * params.get("price")).toFixed(2)}</h1>
         </div>
 
-        <form action={import.meta.env.VITE_PAYFAST_ACTION_URL} method="post">
+        <form className="form" action={import.meta.env.VITE_PAYFAST_ACTION_URL} method="post">
           <input
             type="hidden"
             name="merchant_id"
@@ -65,15 +58,15 @@ const RequestHardware = () => {
           <input
             type="hidden"
             name="return_url"
-            value={`${import.meta.env.VITE_WEB_BASE_URL}/payment-suceed?qty=${quantity}&address=${address}&token=${token}`}
+            value={`${import.meta.env.VITE_WEB_BASE_URL}/payment-suceed?qty=${params.get("qty")}&address=${params.get("address")}&token=${params.get("token")}`}
           />
           {/* <input
             type="hidden"
             name="cancel_url"
             value={`${import.meta.env.VITE_WEB_BASE_URL}}/payment-failed`}
           /> */}
-          <input type="hidden" name="amount" value={quantity * price} />
-          <input type="hidden" name="item_name" value={product} />
+          <input type="hidden" name="amount" value={params.get("qty") * params.get("price")} />
+          <input type="hidden" name="item_name" value={params.get("product")} />
           <button className="paybutton" type="submit">
             Pay Now
           </button>

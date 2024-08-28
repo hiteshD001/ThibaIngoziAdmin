@@ -58,10 +58,10 @@
   .price-container {
     width: 100%;
     display: flex;
-    gap: 5rem;
-    justify-content: center;
+    /* gap: 5rem; */
+    justify-content: space-between;
     align-items: center;
-    padding: 0rem 3rem;
+    max-width: 300px;
   }
 
   .quantity {
@@ -92,6 +92,36 @@
     color: #000000;
   }
 
+  table {
+    width: 100%;
+    max-width: 300px;
+    margin: 1rem;
+
+    tr {
+      td {
+        width: 50%;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 19.6px;
+        color: #000000;
+        margin: 0;
+        padding: 0.25rem 0.5rem;
+        text-align: left;
+      }
+
+      td.key {
+        font-weight: 600;
+        text-align: right;
+      }
+    }
+
+  }
+
+  .form {
+    width: 100%;
+    max-width: 300px;
+  }
+
   .paybutton {
     font-size: 16px;
     font-weight: 700;
@@ -103,7 +133,8 @@
     border: none;
     outline: none;
     padding: 0.5rem 1rem;
-    width: 20rem;
+    /* width: 20rem; */
+    width: 100%;
     cursor: pointer;
   }
 }
@@ -116,29 +147,13 @@
 
   .reqhardware-container .wrapper {
     width: 90%;
-    /* height: 100%; */
     padding: 3rem 0;
     gap: 1rem;
-  }
-
-  .reqhardware-container .wrapper .price-container {
-    gap: 5rem;
-    width: auto;
   }
 }
 
 @media (min-width: 600px) and (max-width: 900px) {
   .reqhardware-container .wrapper {
     width: 60%;
-  }
-
-  .reqhardware-container .wrapper .price-container {
-    gap: 7rem;
-  }
-}
-
-@media (min-width: 600px) and (max-width: 900px) {
-  .reqhardware-container .wrapper .price-container {
-    gap: 8rem;
   }
 }
