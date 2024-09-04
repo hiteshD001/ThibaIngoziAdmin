@@ -401,7 +401,7 @@ table#example {
   justify-content: space-between;
 }
 
-.tab-heading .count{
+.tab-heading .count {
   display: flex;
   align-items: center;
   gap: 20px;
@@ -445,7 +445,7 @@ table#example {
   color: #1c1c1c;
 }
 
-.table-striped > tbody > tr:nth-of-type(odd) {
+.table-striped>tbody>tr:nth-of-type(odd) {
   --bs-table-accent-bg: #f7f9fb;
   color: #1c1c1c;
 }
@@ -734,6 +734,7 @@ button.Cancel-btn:hover {
     margin-left: 5px;
   }
 }
+
 .companynamenodata {
   &::after {
     content: "Others";
@@ -782,6 +783,11 @@ button.Cancel-btn:hover {
   font-size: 14px;
 }
 
+.fileerror{
+  font-size: small;
+  color: red;
+}
+
 .popup-button.confirm {
   color: #eb5757;
   background: #fdecec;
@@ -790,6 +796,11 @@ button.Cancel-btn:hover {
 
 .popup-button:hover {
   opacity: 0.5;
+}
+
+.popup-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .loader {
@@ -806,6 +817,7 @@ button.Cancel-btn:hover {
 }
 
 @media only screen and (max-width: 1200px) {
+
   .theme-table thead tr th,
   .theme-table table tr td {
     padding: 12px 10px !important;

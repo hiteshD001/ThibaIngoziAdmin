@@ -295,6 +295,29 @@ export const useUpdateUser = (onSuccess, onError) => {
     return mutation;
 };
 
+export const useFileUpload = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        console.log(data)
+        const token = localStorage.getItem("accessToken");
+
+        return await axios.post(`${import.meta.env.VITE_BASEURL}/users/register/bulk`, data,
+            {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            }
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    });
+
+    return mutation;
+}
+
 // const token = localStorage.getItem("accessToken");
 
 // export const userlogin = async (data) => {
