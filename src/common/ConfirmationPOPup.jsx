@@ -6,21 +6,6 @@ import { toastOption } from "./ToastOptions";
 export const DeleteConfirm = ({ ...p }) => {
   const client = useQueryClient();
 
-  // const deleteDriver = useMutation({
-  //   mutationKey: ["delete user"],
-  //   mutationFn: deleteUser,
-  //   onSuccess: (res) => {
-  //     toast.success("Delete User Successfully.");
-  //     console.log(res);
-  //     client.invalidateQueries("driver list");
-  //   },
-  //   onError: (error) =>
-  //     toast.error(
-  //       error.response.data.message || "Something went Wrong",
-  //       toastOption
-  //     ),
-  // });
-
   const onSuccess = (res) => {
     toast.success("Delete User Successfully.");
     console.log(res);

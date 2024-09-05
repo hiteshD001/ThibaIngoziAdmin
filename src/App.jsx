@@ -17,6 +17,7 @@ import Profile from "./pages/Profile";
 
 import "./App.css";
 import { AuthGuard, LogGuard, RouteGuard } from "./common/Guard";
+import GoogleMaps from "./common/GoogleMaps";
 
 function App() {
     return (
@@ -38,6 +39,10 @@ const router = createBrowserRouter([
             {
                 path: "",
                 element: <Home />
+            },
+            {
+                path: "hotspot/location",
+                element: <GoogleMaps />
             },
             {
                 path: "total-companies",
