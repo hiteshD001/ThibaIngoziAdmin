@@ -26,13 +26,13 @@ const Navbar = () => {
                         <div className="breadcrumb">
                             <span>Dashboards</span>
                             <span>/</span>
-                            <span onClick={() => nav(currentMenu.submenu.path)}>{currentMenu.submenu ? currentMenu.submenu.name : currentMenu.name}</span>
+                            <span onClick={() => nav(currentMenu.submenu.path)}>{currentMenu?.submenu && (currentMenu.submenu ? currentMenu.submenu.name : currentMenu.name)}</span>
                             {location.pathname.split("/").length > 3 && <>
                                 <span>/</span>
                                 <span>
                                     {location.pathname.split("/")[3] === "vehicle-information" ? currentMenu.info
                                         : location.pathname.split("/")[3] === "add-driver" || location.pathname.split("/")[3] === "add-company" ? currentMenu.add
-                                            : currentMenu.company}
+                                            : currentMenu?.company}
                                 </span>
                             </>}
                         </div>

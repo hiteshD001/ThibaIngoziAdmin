@@ -48,13 +48,14 @@ const ImportSheet = ({ setpopup }) => {
         if (file) {
             const formData = new FormData();
             formData.append("driversSheet", file);
-
-            console.log(formData);
-
             upload.mutate(formData);
         } else {
             alert("Please select a file first!");
         }
+    };
+
+    const triggerFileInput = () => {
+        document.getElementById("fileInput").click();
     };
 
     return (
@@ -63,7 +64,11 @@ const ImportSheet = ({ setpopup }) => {
                 <div className="import">
                     <p>Please Choose a file to import</p>
                     <div className="fileinput">
-                        <input type="file" onChange={handleFileChange} />
+                        <input id="fileInput" type="file" onChange={handleFileChange} hidden />
+                        <div className="filecontainer">
+                            <button onClick={triggerFileInput}>Choose File</button>
+                            <p>{file ? file.name : "No File Choosen"}</p>
+                        </div>
                         <p className="fileerror">{error}</p>
                     </div>
                     <div className="popup-buttons">

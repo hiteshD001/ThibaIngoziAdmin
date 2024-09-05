@@ -4,13 +4,18 @@ import { useEffect, useState } from "react";
 import { useGetChartData, useGetHotspot, useGetUserList } from "../API Calls/API";
 
 import Loader from "./Loader";
+import { FaLocationDot } from "react-icons/fa6";
+
 
 import CustomChart from "./CustomChart";
+import { useNavigate } from "react-router-dom";
 
 const Analytics = ({ id }) => {
     const [time, settime] = useState("today");
     const [timeTitle, settimeTitle] = useState("Today");
     const [activeUser, setactiveUser] = useState(0);
+
+    const nav = useNavigate()
 
     const driverList = useGetUserList("driver list", "driver", id)
     const companyList = useGetUserList("company list", "company")
@@ -129,6 +134,7 @@ const Analytics = ({ id }) => {
                                         <div className="location" key={index}>
                                             <span>{d.address}</span>
                                             <span>{d.timesCalled}</span>
+                                            <span><FaLocationDot className="viewlocation" onClick={() => nav(`/home/hotspot/location?lat=${d.lat}&long=${d.long}`)} /></span>
                                         </div>
                                     ))
                             )}
