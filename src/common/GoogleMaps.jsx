@@ -10,13 +10,13 @@ const GoogleMaps = () => {
 
     return (
         <div >
-            <APIProvider apiKey={'AIzaSyCRUWdlYTEYbTeQ0bcZ0yoM6lLiVL6vNs4'} onLoad={() => console.log('Maps API has loaded.')}>
+            <APIProvider apiKey={import.meta.env.VITE_MAP_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
                 <Map
                     style={{ width: "100%", height: "calc(100vh - 100px )" }}
                     defaultZoom={16}
                     mapId="mymap"
                     defaultCenter={location}>
-                    <Marker
+                    <Marker 
                         key={"Hotspot"}
                         position={location}>
                     </Marker>
