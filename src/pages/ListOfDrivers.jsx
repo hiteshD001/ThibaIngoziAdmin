@@ -113,7 +113,7 @@ const ListOfDrivers = () => {
                                                         <td>
                                                             <div
                                                                 className={
-                                                                    !driver.username ? "prof nodata" : "prof"
+                                                                    (!driver.first_name && !driver.last_name) ? "prof nodata" : "prof"
                                                                 }
                                                             >
                                                                 <img
@@ -124,7 +124,7 @@ const ListOfDrivers = () => {
                                                                             : nouser
                                                                     }
                                                                 />
-                                                                {driver.username}
+                                                                {driver.first_name} {driver.last_name}
                                                             </div>
                                                         </td>
                                                         <td className={!driver.id_no ? "nodata" : ""}>

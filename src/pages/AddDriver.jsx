@@ -52,14 +52,27 @@ const AddDriver = () => {
                                 <div className="col-md-6">
                                     <input
                                         type="text"
-                                        name="username"
-                                        placeholder="Driver Name"
+                                        name="first_name"
+                                        placeholder="First Name"
                                         className="form-control"
-                                        value={driverForm.values.username}
+                                        value={driverForm.values.first_name}
                                         onChange={driverForm.handleChange}
                                     />
-                                    {driverForm.touched.username && (
-                                        <p className="err">{driverForm.errors.username}</p>
+                                    {driverForm.touched.first_name && (
+                                        <p className="err">{driverForm.errors.first_name}</p>
+                                    )}
+                                </div>
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="last_name"
+                                        placeholder="Last Name"
+                                        className="form-control"
+                                        value={driverForm.values.last_name}
+                                        onChange={driverForm.handleChange}
+                                    />
+                                    {driverForm.touched.last_name && (
+                                        <p className="err">{driverForm.errors.last_name}</p>
                                     )}
                                 </div>
                                 {role === 'super_admin' &&
@@ -135,7 +148,7 @@ const AddDriver = () => {
                                         <p className="err">{driverForm.errors.id_no}</p>
                                     )}
                                 </div>
-                                <div className={role === 'super_admin' ? "col-md-12" : "col-md-6"}>
+                                <div className={role === 'super_admin' ? "col-md-6" : "col-md-12"}>
                                     <input
                                         type="text"
                                         name="address"
@@ -174,7 +187,8 @@ export default AddDriver;
 
 const formValues1 = {
     company_id: "",
-    username: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     mobile_no: "",
@@ -186,7 +200,8 @@ const formValues1 = {
 }
 
 const formValues2 = {
-    username: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     mobile_no: "",
