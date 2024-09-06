@@ -17,7 +17,8 @@ const VehicleInformation = () => {
 
     const vehicleForm = useFormik({
         initialValues: {
-            username: "",
+            first_name: "",
+            last_name: "",
             company_id: "",
             email: "",
             mobile_no: "",
@@ -32,7 +33,7 @@ const VehicleInformation = () => {
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
-            const payload = { username: values.username, company_id: values.company_id, email: values.email, mobile_no: values.mobile_no }
+            const payload = { first_name: values.first_name, last_name: values.last_name, company_id: values.company_id, email: values.email, mobile_no: values.mobile_no }
             console.log(values);
             setedit(false);
             mutate({ id: params.id, data: payload })
@@ -54,7 +55,8 @@ const VehicleInformation = () => {
     useEffect(() => {
         console.log(vehicleInfo.data)
         vehicleForm.setValues({
-            username: vehicleInfo.data?.data.user.username || "",
+            first_name: vehicleInfo.data?.data.user.first_name || "",
+            last_name: vehicleInfo.data?.data.user.last_name || "",
             company_id: vehicleInfo.data?.data.user.company_id || "",
             email: vehicleInfo.data?.data.user.email || "",
             mobile_no: vehicleInfo.data?.data.user.mobile_no || "",
@@ -82,14 +84,26 @@ const VehicleInformation = () => {
                                 <div className="col-md-6">
                                     <input
                                         type="text"
-                                        name="username"
-                                        placeholder="Driver Name"
+                                        name="first_name"
+                                        placeholder="Name"
                                         className="form-control"
-                                        value={vehicleForm.values.username}
+                                        value={vehicleForm.values.first_name}
                                         onChange={vehicleForm.handleChange}
                                         disabled={!edit}
                                     />
-                                    {vehicleForm.touched.username && <p className="err">{vehicleForm.errors.username}</p>}
+                                    {vehicleForm.touched.first_name && <p className="err">{vehicleForm.errors.first_name}</p>}
+                                </div>
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="last_name"
+                                        placeholder="Surname"
+                                        className="form-control"
+                                        value={vehicleForm.values.last_name}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled={!edit}
+                                    />
+                                    {vehicleForm.touched.last_name && <p className="err">{vehicleForm.errors.last_name}</p>}
                                 </div>
                                 <div className="col-md-6">
                                     <select

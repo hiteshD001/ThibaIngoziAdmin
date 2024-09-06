@@ -66,7 +66,8 @@ export const companyValidation = yup.object({
 
 export const driverValidation = yup.object({
     company_id: yup.string(),
-    username: Username,
+    first_name: Username,
+    last_name: Username,
     email: Email,
     password: Password,
     mobile_no: MobileNumber,
@@ -75,7 +76,8 @@ export const driverValidation = yup.object({
 })
 
 export const vehicleValidation = yup.object({
-    username: Username,
+    first_name: Username,
+    last_name: Username,
     company_id: yup.string().required(),
     email: Email,
     mobile_no: MobileNumber,
