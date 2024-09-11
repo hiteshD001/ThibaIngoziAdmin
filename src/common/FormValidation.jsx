@@ -17,13 +17,13 @@ const Password = yup.string()
     .matches(/[0-9]/, 'Password must contain at least one number')
     .matches(/[!@#$%^&*]/, 'Password must contain at least one special character')
 
-const MobileNumber = yup.number()
+const MobileNumber = yup.string()
     .required("Mobile Number is Required")
-    .typeError("Mobile Number must be a number")
-    .integer("Mobile Number must be an integer")
-    .positive("Mobile Number must be positive")
-    .min(1000000000, "Mobile Number must be at least 10 digits")
-    .max(9999999999, "Mobile Number must be at most 10 digits")
+    .matches(/^[0][6-8][0-9]{8}$/, "Mobile Number must be valid.")
+    .typeError("Mobile Number must be a valid number")
+    .min(10, "Mobile Number must be exactly 10 digits")
+    .max(10, "Mobile Number must be exactly 10 digits");
+
 
 export const resetPasswordValidation = yup.object({
     password: Password,
