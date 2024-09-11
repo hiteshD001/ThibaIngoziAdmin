@@ -5,6 +5,7 @@ import Loader from "./Loader";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useQueryClient } from "@tanstack/react-query";
+import { MdFileDownload } from "react-icons/md";
 
 const ImportSheet = ({ setpopup }) => {
     const [file, setFile] = useState(null);
@@ -70,6 +71,8 @@ const ImportSheet = ({ setpopup }) => {
                             <p>{file ? file.name : "No File Choosen"}</p>
                         </div>
                         <p className="fileerror">{error}</p>
+
+                        <a className="samplefile" href={"/assests/Drivers.xlsx"} download={"Sample_Driver.xlsx"}>Downlaod Sample .xlsx file here <MdFileDownload  className="icon"/> </a>
                     </div>
                     <div className="popup-buttons">
                         <button

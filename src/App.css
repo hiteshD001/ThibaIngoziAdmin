@@ -797,6 +797,24 @@ button.Cancel-btn:hover {
     color: red;
 }
 
+.samplefile {
+    width: 100%;
+    text-align: left;
+    font-size: small;
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+
+    &:hover{
+        text-decoration: underline;
+    }
+}
+
+.samplefile .icon {
+    font-size: small;
+    font-weight: 900;
+}
+
 .popup-button.confirm {
     color: #eb5757;
     background: #fdecec;
