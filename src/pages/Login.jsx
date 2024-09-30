@@ -81,7 +81,7 @@ export const Login = () => {
                         </div>
                         <div className="col-md-12 text-center">
                             <div className="copyright">
-                                <p>&copy; 2024 Guardian Link</p>
+                                <p>&copy; 2024 Thiba Ingozi</p>
                             </div>
                         </div>
                     </div>
