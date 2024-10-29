@@ -60,7 +60,7 @@ const RequestHardware = () => {
           <input
             type="hidden"
             name="return_url"
-            value={`${import.meta.env.VITE_PAYFAST_ACTION_URL}/payment-suceed?qty=${params.get("qty")}&address=${address}&token=${params.get("token")}`}
+            value={`${import.meta.env.VITE_APP_URL}/payment-suceed?qty=${params.get("qty")}&address=${address}&token=${params.get("token")}`}
           />
           {/* <input
             type="hidden"
