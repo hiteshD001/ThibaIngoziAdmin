@@ -5,6 +5,8 @@ import { useSearchParams } from "react-router-dom";
 const RequestHardware = () => {
   const [params] = useSearchParams()
 
+  const address = params.get("address1") + " " + params.get("address2") + " " + params.get("city") + " " + params.get("postal_code")
+
   return (
     <div className="reqhardware-container">
       <div className="wrapper">
@@ -58,7 +60,7 @@ const RequestHardware = () => {
           <input
             type="hidden"
             name="return_url"
-            value={`${import.meta.env.VITE_WEB_BASE_URL}/payment-suceed?qty=${params.get("qty")}&address=${params.get("address")}&token=${params.get("token")}`}
+            value={`${import.meta.env.VITE_PAYFAST_ACTION_URL}/payment-suceed?qty=${params.get("qty")}&address=${address}&token=${params.get("token")}`}
           />
           {/* <input
             type="hidden"
