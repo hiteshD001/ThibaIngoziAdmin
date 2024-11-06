@@ -45,8 +45,7 @@ const RequestHardware = () => {
 
           <h1 className="price">{(params.get("qty") * params.get("price")).toFixed(2)}</h1>
         </div>
-
-        <form className="form" action={import.meta.env.VITE_PAYFAST_ACTION_URL} method="post">
+        <form name="PayFastPayNowForm" className="form" action={import.meta.env.VITE_PAYFAST_ACTION_URL} method="post">
           <input
             type="hidden"
             name="merchant_id"
