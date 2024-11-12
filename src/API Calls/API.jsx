@@ -28,7 +28,7 @@ export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filt
         retry: false
     });
 
-    if (res.error && res.error.response.status === 401) {
+    if (res.error && res.error.response?.status === 401) {
         localStorage.clear();
         nav("/")
     }

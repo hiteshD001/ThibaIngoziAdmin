@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom";
 const RequestHardware = () => {
   const [params] = useSearchParams()
 
-  const address = params.get("address1") + " " + params.get("address2") + " " + params.get("city") + " " + params.get("postal_code")
+  const address = params.get("address1") + " " + params.get("address2") + " " + params.get("province") + " " + params.get("city") + " " + params.get("postal_code")
 
   return (
     <div className="reqhardware-container">
@@ -26,6 +26,10 @@ const RequestHardware = () => {
             <tr>
               <td className="key">Address 2:</td>
               <td className="value">{params.get("address2")}</td>
+            </tr>
+            <tr>
+              <td className="key">Province</td>
+              <td className="value">{params.get("province")}</td>
             </tr>
             <tr>
               <td className="key">City:</td>
