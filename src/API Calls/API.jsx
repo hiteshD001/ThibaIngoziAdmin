@@ -37,11 +37,11 @@ export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filt
 
 // get list of Province
 
-export const useGetProvinceList = () => {
+export const useGetProvinceList = (id) => {
     const token = localStorage.getItem("accessToken");
 
     const queryFn = async () => {
-        return await axios.get(`${import.meta.env.VITE_BASEURL}/province`, {
+        return await axios.get(`${import.meta.env.VITE_BASEURL}/province?country_id=${id}`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -52,6 +52,7 @@ export const useGetProvinceList = () => {
         queryKey: ["Province List"],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
+        enabled: Boolean(id),
         retry: false
     });
 

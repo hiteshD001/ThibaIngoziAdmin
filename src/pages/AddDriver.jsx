@@ -38,7 +38,7 @@ const AddDriver = () => {
 
     const newdriver = useRegister(onSuccess, onError)
     const companyList = useGetUserList("company list", "company")
-    const provincelist = useGetProvinceList()
+    const provincelist = useGetProvinceList(driverForm.values.country)
     const countrylist = useGetCountryList()
 
     return (
@@ -164,9 +164,27 @@ const AddDriver = () => {
                                     )}
 
                                     <select
+                                        name="country"
+                                        className="form-control"
+                                        value={driverForm.values.country}
+                                        onChange={driverForm.handleChange}
+                                    >
+                                        <option value="" hidden> Country </option>
+                                        {countrylist.data?.data.data?.map((country) => (
+                                            <option key={country._id} value={country._id}>
+                                                {country.country_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {driverForm.touched.country && (
+                                        <p className="err">{driverForm.errors.country}</p>
+                                    )}
+
+                                    <select
                                         name="province"
                                         className="form-control"
                                         value={driverForm.values.province}
+                                        disabled={!driverForm.values.country}
                                         onChange={driverForm.handleChange}
                                     >
                                         <option value="" hidden>Province</option>
@@ -214,23 +232,6 @@ const AddDriver = () => {
                                     />
                                     {driverForm.touched.postal_code && (
                                         <p className="err">{driverForm.errors.postal_code}</p>
-                                    )}
-
-                                    <select
-                                        name="country"
-                                        className="form-control"
-                                        value={driverForm.values.country}
-                                        onChange={driverForm.handleChange}
-                                    >
-                                        <option value="" hidden> Country </option>
-                                        {countrylist.data?.data.data?.map((country) => (
-                                            <option key={country._id} value={country._id}>
-                                                {country.country_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {driverForm.touched.country && (
-                                        <p className="err">{driverForm.errors.country}</p>
                                     )}
                                 </div>
                             </div>

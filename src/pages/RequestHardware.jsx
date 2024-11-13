@@ -8,15 +8,17 @@ const RequestHardware = () => {
   const username = params.get("username")
   const street = params.get("street")
   const province = params.get("province")
+  const province_id = params.get("province_id")
   const city = params.get("city")
   const suburb = params.get("suburb")
   const postal_code = params.get("postal_code")
   const country = params.get("country")
+  const country_id = params.get("country_id")
   const quantity = params.get("qty")
   const price = params.get("price")
   const product = params.get("product")
   const token = params.get("token")
-  const returnurl = `${import.meta.env.VITE_APP_URL}/payment-suceed?qty=${quantity}&token=${token}&street=${street}&province=${province}&city=${city}&suburb=${suburb}&postal_code=${postal_code}&country=${country}`
+  const returnurl = `${import.meta.env.VITE_APP_URL}/payment-suceed?qty=${quantity}&token=${token}&street=${street}&province=${province_id}&city=${city}&suburb=${suburb}&postal_code=${postal_code}&country=${country_id}`
 
   return (
     <div className="reqhardware-container">

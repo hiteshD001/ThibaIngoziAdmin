@@ -52,7 +52,7 @@ const AddCompany = () => {
 	}
 
 	const newcompany = useRegister(onSuccess, onError)
-	const provincelist = useGetProvinceList()
+	const provincelist = useGetProvinceList(companyForm.values.country)
 	const countrylist = useGetCountryList()
 
 	return (
@@ -173,8 +173,26 @@ const AddCompany = () => {
 									)}
 
 									<select
+										name="country"
+										className="form-control"
+										value={companyForm.values.country}
+										onChange={companyForm.handleChange}
+									>
+										<option value="" hidden> Country </option>
+										{countrylist.data?.data.data?.map((country) => (
+											<option key={country._id} value={country._id}>
+												{country.country_name}
+											</option>
+										))}
+									</select>
+									{companyForm.touched.country && (
+										<p className="err">{companyForm.errors.country}</p>
+									)}
+
+									<select
 										name="province"
 										className="form-control"
+										disabled={!companyForm.values.country}
 										value={companyForm.values.province}
 										onChange={companyForm.handleChange}
 									>
@@ -223,23 +241,6 @@ const AddCompany = () => {
 									/>
 									{companyForm.touched.postal_code && (
 										<p className="err">{companyForm.errors.postal_code}</p>
-									)}
-
-									<select
-										name="country"
-										className="form-control"
-										value={companyForm.values.country}
-										onChange={companyForm.handleChange}
-									>
-										<option value="" hidden> Country </option>
-										{countrylist.data?.data.data?.map((country) => (
-											<option key={country._id} value={country._id}>
-												{country.country_name}
-											</option>
-										))}
-									</select>
-									{companyForm.touched.country && (
-										<p className="err">{companyForm.errors.country}</p>
 									)}
 								</div>
 							</div>
