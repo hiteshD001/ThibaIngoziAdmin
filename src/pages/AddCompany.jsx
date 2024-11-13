@@ -5,7 +5,7 @@ import { companyValidation } from "../common/FormValidation";
 
 import { useQueryClient } from "@tanstack/react-query";
 
-import { useRegister } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useRegister } from "../API Calls/API";
 
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
@@ -52,6 +52,8 @@ const AddCompany = () => {
 	}
 
 	const newcompany = useRegister(onSuccess, onError)
+	const provincelist = useGetProvinceList()
+	const countrylist = useGetCountryList()
 
 	return (
 		<div className="container-fluid">
@@ -170,14 +172,19 @@ const AddCompany = () => {
 										<p className="err">{companyForm.errors.street}</p>
 									)}
 
-									<input
-										type="text"
+									<select
 										name="province"
-										placeholder="Province"
 										className="form-control"
 										value={companyForm.values.province}
 										onChange={companyForm.handleChange}
-									/>
+									>
+										<option value="" hidden>Province</option>
+										{provincelist.data?.data.data?.map((province) => (
+											<option key={province._id} value={province._id}>
+												{province.province_name}
+											</option>
+										))}
+									</select>
 									{companyForm.touched.province && (
 										<p className="err">{companyForm.errors.province}</p>
 									)}
@@ -218,14 +225,19 @@ const AddCompany = () => {
 										<p className="err">{companyForm.errors.postal_code}</p>
 									)}
 
-									<input
-										type="text"
+									<select
 										name="country"
-										placeholder="Country"
 										className="form-control"
 										value={companyForm.values.country}
 										onChange={companyForm.handleChange}
-									/>
+									>
+										<option value="" hidden> Country </option>
+										{countrylist.data?.data.data?.map((country) => (
+											<option key={country._id} value={country._id}>
+												{country.country_name}
+											</option>
+										))}
+									</select>
 									{companyForm.touched.country && (
 										<p className="err">{companyForm.errors.country}</p>
 									)}

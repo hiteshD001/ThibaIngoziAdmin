@@ -7,6 +7,8 @@ const Address = yup.string().required("Address is Required")
 
 const String = yup.string().required("This Field is Required")
 
+const Number = yup.number().required("This Field is Required")
+
 const Email = yup.string().required("Email is Required").email("Please Enter a valid Email ID")
 
 const ID = yup.string().required("Plase enter a valid ID").typeError("Plase enter a valid ID")
@@ -65,7 +67,7 @@ export const companyValidation = yup.object({
     province: String,
     city: String,
     suburb: String,
-    postal_code: String,
+    postal_code: Number,
     country: String,
     id_no: ID,
     company_bio: yup.string().required("Bio is required")
@@ -82,7 +84,7 @@ export const driverValidation = yup.object({
     province: String,
     city: String,
     suburb: String,
-    postal_code: String,
+    postal_code: Number,
     country: String,
     id_no: ID,
 })

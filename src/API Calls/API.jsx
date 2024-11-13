@@ -35,6 +35,52 @@ export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filt
     return res;
 };
 
+// get list of Province
+
+export const useGetProvinceList = () => {
+    const token = localStorage.getItem("accessToken");
+
+    const queryFn = async () => {
+        return await axios.get(`${import.meta.env.VITE_BASEURL}/province`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+    };
+
+    const res = useQuery({
+        queryKey: ["Province List"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false
+    });
+
+    return res;
+};
+
+// get list of Country
+
+export const useGetCountryList = () => {
+    const token = localStorage.getItem("accessToken");
+
+    const queryFn = async () => {
+        return await axios.get(`${import.meta.env.VITE_BASEURL}/country`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+    };
+
+    const res = useQuery({
+        queryKey: ["Country List"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false
+    });
+
+    return res;
+};
+
 // get single user
 
 export const useGetUser = (userId) => {

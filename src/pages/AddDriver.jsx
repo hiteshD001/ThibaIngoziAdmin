@@ -8,7 +8,7 @@ import { driverValidation } from "../common/FormValidation";
 
 import { useFormik } from "formik";
 
-import { useGetUserList, useRegister } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetUserList, useRegister } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 
 import Loader from "../common/Loader";
@@ -38,6 +38,8 @@ const AddDriver = () => {
 
     const newdriver = useRegister(onSuccess, onError)
     const companyList = useGetUserList("company list", "company")
+    const provincelist = useGetProvinceList()
+    const countrylist = useGetCountryList()
 
     return (
         <div className="container-fluid">
@@ -161,14 +163,19 @@ const AddDriver = () => {
                                         <p className="err">{driverForm.errors.street}</p>
                                     )}
 
-                                    <input
-                                        type="text"
+                                    <select
                                         name="province"
-                                        placeholder="Province"
                                         className="form-control"
                                         value={driverForm.values.province}
                                         onChange={driverForm.handleChange}
-                                    />
+                                    >
+                                        <option value="" hidden>Province</option>
+                                        {provincelist.data?.data.data?.map((province) => (
+                                            <option key={province._id} value={province._id}>
+                                                {province.province_name}
+                                            </option>
+                                        ))}
+                                    </select>
                                     {driverForm.touched.province && (
                                         <p className="err">{driverForm.errors.province}</p>
                                     )}
@@ -209,14 +216,19 @@ const AddDriver = () => {
                                         <p className="err">{driverForm.errors.postal_code}</p>
                                     )}
 
-                                    <input
-                                        type="text"
+                                    <select
                                         name="country"
-                                        placeholder="Country"
                                         className="form-control"
                                         value={driverForm.values.country}
                                         onChange={driverForm.handleChange}
-                                    />
+                                    >
+                                        <option value="" hidden> Country </option>
+                                        {countrylist.data?.data.data?.map((country) => (
+                                            <option key={country._id} value={country._id}>
+                                                {country.country_name}
+                                            </option>
+                                        ))}
+                                    </select>
                                     {driverForm.touched.country && (
                                         <p className="err">{driverForm.errors.country}</p>
                                     )}
