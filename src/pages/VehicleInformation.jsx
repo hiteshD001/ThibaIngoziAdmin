@@ -5,7 +5,7 @@ import { useFormik } from "formik"
 import { vehicleValidation } from "../common/FormValidation"
 
 import { useQueryClient } from "@tanstack/react-query"
-import { useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API"
+import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API"
 
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
@@ -15,28 +15,44 @@ const VehicleInformation = () => {
     const params = useParams();
     const client = useQueryClient()
 
-    const vehicleForm = useFormik({
+    const driverform = useFormik({
         initialValues: {
             first_name: "",
             last_name: "",
             company_id: "",
             email: "",
             mobile_no: "",
+            street: "",
+            province: "",
+            city: "",
+            suburb: "",
+            postal_code: "",
+            country: "",
+        },
+        validationSchema: vehicleValidation,
+        onSubmit: (values) => {
+            // const payload = { first_name: values.first_name, last_name: values.last_name, company_id: values.company_id, email: values.email, mobile_no: values.mobile_no }
+            console.log(values);
+            setedit(false);
+            mutate({ id: params.id, data: values })
+        }
+    })
+
+    const vehicleForm = useFormik({
+        initialValues: {
             vehicle_name: "",
             type: "",
             reg_no: "",
             images: [],
+        }
+    })
+
+    const emergencyform = useFormik({
+        initialValues: {
             emergency_contact_1_contact: "",
             emergency_contact_1_email: "",
             emergency_contact_2_contact: "",
             emergency_contact_2_email: "",
-        },
-        validationSchema: vehicleValidation,
-        onSubmit: (values) => {
-            const payload = { first_name: values.first_name, last_name: values.last_name, company_id: values.company_id, email: values.email, mobile_no: values.mobile_no }
-            console.log(values);
-            setedit(false);
-            mutate({ id: params.id, data: payload })
         }
     })
 
@@ -52,28 +68,22 @@ const VehicleInformation = () => {
 
     const { mutate } = useUpdateUser(onSuccess, onError)
 
+    const provincelist = useGetProvinceList(driverform.values.country)
+	const countrylist = useGetCountryList()
+
     useEffect(() => {
-        console.log(vehicleInfo.data)
-        vehicleForm.setValues({
-            first_name: vehicleInfo.data?.data.user.first_name || "",
-            last_name: vehicleInfo.data?.data.user.last_name || "",
-            company_id: vehicleInfo.data?.data.user.company_id || "",
-            email: vehicleInfo.data?.data.user.email || "",
-            mobile_no: vehicleInfo.data?.data.user.mobile_no || "",
-            vehicle_name: vehicleInfo.data?.data.vehicle[0]?.vehicle_name || "",
-            type: vehicleInfo.data?.data.vehicle[0]?.type || "",
-            reg_no: vehicleInfo.data?.data.vehicle[0]?.reg_no || "",
-            images: Array.from({ length: 5 }, (_, i) => vehicleInfo.data?.data.vehicle[0]?.[`image_${i + 1}`] || null).filter(Boolean),
-            emergency_contact_1_contact: vehicleInfo.data?.data.vehicle[0]?.emergency_contact_1_contact || "",
-            emergency_contact_1_email: vehicleInfo.data?.data.vehicle[0]?.emergency_contact_1_email || "",
-            emergency_contact_2_contact: vehicleInfo.data?.data.vehicle[0]?.emergency_contact_2_contact || "",
-            emergency_contact_2_email: vehicleInfo.data?.data.vehicle[0]?.emergency_contact_2_email || "",
-        })
+        const data = vehicleInfo.data?.data
+
+        if (data) {
+            setdriverformvalues({ form: driverform, data: vehicleInfo.data?.data.user })
+            setdriverformvalues({ form: vehicleForm, data: vehicleInfo.data?.data.vehicle[0] })
+        }
     }, [vehicleInfo.data])
 
     return (
         <div className="container-fluid">
             <div className="row">
+
                 <div className="col-md-12">
                     <div className="theme-table">
                         <div className="tab-heading">
@@ -87,11 +97,11 @@ const VehicleInformation = () => {
                                         name="first_name"
                                         placeholder="Name"
                                         className="form-control"
-                                        value={vehicleForm.values.first_name}
-                                        onChange={vehicleForm.handleChange}
+                                        value={driverform.values.first_name}
+                                        onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {vehicleForm.touched.first_name && <p className="err">{vehicleForm.errors.first_name}</p>}
+                                    {driverform.touched.first_name && <p className="err">{driverform.errors.first_name}</p>}
                                 </div>
                                 <div className="col-md-6">
                                     <input
@@ -99,24 +109,24 @@ const VehicleInformation = () => {
                                         name="last_name"
                                         placeholder="Surname"
                                         className="form-control"
-                                        value={vehicleForm.values.last_name}
-                                        onChange={vehicleForm.handleChange}
+                                        value={driverform.values.last_name}
+                                        onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {vehicleForm.touched.last_name && <p className="err">{vehicleForm.errors.last_name}</p>}
+                                    {driverform.touched.last_name && <p className="err">{driverform.errors.last_name}</p>}
                                 </div>
                                 <div className="col-md-6">
                                     <select
                                         name="company_id"
                                         className="form-control"
-                                        value={vehicleForm.values.company_id}
-                                        onChange={vehicleForm.handleChange}
+                                        value={driverform.values.company_id}
+                                        onChange={driverform.handleChange}
                                         disabled={!edit}
                                     >
                                         <option value="" hidden>Others</option>
                                         {companyList.data?.data.users.map(user => <option key={user._id} value={user._id}>{user.company_name}</option>)}
                                     </select>
-                                    {vehicleForm.touched.company_id && <p className="err">{vehicleForm.errors.company_id}</p>}
+                                    {driverform.touched.company_id && <p className="err">{driverform.errors.company_id}</p>}
                                 </div>
                                 {/* <div className="col-md-6">
                                     <input
@@ -136,11 +146,11 @@ const VehicleInformation = () => {
                                         name="email"
                                         placeholder="Email"
                                         className="form-control"
-                                        value={vehicleForm.values.email}
-                                        onChange={vehicleForm.handleChange}
+                                        value={driverform.values.email}
+                                        onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {vehicleForm.touched.email && <p className="err">{vehicleForm.errors.email}</p>}
+                                    {driverform.touched.email && <p className="err">{driverform.errors.email}</p>}
                                 </div>
                                 <div className="col-md-6">
                                     <input
@@ -148,11 +158,115 @@ const VehicleInformation = () => {
                                         name="mobile_no"
                                         placeholder="Mobile No."
                                         className="form-control"
-                                        value={vehicleForm.values.mobile_no}
-                                        onChange={vehicleForm.handleChange}
+                                        value={driverform.values.mobile_no}
+                                        onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {vehicleForm.touched.mobile_no && <p className="err">{vehicleForm.errors.mobile_no}</p>}
+                                    {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="theme-table">
+                        <div className="tab-heading">
+                            <h3>Address</h3>
+                        </div>
+                        <form>
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="street"
+                                        placeholder="Street"
+                                        className="form-control"
+                                        value={driverform.values.street}
+                                        onChange={driverform.handleChange}
+                                    />
+                                    {driverform.touched.street && (
+                                        <p className="err">{driverform.errors.street}</p>
+                                    )}
+                                </div>
+
+                                <div className="col-md-6">
+                                    <select
+                                        name="country"
+                                        className="form-control"
+                                        value={driverform.values.country}
+                                        onChange={driverform.handleChange}
+                                    >
+                                        <option value="" hidden> Country </option>
+                                        {countrylist.data?.data.data?.map((country) => (
+                                            <option key={country._id} value={country._id}>
+                                                {country.country_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {driverform.touched.country && (
+                                        <p className="err">{driverform.errors.country}</p>
+                                    )}
+                                </div>
+
+                                <div className="col-md-6">
+                                    <select
+                                        name="province"
+                                        className="form-control"
+                                        disabled={!driverform.values.country}
+                                        value={driverform.values.province}
+                                        onChange={driverform.handleChange}
+                                    >
+                                        <option value="" hidden>Province</option>
+                                        {provincelist.data?.data.data?.map((province) => (
+                                            <option key={province._id} value={province._id}>
+                                                {province.province_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {driverform.touched.province && (
+                                        <p className="err">{driverform.errors.province}</p>
+                                    )}
+                                </div>
+
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="city"
+                                        placeholder="City"
+                                        className="form-control"
+                                        value={driverform.values.city}
+                                        onChange={driverform.handleChange}
+                                    />
+                                    {driverform.touched.city && (
+                                        <p className="err">{driverform.errors.city}</p>
+                                    )}
+                                </div>
+
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="suburb"
+                                        placeholder="Suburb"
+                                        className="form-control"
+                                        value={driverform.values.suburb}
+                                        onChange={driverform.handleChange}
+                                    />
+                                    {driverform.touched.suburb && (
+                                        <p className="err">{driverform.errors.suburb}</p>
+                                    )}
+                                </div>
+
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="postal_code"
+                                        placeholder="Postal Code"
+                                        className="form-control"
+                                        value={driverform.values.postal_code}
+                                        onChange={driverform.handleChange}
+                                    />
+                                    {driverform.touched.postal_code && (
+                                        <p className="err">{driverform.errors.postal_code}</p>
+                                    )}
                                 </div>
                             </div>
                         </form>
@@ -221,8 +335,8 @@ const VehicleInformation = () => {
                                         name="emergency_contact_1_email"
                                         placeholder="emergencycontact@gu.link"
                                         className="form-control"
-                                        value={vehicleForm.values.emergency_contact_1_email}
-                                        onChange={vehicleForm.handleChange}
+                                        value={emergencyform.values.emergency_contact_1_email}
+                                        onChange={emergencyform.handleChange}
                                         disabled
                                     />
                                 </div>
@@ -232,8 +346,8 @@ const VehicleInformation = () => {
                                         name="emergency_contact_1_contact"
                                         placeholder="Contact No."
                                         className="form-control"
-                                        value={vehicleForm.values.emergency_contact_1_contact}
-                                        onChange={vehicleForm.handleChange}
+                                        value={emergencyform.values.emergency_contact_1_contact}
+                                        onChange={emergencyform.handleChange}
                                         disabled
                                     />
                                 </div>
@@ -243,8 +357,8 @@ const VehicleInformation = () => {
                                         name="emergency_contact_2_email"
                                         placeholder="emergencycontact@gu.link"
                                         className="form-control"
-                                        value={vehicleForm.values.emergency_contact_2_email}
-                                        onChange={vehicleForm.handleChange}
+                                        value={emergencyform.values.emergency_contact_2_email}
+                                        onChange={emergencyform.handleChange}
                                         disabled
                                     />
                                 </div>
@@ -254,8 +368,8 @@ const VehicleInformation = () => {
                                         name="emergency_contact_2_contact"
                                         placeholder="Contact No."
                                         className="form-control"
-                                        value={vehicleForm.values.emergency_contact_2_contact}
-                                        onChange={vehicleForm.handleChange}
+                                        value={emergencyform.values.emergency_contact_2_contact}
+                                        onChange={emergencyform.handleChange}
                                         disabled
                                     />
                                 </div>
@@ -266,7 +380,7 @@ const VehicleInformation = () => {
                 <div className="col-md-12 text-end">
                     <div className="saveform">
                         {edit ?
-                            <button type="submit" onClick={vehicleForm.handleSubmit} className="btn btn-dark">Save</button> :
+                            <button type="submit" onClick={driverform.handleSubmit} className="btn btn-dark">Save</button> :
                             <button onClick={() => setedit(true)} className="btn btn-dark">Edit</button>}
                     </div>
                 </div>
@@ -276,3 +390,23 @@ const VehicleInformation = () => {
 }
 
 export default VehicleInformation
+
+const setdriverformvalues = ({ ...props }) => {
+    const { form, data } = props;
+
+    let newdata = {};
+
+    Object.keys(form.values).forEach((key) => {
+
+        if (key === 'images') {
+            newdata = { ...newdata, [key]: Array.from({ length: 5 }, (_, i) => data?.[`image_${i + 1}`] || null).filter(Boolean) };
+        } else {
+            newdata = { ...newdata, [key]: data?.[key] ?? '' };
+        }
+
+    });
+
+    form.setValues(newdata)
+
+    console.log(newdata)
+}

@@ -26,6 +26,15 @@ const AddDriver = () => {
         },
     });
 
+    const handlecountryChange = (e) => {
+        const { name, value } = e.target
+
+        const companyname = companyList.data?.data.users.find((user) => user._id === value)?.company_name
+
+        driverForm.setFieldValue(name, value)
+        driverForm.setFieldValue('company_name', companyname)
+    }
+
     const onSuccess = () => {
         toast.success("Driver added successfully.");
         driverForm.resetForm();
@@ -81,7 +90,8 @@ const AddDriver = () => {
                                             name="company_id"
                                             className="form-control"
                                             value={driverForm.values.company_id}
-                                            onChange={driverForm.handleChange}
+                                            onChange={(e) => handlecountryChange(e)}
+                                        // onChange={driverForm.handleChange}
                                         >
                                             <option value="" hidden>
                                                 Company Name
@@ -260,6 +270,7 @@ export default AddDriver;
 
 const formValues1 = {
     company_id: "",
+    company_name: "",
     first_name: "",
     last_name: "",
     email: "",
