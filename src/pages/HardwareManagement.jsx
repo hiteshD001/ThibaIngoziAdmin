@@ -48,82 +48,98 @@ const HardwareManagement = () => {
               <>
                 {orderList.data?.data.orders ? (
                   <>
-                    <table
-                      id="example"
-                      className="table table-striped nowrap"
-                      style={{ width: "100%" }}
-                    >
-                      <thead>
-                        <tr>
-                          <th>Driver</th>
-                          <th>Address</th>
-                          <th>Contact No.</th>
-                          <th>Contact Email</th>
-                          <th>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {orderList.data?.data.orders.map((order) => (
-                          <tr key={order._id}>
-                            <td>
-                              <div
-                                className={
-                                  !order.user_id?.username
-                                    ? "prof nodata"
-                                    : "prof"
-                                }
-                              >
-                                <img
-                                  className="profilepicture"
-                                  src={order.user_id?.profileImage || nouser}
-                                />
-                                {order.user_id?.username}
-                              </div>
-                            </td>
-                            <td
-                              className={
-                                !order.user_id?.address ? "nodata" : ""
-                              }
-                            >
-                              {order.user_id?.address}
-                            </td>
-                            <td
-                              className={
-                                !order.user_id?.mobile_no ? "nodata" : ""
-                              }
-                            >
-                              {order.user_id?.mobile_no}
-                            </td>
-                            <td
-                              className={!order.user_id?.email ? "nodata" : ""}
-                            >
-                              {order.user_id?.email}
-                            </td>
-                            <td>
-                              <button
-                                className={`${order.status}-btn`}
-                                onClick={() =>
-                                  handleToggle(
-                                    order._id,
-                                    order.item_quantity,
-                                    order.status
-                                  )
-                                }
-                              >
-                                {toggleStatus.isPending &&
-                                  toggle === order._id ? (
-                                  <Loader color="white" />
-                                ) : order.status === "order_received" ? (
-                                  "Order Received"
-                                ) : (
-                                  "Delivered"
-                                )}
-                              </button>
-                            </td>
+                    <div className="tablecontainer">
+                      <table id="example" className="table table-striped nowrap" style={{ width: "100%", minWidth: '1500px' }}>
+
+                        <thead>
+                          <tr>
+                            <th>Driver</th>
+                            <th>street</th>
+                            <th>province</th>
+                            <th>city</th>
+                            <th>postal code</th>
+                            <th>country</th>
+                            <th>suburb</th>
+                            <th>Contact No.</th>
+                            <th>Contact Email</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Status</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+
+                        <tbody>
+                          {orderList.data?.data.orders.map((order) => (
+                            <tr key={order._id}>
+
+                              <td>
+                                <div className={!order.user_id?.username ? "prof nodata" : "prof"}>
+                                  <img
+                                    className="profilepicture"
+                                    src={order.user_id?.profileImage || nouser}
+                                  />
+                                  {order.user_id?.username}
+                                </div>
+                              </td>
+
+                              <td className={!order?.street ? "nodata" : ""}>
+                                {order?.street}
+                              </td>
+
+                              <td className={!order?.province?.province_name ? "nodata" : ""}>
+                                {order?.province?.province_name}
+                              </td>
+
+                              <td className={!order?.city ? "nodata" : ""}>
+                                {order?.city}
+                              </td>
+
+                              <td className={!order?.postal_code ? "nodata" : ""}>
+                                {order?.postal_code}
+                              </td>
+
+                              <td className={!order?.country?.country_name ? "nodata" : ""}>
+                                {order?.country?.country_name}
+                              </td>
+
+                              <td className={!order?.suburb ? "nodata" : ""}>
+                                {order?.suburb}
+                              </td>
+
+                              <td className={!order.user_id?.mobile_no ? "nodata" : ""}>
+                                {order.user_id?.mobile_no}
+                              </td>
+
+                              <td className={!order.user_id?.email ? "nodata" : ""}>
+                                {order.user_id?.email}
+                              </td>
+
+                              <td className={!order?.item_quantity ? "nodata" : ""}>
+                                {order?.item_quantity}
+                              </td>
+
+                              <td className={!order?.total_amount ? "nodata" : ""}>
+                                {order?.total_amount}
+                              </td>
+
+                              <td>
+                                <button
+                                  className={`${order.status}-btn`}
+                                  onClick={() => handleToggle(order._id, order.item_quantity, order.status)}
+                                >
+                                  {toggleStatus.isPending &&
+                                    toggle === order._id ? <Loader color="white" /> :
+                                    order.status === "order_received" ? "Order Received" : "Delivered"
+                                  }
+                                </button>
+                              </td>
+
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
                     <div className="pagiation">
                       <div className="pagiation-left">
                         <button

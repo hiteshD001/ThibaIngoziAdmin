@@ -36,12 +36,11 @@ export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filt
 };
 
 // get list of Province
-
 export const useGetProvinceList = (id) => {
     const token = localStorage.getItem("accessToken");
 
-    const queryFn = async () => {
-        return await axios.get(`${import.meta.env.VITE_BASEURL}/province?country_id=${id}`, {
+    const queryFn = async (queryId) => {
+        return await axios.get(`${import.meta.env.VITE_BASEURL}/province?country_id=${queryId}`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -49,15 +48,36 @@ export const useGetProvinceList = (id) => {
     };
 
     const res = useQuery({
-        queryKey: ["Province List"],
-        queryFn: queryFn,
+        queryKey: ["Province List", id], // The query key includes `id` to trigger re-fetching
+        queryFn: () => queryFn(id), // Pass the `id` to the query function
         staleTime: 15 * 60 * 1000,
-        enabled: Boolean(id),
+        enabled: Boolean(id), // Only fetch if `id` is truthy
         retry: false
     });
 
     return res;
 };
+// export const useGetProvinceList = (id) => {
+//     const token = localStorage.getItem("accessToken");
+
+//     const queryFn = async () => {
+//         return await axios.get(`${import.meta.env.VITE_BASEURL}/province?country_id=${id}`, {
+//             headers: {
+//                 "Authorization": `Bearer ${token}`
+//             }
+//         });
+//     };
+
+//     const res = useQuery({
+//         queryKey: ["Province List"],
+//         queryFn: queryFn,
+//         staleTime: 15 * 60 * 1000,
+//         enabled: Boolean(id),
+//         retry: false
+//     });
+
+//     return res;
+// };
 
 // get list of Country
 

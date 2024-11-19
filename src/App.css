@@ -472,6 +472,11 @@ table#example {
     color: #1c1c1c;
 }
 
+.tablecontainer{
+    width: 100%;
+    overflow: auto;
+}
+
 .theme-table table thead tr th {
     color: rgb(28 28 28 / 40%);
 }
@@ -637,7 +642,7 @@ button.order_received-btn,
 button.delivered-btn,
 button.Cancel-btn {
     background: gray;
-    width: 170px;
+    width: 140px;
     display: inline-block;
     text-align: center;
     padding: 6px 10px;
