@@ -130,33 +130,44 @@ input[type="checkbox"] {
 .sidebar .logo img {
     width: 90%;
 }
+
 .toggle {
     position: fixed;
-    width: 30px;
-    top: 20px;
-    left: 5px;
+    width: 35px;
+    top: 10px;
+    left: 15px;
     z-index: 999999;
     background: #f7f7f7;
     padding: 0px;
     border-radius: 0px 4px 4px 0px;
 }
-.toggle img {
+
+.toggle .menuicon {
+    font-size: 40px;
     width: 100%;
 }
 
+.dashboard.active .toggle {
+    background-color: white;
+    top: 13px;
+    left: 9px;
+}
 .dashboard.active .sidebar {
     left: -280px;
     transition: all 0.3s;
     position: absolute;
 }
+
 .dashboard.active .content {
     width: calc(100% - 1px);
     /* transition: all 0.3s; */
 }
-.dashboard.active header{
+
+.dashboard.active header {
     width: calc(100% - 1px);
     padding-left: 40px;
 }
+
 .sidebar ul {
     padding: 0;
     margin: 0;
@@ -503,7 +514,7 @@ table#example {
     color: #1c1c1c;
 }
 
-.tablecontainer{
+.tablecontainer {
     width: 100%;
     overflow: auto;
 }
@@ -928,58 +939,73 @@ button.Cancel-btn:hover {
         padding: 12px 10px !important;
     }
 }
+
 @media only screen and (max-width: 1024px) {
     .sidebar {
         left: -280px;
         transition: all 0.3s;
         position: absolute;
     }
+
     .content {
         width: calc(100% - 1px);
     }
-    header{
+
+    header {
         width: calc(100% - 1px);
     }
+
     .content {
         width: calc(100% - 1px);
     }
+
     header {
         width: calc(100vw - 1px);
         padding-left: 40px;
     }
+
     .dashboard.active .sidebar {
         left: 0px;
         transition: all 0.3s;
         position: absolute;
         z-index: 9999;
     }
+
     .outlet {
         margin-top: 140px;
     }
 }
+
 @media only screen and (max-width: 768px) {
     .tab-heading {
         flex-direction: column;
     }
+
     .tbl-filter {
         flex-direction: column;
     }
+
     .tbl-filter button {
         width: 100%;
     }
+
     .company-info {
         flex-direction: column;
     }
+
     .comapny-titles {
         width: 100%;
     }
+
     .comapny-det {
         width: 100%;
         flex-direction: column;
     }
+
     .comapny-det .c-info {
         width: 100%;
     }
+
     .saveform {
         text-align: center;
     }

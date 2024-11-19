@@ -41,67 +41,6 @@ const HardwareManagement = () => {
           <div className="theme-table">
             <div className="tab-heading">
               <h3>Hardware Management</h3>
-    return (
-        <div className="container-fluid">
-            <div className="row">
-                <div className="col-md-12">
-                    <div className="theme-table">
-                        <div className="tab-heading">
-                            <h3>Hardware Management</h3>
-                        </div>
-                        <div className="listing-table">
-                            <table id="example" className="table table-striped nowrap" style={{ width: "100%" }}>
-                                <thead>
-                                    <tr>
-                                        <th>Driver</th>
-                                        <th>Address</th>
-                                        <th>Contact No.</th>
-                                        <th>Contact Email</th>
-                                        <th>Status</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {orderList.data?.data.toReversed().map(order =>
-                                        <tr key={order._id}>
-                                            <td>
-                                                <div className="prof">
-                                                    <img className="profilepicture" src={order.user_id?.profileImage || nouser} />
-                                                    {order.user_id?.username}
-                                                </div>
-                                            </td>
-                                            <td>{order.user_id?.address}</td>
-                                            <td>{order.user_id?.mobile_no}</td>
-                                            <td>{order.user_id?.email}</td>
-                                            <td>
-                                                <span
-                                                    className={`${order.status}-btn`}
-                                                    onClick={() => handleToggle(order._id, order.item_quantity, order.status)}
-                                                >
-                                                    {order.status === "order_received" ? "Order Received" : order.status === "delivered" ? "Delivered" : ""}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                        <div className="pagiation">
-                            <div className="pagiation-left">
-                                <Link to="/"><img src={Prev} />  Prev</Link>
-                            </div>
-                            <div className="pagiation-number">
-                                <Link to="/" className="active">1</Link>
-                                <Link to="/">2</Link>
-                                <Link to="/">3</Link>
-                            </div>
-                            <div className="pagiation-right">
-                                <Link to="/">Next <img src={Next} /></Link>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
             </div>
             {orderList.isFetching ? (
               <Loader />
@@ -228,8 +167,6 @@ const HardwareManagement = () => {
           </div>
         </div>
       </div>
-    </div>
-    </div>
     </div>
   );
 };

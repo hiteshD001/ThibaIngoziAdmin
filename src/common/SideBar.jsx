@@ -6,7 +6,7 @@ import { LogoutConfirm } from "./ConfirmationPOPup";
 
 const SideBar = () => {
     const [confirm, setconfirm] = useState(false)
-    const [menulist ] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : Companyadmin_menulist())
+    const [menulist] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : Companyadmin_menulist())
     const [currentMenu, setcurrentMenu] = useState("home")
 
     const location = useLocation();
@@ -25,7 +25,7 @@ const SideBar = () => {
     return (
         <div className="sidebar">
             <div className="logo">
-                <a href="dashboard.html"><img src={logo1} alt="logo" /></a>
+                <img src={logo1} alt="logo" />
             </div>
 
             <ul>
@@ -39,7 +39,7 @@ const SideBar = () => {
                     </li>
                 )}
             </ul>
-            {confirm && <LogoutConfirm setconfirm={setconfirm} handleLogout={handleLogout}/>}
+            {confirm && <LogoutConfirm setconfirm={setconfirm} handleLogout={handleLogout} />}
         </div>
     )
 }
