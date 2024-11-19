@@ -49,7 +49,7 @@ const HardwareManagement = () => {
                 {orderList.data?.data.orders ? (
                   <>
                     <div className="tablecontainer">
-                      <table id="example" className="table table-striped nowrap" style={{ width: "100%", minWidth: '1500px' }}>
+                      <table id="example" className="table table-striped nowrap" style={{ width: "100%", minWidth: '1600px' }}>
 
                         <thead>
                           <tr>
