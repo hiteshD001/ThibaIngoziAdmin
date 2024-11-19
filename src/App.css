@@ -63,6 +63,19 @@
     outline: none !important;
 }
 
+.password-field {
+    position: relative;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+}
+
 .copyright {
     margin-bottom: 30px;
 }
@@ -391,11 +404,11 @@ canvas {
     line-height: 20px;
 }
 
-.location .viewlocation{
+.location .viewlocation {
     font-size: medium;
     cursor: pointer;
 
-    &:hover{
+    &:hover {
         font-size: large;
     }
 }
@@ -488,6 +501,11 @@ table#example {
 .table-striped>tbody>tr:nth-of-type(odd) {
     --bs-table-accent-bg: #f7f9fb;
     color: #1c1c1c;
+}
+
+.tablecontainer{
+    width: 100%;
+    overflow: auto;
 }
 
 .theme-table table thead tr th {
@@ -655,7 +673,7 @@ button.order_received-btn,
 button.delivered-btn,
 button.Cancel-btn {
     background: gray;
-    width: 170px;
+    width: 140px;
     display: inline-block;
     text-align: center;
     padding: 6px 10px;
@@ -799,6 +817,7 @@ button.Cancel-btn:hover {
     border-radius: 10px;
     text-align: center;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
 }
 
 .popup-buttons {
@@ -836,7 +855,7 @@ button.Cancel-btn:hover {
     text-decoration: none;
     color: black;
 
-    &:hover{
+    &:hover {
         text-decoration: underline;
     }
 }
@@ -883,7 +902,7 @@ button.Cancel-btn:hover {
     border: 1px solid rgba(128, 128, 128, 0.537);
 }
 
-.filecontainer button{
+.filecontainer button {
     outline: none;
     border: none;
     box-shadow: 0 0 1px rgba(128, 128, 128, 0.167);
@@ -891,7 +910,7 @@ button.Cancel-btn:hover {
     border-radius: 10px;
 }
 
-.filecontainer p{
+.filecontainer p {
     margin: 0;
     font-weight: 500;
     font-size: medium;
@@ -900,7 +919,7 @@ button.Cancel-btn:hover {
 .map {
     height: 100vw;
     width: 100vh;
-  }
+}
 
 @media only screen and (max-width: 1200px) {
 

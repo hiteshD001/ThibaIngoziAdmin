@@ -8,11 +8,14 @@ const PaymentSuceed = () => {
     const handlePaymentSuccess = async () => {
       const params = new URLSearchParams(window.location.search);
       const qty = params.get("qty");
-      const address = params.get("address");
+      const street = params.get("street")
+      const province = params.get("province")
+      const city = params.get("city")
+      const suburb = params.get("suburb")
+      const postal_code = params.get("postal_code")
+      const country = params.get("country")
       const token = params.get("token");
-      // const username = params.get("username");
       const status = "received";
-      // const product_name = params.get("product");
       const product_price = params.get("price");
       const totalAmount = qty * product_price;
 
@@ -29,8 +32,12 @@ const PaymentSuceed = () => {
               item_quantity: qty,
               total_amount: totalAmount,
               status: status,
-              delivery_address: address,
-              // username: username
+              street: street,
+              province: province,
+              postal_code: postal_code,
+              city: city,
+              suburb: suburb,
+              country: country
             }),
           }
         );

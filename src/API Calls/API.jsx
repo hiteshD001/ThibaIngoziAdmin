@@ -28,10 +28,77 @@ export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filt
         retry: false
     });
 
-    if (res.error && res.error.response.status === 401) {
+    if (res.error && res.error.response?.status === 401) {
         localStorage.clear();
         nav("/")
     }
+    return res;
+};
+
+// get list of Province
+export const useGetProvinceList = (id) => {
+    const token = localStorage.getItem("accessToken");
+
+    const queryFn = async (queryId) => {
+        return await axios.get(`${import.meta.env.VITE_BASEURL}/province?country_id=${queryId}`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+    };
+
+    const res = useQuery({
+        queryKey: ["Province List", id], // The query key includes `id` to trigger re-fetching
+        queryFn: () => queryFn(id), // Pass the `id` to the query function
+        staleTime: 15 * 60 * 1000,
+        enabled: Boolean(id), // Only fetch if `id` is truthy
+        retry: false
+    });
+
+    return res;
+};
+// export const useGetProvinceList = (id) => {
+//     const token = localStorage.getItem("accessToken");
+
+//     const queryFn = async () => {
+//         return await axios.get(`${import.meta.env.VITE_BASEURL}/province?country_id=${id}`, {
+//             headers: {
+//                 "Authorization": `Bearer ${token}`
+//             }
+//         });
+//     };
+
+//     const res = useQuery({
+//         queryKey: ["Province List"],
+//         queryFn: queryFn,
+//         staleTime: 15 * 60 * 1000,
+//         enabled: Boolean(id),
+//         retry: false
+//     });
+
+//     return res;
+// };
+
+// get list of Country
+
+export const useGetCountryList = () => {
+    const token = localStorage.getItem("accessToken");
+
+    const queryFn = async () => {
+        return await axios.get(`${import.meta.env.VITE_BASEURL}/country`, {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+    };
+
+    const res = useQuery({
+        queryKey: ["Country List"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false
+    });
+
     return res;
 };
 

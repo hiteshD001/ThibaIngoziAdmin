@@ -1,7 +1,7 @@
 import home from "../assets/images/home.png";
 import drivers from "../assets/images/drivers.png";
 import arrowLeft from "../assets/images/arrow-left.png";
-import settings from "../assets/images/settings.png";
+// import settings from "../assets/images/settings.png";
 import profile from "../assets/images/profile.png";
 import logout from "../assets/images/logout.png";
 import comapnies from "../assets/images/companies.png";
@@ -47,12 +47,12 @@ export const superadmin_menulist = [
         path: "/home/hardware-management",
         image: hardware
     },
-    {
-        id: "settings",
-        name: "Settings",
-        path: "",
-        image: settings
-    },
+    // {
+    //     id: "settings",
+    //     name: "Settings",
+    //     path: "",
+    //     image: settings
+    // },
     {
         id: "profile",
         name: "Profile",
@@ -91,12 +91,12 @@ export const Companyadmin_menulist = () => {
             company: "Company Information"
 
         },
-        {
-            id: "settings",
-            name: "Settings",
-            path: "",
-            image: settings
-        },
+        // {
+        //     id: "settings",
+        //     name: "Settings",
+        //     path: "",
+        //     image: settings
+        // },
         {
             id: "profile",
             name: "Profile",
