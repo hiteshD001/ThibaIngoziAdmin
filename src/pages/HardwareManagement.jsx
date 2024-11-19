@@ -54,12 +54,12 @@ const HardwareManagement = () => {
                         <thead>
                           <tr>
                             <th>Driver</th>
-                            <th>street</th>
-                            <th>province</th>
-                            <th>city</th>
-                            <th>postal code</th>
-                            <th>country</th>
-                            <th>suburb</th>
+                            <th>Street</th>
+                            <th>Province</th>
+                            <th>City</th>
+                            <th>Postal Code</th>
+                            <th>Country</th>
+                            <th>Suburb</th>
                             <th>Contact No.</th>
                             <th>Contact Email</th>
                             <th>Quantity</th>
