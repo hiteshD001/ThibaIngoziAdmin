@@ -152,6 +152,7 @@ input[type="checkbox"] {
     top: 13px;
     left: 9px;
 }
+
 .dashboard.active .sidebar {
     left: -280px;
     transition: all 0.3s;
@@ -930,6 +931,18 @@ button.Cancel-btn:hover {
 .map {
     height: 100vw;
     width: 100vh;
+}
+
+.react-tel-input .form-control {
+    margin-bottom: 30px !important;
+    border: 1px solid rgb(28 28 28 / 10%);
+    width: 100%;
+}
+
+.react-tel-input .flag-dropdown {
+    background-color: #ffffff;
+    border: 1px solid rgb(28 28 28 / 10%);
+    border-radius: 12px 0 0 12px;
 }
 
 @media only screen and (max-width: 1200px) {

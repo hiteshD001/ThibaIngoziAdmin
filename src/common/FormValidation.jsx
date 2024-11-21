@@ -3,8 +3,6 @@ import * as yup from "yup"
 
 const Username = yup.string().required("This is a required field")
 
-const Address = yup.string().required("Address is Required")
-
 const String = yup.string().required("This Field is Required")
 
 const Number = yup.number().required("This Field is Required")
@@ -22,11 +20,7 @@ const Password = yup.string()
     .matches(/[!@#$%^&*]/, 'Password must contain at least one special character')
 
 const MobileNumber = yup.string()
-    .required("Mobile Number is Required")
-    .matches(/^[0][6-8][0-9]{8}$/, "Mobile Number must be valid.")
-    .typeError("Mobile Number must be a valid number")
-    .min(10, "Mobile Number must be exactly 10 digits")
-    .max(10, "Mobile Number must be exactly 10 digits");
+    .required("Mobile Number is Required");
 
 
 export const resetPasswordValidation = yup.object({
@@ -47,14 +41,24 @@ export const profileValidation_s = yup.object({
     last_name: Username,
     email: Email,
     mobile_no: MobileNumber,
-    address: Address,
+    street: String,
+    province: String,
+    city: String,
+    suburb: String,
+    postal_code: Number,
+    country: String
 })
 
 export const profileValidation_c = yup.object({
     contact_name: Username,
     email: Email,
     mobile_no: MobileNumber,
-    address: Address,
+    street: String,
+    province: String,
+    city: String,
+    suburb: String,
+    postal_code: Number,
+    country: String
 })
 
 export const companyValidation = yup.object({

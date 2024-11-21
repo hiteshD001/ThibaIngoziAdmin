@@ -107,7 +107,7 @@ const HardwareManagement = () => {
                               </td>
 
                               <td className={!order.user_id?.mobile_no ? "nodata" : ""}>
-                                {order.user_id?.mobile_no}
+                                {`${order.user_id?.mobile_no_country_code ?? ''}${order.user_id?.mobile_no ?? ''}`}
                               </td>
 
                               <td className={!order.user_id?.email ? "nodata" : ""}>

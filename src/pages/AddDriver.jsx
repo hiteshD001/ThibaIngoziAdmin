@@ -12,6 +12,7 @@ import { useGetCountryList, useGetProvinceList, useGetUserList, useRegister } fr
 import { useQueryClient } from "@tanstack/react-query";
 
 import Loader from "../common/Loader";
+import PhoneInput from "react-phone-input-2";
 
 const AddDriver = () => {
     const client = useQueryClient();
@@ -130,7 +131,24 @@ const AddDriver = () => {
                                         <p className="err">{driverForm.errors.password}</p>
                                     )}
 
-                                    <input
+                                    <PhoneInput
+                                        country={"za"} // Set default country
+                                        value={`${driverForm.values.mobile_no_country_code ?? ''}${driverForm.values.mobile_no ?? ''}`}
+                                        onChange={(phone, countryData) => {
+                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
+                                                ? phone.slice(countryData.dialCode.length).trim()
+                                                : phone;
+
+                                            driverForm.setFieldValue("mobile_no", withoutCountryCode);
+                                            driverForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
+                                        }}
+                                        inputClass="form-control"
+                                    />
+                                    {driverForm.touched.mobile_no && (
+                                        <p className="err">{driverForm.errors.mobile_no}</p>
+                                    )}
+
+                                    {/* <input
                                         type="text"
                                         name="mobile_no"
                                         placeholder="Mobile No."
@@ -140,7 +158,7 @@ const AddDriver = () => {
                                     />
                                     {driverForm.touched.mobile_no && (
                                         <p className="err">{driverForm.errors.mobile_no}</p>
-                                    )}
+                                    )} */}
 
                                     <input
                                         type="text"
@@ -276,6 +294,7 @@ const formValues1 = {
     email: "",
     password: "",
     mobile_no: "",
+    mobile_no_country_code: "",
     street: "",
     province: "",
     city: "",
@@ -294,6 +313,7 @@ const formValues2 = {
     email: "",
     password: "",
     mobile_no: "",
+    mobile_no_country_code: "",
     street: "",
     province: "",
     city: "",

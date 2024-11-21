@@ -134,7 +134,7 @@ const ListOfDrivers = () => {
                                                             {driver.company_name}
                                                         </td>
                                                         <td className={!driver?.mobile_no ? "nodata" : ""}>
-                                                            {driver?.mobile_no}
+                                                            {`${driver?.mobile_no_country_code ?? ''}${driver?.mobile_no ?? ''}`}
                                                         </td>
                                                         <td className={!driver.email ? "nodata" : ""}>
                                                             {driver.email}

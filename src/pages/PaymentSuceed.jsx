@@ -15,7 +15,7 @@ const PaymentSuceed = () => {
       const postal_code = params.get("postal_code")
       const country = params.get("country")
       const token = params.get("token");
-      const status = "received";
+      const status = "order_received";
       const product_price = params.get("price");
       const totalAmount = qty * product_price;
 

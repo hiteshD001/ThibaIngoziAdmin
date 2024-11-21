@@ -9,6 +9,7 @@ import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useU
 
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
+import PhoneInput from "react-phone-input-2"
 
 const VehicleInformation = () => {
     const [edit, setedit] = useState(false)
@@ -22,6 +23,7 @@ const VehicleInformation = () => {
             company_id: "",
             email: "",
             mobile_no: "",
+            mobile_no_country_code: "",
             street: "",
             province: "",
             city: "",
@@ -69,7 +71,7 @@ const VehicleInformation = () => {
     const { mutate } = useUpdateUser(onSuccess, onError)
 
     const provincelist = useGetProvinceList(driverform.values.country)
-	const countrylist = useGetCountryList()
+    const countrylist = useGetCountryList()
 
     useEffect(() => {
         const data = vehicleInfo.data?.data
@@ -153,7 +155,23 @@ const VehicleInformation = () => {
                                     {driverform.touched.email && <p className="err">{driverform.errors.email}</p>}
                                 </div>
                                 <div className="col-md-6">
-                                    <input
+
+                                    <PhoneInput
+                                        country={"za"}
+                                        disabled={!edit}
+                                        value={`${driverform.values.mobile_no_country_code ?? ''}${driverform.values.mobile_no ?? ''}`}
+                                        onChange={(phone, countryData) => {
+                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
+                                                ? phone.slice(countryData.dialCode.length).trim()
+                                                : phone;
+
+                                            driverform.setFieldValue("mobile_no", withoutCountryCode);
+                                            driverform.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
+                                        }}
+                                        inputClass="form-control"
+                                    />
+                                    {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>}
+                                    {/* <input
                                         type="text"
                                         name="mobile_no"
                                         placeholder="Mobile No."
@@ -162,7 +180,7 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>}
+                                    {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>} */}
                                 </div>
                             </div>
                         </form>
@@ -182,6 +200,7 @@ const VehicleInformation = () => {
                                         className="form-control"
                                         value={driverform.values.street}
                                         onChange={driverform.handleChange}
+                                        disabled={!edit}
                                     />
                                     {driverform.touched.street && (
                                         <p className="err">{driverform.errors.street}</p>
@@ -194,6 +213,7 @@ const VehicleInformation = () => {
                                         className="form-control"
                                         value={driverform.values.country}
                                         onChange={driverform.handleChange}
+                                        disabled={!edit}
                                     >
                                         <option value="" hidden> Country </option>
                                         {countrylist.data?.data.data?.map((country) => (
@@ -211,7 +231,7 @@ const VehicleInformation = () => {
                                     <select
                                         name="province"
                                         className="form-control"
-                                        disabled={!driverform.values.country}
+                                        disabled={!driverform.values.country || !edit}
                                         value={driverform.values.province}
                                         onChange={driverform.handleChange}
                                     >
@@ -235,6 +255,7 @@ const VehicleInformation = () => {
                                         className="form-control"
                                         value={driverform.values.city}
                                         onChange={driverform.handleChange}
+                                        disabled={!edit}
                                     />
                                     {driverform.touched.city && (
                                         <p className="err">{driverform.errors.city}</p>
@@ -249,6 +270,7 @@ const VehicleInformation = () => {
                                         className="form-control"
                                         value={driverform.values.suburb}
                                         onChange={driverform.handleChange}
+                                        disabled={!edit}
                                     />
                                     {driverform.touched.suburb && (
                                         <p className="err">{driverform.errors.suburb}</p>
@@ -263,6 +285,7 @@ const VehicleInformation = () => {
                                         className="form-control"
                                         value={driverform.values.postal_code}
                                         onChange={driverform.handleChange}
+                                        disabled={!edit}
                                     />
                                     {driverform.touched.postal_code && (
                                         <p className="err">{driverform.errors.postal_code}</p>

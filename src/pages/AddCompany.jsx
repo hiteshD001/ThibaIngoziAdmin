@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 
 import Loader from "../common/Loader";
+import PhoneInput from "react-phone-input-2";
 
 const AddCompany = () => {
 	const client = useQueryClient();
@@ -22,6 +23,7 @@ const AddCompany = () => {
 			password: "",
 			company_name: "",
 			mobile_no: "",
+			mobile_no_country_code: "+27",
 			street: "",
 			province: "",
 			city: "",
@@ -129,7 +131,24 @@ const AddCompany = () => {
 										<p className="err">{companyForm.errors.password}</p>
 									)}
 
-									<input
+									<PhoneInput
+										country={"za"} // Set default country
+										value={`${companyForm.values.mobile_no_country_code ?? ''}${companyForm.values.mobile_no ?? ''}`}
+										onChange={(phone, countryData) => {
+											const withoutCountryCode = phone.startsWith(countryData.dialCode)
+												? phone.slice(countryData.dialCode.length).trim()
+												: phone;
+
+											companyForm.setFieldValue("mobile_no", withoutCountryCode);
+											companyForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
+										}}
+										inputClass="form-control"
+									/>
+									{companyForm.touched.mobile_no && (
+										<p className="err">{companyForm.errors.mobile_no}</p>
+									)}
+
+									{/* <input
 										type="text"
 										name="mobile_no"
 										placeholder="Mobile No."
@@ -139,7 +158,7 @@ const AddCompany = () => {
 									/>
 									{companyForm.touched.mobile_no && (
 										<p className="err">{companyForm.errors.mobile_no}</p>
-									)}
+									)} */}
 
 									<input
 										type="text"

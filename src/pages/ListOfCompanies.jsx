@@ -88,7 +88,7 @@ const ListOfCompanies = () => {
                               </div>
                             </td>
                             <td className={!data?.mobile_no ? "nodata" : ""}>
-                              {data?.mobile_no}
+                              {`${data?.mobile_no_country_code ?? ''}${data?.mobile_no ?? ''}`}
                             </td>
                             <td className={!data.email ? "nodata" : ""}>
                               {data.email}

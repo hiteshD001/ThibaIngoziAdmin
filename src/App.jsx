@@ -15,6 +15,7 @@ import VehicleInformation from "./pages/VehicleInformation";
 import HardwareManagement from "./pages/HardwareManagement";
 import Profile from "./pages/Profile";
 
+import "react-phone-input-2/lib/style.css";
 import "./App.css";
 import { AuthGuard, LogGuard, RouteGuard } from "./common/Guard";
 import GoogleMaps from "./common/GoogleMaps";
