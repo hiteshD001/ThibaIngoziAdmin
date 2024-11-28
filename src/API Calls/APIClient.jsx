@@ -21,8 +21,8 @@ apiClient.interceptors.response.use(
         const { response } = error;
 
         if (response && response.status === 400) {
-            const errorMessage = response.data || '';
-            if (errorMessage.toLowerCase().includes('account is already logged in on another device.')) {
+            const errorMessage = response.data.message || '';
+            if (errorMessage?.toLowerCase().includes('account is already logged in on another device.')) {
                 console.error('User logged in on another device');
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("refreshToken");

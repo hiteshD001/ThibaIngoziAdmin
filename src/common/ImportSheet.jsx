@@ -10,6 +10,7 @@ import { MdFileDownload } from "react-icons/md";
 const ImportSheet = ({ setpopup }) => {
     const [file, setFile] = useState(null);
     const [error, seterror] = useState("")
+    const [apiError, setApiError] = useState([])
 
     const client = useQueryClient()
 
@@ -36,7 +37,11 @@ const ImportSheet = ({ setpopup }) => {
         }
     };
 
-    const onError = (error) => { console.log(error); toast.error(error.response.data.message || "Something went Wrong", toastOption) }
+    const onError = (error) => {
+        console.log(error.response.data.errors);
+        setApiError(error.response.data.errors)
+        toast.error(error.response.data.message || "Something went Wrong", toastOption)
+    }
     const onSuccess = () => {
         client.invalidateQueries("driver list")
         toast.success("Imported successfully.");
@@ -72,8 +77,21 @@ const ImportSheet = ({ setpopup }) => {
                         </div>
                         <p className="fileerror">{error}</p>
 
-                        <a className="samplefile" href={"/assests/Drivers.xlsx"} download={"Sample_Driver.xlsx"}>Downlaod Sample .xlsx file here <MdFileDownload  className="icon"/> </a>
+                        <a className="samplefile" href={"/assests/Drivers.xlsx"} download={"Sample_Driver.xlsx"}>Downlaod Sample .xlsx file here <MdFileDownload className="icon" /> </a>
                     </div>
+
+                    {apiError && apiError.length > 0 && (
+                        <div className="error-list">
+                            <ul>
+                                {apiError.map((error, index) => (
+                                    <li key={index} style={{ color: "red", fontSize: "small", textAlign: "left" }}>
+                                        {error.message}({error.email})
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
                     <div className="popup-buttons">
                         <button
                             className="popup-button confirm"
