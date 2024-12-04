@@ -98,7 +98,7 @@ const RequestHardware = () => {
 
           <p className="cprice">Courier Price R{courier_price} will be applicable for hardware purchase.</p>
           <button className="paybutton" type="submit">
-            Pay Now
+            Make Payment
           </button>
         </form>
       </div>
