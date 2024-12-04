@@ -945,6 +945,12 @@ button.Cancel-btn:hover {
     border-radius: 12px 0 0 12px;
 }
 
+.cprice {
+    font-size: 14px;
+    color: #1c1c1c;
+    text-align: center;
+}
+
 @media only screen and (max-width: 1200px) {
 
     .theme-table thead tr th,

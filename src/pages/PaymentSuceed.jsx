@@ -16,8 +16,9 @@ const PaymentSuceed = () => {
       const country = params.get("country")
       const token = params.get("token");
       const status = "order_received";
-      const product_price = params.get("price");
-      const totalAmount = qty * product_price;
+      const product_price = params.get("product_price");
+      const courier_price = params.get("courier_price");
+      const totalAmount = Number(qty) * Number(product_price) + Number(courier_price);
 
       try {
         const response = await fetch(

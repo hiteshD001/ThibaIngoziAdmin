@@ -16,9 +16,10 @@ const RequestHardware = () => {
   const country_id = params.get("country_id")
   const quantity = params.get("qty")
   const price = params.get("price")
+  const courier_price = params.get("courier_price")
   const product = params.get("product")
   const token = params.get("token")
-  const returnurl = `${import.meta.env.VITE_APP_URL}/payment-suceed?qty=${quantity}&token=${token}&street=${street}&province=${province_id}&city=${city}&suburb=${suburb}&postal_code=${postal_code}&country=${country_id}`
+  const returnurl = `${import.meta.env.VITE_APP_URL}/payment-suceed?qty=${quantity}&product_price=${price}&courier_price=${courier_price}&token=${token}&street=${street}&province=${province_id}&city=${city}&suburb=${suburb}&postal_code=${postal_code}&country=${country_id}`
 
   return (
     <div className="reqhardware-container">
@@ -94,6 +95,8 @@ const RequestHardware = () => {
           /> */}
           <input type="hidden" name="amount" value={quantity * price} />
           <input type="hidden" name="item_name" value={product} />
+
+          <p className="cprice">Courier Price R{courier_price} will be applicable for hardware purchase.</p>
           <button className="paybutton" type="submit">
             Pay Now
           </button>
