@@ -93,7 +93,7 @@ const RequestHardware = () => {
             name="cancel_url"
             value={`${import.meta.env.VITE_WEB_BASE_URL}}/payment-failed`}
           /> */}
-          <input type="hidden" name="amount" value={quantity * price} />
+          <input type="hidden" name="amount" value={Number(quantity) * Number(price) + Number(courier_price)} />
           <input type="hidden" name="item_name" value={product} />
 
           <p className="cprice">Courier Price R{courier_price} will be applicable for hardware purchase.</p>
