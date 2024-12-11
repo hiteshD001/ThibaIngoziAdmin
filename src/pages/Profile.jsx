@@ -36,7 +36,6 @@ const Profile = () => {
       role === "super_admin" ? profileValidation_s : profileValidation_c,
     onSubmit: (values) => {
       setedit(false);
-      console.log(values);
       mutate({ id: localStorage.getItem("userID"), data: values });
     },
   });
@@ -361,7 +360,6 @@ const company = {
 //       role === "super_admin" ? profileValidation_s : profileValidation_c,
 //     onSubmit: (values) => {
 //       setedit(false);
-//       console.log(values);
 //       mutate({ id: localStorage.getItem("userID"), data: values });
 //     },
 //   });

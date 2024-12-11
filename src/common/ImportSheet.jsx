@@ -38,7 +38,6 @@ const ImportSheet = ({ setpopup }) => {
     };
 
     const onError = (error) => {
-        console.log(error.response.data.errors);
         setApiError(error.response.data.errors)
         toast.error(error.response.data.message || "Something went Wrong", toastOption)
     }
