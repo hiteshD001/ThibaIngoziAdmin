@@ -34,7 +34,6 @@ const VehicleInformation = () => {
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
             // const payload = { first_name: values.first_name, last_name: values.last_name, company_id: values.company_id, email: values.email, mobile_no: values.mobile_no }
-            console.log(values);
             setedit(false);
             mutate({ id: params.id, data: values })
         }
@@ -61,10 +60,9 @@ const VehicleInformation = () => {
     const vehicleInfo = useGetUser(params.id)
     const companyList = useGetUserList("company list", "company")
 
-    const onSuccess = (res) => {
+    const onSuccess = () => {
         toast.success("User Updated Successfully.");
         client.invalidateQueries("driver list")
-        console.log(res)
     }
     const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
 
@@ -430,6 +428,4 @@ const setdriverformvalues = ({ ...props }) => {
     });
 
     form.setValues(newdata)
-
-    console.log(newdata)
 }

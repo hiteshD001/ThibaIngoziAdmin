@@ -6,17 +6,19 @@ const GoogleMaps = () => {
 
     const location = { lat: parseFloat(params.get("lat")), lng: parseFloat(params.get("long")) }
 
-    console.log(location)
-
     return (
-        <div >
-            <APIProvider apiKey={import.meta.env.VITE_MAP_API_KEY} onLoad={() => console.log('Maps API has loaded.')}>
+        <div style={{ position: "relative" }}>
+            <div className='req_container'>
+                <span className='req_count'>Request Reached <p>{params.get("req_reach")}</p></span>
+                <span className='req_count'>Request Accepted <p>{params.get("req_accept")}</p></span>
+            </div>
+            <APIProvider apiKey={import.meta.env.VITE_MAP_API_KEY}>
                 <Map
                     style={{ width: "100%", height: "calc(100vh - 100px )" }}
                     defaultZoom={16}
                     mapId="mymap"
                     defaultCenter={location}>
-                    <Marker 
+                    <Marker
                         key={"Hotspot"}
                         position={location}>
                     </Marker>

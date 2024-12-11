@@ -38,7 +38,6 @@ const AddCompany = () => {
 		},
 		validationSchema: companyValidation,
 		onSubmit: (values) => {
-			console.log(values);
 			newcompany.mutate(values);
 		},
 	});

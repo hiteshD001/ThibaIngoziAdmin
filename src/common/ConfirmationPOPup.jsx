@@ -6,9 +6,8 @@ import { toastOption } from "./ToastOptions";
 export const DeleteConfirm = ({ ...p }) => {
   const client = useQueryClient();
 
-  const onSuccess = (res) => {
+  const onSuccess = () => {
     toast.success("Delete User Successfully.");
-    console.log(res);
     client.invalidateQueries("driver list");
   }
   const onError = (error) => {
