@@ -4,12 +4,13 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 const WebSocketContext = createContext(null);
 
 export const WebSocketProvider = ({ ...props }) => {
-    const { url, children } = props;
+    const { children } = props;
 
     const socketRef = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
     const [activeUserList, setActiveUserList] = useState([]);
     const pingIntervalRef = useRef(null);
+    const url = import.meta.env.VITE_WEB_SOCKET_URL
 
     useEffect(() => {
         const connectWebSocket = () => {

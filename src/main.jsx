@@ -20,7 +20,7 @@ const client = new QueryClient();
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>
   <Provider store={store}>
-    <WebSocketProvider url={"wss://api.thibaingozi.com"}>
+    <WebSocketProvider>
       <QueryClientProvider client={client}>
         <ToastContainer />
         <App />
