@@ -9,8 +9,8 @@ const GoogleMaps = () => {
     return (
         <div style={{ position: "relative" }}>
             <div className='req_container'>
-                <span className='req_count'>Request Reached <p>{params.get("req_reach")}</p></span>
-                <span className='req_count'>Request Accepted <p>{params.get("req_accept")}</p></span>
+                {params.get("req_reach") && <span className='req_count'>Request Reached <p>{params.get("req_reach")}</p></span>}
+                {params.get("req_accept") && <span className='req_count'>Request Accepted <p>{params.get("req_accept")}</p></span>}
             </div>
             <APIProvider apiKey={import.meta.env.VITE_MAP_API_KEY}>
                 <Map

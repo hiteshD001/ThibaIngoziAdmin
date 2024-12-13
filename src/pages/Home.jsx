@@ -5,6 +5,8 @@ import { useWebSocket } from "../API Calls/WebSocketContext";
 
 import nouser from "../assets/images/NoUser.png";
 
+import { format } from "date-fns";
+
 import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 
@@ -101,6 +103,7 @@ const Home = () => {
                                             <th>Driver</th>
                                             <th>Company</th>
                                             <th>Last Active Status</th>
+                                            <th>Time Stamp</th>
                                             <th>&nbsp;</th>
                                         </tr>
                                     </thead>
@@ -123,6 +126,10 @@ const Home = () => {
 
                                                 <td className={!row.address ? "nodata" : ""}>
                                                     {row.address}
+                                                </td>
+
+                                                <td className={!row.createdAt ? "nodata" : ""}>
+                                                    {format(row.createdAt, "dd/MM/yyyy  hh:mm aa")}
                                                 </td>
 
                                                 <td>
