@@ -47,7 +47,7 @@ export const WebSocketProvider = ({ ...props }) => {
                     console.log("Pong received");
                 } else {
                     console.log("Success");
-                    setActiveUserList((prev) => [...prev, ...data]);
+                    setActiveUserList(() => [...data]);
                 }
             };
         };
