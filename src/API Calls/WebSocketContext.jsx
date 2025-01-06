@@ -18,19 +18,16 @@ export const WebSocketProvider = ({ ...props }) => {
             socketRef.current = socket;
 
             socket.onopen = () => {
-                console.log("WebSocket connection opened");
                 setIsConnected(true);
 
                 pingIntervalRef.current = setInterval(() => {
                     if (socket.readyState === WebSocket.OPEN) {
-                        console.log("Sending ping...");
                         socket.send(JSON.stringify({ type: 'ping' }));
                     }
                 }, 30000); 
             };
 
-            socket.onclose = (event) => {
-                console.log("WebSocket connection closed", event);
+            socket.onclose = () => {
                 setIsConnected(false);
                 clearInterval(pingIntervalRef.current);
             };
@@ -46,7 +43,6 @@ export const WebSocketProvider = ({ ...props }) => {
                 } else if (data.type === 'pong') {
                     console.log("Pong received");
                 } else {
-                    console.log("Success");
                     setActiveUserList(() => [...data]);
                 }
             };
@@ -58,7 +54,6 @@ export const WebSocketProvider = ({ ...props }) => {
         // Cleanup function when component unmounts or url changes
         return () => {
             if (socketRef.current) {
-                console.log("Cleaning up WebSocket connection");
                 socketRef.current.close();
                 socketRef.current = null;
                 clearInterval(pingIntervalRef.current); // Clean up ping interval

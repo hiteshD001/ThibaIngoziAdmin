@@ -19,7 +19,7 @@ const Analytics = ({ id }) => {
 
     const driverList = useGetUserList("driver list", "driver", id)
     const companyList = useGetUserList("company list", "company")
-    const hotspot = useGetHotspot(time)
+    const hotspot = useGetHotspot(time, id)
     const chartData = useGetChartData()
 
     const handlChange = (e) => {

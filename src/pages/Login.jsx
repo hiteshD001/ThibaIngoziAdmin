@@ -78,17 +78,18 @@ export const Login = () => {
                                 </div>
                                 {loginForm.touched.password && <p className="err">{loginForm.errors.password}</p>}
 
-                                <div className="forgotpwd text-end">
+                                {/* <div className="forgotpwd text-end">
                                     <a href="#">Forgot Password?</a>
-                                </div>
+                                </div> */}
+                                
                                 <button disabled={loginfn.isPending} type="submit" className="btn btn-dark d-block">
                                     {loginfn.isPending ? <Loader color="white" /> : "Sign In"}
                                 </button>
 
-                                <div className="keep-signed">
+                                {/* <div className="keep-signed">
                                     <input type="checkbox" id="signin" />
                                     <label htmlFor="signin">Keep me signed in</label>
-                                </div>
+                                </div> */}
                             </form>
                         </div>
                     </div>

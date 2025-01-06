@@ -138,12 +138,12 @@ export const useGetChartData = () => {
 
 // get hotspot
 
-export const useGetHotspot = (type) => {
+export const useGetHotspot = (type, company_id) => {
     // const token = localStorage.getItem("accessToken");
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/hotspot`, {
-            params: { type },
+            params: company_id ? { type, company_id } : { type },
         });
     };
 
