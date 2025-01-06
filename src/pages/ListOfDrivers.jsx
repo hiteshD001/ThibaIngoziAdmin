@@ -57,7 +57,7 @@ const ListOfDrivers = () => {
                         <div className="tab-heading">
                             <div className="count">
                                 <h3>Total Drivers</h3>
-                                <p>{driverList.isSuccess && driverList.data.data.totalUsers || 0}</p>
+                                <p>{driverList.isSuccess && driverList.data?.data.totalUsers || 0}</p>
                             </div>
                             <div className="tbl-filter">
                                 <div className="input-group">
@@ -90,7 +90,7 @@ const ListOfDrivers = () => {
                             <Loader />
                         ) : (
                             <>
-                                {driverList.data.data.users ? (
+                                {driverList.data?.data.users ? (
                                     <>
                                         <table
                                             id="example"
@@ -108,7 +108,7 @@ const ListOfDrivers = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {driverList.data?.data?.users?.map((driver) => (
+                                                {driverList?.data && driverList.data?.data?.users?.map((driver) => (
                                                     <tr key={driver._id}>
                                                         <td>
                                                             <div

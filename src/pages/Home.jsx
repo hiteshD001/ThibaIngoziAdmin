@@ -15,8 +15,6 @@ const Home = () => {
 
     const { isConnected, activeUserList  } = useWebSocket()
 
-    console.log(isConnected, activeUserList )
-
     return (
         <div className="container-fluid">
             <Analytics />
