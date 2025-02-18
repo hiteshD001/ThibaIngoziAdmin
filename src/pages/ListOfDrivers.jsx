@@ -25,7 +25,8 @@ const ListOfDrivers = () => {
     const [confirmation, setconfirmation] = useState("");
 
     const companyInfo = useGetUser(params.id)
-    const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter)
+    const notification_type =  "677534649c3a99e13dcd7456"
+    const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter,notification_type)
 
     return (
         <div className="container-fluid">

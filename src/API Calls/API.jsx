@@ -8,17 +8,17 @@ import apiClient from "./APIClient";
 
 // get list of user
 
-export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filter) => {
+export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filter,notification_type) => {
     const nav = useNavigate()
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
-            params: { role, page, limit, filter, company_id }
+            params: { role, page, limit, filter, company_id,notification_type }
         });
     };
 
     const res = useQuery({
-        queryKey: [key, role, company_id, page, limit, filter],
+        queryKey: [key, role, company_id, page, limit, filter,notification_type],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         placeholderData: keepPreviousData,
