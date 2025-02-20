@@ -6,6 +6,7 @@ import profile from "../assets/images/profile.png";
 import logout from "../assets/images/logout.png";
 import comapnies from "../assets/images/companies.png";
 import hardware from "../assets/images/hardware.png";
+import trip from "../assets/images/trip.png"
 import { useState } from "react";
 
 export const superadmin_menulist = [
@@ -40,6 +41,18 @@ export const superadmin_menulist = [
         add: "Add Drivers",
         info: "Vehicle Information",
         company: "Company Information"
+    },
+    {
+        id: "total-trips",
+        name: "Total Trips",
+        path: "/home/total-trips",
+        image: trip,
+        submenu: {
+            name: "List of Trips",
+            path: "/home/total-trips",
+            image: arrowLeft
+        },
+        company: "User Information"
     },
     {
         id: "hardware-management",

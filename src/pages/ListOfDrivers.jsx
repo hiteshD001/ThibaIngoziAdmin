@@ -156,7 +156,7 @@ const ListOfDrivers = () => {
                                                             <span
                                                                 onClick={() =>
                                                                     nav(
-                                                                        `/home/total-drivers/vehicle-information/${driver._id}`
+                                                                        `/home/total-drivers/driver-information/${driver._id}`
                                                                     )
                                                                 }
                                                                 className="tbl-btn"

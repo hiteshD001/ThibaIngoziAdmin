@@ -11,7 +11,7 @@ import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
 
-const VehicleInformation = () => {
+const PassangerInformation = () => {
     const [edit, setedit] = useState(false)
     const params = useParams();
     const client = useQueryClient()
@@ -54,14 +54,11 @@ const VehicleInformation = () => {
             emergency_contact_1_email: "",
             emergency_contact_2_contact: "",
             emergency_contact_2_email: "",
-            emergency_contact_2_country_code:"",
-            emergency_contact_1_country_code:""
         }
     })
 
     const vehicleInfo = useGetUser(params.id)
-    const companyList = useGetUserList("company list", "company")
-
+    // const companyList = useGetUserList("company list", "company")
     const onSuccess = () => {
         toast.success("User Updated Successfully.");
         client.invalidateQueries("driver list")
@@ -80,6 +77,7 @@ const VehicleInformation = () => {
             setdriverformvalues({ form: driverform, data: vehicleInfo.data?.data.user })
             setdriverformvalues({ form: vehicleForm, data: vehicleInfo.data?.data.vehicle[0] })
             setdriverformvalues({ form: emergencyform, data: vehicleInfo.data?.data?.user})
+
         }
     }, [vehicleInfo.data])
 
@@ -90,7 +88,7 @@ const VehicleInformation = () => {
                 <div className="col-md-12">
                     <div className="theme-table">
                         <div className="tab-heading">
-                            <h3>Driver Information</h3>
+                            <h3>User Information</h3>
                         </div>
                         <form>
                             <div className="row">
@@ -118,7 +116,7 @@ const VehicleInformation = () => {
                                     />
                                     {driverform.touched.last_name && <p className="err">{driverform.errors.last_name}</p>}
                                 </div>
-                                <div className="col-md-6">
+                                {/* <div className="col-md-6">
                                     <select
                                         name="company_id"
                                         className="form-control"
@@ -130,7 +128,7 @@ const VehicleInformation = () => {
                                         {companyList.data?.data.users.map(user => <option key={user._id} value={user._id}>{user.company_name}</option>)}
                                     </select>
                                     {driverform.touched.company_id && <p className="err">{driverform.errors.company_id}</p>}
-                                </div>
+                                </div> */}
                                 {/* <div className="col-md-6">
                                     <input
                                         type="text"
@@ -296,7 +294,7 @@ const VehicleInformation = () => {
                         </form>
                     </div>
 
-                    <div className="theme-table">
+                    {/* <div className="theme-table">
                         <div className="tab-heading">
                             <h3>Vehicle Information</h3>
                         </div>
@@ -345,7 +343,7 @@ const VehicleInformation = () => {
                                 </div>
                             </div>
                         </form>
-                    </div>
+                    </div> */}
 
                     <div className="theme-table">
                         <div className="tab-heading">
@@ -365,7 +363,7 @@ const VehicleInformation = () => {
                                     />
                                 </div>
                                 <div className="col-md-6">
-                                    {/* <input
+                                    <input
                                         type="text"
                                         name="emergency_contact_1_contact"
                                         placeholder="Contact No."
@@ -373,20 +371,6 @@ const VehicleInformation = () => {
                                         value={emergencyform.values.emergency_contact_1_contact}
                                         onChange={emergencyform.handleChange}
                                         disabled
-                                    /> */}
-                                      <PhoneInput
-                                        country={"za"}
-                                        disabled={!edit}
-                                        value={`${emergencyform.values.emergency_contact_1_country_code ?? ''}${emergencyform.values?.emergency_contact_1_contact ?? ''}`}
-                                        onChange={(phone, countryData) => {
-                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
-                                                ? phone.slice(countryData.dialCode.length).trim()
-                                                : phone;
-
-                                            emergencyform.setFieldValue("mobile_no", withoutCountryCode);
-                                            emergencyform.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
-                                        }}
-                                        inputClass="form-control"
                                     />
                                 </div>
                                 <div className="col-md-6">
@@ -395,57 +379,42 @@ const VehicleInformation = () => {
                                         name="emergency_contact_2_email"
                                         placeholder="emergencycontact@gu.link"
                                         className="form-control"
-                                        value={emergencyform.values?.emergency_contact_2_email}
+                                        value={emergencyform.values.emergency_contact_2_email}
                                         onChange={emergencyform.handleChange}
                                         disabled
                                     />
                                 </div>
                                 <div className="col-md-6">
-                                    {/* <input
+                                    <input
                                         type="text"
                                         name="emergency_contact_2_contact"
                                         placeholder="Contact No."
                                         className="form-control"
-                                        value={`${emergencyform.values.emergency_contact_2_country_code} ${emergencyform.values.emergency_contact_2_contact}`}
+                                        value={emergencyform.values.emergency_contact_2_contact}
                                         onChange={emergencyform.handleChange}
                                         disabled
-                                    /> */}
-                                    <PhoneInput
-                                        country={"za"}
-                                        disabled={!edit}
-                                        value={`${emergencyform.values.emergency_contact_2_country_code ?? ''}${emergencyform.values.emergency_contact_2_contact ?? ''}`}
-                                        onChange={(phone, countryData) => {
-                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
-                                                ? phone.slice(countryData.dialCode.length).trim()
-                                                : phone;
-
-                                            emergencyform.setFieldValue("mobile_no", withoutCountryCode);
-                                            emergencyform.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
-                                        }}
-                                        inputClass="form-control"
                                     />
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
-                <div className="col-md-12 text-end">
+                {/* <div className="col-md-12 text-end">
                     <div className="saveform">
                         {edit ?
                             <button type="submit" onClick={driverform.handleSubmit} className="btn btn-dark">Save</button> :
                             <button onClick={() => setedit(true)} className="btn btn-dark">Edit</button>}
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     )
 }
 
-export default VehicleInformation
+export default PassangerInformation
 
 const setdriverformvalues = ({ ...props }) => {
     const { form, data } = props;
-
     let newdata = {};
 
     Object.keys(form.values).forEach((key) => {

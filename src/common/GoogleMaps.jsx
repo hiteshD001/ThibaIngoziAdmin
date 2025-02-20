@@ -2,9 +2,18 @@ import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
 import { useSearchParams } from 'react-router-dom';
 
 const GoogleMaps = () => {
-    const [params] = useSearchParams()
-
-    const location = { lat: parseFloat(params.get("lat")), lng: parseFloat(params.get("long")) }
+    const [params] = useSearchParams();
+    
+    // Parse start and end locations from query params
+    const startLocation = { 
+        lat: parseFloat(params.get("lat")), 
+        lng: parseFloat(params.get("long")) 
+    };
+    
+    const endLocation = { 
+        lat: parseFloat(params.get("end_lat")), 
+        lng: parseFloat(params.get("end_long")) 
+    };
 
     return (
         <div style={{ position: "relative" }}>
@@ -17,15 +26,30 @@ const GoogleMaps = () => {
                     style={{ width: "100%", height: "calc(100vh - 100px )" }}
                     defaultZoom={16}
                     mapId="mymap"
-                    defaultCenter={location}>
+                    defaultCenter={startLocation}
+                >
+                    {/* Start Location Marker */}
                     <Marker
-                        key={"Hotspot"}
-                        position={location}>
-                    </Marker>
+                        key="startLocation"
+                        position={startLocation}
+                        title="Trip Start"
+                    />
+                    {
+                    endLocation&&
+                    /* End Location Marker */
+                    <Marker
+                        key="endLocation"
+                        position={endLocation}
+                        title="Trip End"
+                        // icon={{
+                        //     url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                        // }}
+                    />
+                    }
                 </Map>
             </APIProvider>
         </div>
-    )
-}
+    );
+};
 
-export default GoogleMaps
+export default GoogleMaps;

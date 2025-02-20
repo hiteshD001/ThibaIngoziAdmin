@@ -4,7 +4,14 @@
     font-family: "Inter", sans-serif;
     font-style: normal;
 }
-
+.link{
+    text-decoration: none;
+    color: #000000;
+}
+.link:hover{
+    padding-bottom: 1;
+    text-decoration: underline;
+}
 .login-page {
     background-color: #f7f9fb;
     min-height: 100vh;
