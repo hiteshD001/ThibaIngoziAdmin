@@ -29,78 +29,78 @@ function App() {
 }
 
 const router = createBrowserRouter([
-    // {
-    //     path: "/",
-    //     element: <Login />,
-    // },
+    {
+        path: "/",
+        element: <LogGuard><Login /></LogGuard>
+    },
     {
         path: "/payment-suceed",
         element: <PaymentSuceed />
     },
-    // {
-    //     path: "/home",
-    //     element: <AuthGuard><Layout /></AuthGuard>,
-    //     children: [
-    //         {
-    //             path: "",
-    //             element: <Home />
-    //         },
-    //         {
-    //             path: "hotspot/location",
-    //             element: <GoogleMaps />
-    //         },
-    //         {
-    //             path: "total-companies",
-    //             children: [
-    //                 {
-    //                     path: "",
-    //                     element: <RouteGuard><ListOfCompanies /></RouteGuard>
-    //                 },
-    //                 {
-    //                     path: "add-company",
-    //                     element: <RouteGuard><AddCompany /></RouteGuard>
-    //                 }
-    //             ]
-    //         },
-    //         {
-    //             path: "total-drivers",
-    //             children: [
-    //                 {
-    //                     path: "",
-    //                     element: <ListOfDrivers />
-    //                 },
-    //                 {
-    //                     path: ":id",
-    //                     element: <ListOfDrivers />
-    //                 },
-    //                 {
-    //                     path: "add-driver",
-    //                     element: <AddDriver />
-    //                 },
-    //                 {
-    //                     path: "vehicle-information/:id",
-    //                     element: <VehicleInformation />
-    //                 }
-    //             ]
-    //         },
-    //         {
-    //             path: "hardware-management",
-    //             element: <RouteGuard><HardwareManagement /></RouteGuard>
-    //         },
-    //         {
-    //             path: "profile",
-    //             element: <Profile />
-    //         },
-    //     ]
-    // },
-    // {
-    //     path: "/reset-password",
-    //     element: <ResetPassword />
-    // },
-    // {
-    //     path: "/request-hardware",
-    //     element: <RequestHardware />
-    // },
+    {
+        path: "/home",
+        element: <AuthGuard><Layout /></AuthGuard>,
+        children: [
+            {
+                path: "",
+                element: <Home />
+            },
+            {
+                path: "hotspot/location",
+                element: <GoogleMaps />
+            },
+            {
+                path: "total-companies",
+                children: [
+                    {
+                        path: "",
+                        element: <RouteGuard><ListOfCompanies /></RouteGuard>
+                    },
+                    {
+                        path: "add-company",
+                        element: <RouteGuard><AddCompany /></RouteGuard>
+                    }
+                ]
+            },
+            {
+                path: "total-drivers",
+                children: [
+                    {
+                        path: "",
+                        element: <ListOfDrivers />
+                    },
+                    {
+                        path: ":id",
+                        element: <ListOfDrivers />
+                    },
+                    {
+                        path: "add-driver",
+                        element: <AddDriver />
+                    },
+                    {
+                        path: "vehicle-information/:id",
+                        element: <VehicleInformation />
+                    }
+                ]
+            },
+            {
+                path: "hardware-management",
+                element: <RouteGuard><HardwareManagement /></RouteGuard>
+            },
+            {
+                path: "profile",
+                element: <Profile />
+            },
+        ]
+    },
+    {
+        path: "/reset-password",
+        element: <ResetPassword />
+    },
+    {
+        path: "/request-hardware",
+        element: <RequestHardware />
+    },
     
 
 ])
