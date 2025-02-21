@@ -98,7 +98,7 @@ const router = createBrowserRouter([
         element: <RequestHardware />
     },
     {
-        path: "/payment-suceed",
+        path: "/payment-succeed",
         element: <PaymentSuceed />
     },
 
