@@ -31,8 +31,15 @@ function App() {
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <LogGuard><Login /></LogGuard>
+        element: <LogGuard><Login /></LogGuard>,
+        children:[
+            {
+                path: "/payment-suceed",
+                element: <PaymentSuceed />
+            },
+        ]
     },
+    
     {
         path: "/home",
         element: <AuthGuard><Layout /></AuthGuard>,
@@ -97,10 +104,7 @@ const router = createBrowserRouter([
         path: "/request-hardware",
         element: <RequestHardware />
     },
-    {
-        path: "/payment-suceed",
-        element: <PaymentSuceed />
-    },
+    
 
 ])
 export default App;
