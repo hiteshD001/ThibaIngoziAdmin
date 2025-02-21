@@ -31,15 +31,12 @@ function App() {
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <LogGuard><Login /></LogGuard>,
-        children:[
-            {
-                path: "/payment-suceed",
-                element: <PaymentSuceed />
-            },
-        ]
+        element: <LogGuard><Login /></LogGuard>
     },
-    
+    {
+        path: "payment-suceed",
+        element: <PaymentSuceed />
+    },
     {
         path: "/home",
         element: <AuthGuard><Layout /></AuthGuard>,
