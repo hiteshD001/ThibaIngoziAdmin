@@ -1,4 +1,4 @@
-import { RouterProvider, createBrowserRouter, HashRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Layout from "./common/Layout";
 
@@ -22,9 +22,9 @@ import GoogleMaps from "./common/GoogleMaps";
 
 function App() {
     return (
-         <HashRouter>
+         <>
             <RouterProvider router={router} />
-        </HashRouter>
+        </>
     );
 }
 
