@@ -1,4 +1,4 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import { RouterProvider, createBrowserRouter, HashRouter } from "react-router-dom";
 
 import Layout from "./common/Layout";
 
@@ -22,9 +22,9 @@ import GoogleMaps from "./common/GoogleMaps";
 
 function App() {
     return (
-        <>
+         <HashRouter>
             <RouterProvider router={router} />
-        </>
+        </HashRouter>
     );
 }
 
@@ -98,7 +98,7 @@ const router = createBrowserRouter([
         element: <RequestHardware />
     },
     {
-        path: "payment/payment-succeed",
+        path: "/payment-suceed",
         element: <PaymentSuceed />
     },
 
