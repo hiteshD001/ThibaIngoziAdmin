@@ -36,7 +36,24 @@ const Profile = () => {
       role === "super_admin" ? profileValidation_s : profileValidation_c,
     onSubmit: (values) => {
       setedit(false);
-      mutate({ id: localStorage.getItem("userID"), data: values });
+      const formData = new FormData();
+
+
+      Object.keys(values).forEach(key => {
+        if (key !== 'selfieImage' && key !== 'fullImage') {
+          formData.append(key, values[key]);
+        }
+      });
+
+      if (values.selfieImage && values.selfieImage instanceof File) {
+        formData.append("selfieImage", values.selfieImage);
+      }
+
+      if (values.fullImage && values.fullImage instanceof File) {
+        formData.append("fullImage", values.fullImage);
+      }
+
+      mutate({ id: localStorage.getItem("userID"), data: formData });
     },
   });
 
@@ -44,6 +61,7 @@ const Profile = () => {
   const provincelist = useGetProvinceList(profileForm.values.country);
 
   useEffect(() => {
+    console.log(userinfo.data?.data.user?.selfieImage)
     profileForm.setValues(
       role === "super_admin"
         ? {
@@ -61,6 +79,8 @@ const Profile = () => {
           mobile_no_country_code: userinfo.data?.data.user?.mobile_no_country_code || "",
         }
         : {
+          selfieImage: userinfo.data?.data.user?.selfieImage || "",
+          fullImage: userinfo.data?.data.user?.fullImage || "",
           contact_name: userinfo.data?.data.user?.contact_name || "",
           email: userinfo.data?.data.user?.email || "",
           street: userinfo.data?.data.user?.street || "",
@@ -246,6 +266,7 @@ const Profile = () => {
                     <p className="err">{profileForm.errors.suburb}</p>
                   )}
                 </div>
+
                 <div className="col-md-6">
                   <input
                     type="text"
@@ -259,6 +280,100 @@ const Profile = () => {
                   {profileForm.touched.postal_code && (
                     <p className="err">{profileForm.errors.postal_code}</p>
                   )}
+                </div>
+                {
+                  profileForm.values.role == 'super_admin' ? "" : (
+                    <div className="col-md-6"></div>
+                  )
+                }
+                <div className="col-md-6">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <label>Selfie Image</label>
+
+                      {profileForm.values.selfieImage instanceof File ? (
+                        <div className="form-control mt-2 img-preview-container">
+                          <img
+                            src={URL.createObjectURL(profileForm.values.selfieImage)}
+                            alt="Selfie Preview"
+                            className="img-preview"
+                            width="100"
+                            onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                          />
+                        </div>
+                      ) : (
+                        userinfo.data?.data.user?.selfieImage && (
+                          <div className="form-control mt-2 img-preview-container">
+                            <img
+                              src={userinfo.data?.data.user?.selfieImage}
+                              alt="Selfie Image"
+                              className="img-preview"
+                              width="100"
+                            />
+                          </div>
+                        )
+                      )}
+
+                      <div className="custom-file-input">
+                        <input
+                          type="file"
+                          id="selfieImage"
+                          accept="image/*"
+                          disabled={!edit}
+                          onChange={(event) => {
+                            const file = event.currentTarget.files[0];
+                            profileForm.setFieldValue("selfieImage", file);
+                          }}
+                        />
+                        <label htmlFor="selfieImage">
+                          Choose Selfie Image
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <label>Full Image</label>
+
+                      {profileForm.values.fullImage instanceof File ? (
+                        <div className="form-control mt-2 img-preview-container">
+                          <img
+                            src={URL.createObjectURL(profileForm.values.fullImage)}
+                            alt="full Image"
+                            className="img-preview"
+                            width="100"
+                            onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                          />
+                        </div>
+                      ) : (
+                        userinfo.data?.data.user?.fullImage && (
+                          <div className="form-control mt-2 img-preview-container">
+                            <img
+                              src={userinfo.data?.data.user?.fullImage}
+                              alt="full Image"
+                              className="img-preview"
+                              width="100"
+                            />
+                          </div>
+                        )
+                      )}
+
+                      <div className="custom-file-input">
+                        <input
+                          type="file"
+                          id="fullImage"
+                          accept="image/*"
+                          disabled={!edit}
+                          onChange={(event) => {
+                            const file = event.currentTarget.files[0];
+
+                            profileForm.setFieldValue("fullImage", file);
+                          }}
+                        />
+                        <label htmlFor="fullImage">
+                          Choose Full Image
+                        </label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </form>

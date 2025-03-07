@@ -23,9 +23,22 @@ const AddDriver = () => {
         initialValues: role === 'super_admin' ? formValues1 : formValues2,
         validationSchema: driverValidation,
         onSubmit: (values) => {
-            newdriver.mutate(values);
+            const formData = new FormData();
+            Object.keys(values).forEach(key => {
+                if (key !== "selfieImage" && key !== "fullImage") {
+                    formData.append(key, values[key]);
+                }
+            });
+            if (values.selfieImage) {
+                formData.append("selfieImage", values.selfieImage);
+            }
+            if (values.fullImage) {
+                formData.append("fullImage", values.fullImage);
+            }
+            newdriver.mutate(formData);
         },
     });
+
 
     const handlecountryChange = (e) => {
         const { name, value } = e.target
@@ -35,8 +48,8 @@ const AddDriver = () => {
         driverForm.setFieldValue(name, value)
         driverForm.setFieldValue('company_name', companyname)
     }
-
     const onSuccess = () => {
+
         toast.success("Driver added successfully.");
         driverForm.resetForm();
         client.invalidateQueries("company list");
@@ -50,13 +63,11 @@ const AddDriver = () => {
     const companyList = useGetUserList("company list", "company")
     const provincelist = useGetProvinceList(driverForm.values.country)
     const countrylist = useGetCountryList()
-
     return (
         <div className="container-fluid">
             <div className="row">
                 <div className="col-md-12">
                     <div className="theme-table">
-
                         <form>
                             <div className="row">
                                 <div className="col-md-6">
@@ -171,6 +182,62 @@ const AddDriver = () => {
                                     {driverForm.touched.id_no && (
                                         <p className="err">{driverForm.errors.id_no}</p>
                                     )}
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <label>Selfie Image</label>
+
+                                            {driverForm.values.selfieImage && (
+                                                <div className="form-control mt-2 img-preview-container">
+                                                    <img
+                                                        src={URL.createObjectURL(driverForm.values.selfieImage)}
+                                                        alt="Selfie Preview"
+                                                        className="img-preview"
+                                                        width="100"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            <div className="custom-file-input">
+                                                <input type="file" id="selfieImage" accept="image/*"
+                                                    onChange={(event) => {
+                                                        const file = event.currentTarget.files[0];
+                                                        driverForm.setFieldValue("selfieImage", file);
+                                                    }} />
+                                                <label htmlFor="selfieImage">
+                                                    {driverForm.values.selfieImage ? driverForm.values.selfieImage.name : "Choose Selfie Image"}
+                                                </label>
+                                            </div>
+
+
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <label>Full Image</label>
+
+                                            {driverForm.values.fullImage && (
+                                                <div className="form-control img-preview-container mt-2">
+                                                    <img
+                                                        src={URL.createObjectURL(driverForm.values.fullImage)}
+                                                        alt="Full Image Preview"
+                                                        className="img-preview"
+                                                        width="100"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            <div className="custom-file-input">
+                                                <input type="file" id="fullImage" accept="image/*"
+                                                    onChange={(event) => {
+                                                        const file = event.currentTarget.files[0];
+                                                        driverForm.setFieldValue("fullImage", file);
+                                                    }} />
+                                                <label htmlFor="fullImage">
+                                                    {driverForm.values.fullImage ? driverForm.values.fullImage.name : "Choose Full Image"}
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="col-md-6">
@@ -261,6 +328,21 @@ const AddDriver = () => {
                                     {driverForm.touched.postal_code && (
                                         <p className="err">{driverForm.errors.postal_code}</p>
                                     )}
+
+                                    <div className=" form-checkbox form-control">
+                                        <input
+                                            type="checkbox"
+                                            name="isArmed"
+                                            id="isArmed"
+                                            className="form-check-input"
+                                            checked={driverForm.values.isArmed}
+                                            onChange={(e) => driverForm.setFieldValue("isArmed", e.target.checked)}
+                                        />
+                                        <label className="form-check-label" htmlFor="isArmed">
+                                            Security
+                                        </label>
+                                    </div>
+
                                 </div>
                             </div>
                         </form>
@@ -305,6 +387,9 @@ const formValues1 = {
     role: "driver",
     type: "email_pass",
     fcm_token: "fcm_token",
+    isArmed: false,
+    selfieImage: "",
+    fullImage: ""
 }
 
 const formValues2 = {
@@ -324,4 +409,7 @@ const formValues2 = {
     role: "driver",
     type: "email_pass",
     fcm_token: "fcm_token",
+    isArmed: false,
+    selfieImage: "",
+    fullImage: ""
 }

@@ -30,14 +30,37 @@ const VehicleInformation = () => {
             suburb: "",
             postal_code: "",
             country: "",
+            isArmed: "",
+            selfieImage: null,
+            fullImage: null
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
-            // const payload = { first_name: values.first_name, last_name: values.last_name, company_id: values.company_id, email: values.email, mobile_no: values.mobile_no }
             setedit(false);
-            mutate({ id: params.id, data: values })
+
+
+            const formData = new FormData();
+
+
+            Object.keys(values).forEach(key => {
+                if (key !== 'selfieImage' && key !== 'fullImage') {
+                    formData.append(key, values[key]);
+                }
+            });
+
+            if (values.selfieImage && values.selfieImage instanceof File) {
+                formData.append("selfieImage", values.selfieImage);
+            }
+
+            if (values.fullImage && values.fullImage instanceof File) {
+                formData.append("fullImage", values.fullImage);
+            }
+
+            mutate({ id: params.id, data: formData });
         }
-    })
+    });
+
+
 
     const vehicleForm = useFormik({
         initialValues: {
@@ -54,14 +77,13 @@ const VehicleInformation = () => {
             emergency_contact_1_email: "",
             emergency_contact_2_contact: "",
             emergency_contact_2_email: "",
-            emergency_contact_2_country_code:"",
-            emergency_contact_1_country_code:""
+            emergency_contact_2_country_code: "",
+            emergency_contact_1_country_code: ""
         }
     })
 
     const vehicleInfo = useGetUser(params.id)
     const companyList = useGetUserList("company list", "company")
-
     const onSuccess = () => {
         toast.success("User Updated Successfully.");
         client.invalidateQueries("driver list")
@@ -73,15 +95,35 @@ const VehicleInformation = () => {
     const provincelist = useGetProvinceList(driverform.values.country)
     const countrylist = useGetCountryList()
 
+
+
     useEffect(() => {
-        const data = vehicleInfo.data?.data
+        const data = vehicleInfo.data?.data;
 
         if (data) {
-            setdriverformvalues({ form: driverform, data: vehicleInfo.data?.data.user })
-            setdriverformvalues({ form: vehicleForm, data: vehicleInfo.data?.data.vehicle[0] })
-            setdriverformvalues({ form: emergencyform, data: vehicleInfo.data?.data?.user})
+            setdriverformvalues({ form: driverform, data: data.user });
+            setdriverformvalues({ form: emergencyform, data: data.user });
+
+            const vehicleData = data.vehicle?.[0];
+
+            if (vehicleData) {
+                vehicleForm.setValues({
+                    vehicle_name: vehicleData.vehicle_name || "",
+                    type: vehicleData.type || "",
+                    reg_no: vehicleData.reg_no || "",
+                    images: [
+                        vehicleData.image_front_side,
+                        vehicleData.image_back_side,
+                        vehicleData.image_left_side,
+                        vehicleData.image_right_side,
+                        vehicleData.image_car_number_plate,
+                        vehicleData.image_driver_license,
+                    ].filter(Boolean)
+                });
+            }
         }
-    }, [vehicleInfo.data])
+    }, [vehicleInfo.data]);
+
 
     return (
         <div className="container-fluid">
@@ -183,6 +225,118 @@ const VehicleInformation = () => {
                                     />
                                     {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>} */}
                                 </div>
+                                <div className="col-md-6">
+                                    <div className=" form-checkbox form-control">
+                                        <input
+                                            type="checkbox"
+                                            name="isArmed"
+                                            id="isArmed"
+                                            className="form-check-input"
+                                            checked={driverform.values.isArmed}
+                                            onChange={(e) => driverform.setFieldValue("isArmed", e.target.checked)}
+                                            disabled={!edit}
+                                        />
+                                        <label className="form-check-label" htmlFor="isArmed">
+                                            Security
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className="col-md-6">
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <label>Selfie Image</label>
+
+                                            {driverform.values.selfieImage instanceof File ? (
+                                                <div className="form-control mt-2 img-preview-container">
+                                                    <img
+                                                        src={URL.createObjectURL(driverform.values.selfieImage)}
+                                                        alt="Selfie Preview"
+                                                        className="img-preview"
+                                                        width="100"
+                                                        onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                vehicleInfo.data?.data.user?.selfieImage && (
+                                                    <div className="form-control mt-2 img-preview-container">
+                                                        <img
+                                                            src={vehicleInfo.data?.data.user?.selfieImage}
+                                                            alt="Selfie Image"
+                                                            className="img-preview"
+                                                            width="100"
+                                                        />
+                                                    </div>
+                                                )
+                                            )}
+
+
+                                            <div className="custom-file-input">
+                                                <input
+                                                    type="file"
+                                                    id="selfieImage"
+                                                    accept="image/*"
+                                                    disabled={!edit}
+                                                    onChange={(event) => {
+                                                        const file = event.currentTarget.files[0];
+                                                        driverform.setFieldValue("selfieImage", file);
+                                                    }}
+                                                />
+                                                <label htmlFor="selfieImage">
+                                                    Choose Selfie Image
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-md-6">
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <label>Full Image</label>
+
+                                            {driverform.values.fullImage instanceof File ? (
+                                                <div className="form-control mt-2 img-preview-container">
+                                                    <img
+                                                        src={URL.createObjectURL(driverform.values.fullImage)}
+                                                        alt="full Image"
+                                                        className="img-preview"
+                                                        width="100"
+                                                        onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                vehicleInfo.data?.data.user?.fullImage && (
+                                                    <div className="form-control mt-2 img-preview-container">
+                                                        <img
+                                                            src={vehicleInfo.data?.data.user?.fullImage}
+                                                            alt="full Image"
+                                                            className="img-preview"
+                                                            width="100"
+                                                        />
+                                                    </div>
+                                                )
+                                            )}
+
+                                            <div className="custom-file-input">
+                                                <input
+                                                    type="file"
+                                                    id="fullImage"
+                                                    accept="image/*"
+                                                    disabled={!edit}
+                                                    onChange={(event) => {
+                                                        const file = event.currentTarget.files[0];
+                                                        driverform.setFieldValue("fullImage", file);
+                                                    }}
+                                                />
+                                                <label htmlFor="fullImage">
+                                                    Choose Full Image
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </div>
                         </form>
                     </div>
@@ -325,14 +479,6 @@ const VehicleInformation = () => {
                                     />
                                 </div>
                                 <div className="col-md-6">
-                                    <div className="vehiclpic">
-                                        <span>Car Images </span>
-                                        <div className="carimages">
-                                            {vehicleForm.values.images && vehicleForm.values.images.map((image, i) => <img key={i} src={image} />)}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-6">
                                     <input
                                         type="text"
                                         name="reg_no"
@@ -343,6 +489,39 @@ const VehicleInformation = () => {
                                         disabled
                                     />
                                 </div>
+                                {vehicleForm.values.images && vehicleForm.values.images.length > 0 && (
+                                    <div className="col-md-12">
+                                        <div className="vehiclpic">
+                                            <span className="fw-bold">Vehicle Images</span>
+                                            <div className="row">
+                                                {[
+                                                    { label: "Front Side" },
+                                                    { label: "Back Side" },
+                                                    { label: "Left Side" },
+                                                    { label: "Right Side" },
+                                                    { label: "Car Number Plate" },
+                                                    { label: "License DISC Image" }
+                                                ].map((item, index) => (
+                                                    vehicleForm.values.images[index] && (
+                                                        <div key={index} className="col-6 col-md-4 mb-3 text-center">
+                                                            <h6 className="text-muted">{item.label}</h6>
+                                                            <div className="border rounded p-3 d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '250px', backgroundColor: "#f5f5f5" }}>
+                                                                <img
+                                                                    src={vehicleForm.values.images[index]}
+                                                                    alt={item.label}
+                                                                    className="img-fluid rounded"
+                                                                    style={{ maxHeight: "200px" }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+
                             </div>
                         </form>
                     </div>
@@ -374,7 +553,7 @@ const VehicleInformation = () => {
                                         onChange={emergencyform.handleChange}
                                         disabled
                                     /> */}
-                                      <PhoneInput
+                                    <PhoneInput
                                         country={"za"}
                                         disabled={!edit}
                                         value={`${emergencyform.values.emergency_contact_1_country_code ?? ''}${emergencyform.values?.emergency_contact_1_contact ?? ''}`}

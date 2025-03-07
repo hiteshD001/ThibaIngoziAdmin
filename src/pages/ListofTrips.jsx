@@ -18,7 +18,7 @@ const ListOfTrips = () => {
   const [confirmation, setconfirmation] = useState("");
 
   const trip = useGetTripList("Trip list", page, 10, filter)
-  const tripList =  trip?.data?.data?.tripData
+  const tripList = trip?.data?.data?.tripData
   return (
     <div className="container-fluid">
       <div className="row">
@@ -77,6 +77,9 @@ const ListOfTrips = () => {
                           const startlong = data?.trip_start?.split(",")[1]
                           const endlat = data?.trip_end?.split(",")[0]
                           const endlong = data?.trip_end?.split(",")[1]
+                          console.log("startlat", startlat)
+                          console.log("startlong", startlong)
+
                           return <tr key={data?._id}>
                             {/* <td>{`${data.driver_id.first_name} ${data.driver_id.last_name}`}</td> */}
                             <td><Link to={`/home/total-drivers/driver-information/${data.driver._id}`} className="link">{data.driver.first_name}
@@ -94,22 +97,22 @@ const ListOfTrips = () => {
                                 <Link to={`/home/total-trips/user-information/${data.passenger._id}`} className="link">{data.passenger.first_name}</Link>
                               </div>
                             </td>
-                           
+
                             <td>
                               {data.trip_status}
                             </td>
                             <td>
                               {data.ended_by}
                             </td>
-                             <td>
-                             <span
+                            <td>
+                              <span
                                 onClick={() =>
                                   nav(`/home/total-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
                                 }
                                 className="tbl-btn"
                               >
                                 view
-                              </span>   
+                              </span>
                             </td>
                             <td>
                               <span
@@ -135,7 +138,7 @@ const ListOfTrips = () => {
                               </span> */}
                             </td>
                           </tr>
-})}
+                        })}
                       </tbody>
                     </table>
                     <div className="pagiation">
@@ -149,7 +152,7 @@ const ListOfTrips = () => {
                       </div>
                       <div className="pagiation-right">
                         <button
-                        disabled={page === (trip.data.data?.totalPages ?? 0)}
+                          disabled={page === (trip.data.data?.totalPages ?? 0)}
                           onClick={() => setpage((p) => p + 1)}
                         >
                           Next <img src={Next} />

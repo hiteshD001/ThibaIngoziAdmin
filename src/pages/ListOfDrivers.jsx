@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useGetUser, useGetUserList } from "../API Calls/API";
-
+import { useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API";
+import { useQueryClient } from "@tanstack/react-query"
 import Prev from "../assets/images/left.png";
 import Next from "../assets/images/right.png";
 import nouser from "../assets/images/NoUser.png";
@@ -15,8 +15,9 @@ import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
 
 const ListOfDrivers = () => {
+    const [isArmedLocal, setIsArmedLocal] = useState(false);
     const [popup, setpopup] = useState(false)
-
+    const client = useQueryClient()
     const nav = useNavigate();
     const params = useParams();
     const [role] = useState(localStorage.getItem("role"))
@@ -25,8 +26,22 @@ const ListOfDrivers = () => {
     const [confirmation, setconfirmation] = useState("");
 
     const companyInfo = useGetUser(params.id)
-    const notification_type =  "677534649c3a99e13dcd7456"
-    const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter,notification_type)
+    const notification_type = "677534649c3a99e13dcd7456"
+    const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
+
+
+    useEffect(() => {
+        if (companyInfo.data) {
+            // Initialize local state from the data user fetched
+            setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
+        }
+    }, [companyInfo.data]);
+    const onSuccess = () => {
+        toast.success("User Updated Successfully.");
+        client.invalidateQueries(['user', params.id]);
+    }
+    const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
+    const { mutate } = useUpdateUser(onSuccess, onError);
 
     return (
         <div className="container-fluid">
@@ -47,6 +62,30 @@ const ListOfDrivers = () => {
                                 <div className="c-info">
                                     <span>Contact Email</span>
                                     <p>{companyInfo.data?.data.user.email}</p>
+                                </div>
+                                <div className="c-info2">
+                                    {/* <span>Security</span> */}
+                                    {/* <p>{companyInfo.data?.data.user.isArmed}</p> */}
+
+                                    <input
+                                        type="checkbox"
+                                        name="isArmed"
+                                        id="isArmed"
+                                        className="form-check-input me-2"
+                                        checked={isArmedLocal}
+                                        onChange={() => {
+                                            const newValue = !isArmedLocal;
+                                            setIsArmedLocal(newValue);
+                                            mutate({
+                                                id: params.id,
+                                                data: { isArmed: newValue },
+                                            });
+                                        }}
+                                    />
+                                    <label className="form-check-label" htmlFor="isArmed">
+                                        Security
+                                    </label>
+
                                 </div>
                             </div>
                         </div>
