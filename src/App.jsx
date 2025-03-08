@@ -21,6 +21,8 @@ import { AuthGuard, LogGuard, RouteGuard } from "./common/Guard";
 import GoogleMaps from "./common/GoogleMaps";
 import ListOfTrips from "./pages/ListofTrips";
 import PassangerInformation from "./pages/Passangerinformation";
+import ListOfUsers from "./pages/ListOfUsers";
+import AddUser from "./pages/AddUser";
 
 function App() {
     return (
@@ -95,6 +97,23 @@ const router = createBrowserRouter([
                     {
                         path: "location",
                         element: <GoogleMaps />
+                    },
+                ]
+            },
+            {
+                path: "total-users",
+                children: [
+                    {
+                        path: "",
+                        element: <ListOfUsers />
+                    },
+                    {
+                        path: "add-user",
+                        element: <AddUser />
+                    },
+                    {
+                        path: "user-information/:id",
+                        element: <PassangerInformation />
                     },
                 ]
             },
