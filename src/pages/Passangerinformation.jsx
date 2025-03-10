@@ -11,8 +11,8 @@ import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
 
-const VehicleInformation = () => {
-    const [edit, setedit] = useState(false)
+const PassangerInformation = () => {
+    const [edit, setEdit] = useState(false)
     const params = useParams();
     const client = useQueryClient()
 
@@ -20,7 +20,7 @@ const VehicleInformation = () => {
         initialValues: {
             first_name: "",
             last_name: "",
-            company_id: "",
+            // company_id: "",
             email: "",
             mobile_no: "",
             mobile_no_country_code: "",
@@ -34,42 +34,29 @@ const VehicleInformation = () => {
             selfieImage: null,
             fullImage: null
         },
-        validationSchema: vehicleValidation,
-        onSubmit: (values) => {
-            setedit(false);
-
-
-            const formData = new FormData();
-
-
-            Object.keys(values).forEach(key => {
-                if (key !== 'selfieImage' && key !== 'fullImage') {
-                    formData.append(key, values[key]);
-                }
-            });
-
-            if (values.selfieImage && values.selfieImage instanceof File) {
-                formData.append("selfieImage", values.selfieImage);
-            }
-
-            if (values.fullImage && values.fullImage instanceof File) {
-                formData.append("fullImage", values.fullImage);
-            }
-
-            mutate({ id: params.id, data: formData });
-        }
-    });
-
-
-
-    const vehicleForm = useFormik({
-        initialValues: {
-            vehicle_name: "",
-            type: "",
-            reg_no: "",
-            images: [],
-        }
+        validationSchema: vehicleValidation
     })
+
+
+    const submithandler = (values) => {
+        setEdit(false);
+        const formData = new FormData();
+        Object.keys(values).forEach(key => {
+            if (key !== 'selfieImage' && key !== 'fullImage') {
+                formData.append(key, values[key]);
+            }
+        });
+
+        if (values.selfieImage && values.selfieImage instanceof File) {
+            formData.append("selfieImage", values.selfieImage);
+        }
+
+        if (values.fullImage && values.fullImage instanceof File) {
+            formData.append("fullImage", values.fullImage);
+        }
+
+        mutate({ id: params.id, data: formData })
+    }
 
     const emergencyform = useFormik({
         initialValues: {
@@ -77,16 +64,14 @@ const VehicleInformation = () => {
             emergency_contact_1_email: "",
             emergency_contact_2_contact: "",
             emergency_contact_2_email: "",
-            emergency_contact_2_country_code: "",
-            emergency_contact_1_country_code: ""
         }
     })
 
-    const vehicleInfo = useGetUser(params.id)
-    const companyList = useGetUserList("company list", "company")
+    const UserInfo = useGetUser(params.id)
     const onSuccess = () => {
         toast.success("User Updated Successfully.");
-        client.invalidateQueries("driver list")
+        client.invalidateQueries("user list")
+        // setEdit(false);
     }
     const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
 
@@ -95,35 +80,15 @@ const VehicleInformation = () => {
     const provincelist = useGetProvinceList(driverform.values.country)
     const countrylist = useGetCountryList()
 
-
-
     useEffect(() => {
-        const data = vehicleInfo.data?.data;
+        const data = UserInfo.data?.data
 
         if (data) {
-            setdriverformvalues({ form: driverform, data: data.user });
-            setdriverformvalues({ form: emergencyform, data: data.user });
+            setdriverformvalues({ form: driverform, data: UserInfo.data?.data.user })
+            setdriverformvalues({ form: emergencyform, data: UserInfo.data?.data?.user })
 
-            const vehicleData = data.vehicle?.[0];
-
-            if (vehicleData) {
-                vehicleForm.setValues({
-                    vehicle_name: vehicleData.vehicle_name || "",
-                    type: vehicleData.type || "",
-                    reg_no: vehicleData.reg_no || "",
-                    images: [
-                        vehicleData.image_front_side,
-                        vehicleData.image_back_side,
-                        vehicleData.image_left_side,
-                        vehicleData.image_right_side,
-                        vehicleData.image_car_number_plate,
-                        vehicleData.image_driver_license,
-                    ].filter(Boolean)
-                });
-            }
         }
-    }, [vehicleInfo.data]);
-
+    }, [UserInfo.data])
 
     return (
         <div className="container-fluid">
@@ -132,7 +97,7 @@ const VehicleInformation = () => {
                 <div className="col-md-12">
                     <div className="theme-table">
                         <div className="tab-heading">
-                            <h3>Driver Information</h3>
+                            <h3>User Information</h3>
                         </div>
                         <form>
                             <div className="row">
@@ -160,7 +125,7 @@ const VehicleInformation = () => {
                                     />
                                     {driverform.touched.last_name && <p className="err">{driverform.errors.last_name}</p>}
                                 </div>
-                                <div className="col-md-6">
+                                {/* <div className="col-md-6">
                                     <select
                                         name="company_id"
                                         className="form-control"
@@ -172,7 +137,7 @@ const VehicleInformation = () => {
                                         {companyList.data?.data.users.map(user => <option key={user._id} value={user._id}>{user.company_name}</option>)}
                                     </select>
                                     {driverform.touched.company_id && <p className="err">{driverform.errors.company_id}</p>}
-                                </div>
+                                </div> */}
                                 {/* <div className="col-md-6">
                                     <input
                                         type="text"
@@ -225,22 +190,7 @@ const VehicleInformation = () => {
                                     />
                                     {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>} */}
                                 </div>
-                                <div className="col-md-6">
-                                    <div className=" form-checkbox form-control">
-                                        <input
-                                            type="checkbox"
-                                            name="isArmed"
-                                            id="isArmed"
-                                            className="form-check-input"
-                                            checked={driverform.values.isArmed}
-                                            onChange={(e) => driverform.setFieldValue("isArmed", e.target.checked)}
-                                            disabled={!edit}
-                                        />
-                                        <label className="form-check-label" htmlFor="isArmed">
-                                            Security
-                                        </label>
-                                    </div>
-                                </div>
+
                                 <div className="col-md-6">
                                     <div className="row">
                                         <div className="col-md-6">
@@ -257,10 +207,10 @@ const VehicleInformation = () => {
                                                     />
                                                 </div>
                                             ) : (
-                                                vehicleInfo.data?.data.user?.selfieImage && (
+                                                UserInfo.data?.data.user?.selfieImage && (
                                                     <div className="form-control mt-2 img-preview-container">
                                                         <img
-                                                            src={vehicleInfo.data?.data.user?.selfieImage}
+                                                            src={UserInfo.data?.data.user?.selfieImage}
                                                             alt="Selfie Image"
                                                             className="img-preview"
                                                             width="100"
@@ -305,10 +255,10 @@ const VehicleInformation = () => {
                                                     />
                                                 </div>
                                             ) : (
-                                                vehicleInfo.data?.data.user?.fullImage && (
+                                                UserInfo.data?.data.user?.fullImage && (
                                                     <div className="form-control mt-2 img-preview-container">
                                                         <img
-                                                            src={vehicleInfo.data?.data.user?.fullImage}
+                                                            src={UserInfo.data?.data.user?.fullImage}
                                                             alt="full Image"
                                                             className="img-preview"
                                                             width="100"
@@ -335,8 +285,6 @@ const VehicleInformation = () => {
                                         </div>
                                     </div>
                                 </div>
-
-
                             </div>
                         </form>
                     </div>
@@ -450,7 +398,7 @@ const VehicleInformation = () => {
                         </form>
                     </div>
 
-                    <div className="theme-table">
+                    {/* <div className="theme-table">
                         <div className="tab-heading">
                             <h3>Vehicle Information</h3>
                         </div>
@@ -479,6 +427,14 @@ const VehicleInformation = () => {
                                     />
                                 </div>
                                 <div className="col-md-6">
+                                    <div className="vehiclpic">
+                                        <span>Car Images </span>
+                                        <div className="carimages">
+                                            {vehicleForm.values.images && vehicleForm.values.images.map((image, i) => <img key={i} src={image} />)}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-md-6">
                                     <input
                                         type="text"
                                         name="reg_no"
@@ -489,42 +445,9 @@ const VehicleInformation = () => {
                                         disabled
                                     />
                                 </div>
-                                {vehicleForm.values.images && vehicleForm.values.images.length > 0 && (
-                                    <div className="col-md-12">
-                                        <div className="vehiclpic">
-                                            <span className="fw-bold">Vehicle Images</span>
-                                            <div className="row">
-                                                {[
-                                                    { label: "Front Side" },
-                                                    { label: "Back Side" },
-                                                    { label: "Left Side" },
-                                                    { label: "Right Side" },
-                                                    { label: "Car Number Plate" },
-                                                    { label: "License DISC Image" }
-                                                ].map((item, index) => (
-                                                    vehicleForm.values.images[index] && (
-                                                        <div key={index} className="col-6 col-md-4 mb-3 text-center">
-                                                            <h6 className="text-muted">{item.label}</h6>
-                                                            <div className="border rounded p-3 d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '250px', backgroundColor: "#f5f5f5" }}>
-                                                                <img
-                                                                    src={vehicleForm.values.images[index]}
-                                                                    alt={item.label}
-                                                                    className="img-fluid rounded"
-                                                                    style={{ maxHeight: "200px" }}
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-
                             </div>
                         </form>
-                    </div>
+                    </div> */}
 
                     <div className="theme-table">
                         <div className="tab-heading">
@@ -544,7 +467,7 @@ const VehicleInformation = () => {
                                     />
                                 </div>
                                 <div className="col-md-6">
-                                    {/* <input
+                                    <input
                                         type="text"
                                         name="emergency_contact_1_contact"
                                         placeholder="Contact No."
@@ -552,20 +475,6 @@ const VehicleInformation = () => {
                                         value={emergencyform.values.emergency_contact_1_contact}
                                         onChange={emergencyform.handleChange}
                                         disabled
-                                    /> */}
-                                    <PhoneInput
-                                        country={"za"}
-                                        disabled={!edit}
-                                        value={`${emergencyform.values.emergency_contact_1_country_code ?? ''}${emergencyform.values?.emergency_contact_1_contact ?? ''}`}
-                                        onChange={(phone, countryData) => {
-                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
-                                                ? phone.slice(countryData.dialCode.length).trim()
-                                                : phone;
-
-                                            emergencyform.setFieldValue("mobile_no", withoutCountryCode);
-                                            emergencyform.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
-                                        }}
-                                        inputClass="form-control"
                                     />
                                 </div>
                                 <div className="col-md-6">
@@ -574,34 +483,20 @@ const VehicleInformation = () => {
                                         name="emergency_contact_2_email"
                                         placeholder="emergencycontact@gu.link"
                                         className="form-control"
-                                        value={emergencyform.values?.emergency_contact_2_email}
+                                        value={emergencyform.values.emergency_contact_2_email}
                                         onChange={emergencyform.handleChange}
                                         disabled
                                     />
                                 </div>
                                 <div className="col-md-6">
-                                    {/* <input
+                                    <input
                                         type="text"
                                         name="emergency_contact_2_contact"
                                         placeholder="Contact No."
                                         className="form-control"
-                                        value={`${emergencyform.values.emergency_contact_2_country_code} ${emergencyform.values.emergency_contact_2_contact}`}
+                                        value={emergencyform.values.emergency_contact_2_contact}
                                         onChange={emergencyform.handleChange}
                                         disabled
-                                    /> */}
-                                    <PhoneInput
-                                        country={"za"}
-                                        disabled={!edit}
-                                        value={`${emergencyform.values.emergency_contact_2_country_code ?? ''}${emergencyform.values.emergency_contact_2_contact ?? ''}`}
-                                        onChange={(phone, countryData) => {
-                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
-                                                ? phone.slice(countryData.dialCode.length).trim()
-                                                : phone;
-
-                                            emergencyform.setFieldValue("mobile_no", withoutCountryCode);
-                                            emergencyform.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
-                                        }}
-                                        inputClass="form-control"
                                     />
                                 </div>
                             </div>
@@ -611,8 +506,8 @@ const VehicleInformation = () => {
                 <div className="col-md-12 text-end">
                     <div className="saveform">
                         {edit ?
-                            <button type="submit" onClick={driverform.handleSubmit} className="btn btn-dark">Save</button> :
-                            <button onClick={() => setedit(true)} className="btn btn-dark">Edit</button>}
+                            <button type="submit" onClick={() => submithandler(driverform.values)} className="btn btn-dark">Save</button> :
+                            <button onClick={() => setEdit(true)} className="btn btn-dark">Edit</button>}
                     </div>
                 </div>
             </div>
@@ -620,11 +515,10 @@ const VehicleInformation = () => {
     )
 }
 
-export default VehicleInformation
+export default PassangerInformation
 
 const setdriverformvalues = ({ ...props }) => {
     const { form, data } = props;
-
     let newdata = {};
 
     Object.keys(form.values).forEach((key) => {

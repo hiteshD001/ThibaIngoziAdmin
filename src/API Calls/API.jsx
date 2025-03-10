@@ -8,17 +8,17 @@ import apiClient from "./APIClient";
 
 // get list of user
 
-export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filter,notification_type) => {
+export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filter, notification_type) => {
     const nav = useNavigate()
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
-            params: { role, page, limit, filter, company_id,notification_type }
+            params: { role, page, limit, filter, company_id, notification_type }
         });
     };
 
     const res = useQuery({
-        queryKey: [key, role, company_id, page, limit, filter,notification_type],
+        queryKey: [key, role, company_id, page, limit, filter, notification_type],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         placeholderData: keepPreviousData,
@@ -30,6 +30,47 @@ export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filt
         nav("/")
     }
     return res;
+};
+
+
+export const useGetTripList = (key, page = 1, limit = 10, filter) => {
+    const nav = useNavigate()
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userTrip`, {
+            params: { page, limit, filter }
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [key, page, limit, filter],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/")
+    }
+    return res;
+};
+
+
+export const useDeleteUserTrip = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/userTrip/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
 };
 
 // get list of Province
@@ -236,6 +277,7 @@ export const useDeleteUser = (onSuccess, onError) => {
 
     return mutation;
 };
+
 
 // login user
 

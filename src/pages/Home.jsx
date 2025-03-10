@@ -1,6 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 
-import { useGetRecentSOS} from "../API Calls/API";
+import { useGetRecentSOS } from "../API Calls/API";
 import { useWebSocket } from "../API Calls/WebSocketContext";
 
 import nouser from "../assets/images/NoUser.png";
@@ -13,7 +13,7 @@ import Analytics from "../common/Analytics";
 const Home = () => {
     const recentSOS = useGetRecentSOS()
 
-    const { isConnected, activeUserList  } = useWebSocket()
+    const { isConnected, activeUserList } = useWebSocket()
 
     return (
         <div className="container-fluid">
@@ -86,64 +86,68 @@ const Home = () => {
             <div className="row">
                 <div className="col-md-12">
                     <div className="theme-table">
-                        <div className="tab-heading"> <h3>Recent Active Driver</h3> </div>
+                        <div className="tab-heading">
+                            <h3>Recent Active Driver</h3>
+                        </div>
 
-                        {recentSOS.isFetching ?
-                            <Loader /> :
-                            recentSOS.data?.data ?
-                                <table
-                                    id="example"
-                                    className="table table-striped nowrap"
-                                    style={{ width: "100%" }}
-                                >
-                                    <thead>
-                                        <tr>
-                                            <th>Driver</th>
-                                            <th>Company</th>
-                                            <th>Last Active Status</th>
-                                            <th>Time Stamp</th>
-                                            <th>&nbsp;</th>
+                        {recentSOS.isFetching ? (
+                            <Loader />
+                        ) : recentSOS.data?.data?.length > 0 ? (
+                            <table
+                                id="example"
+                                className="table table-striped nowrap"
+                                style={{ width: "100%" }}
+                            >
+                                <thead>
+                                    <tr>
+                                        <th>Driver</th>
+                                        <th>Company</th>
+                                        <th>Last Active Status</th>
+                                        <th>Time Stamp</th>
+                                        <th>&nbsp;</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {recentSOS.data.data.map((row) => (
+                                        <tr key={row._id}>
+                                            <td>
+                                                <div className={!row.user_id?.username ? "prof nodata" : "prof"}>
+                                                    <img
+                                                        className="profilepicture"
+                                                        src={row.user_id?.profileImage || nouser}
+                                                    />
+                                                    {row.user_id?.username}
+                                                </div>
+                                            </td>
+
+                                            <td className={!row.user_id?.company_name ? "companynamenodata" : ""}>
+                                                {row.user_id?.company_name}
+                                            </td>
+
+                                            <td className={!row.address ? "nodata" : ""}>
+                                                {row.address}
+                                            </td>
+
+                                            <td className={!row.createdAt ? "nodata" : ""}>
+                                                {format(row.createdAt, "dd/MM/yyyy  hh:mm aa")}
+                                            </td>
+
+                                            <td>
+                                                <Link to={`total-drivers/vehicle-information/${row.user_id._id}`} className="tbl-btn">
+                                                    view
+                                                </Link>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {recentSOS.data?.data?.map((row) => (
-                                            <tr key={row._id}>
-                                                <td>
-                                                    <div className={!row.user_id?.username ? "prof nodata" : "prof"}>
-                                                        <img
-                                                            className="profilepicture"
-                                                            src={row.user_id?.profileImage || nouser}
-                                                        />
-                                                        {row.user_id?.username}
-                                                    </div>
-                                                </td>
-
-                                                <td className={!row.user_id?.company_name ? "companynamenodata" : ""}>
-                                                    {row.user_id?.company_name}
-                                                </td>
-
-                                                <td className={!row.address ? "nodata" : ""}>
-                                                    {row.address}
-                                                </td>
-
-                                                <td className={!row.createdAt ? "nodata" : ""}>
-                                                    {format(row.createdAt, "dd/MM/yyyy  hh:mm aa")}
-                                                </td>
-
-                                                <td>
-                                                    <Link to={`total-drivers/vehicle-information/${row.user_id._id}`} className="tbl-btn">
-                                                        view
-                                                    </Link>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                : <p className="no-data-found">No data found</p>
-                        }
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p className="no-data-found">No Recent Drivers</p>
+                        )}
                     </div>
                 </div>
             </div>
+
         </div>
     );
 };

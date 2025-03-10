@@ -10,94 +10,32 @@ import search from "../assets/images/search.png";
 import icon from "../assets/images/icon.png";
 
 import Loader from "../common/Loader";
-import Analytics from "../common/Analytics";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
 
-const ListOfDrivers = () => {
-    const [isArmedLocal, setIsArmedLocal] = useState(false);
+const ListOfUsers = () => {
     const [popup, setpopup] = useState(false)
-    const client = useQueryClient()
     const nav = useNavigate();
     const params = useParams();
-    const [role] = useState(localStorage.getItem("role"))
     const [page, setpage] = useState(1);
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
 
-    const companyInfo = useGetUser(params.id)
     const notification_type = "677534649c3a99e13dcd7456"
-    const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
+    const UserList = useGetUserList("user list", "passanger", params.id, page, 10, filter, notification_type)
 
+    console.log(UserList.data)
 
-    useEffect(() => {
-        if (companyInfo.data) {
-            // Initialize local state from the data user fetched
-            setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
-        }
-    }, [companyInfo.data]);
-    const onSuccess = () => {
-        toast.success("User Updated Successfully.");
-        client.invalidateQueries(['user', params.id]);
-    }
-    const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
-    const { mutate } = useUpdateUser(onSuccess, onError);
 
     return (
         <div className="container-fluid">
             <div className="row">
                 <div className="col-md-12">
-                    {params.id && (
-                        <div className="company-info">
-                            <div className="comapny-titles">Company Information</div>
-                            <div className="comapny-det">
-                                <div className="c-info">
-                                    <span>Company</span>
-                                    <p>{companyInfo.data?.data.user.company_name}</p>
-                                </div>
-                                <div className="c-info">
-                                    <span>Contact No.</span>
-                                    <p>{companyInfo.data?.data.user.mobile_no}</p>
-                                </div>
-                                <div className="c-info">
-                                    <span>Contact Email</span>
-                                    <p>{companyInfo.data?.data.user.email}</p>
-                                </div>
-                                <div className="c-info2">
-                                    {/* <span>Security</span> */}
-                                    {/* <p>{companyInfo.data?.data.user.isArmed}</p> */}
-
-                                    <input
-                                        type="checkbox"
-                                        name="isArmed"
-                                        id="isArmed"
-                                        className="form-check-input me-2"
-                                        checked={isArmedLocal}
-                                        onChange={() => {
-                                            const newValue = !isArmedLocal;
-                                            setIsArmedLocal(newValue);
-                                            mutate({
-                                                id: params.id,
-                                                data: { isArmed: newValue },
-                                            });
-                                        }}
-                                    />
-                                    <label className="form-check-label" htmlFor="isArmed">
-                                        Security
-                                    </label>
-
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {role === 'super_admin' && params.id && <Analytics id={params.id} />}
-
                     <div className="theme-table">
                         <div className="tab-heading">
                             <div className="count">
-                                <h3>Total Drivers</h3>
-                                <p>{driverList.isSuccess && driverList.data?.data.totalUsers || 0}</p>
+                                <h3>Total Users</h3>
+                                <p>{UserList.isSuccess && UserList.data?.data.totalUsers || 0}</p>
                             </div>
                             <div className="tbl-filter">
                                 <div className="input-group">
@@ -116,21 +54,21 @@ const ListOfDrivers = () => {
                                     </span>
                                 </div>
                                 <button
-                                    onClick={() => nav("/home/total-drivers/add-driver")}
+                                    onClick={() => nav("/home/total-users/add-user")}
                                     className="btn btn-primary"
                                 >
-                                    + Add Driver
+                                    + Add User
                                 </button>
                                 <button className="btn btn-primary" onClick={() => setpopup(true)}>
                                     + Import Sheet
                                 </button>
                             </div>
                         </div>
-                        {driverList.isFetching ? (
+                        {UserList.isFetching ? (
                             <Loader />
                         ) : (
                             <>
-                                {driverList.data?.data.users ? (
+                                {UserList.data?.data.users ? (
                                     <>
                                         <table
                                             id="example"
@@ -139,63 +77,59 @@ const ListOfDrivers = () => {
                                         >
                                             <thead>
                                                 <tr>
-                                                    <th>Driver</th>
-                                                    <th>Driver ID</th>
-                                                    <th>Company</th>
+                                                    <th>User</th>
+                                                    {/* <th>Email</th> */}
                                                     <th>Contact No.</th>
                                                     <th>Contact Email</th>
                                                     <th>&nbsp;</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {driverList?.data && driverList.data?.data?.users?.map((driver) => (
-                                                    <tr key={driver._id}>
+                                                {UserList?.data && UserList.data?.data?.users?.map((user) => (
+                                                    <tr key={user._id}>
                                                         <td>
                                                             <div
                                                                 className={
-                                                                    (!driver.first_name && !driver.last_name) ? "prof nodata" : "prof"
+                                                                    (!user.first_name && !user.last_name) ? "prof nodata" : "prof"
                                                                 }
                                                             >
                                                                 <img
                                                                     className="profilepicture"
                                                                     src={
-                                                                        driver.profileImage
-                                                                            ? driver.profileImage
+                                                                        user.profileImage
+                                                                            ? user.profileImage
                                                                             : nouser
                                                                     }
                                                                 />
-                                                                {driver.first_name} {driver.last_name}
+                                                                {user.first_name} {user.last_name}
                                                             </div>
                                                         </td>
-                                                        <td className={!driver.id_no ? "nodata" : ""}>
-                                                            {driver.id_no}
+                                                        {/* <td className={!user.company_name ? "companynamenodata" : ""}>
+                                                            {user.company_name}
+                                                        </td> */}
+                                                        <td className={!user?.mobile_no ? "nodata" : ""}>
+                                                            {`${user?.mobile_no_country_code ?? ''}${user?.mobile_no ?? ''}`}
                                                         </td>
-                                                        <td className={!driver.company_name ? "companynamenodata" : ""}>
-                                                            {driver.company_name}
-                                                        </td>
-                                                        <td className={!driver?.mobile_no ? "nodata" : ""}>
-                                                            {`${driver?.mobile_no_country_code ?? ''}${driver?.mobile_no ?? ''}`}
-                                                        </td>
-                                                        <td className={!driver.email ? "nodata" : ""}>
-                                                            {driver.email}
+                                                        <td className={!user.email ? "nodata" : ""}>
+                                                            {user.email}
                                                         </td>
                                                         <td>
                                                             <span
-                                                                onClick={() => setconfirmation(driver._id)}
+                                                                onClick={() => setconfirmation(user._id)}
                                                                 className="tbl-gray"
                                                             >
                                                                 Delete
                                                             </span>
-                                                            {confirmation === driver._id && (
+                                                            {confirmation === user._id && (
                                                                 <DeleteConfirm
-                                                                    id={driver._id}
+                                                                    id={user._id}
                                                                     setconfirmation={setconfirmation}
                                                                 />
                                                             )}
                                                             <span
                                                                 onClick={() =>
                                                                     nav(
-                                                                        `/home/total-drivers/driver-information/${driver._id}`
+                                                                        `/home/total-users/user-information/${user._id}`
                                                                     )
                                                                 }
                                                                 className="tbl-btn"
@@ -218,7 +152,7 @@ const ListOfDrivers = () => {
                                             </div>
                                             <div className="pagiation-right">
                                                 <button
-                                                    disabled={page === driverList.data?.data.totalPages}
+                                                    disabled={page === UserList.data?.data.totalPages}
                                                     onClick={() => setpage((p) => p + 1)}
                                                 >
                                                     Next <img src={Next} />
@@ -239,4 +173,4 @@ const ListOfDrivers = () => {
     );
 };
 
-export default ListOfDrivers;
+export default ListOfUsers;
