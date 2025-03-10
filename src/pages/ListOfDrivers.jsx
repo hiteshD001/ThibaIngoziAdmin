@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API";
+import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSos } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query"
 import Prev from "../assets/images/left.png";
 import Next from "../assets/images/right.png";
@@ -28,6 +28,9 @@ const ListOfDrivers = () => {
     const companyInfo = useGetUser(params.id)
     const notification_type = "677534649c3a99e13dcd7456"
     const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
+    const getArmedSOS = useGetArmedSos(params.id)
+
+    console.log(getArmedSOS,"getArmedSOS - getArmedSOS")
 
 
     useEffect(() => {

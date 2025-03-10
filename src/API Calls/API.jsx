@@ -33,6 +33,26 @@ export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filt
 };
 
 
+export const useGetArmedSos = (companyId)=>{
+    const queryFn = async () =>{
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/company/${companyId}`)
+    }
+
+    const res  = useQuery({
+        queryKey:[companyId],
+        queryFn:queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+
+    })
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/")
+    }
+    return res;
+}
+
+
 export const useGetTripList = (key, page = 1, limit = 10, filter) => {
     const nav = useNavigate()
 
@@ -145,8 +165,8 @@ export const useGetRecentSOS = () => {
 
 // get chart data
 
-export const useGetChartData = () => {
-    const [chartData, setchartData] = useState(new Array(12).fill(0));
+export const useGetChartData = (notificationType) => {
+    const [chartData, setChartData] = useState(new Array(12).fill(0));
 
     const queryFn = async () => {
         const currentYear = new Date().getFullYear();
@@ -154,42 +174,41 @@ export const useGetChartData = () => {
         const endDate = `${currentYear}-12-31`;
 
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/sos-month`, {
-            params: { start_date: startDate, end_date: endDate },
+            params: { start_date: startDate, end_date: endDate, type: notificationType },
         });
     };
 
     const res = useQuery({
-        queryKey: ['chartData'],
+        queryKey: ['chartData', notificationType],  // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
 
     useEffect(() => {
-        const newdata = [...chartData];
-        res.data?.data.forEach((item) => {
-            newdata[item.month - 1] = item.count;
-        });
-
-        setchartData(newdata);
+        if (res.data?.data) {
+            const newData = new Array(12).fill(0);
+            res.data.data.forEach((item) => {
+                newData[item.month - 1] = item.count;
+            });
+            setChartData(newData);
+        }
     }, [res.data]);
 
-    // return res;
     return chartData;
 };
 
+
 // get hotspot
 
-export const useGetHotspot = (type, company_id) => {
-    // const token = localStorage.getItem("accessToken");
-
+export const useGetHotspot = (type, company_id, notificationType) => {
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/hotspot`, {
-            params: company_id ? { type, company_id } : { type },
+            params: company_id ? { type, company_id, notificationType } : { type, notificationType },
         });
     };
 
     const res = useQuery({
-        queryKey: ['hotspot', type],
+        queryKey: ['hotspot', type, notificationType], // Add notificationType to the query key
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         placeholderData: []
@@ -197,6 +216,21 @@ export const useGetHotspot = (type, company_id) => {
 
     return res;
 };
+
+
+export const useGetNotificationType = () =>{
+
+    const queryFn = async () =>{
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/notificationType`)
+    }
+    const res = useQuery({
+        queryKey:['notificationType'],
+        queryFn:queryFn,
+        staleTime:15*60*1000,
+    });
+
+    return res
+}   
 
 // get all orders
 

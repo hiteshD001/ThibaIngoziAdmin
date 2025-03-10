@@ -1,12 +1,7 @@
-/* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-
-import { useGetChartData, useGetHotspot, useGetUserList } from "../API Calls/API";
-
+import { useGetChartData, useGetHotspot, useGetUserList, useGetNotificationType } from "../API Calls/API";
 import Loader from "./Loader";
 import { FaLocationDot } from "react-icons/fa6";
-
-
 import CustomChart from "./CustomChart";
 import { useNavigate } from "react-router-dom";
 
@@ -14,43 +9,49 @@ const Analytics = ({ id }) => {
     const [time, settime] = useState("today");
     const [timeTitle, settimeTitle] = useState("Today");
     const [activeUser, setactiveUser] = useState(0);
+    const notificationTypes = useGetNotificationType();
+    const [selectedNotification, setSelectedNotification] = useState('sos');
 
-    const nav = useNavigate()
+    const nav = useNavigate();
 
-    const driverList = useGetUserList("driver list", "driver", id)
-    const companyList = useGetUserList("company list", "company")
-    const hotspot = useGetHotspot(time, id)
-    const chartData = useGetChartData()
+    const driverList = useGetUserList("driver list", "driver", id);
+    const companyList = useGetUserList("company list", "company");
+    const hotspot = useGetHotspot(time, id, selectedNotification);
+    const chartData = useGetChartData(selectedNotification);
 
-    const handlChange = (e) => {
+    const handleTimeChange = (e) => {
         settime(e.target.value);
+    };
+
+    const handleNotificationChange = (e) => {
+        setSelectedNotification(e.target.value);
     };
 
     useEffect(() => {
         switch (time) {
             case "today":
                 setactiveUser(driverList.data?.data.totalActiveDriversToday || 0);
-                settimeTitle("Today")
+                settimeTitle("Today");
                 break;
             case "yesterday":
                 setactiveUser(driverList.data?.data.totalActiveDriversYesterday || 0);
-                settimeTitle("Yesterday")
+                settimeTitle("Yesterday");
                 break;
             case "this_week":
                 setactiveUser(driverList.data?.data.totalActiveDriversThisWeek || 0);
-                settimeTitle("This Week")
+                settimeTitle("This Week");
                 break;
             case "this_month":
                 setactiveUser(driverList.data?.data.totalActiveDriversThisMonth || 0);
-                settimeTitle("This Month")
+                settimeTitle("This Month");
                 break;
             case "this_year":
                 setactiveUser(driverList.data?.data.totalActiveDriversThisYear || 0);
-                settimeTitle("This Year")
+                settimeTitle("This Year");
                 break;
             default:
                 setactiveUser(0);
-                settimeTitle("Today")
+                settimeTitle("Today");
                 break;
         }
     }, [driverList.data, time]);
@@ -60,7 +61,7 @@ const Analytics = ({ id }) => {
             <div className="row">
                 <div className="col-md-12">
                     <div className="filter-date">
-                        <select className="form-select" value={time} onChange={handlChange}>
+                        <select className="form-select" value={time} onChange={handleTimeChange}>
                             <option value="today">Today</option>
                             <option value="yesterday">Yesterday</option>
                             <option value="this_week">This week</option>
@@ -70,7 +71,9 @@ const Analytics = ({ id }) => {
                     </div>
                 </div>
             </div>
+
             <div className="clearfix"></div>
+
             {localStorage.getItem("role") === "super_admin" && !id ? (
                 <div className="row">
                     <div className="col-md-4">
@@ -110,6 +113,22 @@ const Analytics = ({ id }) => {
             )}
 
             <div className="clearfix"></div>
+
+
+
+            {/* Notification Type Dropdown inside Hotspot Box */}
+
+            {console.log(notificationTypes,"no")}
+            <div className="filter-date">
+                <select className="form-select" value={selectedNotification} onChange={handleNotificationChange}>
+                    <option value="">Select Notification Type</option>
+                    {notificationTypes.data?.data?.map((type) => (
+                        <option key={type.id} value={type.id}>
+                            {type.type}
+                        </option>
+                    ))}
+                </select>
+            </div>
             <div className="row">
                 <div className="col-md-8">
                     <div className="requests-chart">
@@ -134,7 +153,9 @@ const Analytics = ({ id }) => {
                                         <div className="location" key={index}>
                                             <span>{d.address}</span>
                                             <span>{d.timesCalled}</span>
-                                            <span><FaLocationDot className="viewlocation" onClick={() => nav(`/home/hotspot/location?lat=${d.lat}&long=${d.long}`)} /></span>
+                                            <span>
+                                                <FaLocationDot className="viewlocation" onClick={() => nav(`/home/hotspot/location?lat=${d.lat}&long=${d.long}`)} />
+                                            </span>
                                         </div>
                                     ))
                             )}
@@ -145,6 +166,6 @@ const Analytics = ({ id }) => {
             <div className="clearfix"></div>
         </div>
     );
-}
+};
 
-export default Analytics
+export default Analytics;
