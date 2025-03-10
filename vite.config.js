@@ -5,7 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   assetsInclude: ['**/*.xlsx'],
   plugins: [react()],
-  build: { 
-	outDir: 'build',
+  server: {
+    port: 5001, // Set your desired port
+    host: true, // Makes the server accessible on your VM's public IP
   }
 })
+
