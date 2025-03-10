@@ -20,7 +20,7 @@ const PassangerInformation = () => {
         initialValues: {
             first_name: "",
             last_name: "",
-            company_id: "",
+            // company_id: "",
             email: "",
             mobile_no: "",
             mobile_no_country_code: "",
@@ -34,28 +34,29 @@ const PassangerInformation = () => {
             selfieImage: null,
             fullImage: null
         },
-        validationSchema: vehicleValidation,
-        onSubmit: (values) => {
-            setEdit(false);
-            const formData = new FormData();
-            Object.keys(values).forEach(key => {
-                if (key !== 'selfieImage' && key !== 'fullImage') {
-                    formData.append(key, values[key]);
-                }
-            });
-
-            if (values.selfieImage && values.selfieImage instanceof File) {
-                formData.append("selfieImage", values.selfieImage);
-            }
-
-            if (values.fullImage && values.fullImage instanceof File) {
-                formData.append("fullImage", values.fullImage);
-            }
-
-            mutate({ id: params.id, data: formData })
-        }
+        validationSchema: vehicleValidation
     })
 
+
+    const submithandler = (values) => {
+        setEdit(false);
+        const formData = new FormData();
+        Object.keys(values).forEach(key => {
+            if (key !== 'selfieImage' && key !== 'fullImage') {
+                formData.append(key, values[key]);
+            }
+        });
+
+        if (values.selfieImage && values.selfieImage instanceof File) {
+            formData.append("selfieImage", values.selfieImage);
+        }
+
+        if (values.fullImage && values.fullImage instanceof File) {
+            formData.append("fullImage", values.fullImage);
+        }
+
+        mutate({ id: params.id, data: formData })
+    }
 
     const emergencyform = useFormik({
         initialValues: {
@@ -505,7 +506,7 @@ const PassangerInformation = () => {
                 <div className="col-md-12 text-end">
                     <div className="saveform">
                         {edit ?
-                            <button type="submit" onClick={driverform.handleSubmit} className="btn btn-dark">Save</button> :
+                            <button type="submit" onClick={() => submithandler(driverform.values)} className="btn btn-dark">Save</button> :
                             <button onClick={() => setEdit(true)} className="btn btn-dark">Edit</button>}
                     </div>
                 </div>
