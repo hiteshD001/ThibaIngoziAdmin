@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useDeleteUser } from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 
@@ -14,12 +14,18 @@ export const DeleteConfirm = ({ ...p }) => {
     toast.error(error.response.data.message || "Something went Wrong", toastOption)
   }
 
+  const onSuccessTrip = () => {
+    toast.success("Trip Delete Successfully")
+    client.invalidateQueries("Trip list");
+  }
+
   const deleteDriver = useDeleteUser(onSuccess, onError)
+  const deleteTrip = useDeleteUserTrip(onSuccessTrip, onError)
 
   return (
     <div className="popup-overlay">
       <div className="popup-content">
-        <p>Are you sure you want to delete this Driver?</p>
+        <p>Are you sure you want to delete this?</p>
         <div className="popup-buttons">
           <button
             disabled={deleteDriver.isPending}
@@ -28,7 +34,7 @@ export const DeleteConfirm = ({ ...p }) => {
               cursor: deleteDriver.isPending ? "not-allowed" : "",
             }}
             className="popup-button confirm"
-            onClick={() => deleteDriver.mutate(p.id)}
+            onClick={() => p.trip ? deleteTrip.mutate(p.id) : deleteDriver.mutate(p.id)}
           >
             Confirm
           </button>

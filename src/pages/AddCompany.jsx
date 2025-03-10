@@ -35,10 +35,25 @@ const AddCompany = () => {
 			contact_name: "",
 			role: "company",
 			type: "email_pass",
+			isArmed: false,
+			selfieImage: "",
+			fullImage: ""
 		},
 		validationSchema: companyValidation,
 		onSubmit: (values) => {
-			newcompany.mutate(values);
+			const formData = new FormData();
+			Object.keys(values).forEach(key => {
+				if (key !== "selfieImage" && key !== "fullImage") {
+					formData.append(key, values[key]);
+				}
+			});
+			if (values.selfieImage) {
+				formData.append("selfieImage", values.selfieImage);
+			}
+			if (values.fullImage) {
+				formData.append("fullImage", values.fullImage);
+			}
+			newcompany.mutate(formData);
 		},
 	});
 
@@ -170,6 +185,72 @@ const AddCompany = () => {
 									{companyForm.touched.id_no && (
 										<p className="err">{companyForm.errors.id_no}</p>
 									)}
+									<div className="row">
+										<div className="col-md-6">
+											<label>Selfie Image</label>
+
+
+
+											{/* Preview Image */}
+											{companyForm.values.selfieImage && (
+												<div className="form-control img-preview-container mt-2">
+													<img
+														src={URL.createObjectURL(companyForm.values.selfieImage)}
+														alt="Selfie Preview"
+														className="img-preview"
+													/>
+												</div>
+											)}
+											{/* Custom File Input */}
+											<div className="custom-file-input">
+												<input
+													type="file"
+													id="selfieImage"
+													accept="image/*"
+													onChange={(event) => {
+														const file = event.currentTarget.files[0];
+														companyForm.setFieldValue("selfieImage", file);
+													}}
+												/>
+												<label htmlFor="selfieImage">
+													{companyForm.values.selfieImage ? companyForm.values.selfieImage.name : "Choose Selfie Image"}
+												</label>
+											</div>
+										</div>
+
+										<div className="col-md-6">
+											<label>Full Image</label>
+
+
+
+											{/* Preview Image */}
+											{companyForm.values.fullImage && (
+												<div className="form-control img-preview-container mt-2">
+													<img
+														src={URL.createObjectURL(companyForm.values.fullImage)}
+														alt="Full Image Preview"
+														className="img-preview"
+													/>
+												</div>
+											)}
+											{/* Custom File Input */}
+											<div className="custom-file-input">
+												<input
+													type="file"
+													id="fullImage"
+													accept="image/*"
+													onChange={(event) => {
+														const file = event.currentTarget.files[0];
+														companyForm.setFieldValue("fullImage", file);
+													}}
+												/>
+												<label htmlFor="fullImage">
+													{companyForm.values.fullImage ? companyForm.values.fullImage.name : "Choose Full Image"}
+												</label>
+											</div>
+										</div>
+
+									</div>
 								</div>
 
 								<div className="col-md-6">
@@ -260,6 +341,19 @@ const AddCompany = () => {
 									{companyForm.touched.postal_code && (
 										<p className="err">{companyForm.errors.postal_code}</p>
 									)}
+									<div className=" form-checkbox form-control">
+										<input
+											type="checkbox"
+											name="isArmed"
+											id="isArmed"
+											className="form-check-input"
+											checked={companyForm.values.isArmed}
+											onChange={(e) => companyForm.setFieldValue("isArmed", e.target.checked)}
+										/>
+										<label className="form-check-label" htmlFor="isArmed">
+											Security
+										</label>
+									</div>
 								</div>
 							</div>
 						</form>
