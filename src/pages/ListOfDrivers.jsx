@@ -28,20 +28,19 @@ const ListOfDrivers = () => {
     const companyInfo = useGetUser(params.id)
     const notification_type = "677534649c3a99e13dcd7456"
     const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
-    const getArmedSOS = useGetArmedSos(params.id)
+//    const getArmedSOS = useGetArmedSos(params.id)
 
-    console.log(getArmedSOS,"getArmedSOS - getArmedSOS")
+  //  console.log(getArmedSOS,"getArmedSOS - getArmedSOS")
 
 
     useEffect(() => {
         if (companyInfo.data) {
-            // Initialize local state from the data user fetched
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
         }
     }, [companyInfo.data]);
     const onSuccess = () => {
+        client.invalidateQueries(["user", params.id]);
         toast.success("User Updated Successfully.");
-        client.invalidateQueries(['user', params.id]);
     }
     const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
     const { mutate } = useUpdateUser(onSuccess, onError);
