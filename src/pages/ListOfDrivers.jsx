@@ -32,13 +32,12 @@ const ListOfDrivers = () => {
 
     useEffect(() => {
         if (companyInfo.data) {
-            // Initialize local state from the data user fetched
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
         }
     }, [companyInfo.data]);
     const onSuccess = () => {
+        client.invalidateQueries(["user", params.id]);
         toast.success("User Updated Successfully.");
-        client.invalidateQueries(['user', params.id]);
     }
     const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
     const { mutate } = useUpdateUser(onSuccess, onError);
