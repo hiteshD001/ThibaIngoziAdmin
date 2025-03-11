@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSos } from "../API Calls/API";
+import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSoS } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query"
 import Prev from "../assets/images/left.png";
 import Next from "../assets/images/right.png";
@@ -28,14 +28,12 @@ const ListOfDrivers = () => {
     const companyInfo = useGetUser(params.id)
     const notification_type = "677534649c3a99e13dcd7456"
     const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
-    const getArmedSOS = useGetArmedSos(params.id)
+    const getArmedSOS = useGetArmedSoS()
 
-    console.log(getArmedSOS,"getArmedSOS - getArmedSOS")
-
+    console.log(getArmedSOS,"get-armedSOS")
 
     useEffect(() => {
         if (companyInfo.data) {
-            // Initialize local state from the data user fetched
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
         }
     }, [companyInfo.data]);
@@ -67,9 +65,6 @@ const ListOfDrivers = () => {
                                     <p>{companyInfo.data?.data.user.email}</p>
                                 </div>
                                 <div className="c-info2">
-                                    {/* <span>Security</span> */}
-                                    {/* <p>{companyInfo.data?.data.user.isArmed}</p> */}
-
                                     <input
                                         type="checkbox"
                                         name="isArmed"
@@ -88,7 +83,6 @@ const ListOfDrivers = () => {
                                     <label className="form-check-label" htmlFor="isArmed">
                                         Security
                                     </label>
-
                                 </div>
                             </div>
                         </div>
@@ -97,36 +91,37 @@ const ListOfDrivers = () => {
                     {role === 'super_admin' && params.id && <Analytics id={params.id} />}
 
                     <div className="theme-table">
+                        <h3>Armed SOS</h3>
+                        <table className="table table-striped nowrap" style={{ width: "100%" }}>
+                            <thead>
+                                <tr>
+                                    <th>Armed User</th>
+                                    <th>Responder</th>
+                                    <th>Armed Location</th>
+                                    <th>Status</th>
+                                    <th>Radius</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {console.log(getArmedSOS?.data?.data,"getArmedSOS?.data?.data?")}
+                                {getArmedSOS?.data?.data?.items?.map((sos, index) => (
+                                    <tr key={index}>
+                                        <td>{sos.armedUserId?.first_name}</td>
+                                        <td>{sos.responder}</td>
+                                        <td>{sos.armedLocation}</td>
+                                        <td>{sos.status}</td>
+                                        <td>{sos.radius}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className="theme-table">
                         <div className="tab-heading">
                             <div className="count">
                                 <h3>Total Drivers</h3>
                                 <p>{driverList.isSuccess && driverList.data?.data.totalUsers || 0}</p>
-                            </div>
-                            <div className="tbl-filter">
-                                <div className="input-group">
-                                    <span className="input-group-text">
-                                        <img src={search} />
-                                    </span>
-                                    <input
-                                        type="text"
-                                        value={filter}
-                                        onChange={(e) => setfilter(e.target.value)}
-                                        className="form-control"
-                                        placeholder="Search"
-                                    />
-                                    <span className="input-group-text">
-                                        <img src={icon} />
-                                    </span>
-                                </div>
-                                <button
-                                    onClick={() => nav("/home/total-drivers/add-driver")}
-                                    className="btn btn-primary"
-                                >
-                                    + Add Driver
-                                </button>
-                                <button className="btn btn-primary" onClick={() => setpopup(true)}>
-                                    + Import Sheet
-                                </button>
                             </div>
                         </div>
                         {driverList.isFetching ? (
@@ -234,6 +229,7 @@ const ListOfDrivers = () => {
                                 )}
                             </>
                         )}
+
                     </div>
                 </div>
             </div>
