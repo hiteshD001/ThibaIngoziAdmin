@@ -32,6 +32,30 @@ export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filt
     return res;
 };
 
+export const useGetArmedSosDetails = (id) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/${id}`);
+    };
+
+    const res = useQuery({
+        queryKey: [id], // Unique query key based on the ID
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000, // 15 minutes stale time
+        placeholderData: keepPreviousData, // Keep previous data while fetching new
+        retry: false // Don't retry on failure
+    });
+
+    // Handle unauthorized access
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+
+    return res;
+};
+
 
 export const useGetArmedSoSByCompanyId = (companyId)=>{
     const queryFn = async () =>{

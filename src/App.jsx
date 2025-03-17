@@ -21,6 +21,7 @@ import { AuthGuard, LogGuard, RouteGuard } from "./common/Guard";
 import GoogleMaps from "./common/GoogleMaps";
 import ListOfTrips from "./pages/ListofTrips";
 import PassangerInformation from "./pages/Passangerinformation";
+import SosInformation from "./pages/SosInformation"
 
 function App() {
     return (
@@ -78,6 +79,10 @@ const router = createBrowserRouter([
                     {
                         path: "driver-information/:id",
                         element: <VehicleInformation />
+                    },
+                    {
+                        path:"sos-information/:id",
+                        element:<SosInformation/>
                     }
                 ]
             },

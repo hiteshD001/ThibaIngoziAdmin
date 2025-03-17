@@ -30,7 +30,7 @@ const ListOfDrivers = () => {
     const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
     const getArmedSOS = useGetArmedSoS()
 
-    console.log(getArmedSOS,"get-armedSOS")
+    console.log(getArmedSOS, "get-armedSOS")
 
     useEffect(() => {
         if (companyInfo.data) {
@@ -103,12 +103,22 @@ const ListOfDrivers = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {console.log(getArmedSOS?.data?.data,"getArmedSOS?.data?.data?")}
+                                {console.log(getArmedSOS?.data?.data, "getArmedSOS?.data?.data?")}
                                 {getArmedSOS?.data?.data?.items?.map((sos, index) => (
                                     <tr key={index}>
-                                        <td>{sos.armedUserId?.first_name}</td>
-                                        <td>{sos.responder}</td>
-                                        <td>{sos.armedLocation}</td>
+                                        <td>
+                                            {sos.armedUser
+                                                ? `${sos.armedUser.firstName || ""} ${sos.armedUser.lastName || ""}`
+                                                : "Unknown"}
+                                        </td>
+                                        <td>
+                                            {Array.isArray(sos.responder) ? sos.responder.join(", ") : sos.responder}
+                                        </td>
+                                        <td>
+                                            {sos.armedLocation
+                                                ? `${sos.armedLocation.city || ""}, ${sos.armedLocation.street || ""}, ${sos.armedLocation.suburb || ""}`
+                                                : "Unknown"}
+                                        </td>
                                         <td>{sos.status}</td>
                                         <td>{sos.radius}</td>
                                     </tr>
