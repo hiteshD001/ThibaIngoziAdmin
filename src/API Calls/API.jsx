@@ -32,8 +32,32 @@ export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filt
     return res;
 };
 
+export const useGetArmedSosDetails = (id) => {
+    const nav = useNavigate();
 
-export const useGetArmedSos = (companyId)=>{
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/${id}`);
+    };
+
+    const res = useQuery({
+        queryKey: [id], // Unique query key based on the ID
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000, // 15 minutes stale time
+        placeholderData: keepPreviousData, // Keep previous data while fetching new
+        retry: false // Don't retry on failure
+    });
+
+    // Handle unauthorized access
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+
+    return res;
+};
+
+
+export const useGetArmedSoSByCompanyId = (companyId)=>{
     const queryFn = async () =>{
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/company/${companyId}`)
     }
@@ -52,6 +76,26 @@ export const useGetArmedSos = (companyId)=>{
     return res;
 }
 
+export const useGetArmedSoS = () => {
+    const navigate = useNavigate();  // Fix: Use navigate for redirection
+
+    const queryFn = async () => apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos`);
+
+    const res = useQuery({
+        queryKey: ["ArmedSOS List"],
+        queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+        onError: (error) => {  // Fix: Handle error using onError
+            if (error.response?.status === 401) {
+                localStorage.clear();
+                navigate("/");
+            }
+        }
+    });
+
+    return res;
+};
 
 export const useGetTripList = (key, page = 1, limit = 10, filter) => {
     const nav = useNavigate()

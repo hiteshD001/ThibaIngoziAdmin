@@ -27,6 +27,7 @@ import ListOfTrips from "./pages/ListofTrips";
 import PassangerInformation from "./pages/Passangerinformation";
 import ListOfUsers from "./pages/ListOfUsers";
 import AddUser from "./pages/AddUser";
+import SosInformation from "./pages/SosInformation"
 
 function App() {
     return (
@@ -96,6 +97,10 @@ const router = createBrowserRouter([
                     {
                         path: "driver-information/:id",
                         element: <VehicleInformation />
+                    },
+                    {
+                        path:"sos-information/:id",
+                        element:<SosInformation/>
                     }
                 ]
             },
