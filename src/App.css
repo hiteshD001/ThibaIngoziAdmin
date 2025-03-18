@@ -1194,3 +1194,9 @@ width: 20%;
         margin-top: 20px;
     }
 }
+
+.failed-icon {
+    font-size: 50px;
+    color: #d9534f;
+    margin-bottom: 20px;
+}

@@ -6,6 +6,10 @@ import { Login } from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import RequestHardware from "./pages/RequestHardware";
 import PaymentSuceed from "./pages/PaymentSuceed";
+import PaymentFailed from "./pages/PaymentFailed";
+import PaymentExpired from "./pages/PaymentExpired";
+
+
 import Home from "./pages/Home";
 import ListOfCompanies from "./pages/ListOfCompanies";
 import AddCompany from "./pages/AddCompany";
@@ -26,7 +30,7 @@ import AddUser from "./pages/AddUser";
 
 function App() {
     return (
-         <>
+        <>
             <RouterProvider router={router} />
         </>
     );
@@ -40,6 +44,14 @@ const router = createBrowserRouter([
     {
         path: "/payment-suceed",
         element: <PaymentSuceed />
+    },
+    {
+        path: "/payment-failed",
+        element: <PaymentFailed />
+    },
+    {
+        path: "/payment-expired",
+        element: <PaymentExpired />
     },
     {
         path: "/home",
@@ -139,7 +151,7 @@ const router = createBrowserRouter([
         path: "/request-hardware",
         element: <RequestHardware />
     },
-    
+
 
 ])
 export default App;
