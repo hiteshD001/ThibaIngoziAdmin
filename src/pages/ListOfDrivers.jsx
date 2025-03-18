@@ -30,7 +30,7 @@ const ListOfDrivers = () => {
     const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
     const getArmedSOS = useGetArmedSoS()
 
-    console.log(getArmedSOS, "get-armedSOS")
+  //  console.log(getArmedSOS, "get-armedSOS")
 
     useEffect(() => {
         if (companyInfo.data) {
@@ -38,8 +38,8 @@ const ListOfDrivers = () => {
         }
     }, [companyInfo.data]);
     const onSuccess = () => {
+        client.invalidateQueries(["user", params.id]);
         toast.success("User Updated Successfully.");
-        client.invalidateQueries(['user', params.id]);
     }
     const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
     const { mutate } = useUpdateUser(onSuccess, onError);

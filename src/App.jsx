@@ -6,6 +6,10 @@ import { Login } from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import RequestHardware from "./pages/RequestHardware";
 import PaymentSuceed from "./pages/PaymentSuceed";
+import PaymentFailed from "./pages/PaymentFailed";
+import PaymentExpired from "./pages/PaymentExpired";
+
+
 import Home from "./pages/Home";
 import ListOfCompanies from "./pages/ListOfCompanies";
 import AddCompany from "./pages/AddCompany";
@@ -21,6 +25,8 @@ import { AuthGuard, LogGuard, RouteGuard } from "./common/Guard";
 import GoogleMaps from "./common/GoogleMaps";
 import ListOfTrips from "./pages/ListofTrips";
 import PassangerInformation from "./pages/Passangerinformation";
+import ListOfUsers from "./pages/ListOfUsers";
+import AddUser from "./pages/AddUser";
 import SosInformation from "./pages/SosInformation"
 
 function App() {
@@ -35,6 +41,18 @@ const router = createBrowserRouter([
     {
         path: "/",
         element: <LogGuard><Login /></LogGuard>
+    },
+    {
+        path: "/payment-suceed",
+        element: <PaymentSuceed />
+    },
+    {
+        path: "/payment-failed",
+        element: <PaymentFailed />
+    },
+    {
+        path: "/payment-expired",
+        element: <PaymentExpired />
     },
     {
         path: "/home",
@@ -104,6 +122,23 @@ const router = createBrowserRouter([
                 ]
             },
             {
+                path: "total-users",
+                children: [
+                    {
+                        path: "",
+                        element: <ListOfUsers />
+                    },
+                    {
+                        path: "add-user",
+                        element: <AddUser />
+                    },
+                    {
+                        path: "user-information/:id",
+                        element: <PassangerInformation />
+                    },
+                ]
+            },
+            {
                 path: "hardware-management",
                 element: <RouteGuard><HardwareManagement /></RouteGuard>
             },
@@ -121,10 +156,7 @@ const router = createBrowserRouter([
         path: "/request-hardware",
         element: <RequestHardware />
     },
-    {
-        path: "/payment-suceed",
-        element: <PaymentSuceed />
-    },
+
 
 ])
 export default App;

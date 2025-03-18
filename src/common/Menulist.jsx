@@ -55,11 +55,23 @@ export const superadmin_menulist = [
         company: "User Information"
     },
     {
-        id: "hardware-management",
-        name: "Hardware Management",
-        path: "/home/hardware-management",
-        image: hardware
+        id: "total-users",
+        name: "Users",
+        path: "/home/total-users",
+        image: drivers,
+        submenu: {
+            name: "List of Users",
+            path: "/home/total-users",
+            image: arrowLeft
+        },
+        company: "User Information"
     },
+    // {
+    //     id: "hardware-management",
+    //     name: "Hardware Management",
+    //     path: "/home/hardware-management",
+    //     image: hardware
+    // },
     // {
     //     id: "settings",
     //     name: "Settings",
