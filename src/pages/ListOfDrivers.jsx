@@ -100,6 +100,8 @@ const ListOfDrivers = () => {
                                     <th>Armed Location</th>
                                     <th>Status</th>
                                     <th>Radius</th>
+                                    <th>&nbsp;</th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -121,6 +123,19 @@ const ListOfDrivers = () => {
                                         </td>
                                         <td>{sos.status}</td>
                                         <td>{sos.radius}</td>
+                                        <td>
+                                           
+                                            <span
+                                                onClick={() =>
+                                                    nav(
+                                                        `/home/total-drivers/sos-information/${sos._id}`
+                                                    )
+                                                }
+                                                className="tbl-btn"
+                                            >
+                                                view
+                                            </span>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
