@@ -32,7 +32,9 @@ const VehicleInformation = () => {
             country: "",
             isArmed: "",
             selfieImage: null,
-            fullImage: null
+            fullImage: null,
+            hijakingPass: "",
+            hijakingId: ""
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
@@ -59,8 +61,6 @@ const VehicleInformation = () => {
             mutate({ id: params.id, data: formData });
         }
     });
-
-
 
     const vehicleForm = useFormik({
         initialValues: {
@@ -95,12 +95,11 @@ const VehicleInformation = () => {
     const provincelist = useGetProvinceList(driverform.values.country)
     const countrylist = useGetCountryList()
 
-
-
     useEffect(() => {
         const data = vehicleInfo.data?.data;
 
         if (data) {
+            // console.log(data.user)
             setdriverformvalues({ form: driverform, data: data.user });
             setdriverformvalues({ form: emergencyform, data: data.user });
 
@@ -121,6 +120,7 @@ const VehicleInformation = () => {
                     ].filter(Boolean)
                 });
             }
+            // console.log('driver', driverform.values)
         }
     }, [vehicleInfo.data]);
 
@@ -224,6 +224,30 @@ const VehicleInformation = () => {
                                         disabled={!edit}
                                     />
                                     {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>} */}
+                                </div>
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="hijakingId"
+                                        placeholder="Hijacking ID"
+                                        className="form-control"
+                                        value={driverform.values.hijakingId}
+                                        onChange={driverform.handleChange}
+                                        disabled={!edit}
+                                    />
+                                    {driverform.touched.hijakingId && <p className="err">{driverform.errors.hijakingId}</p>}
+                                </div>
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="hijakingPass"
+                                        placeholder="Hijacking Password"
+                                        className="form-control"
+                                        value={driverform.values.hijakingPass}
+                                        onChange={driverform.handleChange}
+                                        disabled={!edit}
+                                    />
+                                    {driverform.touched.hijakingPass && <p className="err">{driverform.errors.hijakingPass}</p>}
                                 </div>
                                 <div className="col-md-6">
                                     <div className=" form-checkbox form-control">
@@ -636,6 +660,5 @@ const setdriverformvalues = ({ ...props }) => {
         }
 
     });
-
     form.setValues(newdata)
 }

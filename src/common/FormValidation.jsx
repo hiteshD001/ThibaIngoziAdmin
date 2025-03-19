@@ -105,4 +105,6 @@ export const vehicleValidation = yup.object({
     suburb: yup.string().required('This field is required'),
     postal_code: yup.number().required('This field is required'),
     country: yup.string().required('This field is required'),
+    hijakingId: yup.string().optional(),
+    hijakingPass: yup.string().optional()
 })
