@@ -34,7 +34,8 @@ const VehicleInformation = () => {
             selfieImage: null,
             fullImage: null,
             hijakingPass: "",
-            hijakingId: ""
+            hijakingId: "",
+            passport_no: ""
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
@@ -224,6 +225,18 @@ const VehicleInformation = () => {
                                         disabled={!edit}
                                     />
                                     {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>} */}
+                                </div>
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="passport_no"
+                                        placeholder="Passport number"
+                                        className="form-control"
+                                        value={driverform.values.passport_no}
+                                        onChange={driverform.handleChange}
+                                        disabled={!edit}
+                                    />
+                                    {driverform.touched.passport_no && <p className="err">{driverform.errors.passport_no}</p>}
                                 </div>
                                 <div className="col-md-6">
                                     <input
