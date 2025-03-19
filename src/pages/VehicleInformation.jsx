@@ -235,7 +235,6 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {console.log(driverform.values)}
                                     {driverform.touched.hijakingId && <p className="err">{driverform.errors.hijakingId}</p>}
                                 </div>
                                 <div className="col-md-6">
