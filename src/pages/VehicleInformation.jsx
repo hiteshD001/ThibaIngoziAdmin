@@ -236,7 +236,6 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {console.log(driverform.values)}
                                     {driverform.touched.passport_no && <p className="err">{driverform.errors.passport_no}</p>}
                                 </div>
                                 <div className="col-md-6">
