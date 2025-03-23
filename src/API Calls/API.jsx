@@ -173,6 +173,24 @@ export const useGetCountryList = () => {
     return res;
 };
 
+// get list of Services
+
+export const useGetServicesList = () => {
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/services`);
+    };
+
+    const res = useQuery({
+        queryKey: ["Services List"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false
+    });
+
+    return res?.data?.data;
+};
+
 // get single user
 
 export const useGetUser = (userId) => {
