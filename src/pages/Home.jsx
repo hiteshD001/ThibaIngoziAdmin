@@ -1,6 +1,6 @@
 import { Link, NavLink } from "react-router-dom";
 
-import { useGetRecentSOS } from "../API Calls/API";
+import { useGetRecentSOS, useGetUser, useUpdateLocationStatus } from "../API Calls/API";
 import { useWebSocket } from "../API Calls/WebSocketContext";
 
 import nouser from "../assets/images/NoUser.png";
@@ -9,11 +9,39 @@ import { format } from "date-fns";
 
 import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
+import { SOSStatusUpdate } from "../common/ConfirmationPOPup";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { toastOption } from "../common/ToastOptions";
 
 const Home = () => {
     const recentSOS = useGetRecentSOS()
+    const [statusUpdate, setStatusUpdate] = useState(false)
+    const [selectedId, setSelectedId] = useState('')
 
     const { isConnected, activeUserList } = useWebSocket()
+    const onSuccess = () => {
+        toast.success("Status Updated Successfully.");
+        setStatusUpdate(false)
+        setSelectedId('')
+    }
+    const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
+    const { mutate } = useUpdateLocationStatus(onSuccess, onError);
+    const userinfo = useGetUser(localStorage.getItem("userID"));
+
+    const handleUpdate = (status) => {
+        const toUpdate = {
+            "help_received":status
+        }
+        mutate({
+            id: selectedId,
+            data: toUpdate,
+        })
+    }
+    const handleCancel = () => {
+        setSelectedId('')
+        setStatusUpdate(false)
+    }
 
     return (
         <div className="container-fluid">
@@ -36,6 +64,7 @@ const Home = () => {
                                         <th>Address</th>
                                         <th>Request reached</th>
                                         <th>Request Accept</th>
+                                        <th style={{width: '11%'}}>Status</th>
                                         <th>Location</th>
                                     </tr>
                                 </thead>
@@ -69,7 +98,12 @@ const Home = () => {
                                             </td>
 
                                             <td>
-                                                <NavLink to={`/home/hotspot/location?lat=${row?.lat}&long=${row?.long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`} className="tbl-btn">
+                                                <button onClick={() => {setStatusUpdate(true);setSelectedId(row._id)}} className="tbl-btn">
+                                                    Update
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <NavLink to={`/home/hotspot/location?lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`} className="tbl-btn">
                                                     view
                                                 </NavLink>
                                             </td>
@@ -147,7 +181,7 @@ const Home = () => {
                     </div>
                 </div>
             </div>
-
+            {statusUpdate && <SOSStatusUpdate handleCancel={handleCancel} handleUpdate={handleUpdate} />}
         </div>
     );
 };

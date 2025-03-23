@@ -423,6 +423,22 @@ export const useUpdateUser = (onSuccess, onError) => {
     return mutation;
 };
 
+// update Location Status
+
+export const useUpdateLocationStatus = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/location/${id}`, data);
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
 export const useFileUpload = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(`${import.meta.env.VITE_BASEURL}/users/register/bulk`, data);

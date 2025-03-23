@@ -117,13 +117,11 @@ const Analytics = ({ id }) => {
 
 
             {/* Notification Type Dropdown inside Hotspot Box */}
-
-            {console.log(notificationTypes,"no")}
             <div className="filter-date">
                 <select className="form-select" value={selectedNotification} onChange={handleNotificationChange}>
                     <option value="">Select Notification Type</option>
-                    {notificationTypes.data?.data?.map((type) => (
-                        <option key={type.id} value={type.id}>
+                    {notificationTypes.data?.data?.map((type, index) => (
+                        <option key={index} value={type.id}>
                             {type.type}
                         </option>
                     ))}
