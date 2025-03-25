@@ -24,19 +24,33 @@ const ListOfDrivers = () => {
     const [page, setpage] = useState(1);
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
+    const [servicesList, setServicesList] = useState({});
 
     const companyInfo = useGetUser(params.id)
     const notification_type = "677534649c3a99e13dcd7456"
     const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
     const getArmedSOS = useGetArmedSoS()
 
-  //  console.log(getArmedSOS, "get-armedSOS")
-
     useEffect(() => {
         if (companyInfo.data) {
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
         }
     }, [companyInfo.data]);
+    
+    useEffect(() => {
+        if (companyInfo.data?.data?.user) {
+            const services = companyInfo.data?.data?.user?.services
+            const groupedServices = services.reduce((acc, service) => {
+                if (!acc[service.type]) {
+                    acc[service.type] = [];
+                }
+                acc[service.type].push(service);
+                return acc;
+            }, {});
+            setServicesList(groupedServices);
+        }
+    }, [companyInfo.data?.data?.user]);
+
     const onSuccess = () => {
         client.invalidateQueries(["user", params.id]);
         toast.success("User Updated Successfully.");
@@ -49,43 +63,58 @@ const ListOfDrivers = () => {
             <div className="row">
                 <div className="col-md-12">
                     {params.id && (
-                        <div className="company-info">
-                            <div className="comapny-titles">Company Information</div>
-                            <div className="comapny-det">
-                                <div className="c-info">
-                                    <span>Company</span>
-                                    <p>{companyInfo.data?.data.user.company_name}</p>
-                                </div>
-                                <div className="c-info">
-                                    <span>Contact No.</span>
-                                    <p>{companyInfo.data?.data.user.mobile_no}</p>
-                                </div>
-                                <div className="c-info">
-                                    <span>Contact Email</span>
-                                    <p>{companyInfo.data?.data.user.email}</p>
-                                </div>
-                                <div className="c-info2">
-                                    <input
-                                        type="checkbox"
-                                        name="isArmed"
-                                        id="isArmed"
-                                        className="form-check-input me-2"
-                                        checked={isArmedLocal}
-                                        onChange={() => {
-                                            const newValue = !isArmedLocal;
-                                            setIsArmedLocal(newValue);
-                                            mutate({
-                                                id: params.id,
-                                                data: { isArmed: newValue },
-                                            });
-                                        }}
-                                    />
-                                    <label className="form-check-label" htmlFor="isArmed">
-                                        Security
-                                    </label>
+                        <>
+                            <div className="company-info">
+                                <div className="comapny-titles">Company Information</div>
+                                <div className="comapny-det">
+                                    <div className="c-info">
+                                        <span>Company</span>
+                                        <p>{companyInfo.data?.data.user.company_name}</p>
+                                    </div>
+                                    <div className="c-info">
+                                        <span>Contact No.</span>
+                                        <p>{companyInfo.data?.data.user.mobile_no}</p>
+                                    </div>
+                                    <div className="c-info">
+                                        <span>Contact Email</span>
+                                        <p>{companyInfo.data?.data.user.email}</p>
+                                    </div>
+                                    <div className="c-info2">
+                                        <input
+                                            type="checkbox"
+                                            name="isArmed"
+                                            id="isArmed"
+                                            className="form-check-input me-2"
+                                            checked={isArmedLocal}
+                                            onChange={() => {
+                                                const newValue = !isArmedLocal;
+                                                setIsArmedLocal(newValue);
+                                                mutate({
+                                                    id: params.id,
+                                                    data: { isArmed: newValue },
+                                                });
+                                            }}
+                                        />
+                                        <label className="form-check-label" htmlFor="isArmed">
+                                            Security
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            <div className="company-info">
+                                <div className="comapny-titles">Company Services</div>
+                                <div className="comapny-det">
+                                    {Object.keys(servicesList).length > 0 && Object.keys(servicesList).map((serviceKey, index) => 
+                                    <div className={Object.keys(servicesList).length > index + 1 ? "c-ser" : "c-ser2"}>
+                                        <span>{serviceKey}</span>
+                                        {servicesList[serviceKey]?.map((service, index) => 
+                                            <p>{service?.serviceName}</p>
+                                        )}
+                                    </div>
+                                    )}
+                                </div>
+                            </div>
+                        </>
                     )}
 
                     {role === 'super_admin' && params.id && <Analytics id={params.id} />}
