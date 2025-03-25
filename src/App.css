@@ -1053,8 +1053,8 @@ button.Cancel-btn:hover {
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 250px;
     overflow: hidden;
+    height: 250px;
 }
 
 .img-preview-container img {
@@ -1188,9 +1188,15 @@ width: 20%;
         text-align: center;
     }
     .img-preview-container {
-        min-height: 150px;
+       height: 300px;
     }
     .mt-responsive{
         margin-top: 20px;
     }
+}
+
+.failed-icon {
+    font-size: 50px;
+    color: #d9534f;
+    margin-bottom: 20px;
 }

@@ -8,19 +8,55 @@ import { driverValidation } from "../common/FormValidation";
 
 import { useFormik } from "formik";
 
-import { useGetCountryList, useGetProvinceList, useGetUserList, useRegister } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useRegister } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 
-const AddDriver = () => {
+const AddUser = () => {
     const client = useQueryClient();
-    const [role] = useState(localStorage.getItem("role"))
+    const [role] = useState(localStorage.getItem("role"));
     const nav = useNavigate();
 
-    const driverForm = useFormik({
-        initialValues: role === 'super_admin' ? formValues1 : formValues2,
+    const userform = {
+        first_name: "",
+        last_name: "",
+        email: "",
+        password: "",
+        mobile_no: "",
+        mobile_no_country_code: "",
+        street: "",
+        province: "",
+        city: "",
+        suburb: "",
+        postal_code: "",
+        country: "",
+        id_no: "",
+        role: "passanger",
+        type: "email_pass",
+        fcm_token: "fcm_token",
+        selfieImage: "",
+        fullImage: ""
+    };
+
+    const onSuccess = () => {
+        toast.success("User added successfully.");
+        UserForm.resetForm();
+        client.invalidateQueries("user list");
+        nav("/home/total-users");
+    };
+
+    const onError = (error) => {
+        toast.error(error.response?.data?.message || "Something went wrong", toastOption);
+    };
+
+    const newUser = useRegister(onSuccess, onError);
+
+
+
+    const UserForm = useFormik({
+        initialValues: userform,
         validationSchema: driverValidation,
         onSubmit: (values) => {
             const formData = new FormData();
@@ -35,34 +71,12 @@ const AddDriver = () => {
             if (values.fullImage) {
                 formData.append("fullImage", values.fullImage);
             }
-            newdriver.mutate(formData);
+            newUser.mutate(formData);
         },
     });
+    const countrylist = useGetCountryList();
+    const provincelist = useGetProvinceList(UserForm.values.country);
 
-
-    const handlecountryChange = (e) => {
-        const { name, value } = e.target
-
-        const companyname = companyList.data?.data.users.find((user) => user._id === value)?.company_name
-
-        driverForm.setFieldValue(name, value)
-        driverForm.setFieldValue('company_name', companyname)
-    }
-    const onSuccess = () => {
-
-        toast.success("Driver added successfully.");
-        driverForm.resetForm();
-        client.invalidateQueries("company list");
-        nav(role === 'super_admin' ? "/home/total-drivers" : `/home/total-drivers/${localStorage.getItem("userID")}`);
-    }
-    const onError = (error) => {
-        toast.error(error.response.data.message || "Something went Wrong", toastOption)
-    }
-
-    const newdriver = useRegister(onSuccess, onError)
-    const companyList = useGetUserList("company list", "company")
-    const provincelist = useGetProvinceList(driverForm.values.country)
-    const countrylist = useGetCountryList()
     return (
         <div className="container-fluid">
             <div className="row">
@@ -72,7 +86,7 @@ const AddDriver = () => {
                             <div className="row">
                                 <div className="col-md-6">
                                     <div className="tab-heading">
-                                        <h3>Driver Information</h3>
+                                        <h3>User Information</h3>
                                     </div>
 
                                     <input
@@ -80,54 +94,33 @@ const AddDriver = () => {
                                         name="first_name"
                                         placeholder="First Name"
                                         className="form-control"
-                                        value={driverForm.values.first_name}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.first_name}
+                                        onChange={UserForm.handleChange}
                                     />
-                                    {driverForm.touched.first_name && (
-                                        <p className="err">{driverForm.errors.first_name}</p>
+                                    {UserForm.touched.first_name && (
+                                        <p className="err">{UserForm.errors.first_name}</p>
                                     )}
                                     <input
                                         type="text"
                                         name="last_name"
                                         placeholder="Last Name"
                                         className="form-control"
-                                        value={driverForm.values.last_name}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.last_name}
+                                        onChange={UserForm.handleChange}
                                     />
-                                    {driverForm.touched.last_name && (
-                                        <p className="err">{driverForm.errors.last_name}</p>
+                                    {UserForm.touched.last_name && (
+                                        <p className="err">{UserForm.errors.last_name}</p>
                                     )}
-                                    {role === 'super_admin' && <>
-                                        <select
-                                            name="company_id"
-                                            className="form-control"
-                                            value={driverForm.values.company_id}
-                                            onChange={(e) => handlecountryChange(e)}
-                                        // onChange={driverForm.handleChange}
-                                        >
-                                            <option value="" hidden>
-                                                Company Name
-                                            </option>
-                                            {companyList.data?.data.users.map((user) => (
-                                                <option key={user._id} value={user._id}>
-                                                    {user.company_name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {driverForm.touched.company_id && (
-                                            <p className="err">{driverForm.errors.company_id}</p>
-                                        )}
-                                    </>}
                                     <input
                                         type="text"
                                         name="email"
                                         placeholder="Email"
                                         className="form-control"
-                                        value={driverForm.values.email}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.email}
+                                        onChange={UserForm.handleChange}
                                     />
-                                    {driverForm.touched.email && (
-                                        <p className="err">{driverForm.errors.email}</p>
+                                    {UserForm.touched.email && (
+                                        <p className="err">{UserForm.errors.email}</p>
                                     )}
 
                                     <input
@@ -135,28 +128,28 @@ const AddDriver = () => {
                                         name="password"
                                         placeholder="Password"
                                         className="form-control"
-                                        value={driverForm.values.password}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.password}
+                                        onChange={UserForm.handleChange}
                                     />
-                                    {driverForm.touched.password && (
-                                        <p className="err">{driverForm.errors.password}</p>
+                                    {UserForm.touched.password && (
+                                        <p className="err">{UserForm.errors.password}</p>
                                     )}
 
                                     <PhoneInput
                                         country={"za"} // Set default country
-                                        value={`${driverForm.values.mobile_no_country_code ?? ''}${driverForm.values.mobile_no ?? ''}`}
+                                        value={`${UserForm.values.mobile_no_country_code ?? ''}${UserForm.values.mobile_no ?? ''}`}
                                         onChange={(phone, countryData) => {
                                             const withoutCountryCode = phone.startsWith(countryData.dialCode)
                                                 ? phone.slice(countryData.dialCode.length).trim()
                                                 : phone;
 
-                                            driverForm.setFieldValue("mobile_no", withoutCountryCode);
-                                            driverForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
+                                            UserForm.setFieldValue("mobile_no", withoutCountryCode);
+                                            UserForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
                                         }}
                                         inputClass="form-control"
                                     />
-                                    {driverForm.touched.mobile_no && (
-                                        <p className="err">{driverForm.errors.mobile_no}</p>
+                                    {UserForm.touched.mobile_no && (
+                                        <p className="err">{UserForm.errors.mobile_no}</p>
                                     )}
 
                                     {/* <input
@@ -164,11 +157,11 @@ const AddDriver = () => {
                                         name="mobile_no"
                                         placeholder="Mobile No."
                                         className="form-control"
-                                        value={driverForm.values.mobile_no}
-                                        onChange={driverForm.handleChange}
+                                        value={userform.values.mobile_no}
+                                        onChange={userform.handleChange}
                                     />
-                                    {driverForm.touched.mobile_no && (
-                                        <p className="err">{driverForm.errors.mobile_no}</p>
+                                    {userform.touched.mobile_no && (
+                                        <p className="err">{userform.errors.mobile_no}</p>
                                     )} */}
 
                                     <input
@@ -176,20 +169,20 @@ const AddDriver = () => {
                                         name="id_no"
                                         placeholder="ID No."
                                         className="form-control"
-                                        value={driverForm.values.id_no}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.id_no}
+                                        onChange={UserForm.handleChange}
                                     />
-                                    {driverForm.touched.id_no && (
-                                        <p className="err">{driverForm.errors.id_no}</p>
+                                    {UserForm.touched.id_no && (
+                                        <p className="err">{UserForm.errors.id_no}</p>
                                     )}
                                     <div className="row">
                                         <div className="col-md-6">
                                             <label>Selfie Image</label>
 
-                                            {driverForm.values.selfieImage && (
+                                            {UserForm.values.selfieImage && (
                                                 <div className="form-control mt-2 img-preview-container">
                                                     <img
-                                                        src={URL.createObjectURL(driverForm.values.selfieImage)}
+                                                        src={URL.createObjectURL(UserForm.values.selfieImage)}
                                                         alt="Selfie Preview"
                                                         className="img-preview"
                                                         width="100"
@@ -201,10 +194,10 @@ const AddDriver = () => {
                                                 <input type="file" id="selfieImage" accept="image/*"
                                                     onChange={(event) => {
                                                         const file = event.currentTarget.files[0];
-                                                        driverForm.setFieldValue("selfieImage", file);
+                                                        UserForm.setFieldValue("selfieImage", file);
                                                     }} />
                                                 <label htmlFor="selfieImage">
-                                                    {driverForm.values.selfieImage ? driverForm.values.selfieImage.name : "Choose Selfie Image"}
+                                                    {UserForm.values.selfieImage ? UserForm.values.selfieImage.name : "Choose Selfie Image"}
                                                 </label>
                                             </div>
 
@@ -214,10 +207,10 @@ const AddDriver = () => {
                                         <div className="col-md-6">
                                             <label>Full Image</label>
 
-                                            {driverForm.values.fullImage && (
+                                            {UserForm.values.fullImage && (
                                                 <div className="form-control img-preview-container mt-2">
                                                     <img
-                                                        src={URL.createObjectURL(driverForm.values.fullImage)}
+                                                        src={URL.createObjectURL(UserForm.values.fullImage)}
                                                         alt="Full Image Preview"
                                                         className="img-preview"
                                                         width="100"
@@ -229,10 +222,10 @@ const AddDriver = () => {
                                                 <input type="file" id="fullImage" accept="image/*"
                                                     onChange={(event) => {
                                                         const file = event.currentTarget.files[0];
-                                                        driverForm.setFieldValue("fullImage", file);
+                                                        UserForm.setFieldValue("fullImage", file);
                                                     }} />
                                                 <label htmlFor="fullImage">
-                                                    {driverForm.values.fullImage ? driverForm.values.fullImage.name : "Choose Full Image"}
+                                                    {UserForm.values.fullImage ? UserForm.values.fullImage.name : "Choose Full Image"}
                                                 </label>
                                             </div>
 
@@ -251,18 +244,18 @@ const AddDriver = () => {
                                         name="street"
                                         placeholder="Street"
                                         className="form-control"
-                                        value={driverForm.values.street}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.street}
+                                        onChange={UserForm.handleChange}
                                     />
-                                    {driverForm.touched.street && (
-                                        <p className="err">{driverForm.errors.street}</p>
+                                    {UserForm.touched.street && (
+                                        <p className="err">{UserForm.errors.street}</p>
                                     )}
 
                                     <select
                                         name="country"
                                         className="form-control"
-                                        value={driverForm.values.country}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.country}
+                                        onChange={UserForm.handleChange}
                                     >
                                         <option value="" hidden> Country </option>
                                         {countrylist.data?.data.data?.map((country) => (
@@ -271,16 +264,16 @@ const AddDriver = () => {
                                             </option>
                                         ))}
                                     </select>
-                                    {driverForm.touched.country && (
-                                        <p className="err">{driverForm.errors.country}</p>
+                                    {UserForm.touched.country && (
+                                        <p className="err">{UserForm.errors.country}</p>
                                     )}
 
                                     <select
                                         name="province"
                                         className="form-control"
-                                        value={driverForm.values.province}
-                                        disabled={!driverForm.values.country}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.province}
+                                        disabled={!UserForm.values.country}
+                                        onChange={UserForm.handleChange}
                                     >
                                         <option value="" hidden>Province</option>
                                         {provincelist.data?.data.data?.map((province) => (
@@ -289,8 +282,8 @@ const AddDriver = () => {
                                             </option>
                                         ))}
                                     </select>
-                                    {driverForm.touched.province && (
-                                        <p className="err">{driverForm.errors.province}</p>
+                                    {UserForm.touched.province && (
+                                        <p className="err">{UserForm.errors.province}</p>
                                     )}
 
                                     <input
@@ -298,11 +291,11 @@ const AddDriver = () => {
                                         name="city"
                                         placeholder="City"
                                         className="form-control"
-                                        value={driverForm.values.city}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.city}
+                                        onChange={UserForm.handleChange}
                                     />
-                                    {driverForm.touched.city && (
-                                        <p className="err">{driverForm.errors.city}</p>
+                                    {UserForm.touched.city && (
+                                        <p className="err">{UserForm.errors.city}</p>
                                     )}
 
                                     <input
@@ -310,11 +303,11 @@ const AddDriver = () => {
                                         name="suburb"
                                         placeholder="Suburb"
                                         className="form-control"
-                                        value={driverForm.values.suburb}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.suburb}
+                                        onChange={UserForm.handleChange}
                                     />
-                                    {driverForm.touched.suburb && (
-                                        <p className="err">{driverForm.errors.suburb}</p>
+                                    {UserForm.touched.suburb && (
+                                        <p className="err">{UserForm.errors.suburb}</p>
                                     )}
 
                                     <input
@@ -322,26 +315,14 @@ const AddDriver = () => {
                                         name="postal_code"
                                         placeholder="Postal Code"
                                         className="form-control"
-                                        value={driverForm.values.postal_code}
-                                        onChange={driverForm.handleChange}
+                                        value={UserForm.values.postal_code}
+                                        onChange={UserForm.handleChange}
                                     />
-                                    {driverForm.touched.postal_code && (
-                                        <p className="err">{driverForm.errors.postal_code}</p>
+                                    {UserForm.touched.postal_code && (
+                                        <p className="err">{UserForm.errors.postal_code}</p>
                                     )}
 
-                                    <div className=" form-checkbox form-control">
-                                        <input
-                                            type="checkbox"
-                                            name="isArmed"
-                                            id="isArmed"
-                                            className="form-check-input"
-                                            checked={driverForm.values.isArmed}
-                                            onChange={(e) => driverForm.setFieldValue("isArmed", e.target.checked)}
-                                        />
-                                        <label className="form-check-label" htmlFor="isArmed">
-                                            Security
-                                        </label>
-                                    </div>
+
 
                                 </div>
                             </div>
@@ -352,11 +333,11 @@ const AddDriver = () => {
                     <div className="saveform">
                         <button
                             type="submit"
-                            onClick={driverForm.handleSubmit}
+                            onClick={UserForm.handleSubmit}
                             className="btn btn-dark"
-                            disabled={newdriver.isPending}
+                            disabled={newUser.isPending}
                         >
-                            {newdriver.isPending ? <Loader color="white" /> : "Save"}
+                            {newUser.isPending ? <Loader color="white" /> : "Save"}
                         </button>
                     </div>
                 </div>
@@ -365,51 +346,7 @@ const AddDriver = () => {
     );
 };
 
-export default AddDriver;
+export default AddUser;
 
 
-const formValues1 = {
-    company_id: "",
-    company_name: "",
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    mobile_no: "",
-    mobile_no_country_code: "",
-    street: "",
-    province: "",
-    city: "",
-    suburb: "",
-    postal_code: "",
-    country: "",
-    id_no: "",
-    role: "driver",
-    type: "email_pass",
-    fcm_token: "fcm_token",
-    isArmed: false,
-    selfieImage: "",
-    fullImage: ""
-}
 
-const formValues2 = {
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    mobile_no: "",
-    mobile_no_country_code: "",
-    street: "",
-    province: "",
-    city: "",
-    suburb: "",
-    postal_code: "",
-    country: "",
-    id_no: "",
-    role: "driver",
-    type: "email_pass",
-    fcm_token: "fcm_token",
-    isArmed: false,
-    selfieImage: "",
-    fullImage: ""
-}
