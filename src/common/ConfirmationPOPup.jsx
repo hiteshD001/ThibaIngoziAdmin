@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useDeleteUser, useDeleteUserTrip } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
+import { useState } from "react";
 
 export const DeleteConfirm = ({ ...p }) => {
   const client = useQueryClient();
@@ -64,6 +65,39 @@ export const LogoutConfirm = ({ ...p }) => {
             Confirm{" "}
           </button>
           <button className="popup-button" onClick={() => p.setconfirm(false)}>
+            cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const SOSStatusUpdate = ({ ...p }) => {
+  const [status, setStatus] = useState('')
+  return (
+    <div className="popup-overlay">
+      <div className="popup-content">
+        <select
+										name="help_received"
+										className="form-control"
+										value={status}
+										onChange={(e) => setStatus(e.target.value)}
+									>
+										<option value="" hidden> Select </option>
+										<option value="help_received"> Help Received </option>
+										<option value="cancel"> Cancel </option>
+									</select>
+        <div className="popup-buttons">
+          <button
+            className="popup-button confirm"
+            onClick={() => p.handleUpdate(status)}
+            disabled={status === ''}
+          >
+            {" "}
+            Submit{" "}
+          </button>
+          <button className="popup-button" onClick={() => p.handleCancel()}>
             cancel
           </button>
         </div>
