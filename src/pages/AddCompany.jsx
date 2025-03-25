@@ -191,6 +191,7 @@ const AddCompany = () => {
   										options={servicesList}
   										className="form-control add-company-services"
   										classNamePrefix="select"
+										placeholder="Select Services"
   										value={servicesList
   										  	.flatMap((group) => group.options)
   										  	.filter((option) => companyForm.values.services?.includes(option.value))}

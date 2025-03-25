@@ -127,6 +127,32 @@ const ListOfDrivers = () => {
                                 <h3>Total Drivers</h3>
                                 <p>{driverList.isSuccess && driverList.data?.data.totalUsers || 0}</p>
                             </div>
+                            <div className="tbl-filter">
+                                 <div className="input-group">
+                                     <span className="input-group-text">
+                                         <img src={search} />
+                                     </span>
+                                     <input
+                                         type="text"
+                                         value={filter}
+                                         onChange={(e) => setfilter(e.target.value)}
+                                         className="form-control"
+                                         placeholder="Search"
+                                     />
+                                     <span className="input-group-text">
+                                         <img src={icon} />
+                                     </span>
+                                 </div>
+                                 <button
+                                     onClick={() => nav("/home/total-drivers/add-driver")}
+                                     className="btn btn-primary"
+                                 >
+                                     + Add Driver
+                                 </button>
+                                 <button className="btn btn-primary" onClick={() => setpopup(true)}>
+                                     + Import Sheet
+                                 </button>
+                             </div>
                         </div>
                         {driverList.isFetching ? (
                             <Loader />
