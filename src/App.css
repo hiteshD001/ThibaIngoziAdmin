@@ -1261,3 +1261,16 @@ width: 20%;
     color: #d9534f;
     margin-bottom: 20px;
 }
+
+.gm-style {
+    background-color: transparent !important;
+    /* Prevents white overlay */
+}
+
+.gm-style div {
+    background: transparent !important;
+}
+
+.gm-style canvas {
+    background-color: transparent !important;
+}
