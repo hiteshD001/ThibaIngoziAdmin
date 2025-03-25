@@ -100,30 +100,37 @@
 
 // export default GoogleMaps;
 
-import { GoogleMap, Marker, DirectionsRenderer, useJsApiLoader, Polyline } from "@react-google-maps/api";
+import { GoogleMap, Marker, DirectionsRenderer, useJsApiLoader, Polyline, Circle } from "@react-google-maps/api";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-
+import { useGetLocationByLocationId } from "../API Calls/API";
 const mapContainerStyle = { width: "100%", height: "calc(100vh - 100px )" };
 
 const GoogleMaps = () => {
     const [params] = useSearchParams();
     const [directions, setDirections] = useState(null);
+    const locations = useGetLocationByLocationId(params.get("locationId"))
     const mapRef = useRef(null);
     const startLocation = { lat: parseFloat(params.get("lat")), lng: parseFloat(params.get("long")) };
     const endLocation = { lat: parseFloat(params.get("end_lat")), lng: parseFloat(params.get("end_long")) };
+    const [mapCenter] = useState(startLocation);
 
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_MAP_API_KEY,
     });
-
     useEffect(() => {
-    if (!isLoaded || !startLocation.lat || !startLocation.lng || !endLocation.lat || !endLocation.lng) return;
+        let location = null;
+        if (!isLoaded || !startLocation.lat || !startLocation.lng || !endLocation.lat || !endLocation.lng) return;
+        if (locations?.long && locations?.lat) {
+            location = { lat: Number(locations.lat) + 1, lng: Number(locations.long) + 1 }
+        } else {
+            location = startLocation
+        }
 
         const directionsService = new window.google.maps.DirectionsService();
         directionsService.route(
             {
-                origin: startLocation,
+                origin: location,
                 destination: endLocation,
                 travelMode: window.google.maps.TravelMode.DRIVING,
             },
@@ -135,14 +142,14 @@ const GoogleMaps = () => {
                 }
             }
         );
-    }, [isLoaded, params]);
+    }, [isLoaded, params,locations]);
 
     if (!isLoaded) return <p>Loading Map...</p>;
 
     return (
-        <GoogleMap ref={mapRef} key={JSON.stringify(directions)} mapContainerStyle={mapContainerStyle} zoom={10} center={startLocation || { lat: 20.5937, lng: 78.9629 }}>
-            {startLocation && <Marker position={startLocation} title="Start Location" />}
-            {endLocation && <Marker position={endLocation} title="End Location" />}
+        <GoogleMap ref={mapRef} key={JSON.stringify(directions)} mapContainerStyle={mapContainerStyle} zoom={10} center={mapCenter}>
+            {/* {startLocation && <Marker position={startLocation} title="Start Location" />}
+            {endLocation && <Marker position={endLocation} title="End Location" />} */}
             
             {directions && 
                 <DirectionsRenderer
@@ -159,6 +166,19 @@ const GoogleMaps = () => {
                     }}
                     panel={null}
                 />}
+                {locations?.lat && locations?.lng && (
+                <Circle
+                    center={{lat: locations.lat, lng: locations.lng}}
+                    radius={1000}
+                    options={{
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 1,
+                        strokeWeight: 25,
+                        fillColor: "#0000FF",
+                        fillOpacity: 1,
+                    }}
+                />
+            )}
         </GoogleMap>
     );
 };
