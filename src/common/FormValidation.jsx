@@ -108,4 +108,11 @@ export const vehicleValidation = yup.object({
     hijakingId: yup.string().optional(),
     hijakingPass: yup.string().optional(),
     passport_no: yup.string().optional()
+});
+
+export const armedSosSplitAmountValidation = yup.object({
+    armedSosAmount: yup.number().required('This field is required'),
+    driverSplitAmount: yup.number().required('This field is required'),
+    companySplitAmount: yup.number().required('This field is required'),
+    currency: yup.string().required('This field is required'),
 })

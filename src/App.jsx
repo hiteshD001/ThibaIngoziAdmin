@@ -28,6 +28,7 @@ import PassangerInformation from "./pages/Passangerinformation";
 import ListOfUsers from "./pages/ListOfUsers";
 import AddUser from "./pages/AddUser";
 import SosInformation from "./pages/SosInformation"
+import ArmedSosSplitAmount from "./pages/ArmedSosSplitAmount";
 
 function App() {
     return (
@@ -146,6 +147,10 @@ const router = createBrowserRouter([
                 path: "profile",
                 element: <Profile />
             },
+            {
+                path: "armed-sos-split-amount",
+                element: <ArmedSosSplitAmount />
+            }
         ]
     },
     {

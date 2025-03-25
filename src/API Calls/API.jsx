@@ -418,3 +418,34 @@ export const useFileUpload = (onSuccess, onError) => {
 
     return mutation;
 }
+
+export const useGetArmedSosSplitAmount = () => {
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/sos/split-amount`);
+    };
+
+    const res = useQuery({
+        queryKey: ["split-amount"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        onError: (error) => {
+            console.error("Error fetching split amount:", error);
+        }
+    });
+
+    return res;
+};
+
+export const useUpdateArmedSosSplitAmount = (onSuccess, onError) => {
+    const mutationFn = async ({ data }) => {
+        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/armed-sos/split-amount`, data);
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}

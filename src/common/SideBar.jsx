@@ -10,6 +10,7 @@ const SideBar = () => {
     const [currentMenu, setcurrentMenu] = useState("home")
 
     const location = useLocation();
+    console.log(location)
     const nav = useNavigate()
 
     const handleLogout = () => {

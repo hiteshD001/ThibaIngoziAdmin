@@ -1,7 +1,7 @@
 import home from "../assets/images/home.png";
 import drivers from "../assets/images/drivers.png";
 import arrowLeft from "../assets/images/arrow-left.png";
-// import settings from "../assets/images/settings.png";
+import settings from "../assets/images/settings.png";
 import profile from "../assets/images/profile.png";
 import logout from "../assets/images/logout.png";
 import comapnies from "../assets/images/companies.png";
@@ -72,12 +72,12 @@ export const superadmin_menulist = [
     //     path: "/home/hardware-management",
     //     image: hardware
     // },
-    // {
-    //     id: "settings",
-    //     name: "Settings",
-    //     path: "",
-    //     image: settings
-    // },
+    {
+        id: "armed-sos-split-module",
+        name: "Armed Sos Split Module",
+        path: "/home/armed-sos-split-amount",
+        image: settings
+    },
     {
         id: "profile",
         name: "Profile",
