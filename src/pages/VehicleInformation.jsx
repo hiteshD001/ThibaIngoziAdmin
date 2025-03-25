@@ -644,7 +644,62 @@ const VehicleInformation = () => {
                             </div>
                         </form>
                     </div>
+
+                    <div className="theme-table">
+                        <div className="tab-heading">
+                            <h3>Armed SOS</h3>
+                        </div>
+
+                        <table className="table table-striped nowrap" style={{ width: "100%" }}>
+                            <thead>
+                                <tr>
+                                    <th>Armed User</th>
+                                    <th>Responder</th>
+                                    <th>Armed Location</th>
+                                    <th>Status</th>
+                                    <th>Radius</th>
+                                    <th>&nbsp;</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>                                
+                                {vehicleInfo?.armedSos?.map((sos, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            {sos.armedUser
+                                                ? `${sos.armedUser.firstName || ""} ${sos.armedUser.lastName || ""}`
+                                                : "Unknown"}
+                                        </td>
+                                        <td>
+                                            {Array.isArray(sos.responder) ? sos.responder.join(", ") : sos.responder}
+                                        </td>
+                                        <td>
+                                            {sos.armedLocation
+                                                ? `${sos.armedLocation.city || ""}, ${sos.armedLocation.street || ""}, ${sos.armedLocation.suburb || ""}`
+                                                : "Unknown"}
+                                        </td>
+                                        <td>{sos.status}</td>
+                                        <td>{sos.radius}</td>
+                                        <td>
+
+                                            <span
+                                                onClick={() =>
+                                                    nav(
+                                                        `/home/total-drivers/sos-information/${sos._id}`
+                                                    )
+                                                }
+                                                className="tbl-btn"
+                                            >
+                                                view
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+
                 <div className="col-md-12 text-end">
                     <div className="saveform">
                         {edit ?
