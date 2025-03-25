@@ -13,6 +13,8 @@ import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
+import { toast } from "react-toastify";
+import { toastOption } from "../common/ToastOptions";
 
 const ListOfDrivers = () => {
     const [isArmedLocal, setIsArmedLocal] = useState(false);
@@ -79,6 +81,10 @@ const ListOfDrivers = () => {
                                         <span>Contact Email</span>
                                         <p>{companyInfo.data?.data.user.email}</p>
                                     </div>
+                                    <div className="c-info">
+                                        <span>Total Used Google APIs</span>
+                                        <p>{companyInfo.data?.data.totalGoogleMapApi}</p>
+                                    </div>
                                     <div className="c-info2">
                                         <input
                                             type="checkbox"
@@ -101,19 +107,19 @@ const ListOfDrivers = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="company-info">
+                            {Object.keys(servicesList).length > 0 && <div className="company-info">
                                 <div className="comapny-titles">Company Services</div>
                                 <div className="comapny-det">
-                                    {Object.keys(servicesList).length > 0 && Object.keys(servicesList).map((serviceKey, index) => 
-                                    <div className={Object.keys(servicesList).length > index + 1 ? "c-ser" : "c-ser2"}>
+                                    {Object.keys(servicesList).map((serviceKey, index) => 
+                                    <div key={index} className={Object.keys(servicesList).length > index + 1 ? "c-ser" : "c-ser2"}>
                                         <span>{serviceKey}</span>
                                         {servicesList[serviceKey]?.map((service, index) => 
-                                            <p>{service?.serviceName}</p>
+                                            <p key={index}>{service?.serviceName}</p>
                                         )}
                                     </div>
                                     )}
                                 </div>
-                            </div>
+                            </div>}
                         </>
                     )}
 
