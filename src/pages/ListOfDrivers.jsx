@@ -119,56 +119,7 @@ const ListOfDrivers = () => {
 
                     {role === 'super_admin' && params.id && <Analytics id={params.id} />}
 
-                    <div className="theme-table">
-                        <h3>Armed SOS</h3>
-                        <table className="table table-striped nowrap" style={{ width: "100%" }}>
-                            <thead>
-                                <tr>
-                                    <th>Armed User</th>
-                                    <th>Responder</th>
-                                    <th>Armed Location</th>
-                                    <th>Status</th>
-                                    <th>Radius</th>
-                                    <th>&nbsp;</th>
-
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {getArmedSOS?.data?.data?.items?.map((sos, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            {sos.armedUser
-                                                ? `${sos.armedUser.firstName || ""} ${sos.armedUser.lastName || ""}`
-                                                : "Unknown"}
-                                        </td>
-                                        <td>
-                                            {Array.isArray(sos.responder) ? sos.responder.join(", ") : sos.responder}
-                                        </td>
-                                        <td>
-                                            {sos.armedLocation
-                                                ? `${sos.armedLocation.city || ""}, ${sos.armedLocation.street || ""}, ${sos.armedLocation.suburb || ""}`
-                                                : "Unknown"}
-                                        </td>
-                                        <td>{sos.status}</td>
-                                        <td>{sos.radius}</td>
-                                        <td>
-                                           
-                                            <span
-                                                onClick={() =>
-                                                    nav(
-                                                        `/home/total-drivers/sos-information/${sos._id}`
-                                                    )
-                                                }
-                                                className="tbl-btn"
-                                            >
-                                                view
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    
 
                     <div className="theme-table">
                         <div className="tab-heading">
