@@ -103,7 +103,7 @@ const Home = () => {
                                                 </button>
                                             </td>
                                             <td>
-                                                <NavLink to={`/home/hotspot/location?lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`} className="tbl-btn">
+                                                <NavLink to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`} className="tbl-btn">
                                                     view
                                                 </NavLink>
                                             </td>

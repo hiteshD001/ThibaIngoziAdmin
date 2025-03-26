@@ -439,6 +439,22 @@ export const useUpdateLocationStatus = (onSuccess, onError) => {
     return mutation;
 };
 
+export const useGetLocationByLocationId = (locationId) => {
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/${locationId}?google_map_api=true`);
+    };
+
+    const res = useQuery({
+        queryKey: ['location', locationId],
+        queryFn: queryFn,
+        staleTime: 0,
+        refetchInterval: 5000,
+    });
+
+    return res.data?.data;
+};
+
 export const useFileUpload = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(`${import.meta.env.VITE_BASEURL}/users/register/bulk`, data);

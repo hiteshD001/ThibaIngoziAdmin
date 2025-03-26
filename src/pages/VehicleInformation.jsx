@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { NavLink, useParams } from "react-router-dom"
 
 import { useFormik } from "formik"
 import { vehicleValidation } from "../common/FormValidation"
@@ -15,6 +15,7 @@ const VehicleInformation = () => {
     const [edit, setedit] = useState(false)
     const params = useParams();
     const client = useQueryClient()
+    const userinfo = useGetUser(localStorage.getItem("userID"));
 
     const driverform = useFormik({
         initialValues: {
@@ -655,34 +656,35 @@ const VehicleInformation = () => {
                                 <tr>
                                     <th>Armed User</th>
                                     <th>Responder</th>
-                                    <th>Armed Location</th>
                                     <th>Status</th>
                                     <th>Radius</th>
+                                    <th>Armed Location</th>
                                     <th>&nbsp;</th>
 
                                 </tr>
                             </thead>
-                            <tbody>                                
-                                {vehicleInfo?.armedSos?.map((sos, index) => (
+                            <tbody>                    
+                                {console.log(vehicleInfo?.data?.data, '-- vehicleInfo --')}            
+                                {vehicleInfo?.data?.data?.armedSos?.map((sos, index) => (
                                     <tr key={index}>
                                         <td>
-                                            {sos.armedUser
-                                                ? `${sos.armedUser.firstName || ""} ${sos.armedUser.lastName || ""}`
+                                            {sos.armedUserId
+                                                ? `${sos.armedUserId.first_name || ""} ${sos.armedUserId.last_name || ""}`
                                                 : "Unknown"}
                                         </td>
                                         <td>
-                                            {Array.isArray(sos.responder) ? sos.responder.join(", ") : sos.responder}
+                                            {Array.isArray(sos.responders) ? sos.responders.join(", ") : sos.responders}
                                         </td>
+                                        <td>{sos?.armedSosstatus}</td>
+                                        <td>{sos?.armedLocationId?.armedRadius}</td>
                                         <td>
-                                            {sos.armedLocation
-                                                ? `${sos.armedLocation.city || ""}, ${sos.armedLocation.street || ""}, ${sos.armedLocation.suburb || ""}`
+                                            {sos.armedLocationId
+                                                ? `${sos.armedLocationId.city || ""}, ${sos.armedLocationId.street || ""}, ${sos.armedLocationId.suburb || ""}`
                                                 : "Unknown"}
                                         </td>
-                                        <td>{sos.status}</td>
-                                        <td>{sos.radius}</td>
                                         <td>
 
-                                            <span
+                                            {/* <span
                                                 onClick={() =>
                                                     nav(
                                                         `/home/total-drivers/sos-information/${sos._id}`
@@ -691,7 +693,13 @@ const VehicleInformation = () => {
                                                 className="tbl-btn"
                                             >
                                                 view
-                                            </span>
+                                            </span> */}
+                                            <NavLink to={`/home/total-drivers/sos-information/${sos._id}`} style={{marginRight: '5px'}} className="tbl-btn">
+                                                    view
+                                                </NavLink>
+                                            {!sos?.armedSosstatus && <NavLink to={`/home/hotspot/location?locationId=${sos?.armedLocationId?._id}&lat=${sos?.armedLocationId?.armedLocationlatitude}&long=${sos?.armedLocationId?.armedLocationlongitude}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}`} className="tbl-btn">
+                                                    Track
+                                                </NavLink>}
                                         </td>
                                     </tr>
                                 ))}
