@@ -669,6 +669,67 @@ table#example {
     line-break: anywhere;
 }
 
+.comapny-det .c-ser {
+    padding: 10px 2%;
+    width: 33%;
+    position: relative;
+}
+
+.comapny-det .c-ser2 {
+    padding: 10px 2%;
+    width: 33%;
+}
+
+.comapny-det .c-ser::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 10%;
+    width: 1px;
+    height: 80%;
+    background-color: #d9d9d9;
+}
+
+.comapny-det .c-ser span {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    color: rgb(28 28 28 / 40%);
+}
+
+.comapny-det .c-ser p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 28px;
+    line-break: anywhere;
+}
+
+.comapny-det .c-ser2::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 10%;
+    width: 1px;
+    height: 80%;
+    background-color: #d9d9d9;
+}
+
+.comapny-det .c-ser2 span {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    color: rgb(28 28 28 / 40%);
+}
+
+.comapny-det .c-ser2 p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 28px;
+    line-break: anywhere;
+}
+
 .vehiclpic {
     /* background: #fff; */
     padding: 12px 20px;
@@ -1199,4 +1260,17 @@ width: 20%;
     font-size: 50px;
     color: #d9534f;
     margin-bottom: 20px;
+}
+
+.gm-style {
+    background-color: transparent !important;
+    /* Prevents white overlay */
+}
+
+.gm-style div {
+    background: transparent !important;
+}
+
+.gm-style canvas {
+    background-color: transparent !important;
 }

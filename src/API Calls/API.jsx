@@ -173,6 +173,24 @@ export const useGetCountryList = () => {
     return res;
 };
 
+// get list of Services
+
+export const useGetServicesList = () => {
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/services`);
+    };
+
+    const res = useQuery({
+        queryKey: ["Services List"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false
+    });
+
+    return res?.data?.data;
+};
+
 // get single user
 
 export const useGetUser = (userId) => {
@@ -403,6 +421,38 @@ export const useUpdateUser = (onSuccess, onError) => {
     });
 
     return mutation;
+};
+
+// update Location Status
+
+export const useUpdateLocationStatus = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/location/${id}`, data);
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useGetLocationByLocationId = (locationId) => {
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/${locationId}?google_map_api=true`);
+    };
+
+    const res = useQuery({
+        queryKey: ['location', locationId],
+        queryFn: queryFn,
+        staleTime: 0,
+        refetchInterval: 5000,
+    });
+
+    return res.data?.data;
 };
 
 export const useFileUpload = (onSuccess, onError) => {

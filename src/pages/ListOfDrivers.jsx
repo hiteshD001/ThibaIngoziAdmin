@@ -13,6 +13,8 @@ import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
+import { toast } from "react-toastify";
+import { toastOption } from "../common/ToastOptions";
 
 const ListOfDrivers = () => {
     const [isArmedLocal, setIsArmedLocal] = useState(false);
@@ -24,19 +26,33 @@ const ListOfDrivers = () => {
     const [page, setpage] = useState(1);
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
+    const [servicesList, setServicesList] = useState({});
 
     const companyInfo = useGetUser(params.id)
     const notification_type = "677534649c3a99e13dcd7456"
     const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
     const getArmedSOS = useGetArmedSoS()
 
-  //  console.log(getArmedSOS, "get-armedSOS")
-
     useEffect(() => {
         if (companyInfo.data) {
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
         }
     }, [companyInfo.data]);
+    
+    useEffect(() => {
+        if (companyInfo.data?.data?.user) {
+            const services = companyInfo.data?.data?.user?.services
+            const groupedServices = services.reduce((acc, service) => {
+                if (!acc[service.type]) {
+                    acc[service.type] = [];
+                }
+                acc[service.type].push(service);
+                return acc;
+            }, {});
+            setServicesList(groupedServices);
+        }
+    }, [companyInfo.data?.data?.user]);
+
     const onSuccess = () => {
         client.invalidateQueries(["user", params.id]);
         toast.success("User Updated Successfully.");
@@ -49,98 +65,67 @@ const ListOfDrivers = () => {
             <div className="row">
                 <div className="col-md-12">
                     {params.id && (
-                        <div className="company-info">
-                            <div className="comapny-titles">Company Information</div>
-                            <div className="comapny-det">
-                                <div className="c-info">
-                                    <span>Company</span>
-                                    <p>{companyInfo.data?.data.user.company_name}</p>
-                                </div>
-                                <div className="c-info">
-                                    <span>Contact No.</span>
-                                    <p>{companyInfo.data?.data.user.mobile_no}</p>
-                                </div>
-                                <div className="c-info">
-                                    <span>Contact Email</span>
-                                    <p>{companyInfo.data?.data.user.email}</p>
-                                </div>
-                                <div className="c-info2">
-                                    <input
-                                        type="checkbox"
-                                        name="isArmed"
-                                        id="isArmed"
-                                        className="form-check-input me-2"
-                                        checked={isArmedLocal}
-                                        onChange={() => {
-                                            const newValue = !isArmedLocal;
-                                            setIsArmedLocal(newValue);
-                                            mutate({
-                                                id: params.id,
-                                                data: { isArmed: newValue },
-                                            });
-                                        }}
-                                    />
-                                    <label className="form-check-label" htmlFor="isArmed">
-                                        Security
-                                    </label>
+                        <>
+                            <div className="company-info">
+                                <div className="comapny-titles">Company Information</div>
+                                <div className="comapny-det">
+                                    <div className="c-info">
+                                        <span>Company</span>
+                                        <p>{companyInfo.data?.data.user.company_name}</p>
+                                    </div>
+                                    <div className="c-info">
+                                        <span>Contact No.</span>
+                                        <p>{companyInfo.data?.data.user.mobile_no}</p>
+                                    </div>
+                                    <div className="c-info">
+                                        <span>Contact Email</span>
+                                        <p>{companyInfo.data?.data.user.email}</p>
+                                    </div>
+                                    <div className="c-info">
+                                        <span>Total Used Google APIs</span>
+                                        <p>{companyInfo.data?.data.totalGoogleMapApi}</p>
+                                    </div>
+                                    <div className="c-info2">
+                                        <input
+                                            type="checkbox"
+                                            name="isArmed"
+                                            id="isArmed"
+                                            className="form-check-input me-2"
+                                            checked={isArmedLocal}
+                                            onChange={() => {
+                                                const newValue = !isArmedLocal;
+                                                setIsArmedLocal(newValue);
+                                                mutate({
+                                                    id: params.id,
+                                                    data: { isArmed: newValue },
+                                                });
+                                            }}
+                                        />
+                                        <label className="form-check-label" htmlFor="isArmed">
+                                            Security
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            {Object.keys(servicesList).length > 0 && <div className="company-info">
+                                <div className="comapny-titles">Company Services</div>
+                                <div className="comapny-det">
+                                    {Object.keys(servicesList).map((serviceKey, index) => 
+                                    <div key={index} className={Object.keys(servicesList).length > index + 1 ? "c-ser" : "c-ser2"}>
+                                        <span>{serviceKey}</span>
+                                        {servicesList[serviceKey]?.map((service, index) => 
+                                            <p key={index}>{service?.serviceName}</p>
+                                        )}
+                                    </div>
+                                    )}
+                                </div>
+                            </div>}
+                        </>
                     )}
 
                     {role === 'super_admin' && params.id && <Analytics id={params.id} />}
 
-                    <div className="theme-table">
-                        <h3>Armed SOS</h3>
-                        <table className="table table-striped nowrap" style={{ width: "100%" }}>
-                            <thead>
-                                <tr>
-                                    <th>Armed User</th>
-                                    <th>Responder</th>
-                                    <th>Armed Location</th>
-                                    <th>Status</th>
-                                    <th>Radius</th>
-                                    <th>&nbsp;</th>
-
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {console.log(getArmedSOS?.data?.data, "getArmedSOS?.data?.data?")}
-                                {getArmedSOS?.data?.data?.items?.map((sos, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            {sos.armedUser
-                                                ? `${sos.armedUser.firstName || ""} ${sos.armedUser.lastName || ""}`
-                                                : "Unknown"}
-                                        </td>
-                                        <td>
-                                            {Array.isArray(sos.responder) ? sos.responder.join(", ") : sos.responder}
-                                        </td>
-                                        <td>
-                                            {sos.armedLocation
-                                                ? `${sos.armedLocation.city || ""}, ${sos.armedLocation.street || ""}, ${sos.armedLocation.suburb || ""}`
-                                                : "Unknown"}
-                                        </td>
-                                        <td>{sos.status}</td>
-                                        <td>{sos.radius}</td>
-                                        <td>
-                                           
-                                            <span
-                                                onClick={() =>
-                                                    nav(
-                                                        `/home/total-drivers/sos-information/${sos._id}`
-                                                    )
-                                                }
-                                                className="tbl-btn"
-                                            >
-                                                view
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    
 
                     <div className="theme-table">
                         <div className="tab-heading">
@@ -148,6 +133,32 @@ const ListOfDrivers = () => {
                                 <h3>Total Drivers</h3>
                                 <p>{driverList.isSuccess && driverList.data?.data.totalUsers || 0}</p>
                             </div>
+                            <div className="tbl-filter">
+                                 <div className="input-group">
+                                     <span className="input-group-text">
+                                         <img src={search} />
+                                     </span>
+                                     <input
+                                         type="text"
+                                         value={filter}
+                                         onChange={(e) => setfilter(e.target.value)}
+                                         className="form-control"
+                                         placeholder="Search"
+                                     />
+                                     <span className="input-group-text">
+                                         <img src={icon} />
+                                     </span>
+                                 </div>
+                                 <button
+                                     onClick={() => nav("/home/total-drivers/add-driver")}
+                                     className="btn btn-primary"
+                                 >
+                                     + Add Driver
+                                 </button>
+                                 <button className="btn btn-primary" onClick={() => setpopup(true)}>
+                                     + Import Sheet
+                                 </button>
+                             </div>
                         </div>
                         {driverList.isFetching ? (
                             <Loader />

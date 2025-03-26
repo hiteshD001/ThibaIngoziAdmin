@@ -1,17 +1,20 @@
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 
 import { useFormik } from "formik";
 import { companyValidation } from "../common/FormValidation";
 
 import { useQueryClient } from "@tanstack/react-query";
 
-import { useGetCountryList, useGetProvinceList, useRegister } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister } from "../API Calls/API";
 
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
+import { useLayoutEffect, useState } from "react";
+import '../css/company.css'
 
 const AddCompany = () => {
 	const client = useQueryClient();
@@ -43,12 +46,17 @@ const AddCompany = () => {
 		onSubmit: (values) => {
 			const formData = new FormData();
 			Object.keys(values).forEach(key => {
-				if (key !== "selfieImage" && key !== "fullImage") {
+				if (key !== "selfieImage" && key !== "fullImage" && key !== "services") {
 					formData.append(key, values[key]);
 				}
 			});
 			if (values.selfieImage) {
 				formData.append("selfieImage", values.selfieImage);
+			}
+			if (values.services) {
+				values.services.forEach((serviceId) => {
+  					formData.append("services[]", serviceId);
+				});
 			}
 			if (values.fullImage) {
 				formData.append("fullImage", values.fullImage);
@@ -67,9 +75,25 @@ const AddCompany = () => {
 		toast.error(error.response.data.message || "Something went Wrong", toastOption)
 	}
 
+	const [servicesList, setServicesList] = useState([])
 	const newcompany = useRegister(onSuccess, onError)
 	const provincelist = useGetProvinceList(companyForm.values.country)
 	const countrylist = useGetCountryList()
+	const serviceslist = useGetServicesList()
+
+	useLayoutEffect(() => {
+		if(serviceslist) {
+			const groupedOptions = Object.keys(serviceslist).map((category) => ({
+				label: category,
+				options: serviceslist[category].map((service) => ({
+					label: service.serviceName,
+					value: service._id,
+				})),
+			}));
+			setServicesList(groupedOptions ?? [])
+		}
+	},[serviceslist])
+
 
 	return (
 		<div className="container-fluid">
@@ -161,6 +185,25 @@ const AddCompany = () => {
 									{companyForm.touched.mobile_no && (
 										<p className="err">{companyForm.errors.mobile_no}</p>
 									)}
+									<Select
+  										isMulti
+  										name="services"
+  										options={servicesList}
+  										className="form-control add-company-services"
+  										classNamePrefix="select"
+										placeholder="Select Services"
+  										value={servicesList
+  										  	.flatMap((group) => group.options)
+  										  	.filter((option) => companyForm.values.services?.includes(option.value))}
+  										onChange={(selectedOptions) => {
+  										  	const selectedValues = selectedOptions.map((option) => option.value);
+  										  	companyForm.setFieldValue("services", selectedValues);
+  										}}
+									/>
+									{companyForm.touched.services && companyForm.errors.services && (
+									  <p className="err">{companyForm.errors.services}</p>
+									)}
+
 
 									{/* <input
 										type="text"
