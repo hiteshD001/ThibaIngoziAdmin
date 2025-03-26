@@ -122,7 +122,7 @@ const GoogleMaps = () => {
         let location = null;
         if (!isLoaded || !startLocation.lat || !startLocation.lng || !endLocation.lat || !endLocation.lng) return;
         if (locations?.long && locations?.lat) {
-            location = { lat: Number(locations.lat) + 1, lng: Number(locations.long) + 1 }
+            location = { lat: Number(locations.lat), lng: Number(locations.long)}
         } else {
             location = startLocation
         }
