@@ -663,8 +663,7 @@ const VehicleInformation = () => {
 
                                 </tr>
                             </thead>
-                            <tbody>                    
-                                {console.log(vehicleInfo?.data?.data, '-- vehicleInfo --')}            
+                            <tbody>           
                                 {vehicleInfo?.data?.data?.armedSos?.map((sos, index) => (
                                     <tr key={index}>
                                         <td>
@@ -679,27 +678,13 @@ const VehicleInformation = () => {
                                         <td>{sos?.armedLocationId?.armedRadius}</td>
                                         <td>
                                             {sos.armedLocationId
-                                                ? `${sos.armedLocationId.city || ""}, ${sos.armedLocationId.street || ""}, ${sos.armedLocationId.suburb || ""}`
+                                                ? `${sos.armedLocationId.city ? sos.armedLocationId.city + "," : ""} ${sos.armedLocationId.street ? sos.armedLocationId.street + "," : ""} ${sos.armedLocationId.suburb || ""}`
                                                 : "Unknown"}
                                         </td>
                                         <td>
-
-                                            {/* <span
-                                                onClick={() =>
-                                                    nav(
-                                                        `/home/total-drivers/sos-information/${sos._id}`
-                                                    )
-                                                }
-                                                className="tbl-btn"
-                                            >
-                                                view
-                                            </span> */}
                                             <NavLink to={`/home/total-drivers/sos-information/${sos._id}`} style={{marginRight: '5px'}} className="tbl-btn">
                                                     view
                                                 </NavLink>
-                                            {!sos?.armedSosstatus && <NavLink to={`/home/hotspot/location?locationId=${sos?.armedLocationId?._id}&lat=${sos?.armedLocationId?.armedLocationlatitude}&long=${sos?.armedLocationId?.armedLocationlongitude}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}`} className="tbl-btn">
-                                                    Track
-                                                </NavLink>}
                                         </td>
                                     </tr>
                                 ))}

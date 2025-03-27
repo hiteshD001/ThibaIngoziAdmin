@@ -30,8 +30,8 @@ const Navbar = () => {
                             {location.pathname.split("/").length > 3 && <>
                                 <span>/</span>
                                 <span>
-                                    {location.pathname.split("/")[3] === "driver-information" ? currentMenu.info
-                                        : location.pathname.split("/")[3] === "add-driver" || location.pathname.split("/")[3] === "add-company" ? currentMenu.add
+                                    {location.pathname.split("/")[3] === "driver-information" ? currentMenu?.info
+                                        : location.pathname.split("/")[3] === "add-driver" || location.pathname.split("/")[3] === "add-company" ? currentMenu?.add
                                             : currentMenu?.company}
                                 </span>
                             </>}

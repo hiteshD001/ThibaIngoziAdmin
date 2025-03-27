@@ -6,16 +6,16 @@
 //     const [params] = useSearchParams();
 //     const [currentLocation, setCurrentLocation] = useState();
 //     const [path, setPath] = useState([]);
-    
+
 //     // Parse start and end locations from query params
-//     const startLocation = { 
-//         lat: parseFloat(params.get("lat")), 
-//         lng: parseFloat(params.get("long")) 
+//     const startLocation = {
+//         lat: parseFloat(params.get("lat")),
+//         lng: parseFloat(params.get("long"))
 //     };
-    
-//     const endLocation = { 
-//         lat: parseFloat(params.get("end_lat")), 
-//         lng: parseFloat(params.get("end_long")) 
+
+//     const endLocation = {
+//         lat: parseFloat(params.get("end_lat")),
+//         lng: parseFloat(params.get("end_long"))
 //     };
 
 //     // Initialize currentLocation on first render
@@ -91,7 +91,7 @@
 //                 strokeWeight: 4,
 //               }}
 //             />
-//           )}   
+//           )}
 //                 </Map>
 //             </APIProvider>
 //         </div>
@@ -100,19 +100,36 @@
 
 // export default GoogleMaps;
 
-import { GoogleMap, Marker, DirectionsRenderer, useJsApiLoader, Polyline, Circle } from "@react-google-maps/api";
+import {
+    GoogleMap,
+    Marker,
+    DirectionsRenderer,
+    useJsApiLoader,
+    Polyline,
+    Circle,
+} from "@react-google-maps/api";
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetLocationByLocationId } from "../API Calls/API";
+import { GoogleMapConfirm } from "./ConfirmationPOPup";
 const mapContainerStyle = { width: "100%", height: "calc(100vh - 100px )" };
 
 const GoogleMaps = () => {
     const [params] = useSearchParams();
+    const nav = useNavigate();
     const [directions, setDirections] = useState(null);
-    const locations = useGetLocationByLocationId(params.get("locationId"))
+    const [confirm, setConfirm] = useState(false);
+    const [message, setMessage] = useState("");
+    const { locations } = useGetLocationByLocationId(params.get("locationId"));
     const mapRef = useRef(null);
-    const startLocation = { lat: parseFloat(params.get("lat")), lng: parseFloat(params.get("long")) };
-    const endLocation = { lat: parseFloat(params.get("end_lat")), lng: parseFloat(params.get("end_long")) };
+    const startLocation = {
+        lat: parseFloat(params.get("lat")),
+        lng: parseFloat(params.get("long")),
+    };
+    const endLocation = {
+        lat: parseFloat(params.get("end_lat")),
+        lng: parseFloat(params.get("end_long")),
+    };
     const [mapCenter] = useState(startLocation);
 
     const { isLoaded } = useJsApiLoader({
@@ -120,11 +137,24 @@ const GoogleMaps = () => {
     });
     useEffect(() => {
         let location = null;
-        if (!isLoaded || !startLocation.lat || !startLocation.lng || !endLocation.lat || !endLocation.lng) return;
+        if (
+            !isLoaded ||
+            !startLocation.lat ||
+            !startLocation.lng ||
+            !endLocation.lat ||
+            !endLocation.lng
+        )
+            return;
         if (locations?.long && locations?.lat) {
-            location = { lat: Number(locations.lat), lng: Number(locations.long)}
+            location = {
+                lat: Number(locations.lat),
+                lng: Number(locations.long),
+            };
+        } else if (locations?.message) {
+            setConfirm(true);
+            setMessage(locations.message);
         } else {
-            location = startLocation
+            location = startLocation;
         }
 
         const directionsService = new window.google.maps.DirectionsService();
@@ -137,49 +167,75 @@ const GoogleMaps = () => {
             (result, status) => {
                 if (status === "OK") {
                     setDirections(result);
+                } else if (status === "ZERO_RESULTS") {
+                    setConfirm(true);
+                    setMessage("No route found");
                 } else {
                     console.error("Directions request failed: ", status);
                 }
             }
         );
-    }, [isLoaded, params,locations]);
+    }, [isLoaded, params, locations]);
 
+    const handleConfirm = () => {
+        setConfirm(false);
+        nav("/home/total-drivers");
+    };
     if (!isLoaded) return <p>Loading Map...</p>;
 
     return (
-        <GoogleMap ref={mapRef} key={JSON.stringify(directions)} mapContainerStyle={mapContainerStyle} zoom={10} center={mapCenter}>
-            {/* {startLocation && <Marker position={startLocation} title="Start Location" />}
-            {endLocation && <Marker position={endLocation} title="End Location" />} */}
-            
-            {directions && 
-                <DirectionsRenderer
-                    directions={directions}
-                    options={{
-                        polylineOptions: {
+        <>
+            <GoogleMap
+                ref={mapRef}
+                key={JSON.stringify(directions)}
+                mapContainerStyle={mapContainerStyle}
+                zoom={10}
+                center={mapCenter}
+            >
+                {startLocation && (
+                    <Marker position={startLocation} title="Start Location" />
+                )}
+                {endLocation && (
+                    <Marker position={endLocation} title="End Location" />
+                )}
+
+                {directions && (
+                    <DirectionsRenderer
+                        directions={directions}
+                        options={{
+                            polylineOptions: {
+                                strokeColor: "#0000FF",
+                                strokeOpacity: 1,
+                                strokeWeight: 5,
+                            },
+                            suppressPolylines: false,
+                            suppressMarkers: false,
+                            suppressInfoWindows: true,
+                        }}
+                        panel={null}
+                    />
+                )}
+                {locations?.lat && locations?.lng && (
+                    <Circle
+                        center={{ lat: locations.lat, lng: locations.lng }}
+                        radius={1000}
+                        options={{
                             strokeColor: "#0000FF",
                             strokeOpacity: 1,
-                            strokeWeight: 5
-                        },
-                        suppressPolylines: false,
-                        suppressMarkers: false,
-                        suppressInfoWindows: true
-                    }}
-                    panel={null}
-                />}
-                {locations?.lat && locations?.lng && (
-                <Circle
-                    center={{lat: locations.lat, lng: locations.lng}}
-                    radius={1000}
-                    options={{
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 1,
-                        strokeWeight: 25,
-                        fillColor: "#0000FF",
-                        fillOpacity: 1,
-                    }}
+                            strokeWeight: 25,
+                            fillColor: "#0000FF",
+                            fillOpacity: 1,
+                        }}
+                    />
+                )}
+            </GoogleMap>
+            {confirm && (
+                <GoogleMapConfirm
+                    message={message}
+                    handleConfirm={handleConfirm}
                 />
             )}
-        </GoogleMap>
+        </>
     );
 };
 

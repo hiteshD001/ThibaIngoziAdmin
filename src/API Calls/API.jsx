@@ -442,7 +442,12 @@ export const useUpdateLocationStatus = (onSuccess, onError) => {
 export const useGetLocationByLocationId = (locationId) => {
 
     const queryFn = async () => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/${locationId}?google_map_api=true`);
+        try {
+            const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/${locationId}?google_map_api=true`);
+            return response.data;
+        } catch (error) {
+            return error.response?.data || "Failed to fetch location";
+        }
     };
 
     const res = useQuery({
@@ -450,9 +455,14 @@ export const useGetLocationByLocationId = (locationId) => {
         queryFn: queryFn,
         staleTime: 0,
         refetchInterval: 5000,
+        onError: (err) => console.error("API Error:", err.message), 
     });
 
-    return res.data?.data;
+    return { 
+        locations: res.data, 
+        error: res.error, 
+        isLoading: res.isLoading 
+    };
 };
 
 export const useFileUpload = (onSuccess, onError) => {
