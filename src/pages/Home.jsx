@@ -194,7 +194,7 @@ const Home = () => {
                                                         className="profilepicture"
                                                         src={
                                                             row.user_id
-                                                                ?.profileImage ||
+                                                                ?.selfieImage ||
                                                             nouser
                                                         }
                                                     />

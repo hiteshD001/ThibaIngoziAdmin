@@ -1,20 +1,26 @@
-import { useEffect, useState } from "react"
-import { NavLink, useParams } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { NavLink, useParams } from "react-router-dom";
 
-import { useFormik } from "formik"
-import { vehicleValidation } from "../common/FormValidation"
+import { useFormik } from "formik";
+import { vehicleValidation } from "../common/FormValidation";
 
-import { useQueryClient } from "@tanstack/react-query"
-import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API"
+import { useQueryClient } from "@tanstack/react-query";
+import {
+    useGetCountryList,
+    useGetProvinceList,
+    useGetUser,
+    useGetUserList,
+    useUpdateUser,
+} from "../API Calls/API";
 
-import { toast } from "react-toastify"
-import { toastOption } from "../common/ToastOptions"
-import PhoneInput from "react-phone-input-2"
+import { toast } from "react-toastify";
+import { toastOption } from "../common/ToastOptions";
+import PhoneInput from "react-phone-input-2";
 
 const VehicleInformation = () => {
-    const [edit, setedit] = useState(false)
+    const [edit, setedit] = useState(false);
     const params = useParams();
-    const client = useQueryClient()
+    const client = useQueryClient();
     const userinfo = useGetUser(localStorage.getItem("userID"));
 
     const driverform = useFormik({
@@ -36,18 +42,16 @@ const VehicleInformation = () => {
             fullImage: null,
             hijakingPass: "",
             hijakingId: "",
-            passport_no: ""
+            passport_no: "",
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
             setedit(false);
 
-
             const formData = new FormData();
 
-
-            Object.keys(values).forEach(key => {
-                if (key !== 'selfieImage' && key !== 'fullImage') {
+            Object.keys(values).forEach((key) => {
+                if (key !== "selfieImage" && key !== "fullImage") {
                     formData.append(key, values[key]);
                 }
             });
@@ -61,7 +65,7 @@ const VehicleInformation = () => {
             }
 
             mutate({ id: params.id, data: formData });
-        }
+        },
     });
 
     const vehicleForm = useFormik({
@@ -70,8 +74,8 @@ const VehicleInformation = () => {
             type: "",
             reg_no: "",
             images: [],
-        }
-    })
+        },
+    });
 
     const emergencyform = useFormik({
         initialValues: {
@@ -80,22 +84,27 @@ const VehicleInformation = () => {
             emergency_contact_2_contact: "",
             emergency_contact_2_email: "",
             emergency_contact_2_country_code: "",
-            emergency_contact_1_country_code: ""
-        }
-    })
+            emergency_contact_1_country_code: "",
+        },
+    });
 
-    const vehicleInfo = useGetUser(params.id)
-    const companyList = useGetUserList("company list", "company")
+    const vehicleInfo = useGetUser(params.id);
+    const companyList = useGetUserList("company list", "company");
     const onSuccess = () => {
         toast.success("User Updated Successfully.");
-        client.invalidateQueries("driver list")
-    }
-    const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
+        client.invalidateQueries("driver list");
+    };
+    const onError = (error) => {
+        toast.error(
+            error.response.data.message || "Something went Wrong",
+            toastOption
+        );
+    };
 
-    const { mutate } = useUpdateUser(onSuccess, onError)
+    const { mutate } = useUpdateUser(onSuccess, onError);
 
-    const provincelist = useGetProvinceList(driverform.values.country)
-    const countrylist = useGetCountryList()
+    const provincelist = useGetProvinceList(driverform.values.country);
+    const countrylist = useGetCountryList();
 
     useEffect(() => {
         const data = vehicleInfo.data?.data;
@@ -119,18 +128,16 @@ const VehicleInformation = () => {
                         vehicleData.image_right_side,
                         vehicleData.image_car_number_plate,
                         vehicleData.image_driver_license,
-                    ].filter(Boolean)
+                    ].filter(Boolean),
                 });
             }
             // console.log('driver', driverform.values)
         }
     }, [vehicleInfo.data]);
 
-
     return (
         <div className="container-fluid">
             <div className="row">
-
                 <div className="col-md-12">
                     <div className="theme-table">
                         <div className="tab-heading">
@@ -148,7 +155,11 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {driverform.touched.first_name && <p className="err">{driverform.errors.first_name}</p>}
+                                    {driverform.touched.first_name && (
+                                        <p className="err">
+                                            {driverform.errors.first_name}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="col-md-6">
                                     <input
@@ -160,7 +171,11 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {driverform.touched.last_name && <p className="err">{driverform.errors.last_name}</p>}
+                                    {driverform.touched.last_name && (
+                                        <p className="err">
+                                            {driverform.errors.last_name}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="col-md-6">
                                     <select
@@ -170,10 +185,25 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     >
-                                        <option value="" hidden>Others</option>
-                                        {companyList.data?.data.users.map(user => <option key={user._id} value={user._id}>{user.company_name}</option>)}
+                                        <option value="" hidden>
+                                            Others
+                                        </option>
+                                        {companyList.data?.data.users.map(
+                                            (user) => (
+                                                <option
+                                                    key={user._id}
+                                                    value={user._id}
+                                                >
+                                                    {user.company_name}
+                                                </option>
+                                            )
+                                        )}
                                     </select>
-                                    {driverform.touched.company_id && <p className="err">{driverform.errors.company_id}</p>}
+                                    {driverform.touched.company_id && (
+                                        <p className="err">
+                                            {driverform.errors.company_id}
+                                        </p>
+                                    )}
                                 </div>
                                 {/* <div className="col-md-6">
                                     <input
@@ -197,25 +227,50 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {driverform.touched.email && <p className="err">{driverform.errors.email}</p>}
+                                    {driverform.touched.email && (
+                                        <p className="err">
+                                            {driverform.errors.email}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="col-md-6">
-
                                     <PhoneInput
                                         country={"za"}
                                         disabled={!edit}
-                                        value={`${driverform.values.mobile_no_country_code ?? ''}${driverform.values.mobile_no ?? ''}`}
+                                        value={`${
+                                            driverform.values
+                                                .mobile_no_country_code ?? ""
+                                        }${driverform.values.mobile_no ?? ""}`}
                                         onChange={(phone, countryData) => {
-                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
-                                                ? phone.slice(countryData.dialCode.length).trim()
-                                                : phone;
+                                            const withoutCountryCode =
+                                                phone.startsWith(
+                                                    countryData.dialCode
+                                                )
+                                                    ? phone
+                                                          .slice(
+                                                              countryData
+                                                                  .dialCode
+                                                                  .length
+                                                          )
+                                                          .trim()
+                                                    : phone;
 
-                                            driverform.setFieldValue("mobile_no", withoutCountryCode);
-                                            driverform.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
+                                            driverform.setFieldValue(
+                                                "mobile_no",
+                                                withoutCountryCode
+                                            );
+                                            driverform.setFieldValue(
+                                                "mobile_no_country_code",
+                                                `+${countryData.dialCode}`
+                                            );
                                         }}
                                         inputClass="form-control"
                                     />
-                                    {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>}
+                                    {driverform.touched.mobile_no && (
+                                        <p className="err">
+                                            {driverform.errors.mobile_no}
+                                        </p>
+                                    )}
                                     {/* <input
                                         type="text"
                                         name="mobile_no"
@@ -237,7 +292,11 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {driverform.touched.passport_no && <p className="err">{driverform.errors.passport_no}</p>}
+                                    {driverform.touched.passport_no && (
+                                        <p className="err">
+                                            {driverform.errors.passport_no}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="col-md-6">
                                     <input
@@ -249,7 +308,11 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {driverform.touched.hijakingId && <p className="err">{driverform.errors.hijakingId}</p>}
+                                    {driverform.touched.hijakingId && (
+                                        <p className="err">
+                                            {driverform.errors.hijakingId}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="col-md-6">
                                     <input
@@ -261,7 +324,11 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {driverform.touched.hijakingPass && <p className="err">{driverform.errors.hijakingPass}</p>}
+                                    {driverform.touched.hijakingPass && (
+                                        <p className="err">
+                                            {driverform.errors.hijakingPass}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="col-md-6">
                                     <div className=" form-checkbox form-control">
@@ -271,10 +338,18 @@ const VehicleInformation = () => {
                                             id="isArmed"
                                             className="form-check-input"
                                             checked={driverform.values.isArmed}
-                                            onChange={(e) => driverform.setFieldValue("isArmed", e.target.checked)}
+                                            onChange={(e) =>
+                                                driverform.setFieldValue(
+                                                    "isArmed",
+                                                    e.target.checked
+                                                )
+                                            }
                                             disabled={!edit}
                                         />
-                                        <label className="form-check-label" htmlFor="isArmed">
+                                        <label
+                                            className="form-check-label"
+                                            htmlFor="isArmed"
+                                        >
                                             Security
                                         </label>
                                     </div>
@@ -284,21 +359,34 @@ const VehicleInformation = () => {
                                         <div className="col-md-6">
                                             <label>Selfie Image</label>
 
-                                            {driverform.values.selfieImage instanceof File ? (
+                                            {driverform.values
+                                                .selfieImage instanceof File ? (
                                                 <div className="form-control mt-2 img-preview-container">
                                                     <img
-                                                        src={URL.createObjectURL(driverform.values.selfieImage)}
+                                                        src={URL.createObjectURL(
+                                                            driverform.values
+                                                                .selfieImage
+                                                        )}
                                                         alt="Selfie Preview"
                                                         className="img-preview"
                                                         width="100"
-                                                        onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                                                        onLoad={(e) =>
+                                                            URL.revokeObjectURL(
+                                                                e.target.src
+                                                            )
+                                                        }
                                                     />
                                                 </div>
                                             ) : (
-                                                vehicleInfo.data?.data.user?.selfieImage && (
+                                                vehicleInfo.data?.data.user
+                                                    ?.selfieImage && (
                                                     <div className="form-control mt-2 img-preview-container">
                                                         <img
-                                                            src={vehicleInfo.data?.data.user?.selfieImage}
+                                                            src={
+                                                                vehicleInfo.data
+                                                                    ?.data.user
+                                                                    ?.selfieImage
+                                                            }
                                                             alt="Selfie Image"
                                                             className="img-preview"
                                                             width="100"
@@ -307,7 +395,6 @@ const VehicleInformation = () => {
                                                 )
                                             )}
 
-
                                             <div className="custom-file-input">
                                                 <input
                                                     type="file"
@@ -315,15 +402,19 @@ const VehicleInformation = () => {
                                                     accept="image/*"
                                                     disabled={!edit}
                                                     onChange={(event) => {
-                                                        const file = event.currentTarget.files[0];
-                                                        driverform.setFieldValue("selfieImage", file);
+                                                        const file =
+                                                            event.currentTarget
+                                                                .files[0];
+                                                        driverform.setFieldValue(
+                                                            "selfieImage",
+                                                            file
+                                                        );
                                                     }}
                                                 />
                                                 <label htmlFor="selfieImage">
                                                     Choose Selfie Image
                                                 </label>
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -332,21 +423,34 @@ const VehicleInformation = () => {
                                         <div className="col-md-6">
                                             <label>Full Image</label>
 
-                                            {driverform.values.fullImage instanceof File ? (
+                                            {driverform.values
+                                                .fullImage instanceof File ? (
                                                 <div className="form-control mt-2 img-preview-container">
                                                     <img
-                                                        src={URL.createObjectURL(driverform.values.fullImage)}
+                                                        src={URL.createObjectURL(
+                                                            driverform.values
+                                                                .fullImage
+                                                        )}
                                                         alt="full Image"
                                                         className="img-preview"
                                                         width="100"
-                                                        onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                                                        onLoad={(e) =>
+                                                            URL.revokeObjectURL(
+                                                                e.target.src
+                                                            )
+                                                        }
                                                     />
                                                 </div>
                                             ) : (
-                                                vehicleInfo.data?.data.user?.fullImage && (
+                                                vehicleInfo.data?.data.user
+                                                    ?.fullImage && (
                                                     <div className="form-control mt-2 img-preview-container">
                                                         <img
-                                                            src={vehicleInfo.data?.data.user?.fullImage}
+                                                            src={
+                                                                vehicleInfo.data
+                                                                    ?.data.user
+                                                                    ?.fullImage
+                                                            }
                                                             alt="full Image"
                                                             className="img-preview"
                                                             width="100"
@@ -362,8 +466,13 @@ const VehicleInformation = () => {
                                                     accept="image/*"
                                                     disabled={!edit}
                                                     onChange={(event) => {
-                                                        const file = event.currentTarget.files[0];
-                                                        driverform.setFieldValue("fullImage", file);
+                                                        const file =
+                                                            event.currentTarget
+                                                                .files[0];
+                                                        driverform.setFieldValue(
+                                                            "fullImage",
+                                                            file
+                                                        );
                                                     }}
                                                 />
                                                 <label htmlFor="fullImage">
@@ -373,8 +482,6 @@ const VehicleInformation = () => {
                                         </div>
                                     </div>
                                 </div>
-
-
                             </div>
                         </form>
                     </div>
@@ -396,7 +503,9 @@ const VehicleInformation = () => {
                                         disabled={!edit}
                                     />
                                     {driverform.touched.street && (
-                                        <p className="err">{driverform.errors.street}</p>
+                                        <p className="err">
+                                            {driverform.errors.street}
+                                        </p>
                                     )}
                                 </div>
 
@@ -408,15 +517,25 @@ const VehicleInformation = () => {
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     >
-                                        <option value="" hidden> Country </option>
-                                        {countrylist.data?.data.data?.map((country) => (
-                                            <option key={country._id} value={country._id}>
-                                                {country.country_name}
-                                            </option>
-                                        ))}
+                                        <option value="" hidden>
+                                            {" "}
+                                            Country{" "}
+                                        </option>
+                                        {countrylist.data?.data.data?.map(
+                                            (country) => (
+                                                <option
+                                                    key={country._id}
+                                                    value={country._id}
+                                                >
+                                                    {country.country_name}
+                                                </option>
+                                            )
+                                        )}
                                     </select>
                                     {driverform.touched.country && (
-                                        <p className="err">{driverform.errors.country}</p>
+                                        <p className="err">
+                                            {driverform.errors.country}
+                                        </p>
                                     )}
                                 </div>
 
@@ -424,19 +543,30 @@ const VehicleInformation = () => {
                                     <select
                                         name="province"
                                         className="form-control"
-                                        disabled={!driverform.values.country || !edit}
+                                        disabled={
+                                            !driverform.values.country || !edit
+                                        }
                                         value={driverform.values.province}
                                         onChange={driverform.handleChange}
                                     >
-                                        <option value="" hidden>Province</option>
-                                        {provincelist.data?.data.data?.map((province) => (
-                                            <option key={province._id} value={province._id}>
-                                                {province.province_name}
-                                            </option>
-                                        ))}
+                                        <option value="" hidden>
+                                            Province
+                                        </option>
+                                        {provincelist.data?.data.data?.map(
+                                            (province) => (
+                                                <option
+                                                    key={province._id}
+                                                    value={province._id}
+                                                >
+                                                    {province.province_name}
+                                                </option>
+                                            )
+                                        )}
                                     </select>
                                     {driverform.touched.province && (
-                                        <p className="err">{driverform.errors.province}</p>
+                                        <p className="err">
+                                            {driverform.errors.province}
+                                        </p>
                                     )}
                                 </div>
 
@@ -451,7 +581,9 @@ const VehicleInformation = () => {
                                         disabled={!edit}
                                     />
                                     {driverform.touched.city && (
-                                        <p className="err">{driverform.errors.city}</p>
+                                        <p className="err">
+                                            {driverform.errors.city}
+                                        </p>
                                     )}
                                 </div>
 
@@ -466,7 +598,9 @@ const VehicleInformation = () => {
                                         disabled={!edit}
                                     />
                                     {driverform.touched.suburb && (
-                                        <p className="err">{driverform.errors.suburb}</p>
+                                        <p className="err">
+                                            {driverform.errors.suburb}
+                                        </p>
                                     )}
                                 </div>
 
@@ -481,7 +615,9 @@ const VehicleInformation = () => {
                                         disabled={!edit}
                                     />
                                     {driverform.touched.postal_code && (
-                                        <p className="err">{driverform.errors.postal_code}</p>
+                                        <p className="err">
+                                            {driverform.errors.postal_code}
+                                        </p>
                                     )}
                                 </div>
                             </div>
@@ -527,39 +663,74 @@ const VehicleInformation = () => {
                                         disabled
                                     />
                                 </div>
-                                {vehicleForm.values.images && vehicleForm.values.images.length > 0 && (
-                                    <div className="col-md-12">
-                                        <div className="vehiclpic">
-                                            <span className="fw-bold">Vehicle Images</span>
-                                            <div className="row">
-                                                {[
-                                                    { label: "Front Side" },
-                                                    { label: "Back Side" },
-                                                    { label: "Left Side" },
-                                                    { label: "Right Side" },
-                                                    { label: "Car Number Plate" },
-                                                    { label: "License DISC Image" }
-                                                ].map((item, index) => (
-                                                    vehicleForm.values.images[index] && (
-                                                        <div key={index} className="col-6 col-md-4 mb-3 text-center">
-                                                            <h6 className="text-muted">{item.label}</h6>
-                                                            <div className="border rounded p-3 d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '250px', backgroundColor: "#f5f5f5" }}>
-                                                                <img
-                                                                    src={vehicleForm.values.images[index]}
-                                                                    alt={item.label}
-                                                                    className="img-fluid rounded"
-                                                                    style={{ maxHeight: "200px" }}
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    )
-                                                ))}
+                                {vehicleForm.values.images &&
+                                    vehicleForm.values.images.length > 0 && (
+                                        <div className="col-md-12">
+                                            <div className="vehiclpic">
+                                                <span className="fw-bold">
+                                                    Vehicle Images
+                                                </span>
+                                                <div className="row">
+                                                    {[
+                                                        { label: "Front Side" },
+                                                        { label: "Back Side" },
+                                                        { label: "Left Side" },
+                                                        { label: "Right Side" },
+                                                        {
+                                                            label: "Car Number Plate",
+                                                        },
+                                                        {
+                                                            label: "License DISC Image",
+                                                        },
+                                                    ].map(
+                                                        (item, index) =>
+                                                            vehicleForm.values
+                                                                .images[
+                                                                index
+                                                            ] && (
+                                                                <div
+                                                                    key={index}
+                                                                    className="col-6 col-md-4 mb-3 text-center"
+                                                                >
+                                                                    <h6 className="text-muted">
+                                                                        {
+                                                                            item.label
+                                                                        }
+                                                                    </h6>
+                                                                    <div
+                                                                        className="border rounded p-3 d-flex flex-column align-items-center justify-content-center"
+                                                                        style={{
+                                                                            minHeight:
+                                                                                "250px",
+                                                                            backgroundColor:
+                                                                                "#f5f5f5",
+                                                                        }}
+                                                                    >
+                                                                        <img
+                                                                            src={
+                                                                                vehicleForm
+                                                                                    .values
+                                                                                    .images[
+                                                                                    index
+                                                                                ]
+                                                                            }
+                                                                            alt={
+                                                                                item.label
+                                                                            }
+                                                                            className="img-fluid rounded"
+                                                                            style={{
+                                                                                maxHeight:
+                                                                                    "200px",
+                                                                            }}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
-
-
+                                    )}
                             </div>
                         </form>
                     </div>
@@ -576,7 +747,10 @@ const VehicleInformation = () => {
                                         name="emergency_contact_1_email"
                                         placeholder="emergencycontact@gu.link"
                                         className="form-control"
-                                        value={emergencyform.values.emergency_contact_1_email}
+                                        value={
+                                            emergencyform.values
+                                                .emergency_contact_1_email
+                                        }
                                         onChange={emergencyform.handleChange}
                                         disabled
                                     />
@@ -594,14 +768,37 @@ const VehicleInformation = () => {
                                     <PhoneInput
                                         country={"za"}
                                         disabled={!edit}
-                                        value={`${emergencyform.values.emergency_contact_1_country_code ?? ''}${emergencyform.values?.emergency_contact_1_contact ?? ''}`}
+                                        value={`${
+                                            emergencyform.values
+                                                .emergency_contact_1_country_code ??
+                                            ""
+                                        }${
+                                            emergencyform.values
+                                                ?.emergency_contact_1_contact ??
+                                            ""
+                                        }`}
                                         onChange={(phone, countryData) => {
-                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
-                                                ? phone.slice(countryData.dialCode.length).trim()
-                                                : phone;
+                                            const withoutCountryCode =
+                                                phone.startsWith(
+                                                    countryData.dialCode
+                                                )
+                                                    ? phone
+                                                          .slice(
+                                                              countryData
+                                                                  .dialCode
+                                                                  .length
+                                                          )
+                                                          .trim()
+                                                    : phone;
 
-                                            emergencyform.setFieldValue("mobile_no", withoutCountryCode);
-                                            emergencyform.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
+                                            emergencyform.setFieldValue(
+                                                "mobile_no",
+                                                withoutCountryCode
+                                            );
+                                            emergencyform.setFieldValue(
+                                                "mobile_no_country_code",
+                                                `+${countryData.dialCode}`
+                                            );
                                         }}
                                         inputClass="form-control"
                                     />
@@ -612,7 +809,10 @@ const VehicleInformation = () => {
                                         name="emergency_contact_2_email"
                                         placeholder="emergencycontact@gu.link"
                                         className="form-control"
-                                        value={emergencyform.values?.emergency_contact_2_email}
+                                        value={
+                                            emergencyform.values
+                                                ?.emergency_contact_2_email
+                                        }
                                         onChange={emergencyform.handleChange}
                                         disabled
                                     />
@@ -630,14 +830,37 @@ const VehicleInformation = () => {
                                     <PhoneInput
                                         country={"za"}
                                         disabled={!edit}
-                                        value={`${emergencyform.values.emergency_contact_2_country_code ?? ''}${emergencyform.values.emergency_contact_2_contact ?? ''}`}
+                                        value={`${
+                                            emergencyform.values
+                                                .emergency_contact_2_country_code ??
+                                            ""
+                                        }${
+                                            emergencyform.values
+                                                .emergency_contact_2_contact ??
+                                            ""
+                                        }`}
                                         onChange={(phone, countryData) => {
-                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
-                                                ? phone.slice(countryData.dialCode.length).trim()
-                                                : phone;
+                                            const withoutCountryCode =
+                                                phone.startsWith(
+                                                    countryData.dialCode
+                                                )
+                                                    ? phone
+                                                          .slice(
+                                                              countryData
+                                                                  .dialCode
+                                                                  .length
+                                                          )
+                                                          .trim()
+                                                    : phone;
 
-                                            emergencyform.setFieldValue("mobile_no", withoutCountryCode);
-                                            emergencyform.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
+                                            emergencyform.setFieldValue(
+                                                "mobile_no",
+                                                withoutCountryCode
+                                            );
+                                            emergencyform.setFieldValue(
+                                                "mobile_no_country_code",
+                                                `+${countryData.dialCode}`
+                                            );
                                         }}
                                         inputClass="form-control"
                                     />
@@ -651,7 +874,10 @@ const VehicleInformation = () => {
                             <h3>Armed SOS</h3>
                         </div>
 
-                        <table className="table table-striped nowrap" style={{ width: "100%" }}>
+                        <table
+                            className="table table-striped nowrap"
+                            style={{ width: "100%" }}
+                        >
                             <thead>
                                 <tr>
                                     <th>Armed User</th>
@@ -660,34 +886,85 @@ const VehicleInformation = () => {
                                     <th>Radius</th>
                                     <th>Armed Location</th>
                                     <th>&nbsp;</th>
-
                                 </tr>
                             </thead>
-                            <tbody>           
-                                {vehicleInfo?.data?.data?.armedSos?.map((sos, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            {sos.armedUserId
-                                                ? `${sos.armedUserId.first_name || ""} ${sos.armedUserId.last_name || ""}`
-                                                : "Unknown"}
-                                        </td>
-                                        <td>
-                                            {Array.isArray(sos.responders) ? sos.responders.join(", ") : sos.responders}
-                                        </td>
-                                        <td>{sos?.armedSosstatus}</td>
-                                        <td>{sos?.armedLocationId?.armedRadius}</td>
-                                        <td>
-                                            {sos.armedLocationId
-                                                ? `${sos.armedLocationId.city ? sos.armedLocationId.city + "," : ""} ${sos.armedLocationId.street ? sos.armedLocationId.street + "," : ""} ${sos.armedLocationId.suburb || ""}`
-                                                : "Unknown"}
-                                        </td>
-                                        <td>
-                                            <NavLink to={`/home/total-drivers/sos-information/${sos._id}`} style={{marginRight: '5px'}} className="tbl-btn">
+                            <tbody>
+                                {vehicleInfo?.data?.data?.armedSos?.map(
+                                    (sos, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                {sos.armedUserId
+                                                    ? `${
+                                                          sos.armedUserId
+                                                              .first_name || ""
+                                                      } ${
+                                                          sos.armedUserId
+                                                              .last_name || ""
+                                                      }`
+                                                    : "Unknown"}
+                                            </td>
+                                            <td>
+                                                {sos?.responders?.map(
+                                                    (responder, index) => (
+                                                        <div key={index}>
+                                                            {
+                                                                responder
+                                                                    ?.armedUserId
+                                                                    ?.first_name
+                                                            }{" "}
+                                                            {
+                                                                responder
+                                                                    ?.armedUserId
+                                                                    ?.last_name
+                                                            }
+                                                        </div>
+                                                    )
+                                                )}
+                                            </td>
+                                            <td>{sos?.armedSosstatus}</td>
+                                            <td>
+                                                {
+                                                    sos?.armedLocationId
+                                                        ?.armedRadius
+                                                }
+                                            </td>
+                                            <td>
+                                                {sos.armedLocationId
+                                                    ? `${
+                                                          sos.armedLocationId
+                                                              .city
+                                                              ? sos
+                                                                    .armedLocationId
+                                                                    .city + ","
+                                                              : ""
+                                                      } ${
+                                                          sos.armedLocationId
+                                                              .street
+                                                              ? sos
+                                                                    .armedLocationId
+                                                                    .street +
+                                                                ","
+                                                              : ""
+                                                      } ${
+                                                          sos.armedLocationId
+                                                              .suburb || ""
+                                                      }`
+                                                    : "Unknown"}
+                                            </td>
+                                            <td>
+                                                <NavLink
+                                                    to={`/home/total-drivers/sos-information/${sos._id}`}
+                                                    style={{
+                                                        marginRight: "5px",
+                                                    }}
+                                                    className="tbl-btn"
+                                                >
                                                     view
                                                 </NavLink>
-                                        </td>
-                                    </tr>
-                                ))}
+                                            </td>
+                                        </tr>
+                                    )
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -695,17 +972,30 @@ const VehicleInformation = () => {
 
                 <div className="col-md-12 text-end">
                     <div className="saveform">
-                        {edit ?
-                            <button type="submit" onClick={driverform.handleSubmit} className="btn btn-dark">Save</button> :
-                            <button onClick={() => setedit(true)} className="btn btn-dark">Edit</button>}
+                        {edit ? (
+                            <button
+                                type="submit"
+                                onClick={driverform.handleSubmit}
+                                className="btn btn-dark"
+                            >
+                                Save
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => setedit(true)}
+                                className="btn btn-dark"
+                            >
+                                Edit
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default VehicleInformation
+export default VehicleInformation;
 
 const setdriverformvalues = ({ ...props }) => {
     const { form, data } = props;
@@ -713,13 +1003,17 @@ const setdriverformvalues = ({ ...props }) => {
     let newdata = {};
 
     Object.keys(form.values).forEach((key) => {
-
-        if (key === 'images') {
-            newdata = { ...newdata, [key]: Array.from({ length: 5 }, (_, i) => data?.[`image_${i + 1}`] || null).filter(Boolean) };
+        if (key === "images") {
+            newdata = {
+                ...newdata,
+                [key]: Array.from(
+                    { length: 5 },
+                    (_, i) => data?.[`image_${i + 1}`] || null
+                ).filter(Boolean),
+            };
         } else {
-            newdata = { ...newdata, [key]: data?.[key] ?? '' };
+            newdata = { ...newdata, [key]: data?.[key] ?? "" };
         }
-
     });
-    form.setValues(newdata)
-}
+    form.setValues(newdata);
+};
