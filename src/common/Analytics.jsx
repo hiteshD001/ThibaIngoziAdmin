@@ -109,7 +109,7 @@ const Analytics = ({ id }) => {
                     </div>
                     <div className="col-md-4">
                         <div className="dash-counter">
-                            <span>Driver Active</span>
+                            <span>Active Users</span>
                             <h3>
                                 {driverList.data?.data.totalActiveDrivers || 0}
                             </h3>
@@ -117,7 +117,7 @@ const Analytics = ({ id }) => {
                     </div>
                     <div className="col-md-4">
                         <div className="dash-counter">
-                            <span>Driver Active {timeTitle}</span>
+                            <span>Users Active {timeTitle}</span>
                             <h3>{activeUser}</h3>
                         </div>
                     </div>
@@ -126,7 +126,7 @@ const Analytics = ({ id }) => {
                 <div className="row">
                     <div className="col-md-6">
                         <div className="dash-counter">
-                            <span>Driver Active</span>
+                            <span>Active Users</span>
                             <h3>
                                 {driverList.data?.data.totalActiveDrivers || 0}
                             </h3>
@@ -134,7 +134,7 @@ const Analytics = ({ id }) => {
                     </div>
                     <div className="col-md-6">
                         <div className="dash-counter">
-                            <span>Driver Active {timeTitle}</span>
+                            <span>Users Active {timeTitle}</span>
                             <h3>
                                 {driverList.data?.data
                                     .totalActiveDriversThisMonth || 0}

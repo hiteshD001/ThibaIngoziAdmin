@@ -66,6 +66,8 @@ const ListOfTrips = () => {
                           <th>Driver</th>
                           <th>Passanger</th>
                           <th>Status</th>
+                          <th>Started at</th>
+                          <th>Ended at</th>
                           <th>Ended By</th>
                           <th>Trip Location</th>
                           <th>&nbsp;</th>
@@ -77,8 +79,6 @@ const ListOfTrips = () => {
                           const startlong = data?.trip_start?.split(",")[1]
                           const endlat = data?.trip_end?.split(",")[0]
                           const endlong = data?.trip_end?.split(",")[1]
-                          console.log("startlat", startlat)
-                          console.log("startlong", startlong)
 
                           return <tr key={data?._id}>
                             {/* <td>{`${data.driver_id.first_name} ${data.driver_id.last_name}`}</td> */}
@@ -100,6 +100,13 @@ const ListOfTrips = () => {
 
                             <td>
                               {data.trip_status}
+                            </td>
+                            <td>
+                              {new Date(data.createdAt).toLocaleString()}
+                            </td>
+                            <td>
+                              {new Date(data.updatedAt).toLocaleString()}
+                              {/* {data.trip_status === 'ended' ? new Date(data.updatedAt).toLocaleString() : '---'} */}
                             </td>
                             <td>
                               {data.ended_by}

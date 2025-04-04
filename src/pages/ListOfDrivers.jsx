@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
+import { companyValidation } from "../common/FormValidation";
 import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSoS } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query"
 import Prev from "../assets/images/left.png";
@@ -8,7 +8,7 @@ import Next from "../assets/images/right.png";
 import nouser from "../assets/images/NoUser.png";
 import search from "../assets/images/search.png";
 import icon from "../assets/images/icon.png";
-
+import { useFormik } from "formik";
 import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 
 const ListOfDrivers = () => {
+    const [edit, setedit] = useState(false);
     const [isArmedLocal, setIsArmedLocal] = useState(false);
     const [popup, setpopup] = useState(false)
     const client = useQueryClient()
@@ -27,20 +28,47 @@ const ListOfDrivers = () => {
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
     const [servicesList, setServicesList] = useState({});
-
     const companyInfo = useGetUser(params.id)
     const notification_type = "677534649c3a99e13dcd7456"
     const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
     const getArmedSOS = useGetArmedSoS()
-
+    const CompanyForm = useFormik({
+        initialValues: {
+            company_name: "",
+            mobile_no: "",
+            email: "",
+            isArmed: "",
+        },
+        validationSchema: companyValidation,
+        // onSubmit: (values) => {
+        //     setedit(false);
+        //     const formData = new FormData();
+        //     formData.append(key, values[key]);
+        //     mutate({ id: params.id, data: formData });
+        // },
+    });
+    const submithandler = (values) => {
+        setedit(false);
+        const formData = new FormData();
+        Object.entries(values).forEach(([key, value]) => {
+            formData.append(key, value);
+        });
+        mutate({ id: params.id, data: formData })
+    }
     useEffect(() => {
         if (companyInfo.data) {
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
         }
     }, [companyInfo.data]);
-    
+
     useEffect(() => {
         if (companyInfo.data?.data?.user) {
+            CompanyForm.setValues({
+                company_name: companyInfo.data.data.user.company_name || "",
+                mobile_no: companyInfo.data.data.user.mobile_no || "",
+                email: companyInfo.data.data.user.email || "",
+                isArmed: companyInfo.data.data.user.isArmed || false,
+            });
             const services = companyInfo.data?.data?.user?.services
             const groupedServices = services.reduce((acc, service) => {
                 if (!acc[service.type]) {
@@ -50,6 +78,7 @@ const ListOfDrivers = () => {
                 return acc;
             }, {});
             setServicesList(groupedServices);
+
         }
     }, [companyInfo.data?.data?.user]);
 
@@ -71,61 +100,131 @@ const ListOfDrivers = () => {
                                 <div className="comapny-det">
                                     <div className="c-info">
                                         <span>Company</span>
-                                        <p>{companyInfo.data?.data.user.company_name}</p>
+                                        {edit ? (
+                                            <input
+                                                type="text"
+                                                name="company_name"
+                                                placeholder="Company Name"
+                                                className="form-control"
+                                                value={CompanyForm.values.company_name}
+                                                onChange={CompanyForm.handleChange}
+                                                disabled={!edit}
+                                            />
+
+                                        ) : (
+                                            <p>{companyInfo.data?.data.user.company_name}</p>
+                                        )}
                                     </div>
+
                                     <div className="c-info">
                                         <span>Contact No.</span>
-                                        <p>{companyInfo.data?.data.user.mobile_no}</p>
+                                        {edit ? (
+                                            <input
+                                                type="text"
+                                                name="mobile_no"
+                                                placeholder="Contact No."
+                                                className="form-control"
+                                                value={CompanyForm.values.mobile_no}
+                                                onChange={CompanyForm.handleChange}
+                                                disabled={!edit}
+                                            />
+
+                                        ) : (
+                                            <p>{companyInfo.data?.data.user.mobile_no}</p>
+                                        )}
                                     </div>
+
                                     <div className="c-info">
                                         <span>Contact Email</span>
-                                        <p>{companyInfo.data?.data.user.email}</p>
+                                        {edit ? (
+
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                placeholder="Contact Email"
+                                                className="form-control"
+                                                value={CompanyForm.values.email}
+                                                onChange={CompanyForm.handleChange}
+                                                disabled={!edit}
+                                            />
+
+                                        ) : (
+                                            <p>{companyInfo.data?.data.user.email}</p>
+                                        )}
                                     </div>
+
                                     <div className="c-info">
                                         <span>Total Used Google APIs</span>
                                         <p>{companyInfo.data?.data.totalGoogleMapApi}</p>
                                     </div>
+
                                     <div className="c-info2">
+
                                         <input
                                             type="checkbox"
                                             name="isArmed"
                                             id="isArmed"
-                                            className="form-check-input me-2"
-                                            checked={isArmedLocal}
-                                            onChange={() => {
-                                                const newValue = !isArmedLocal;
-                                                setIsArmedLocal(newValue);
-                                                mutate({
-                                                    id: params.id,
-                                                    data: { isArmed: newValue },
-                                                });
-                                            }}
+                                            className="form-check-input me-1"
+                                            checked={CompanyForm.values.isArmed}
+                                            onChange={(e) =>
+                                                CompanyForm.setFieldValue(
+                                                    "isArmed",
+                                                    e.target.checked
+                                                )
+                                            }
+                                            disabled={!edit}
                                         />
-                                        <label className="form-check-label" htmlFor="isArmed">
+                                        <label
+                                            htmlFor="isArmed"
+                                        >
                                             Security
                                         </label>
+
                                     </div>
                                 </div>
                             </div>
-                            {Object.keys(servicesList).length > 0 && <div className="company-info">
-                                <div className="comapny-titles">Company Services</div>
-                                <div className="comapny-det">
-                                    {Object.keys(servicesList).map((serviceKey, index) => 
-                                    <div key={index} className={Object.keys(servicesList).length > index + 1 ? "c-ser" : "c-ser2"}>
-                                        <span>{serviceKey}</span>
-                                        {servicesList[serviceKey]?.map((service, index) => 
-                                            <p key={index}>{service?.serviceName}</p>
-                                        )}
+
+                            {Object.keys(servicesList).length > 0 && (
+                                <div className="company-info">
+                                    <div className="comapny-titles">Company Services</div>
+                                    <div className="comapny-det">
+                                        {Object.keys(servicesList).map((serviceKey, index) => (
+                                            <div
+                                                key={index}
+                                                className={Object.keys(servicesList).length > index + 1 ? "c-ser" : "c-ser2"}
+                                            >
+                                                <span>{serviceKey}</span>
+                                                {servicesList[serviceKey]?.map((service, index) => (
+                                                    <p key={index}>{service?.serviceName}</p>
+                                                ))}
+                                            </div>
+                                        ))}
                                     </div>
+                                </div>
+                            )}
+
+                            <div className="col-md-12 text-end">
+                                <div className="saveform">
+                                    {edit ? (
+                                        <button type="submit"
+                                            onClick={() => submithandler(CompanyForm.values)} className="btn btn-dark">Save</button>
+                                    ) : (
+                                        <button
+                                            onClick={() => setedit(true)}
+                                            className="btn btn-dark"
+                                        >
+                                            Edit
+                                        </button>
                                     )}
                                 </div>
-                            </div>}
+                            </div>
                         </>
                     )}
 
+
                     {role === 'super_admin' && params.id && <Analytics id={params.id} />}
 
-                    
+
 
                     <div className="theme-table">
                         <div className="tab-heading">
@@ -134,31 +233,31 @@ const ListOfDrivers = () => {
                                 <p>{driverList.isSuccess && driverList.data?.data.totalUsers || 0}</p>
                             </div>
                             <div className="tbl-filter">
-                                 <div className="input-group">
-                                     <span className="input-group-text">
-                                         <img src={search} />
-                                     </span>
-                                     <input
-                                         type="text"
-                                         value={filter}
-                                         onChange={(e) => setfilter(e.target.value)}
-                                         className="form-control"
-                                         placeholder="Search"
-                                     />
-                                     <span className="input-group-text">
-                                         <img src={icon} />
-                                     </span>
-                                 </div>
-                                 <button
-                                     onClick={() => nav("/home/total-drivers/add-driver")}
-                                     className="btn btn-primary"
-                                 >
-                                     + Add Driver
-                                 </button>
-                                 <button className="btn btn-primary" onClick={() => setpopup(true)}>
-                                     + Import Sheet
-                                 </button>
-                             </div>
+                                <div className="input-group">
+                                    <span className="input-group-text">
+                                        <img src={search} />
+                                    </span>
+                                    <input
+                                        type="text"
+                                        value={filter}
+                                        onChange={(e) => setfilter(e.target.value)}
+                                        className="form-control"
+                                        placeholder="Search"
+                                    />
+                                    <span className="input-group-text">
+                                        <img src={icon} />
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => nav("/home/total-drivers/add-driver")}
+                                    className="btn btn-primary"
+                                >
+                                    + Add Driver
+                                </button>
+                                <button className="btn btn-primary" onClick={() => setpopup(true)}>
+                                    + Import Sheet
+                                </button>
+                            </div>
                         </div>
                         {driverList.isFetching ? (
                             <Loader />
