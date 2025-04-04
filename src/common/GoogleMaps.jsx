@@ -113,14 +113,14 @@ const GoogleMaps = () => {
     const handleStartMarkerHover = () => {
         const startedAt = new Date(params.get("startedAt")).toLocaleString();
         const startLocationInfo = `Start Location: ${startAddress}`;
-        setStartInfo(`${startedAt} - ${startLocationInfo}`);
+        setStartInfo(`${startLocationInfo}`);
         setStartMarkerVisible(true);
     };
 
     const handleEndMarkerHover = () => {
         const endedAt = new Date(params.get("endedAt")).toLocaleString();
         const endLocationInfo = `End Location: ${endAddress}`;
-        setEndInfo(`${endedAt} - ${endLocationInfo}`);
+        setEndInfo(` ${endLocationInfo}`);
         setEndMarkerVisible(true);
     };
 
