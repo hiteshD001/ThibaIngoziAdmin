@@ -10,7 +10,7 @@ const Analytics = ({ id }) => {
     const [timeTitle, settimeTitle] = useState("Today");
     const [activeUser, setactiveUser] = useState(0);
     const notificationTypes = useGetNotificationType();
-    const [selectedNotification, setSelectedNotification] = useState('sos');
+    const [selectedNotification, setSelectedNotification] = useState("");
 
     const nav = useNavigate();
 
@@ -29,25 +29,41 @@ const Analytics = ({ id }) => {
     };
 
     useEffect(() => {
+        if (notificationTypes.data?.data.length > 0 && !selectedNotification) {
+            setSelectedNotification(notificationTypes.data?.data[0]?._id);
+        }
+    }, [notificationTypes]);
+
+    useEffect(() => {
         switch (time) {
             case "today":
-                setactiveUser(driverList.data?.data.totalActiveDriversToday || 0);
+                setactiveUser(
+                    driverList.data?.data.totalActiveDriversToday || 0
+                );
                 settimeTitle("Today");
                 break;
             case "yesterday":
-                setactiveUser(driverList.data?.data.totalActiveDriversYesterday || 0);
+                setactiveUser(
+                    driverList.data?.data.totalActiveDriversYesterday || 0
+                );
                 settimeTitle("Yesterday");
                 break;
             case "this_week":
-                setactiveUser(driverList.data?.data.totalActiveDriversThisWeek || 0);
+                setactiveUser(
+                    driverList.data?.data.totalActiveDriversThisWeek || 0
+                );
                 settimeTitle("This Week");
                 break;
             case "this_month":
-                setactiveUser(driverList.data?.data.totalActiveDriversThisMonth || 0);
+                setactiveUser(
+                    driverList.data?.data.totalActiveDriversThisMonth || 0
+                );
                 settimeTitle("This Month");
                 break;
             case "this_year":
-                setactiveUser(driverList.data?.data.totalActiveDriversThisYear || 0);
+                setactiveUser(
+                    driverList.data?.data.totalActiveDriversThisYear || 0
+                );
                 settimeTitle("This Year");
                 break;
             default:
@@ -62,7 +78,11 @@ const Analytics = ({ id }) => {
             <div className="row">
                 <div className="col-md-12">
                     <div className="filter-date">
-                        <select className="form-select" value={time} onChange={handleTimeChange}>
+                        <select
+                            className="form-select"
+                            value={time}
+                            onChange={handleTimeChange}
+                        >
                             <option value="today">Today</option>
                             <option value="yesterday">Yesterday</option>
                             <option value="this_week">This week</option>
@@ -86,7 +106,9 @@ const Analytics = ({ id }) => {
                     <div className="col-md-4">
                         <div className="dash-counter">
                             <span>Driver Active</span>
-                            <h3>{driverList.data?.data.totalActiveDrivers || 0}</h3>
+                            <h3>
+                                {driverList.data?.data.totalActiveDrivers || 0}
+                            </h3>
                         </div>
                     </div>
                     <div className="col-md-4">
@@ -101,7 +123,9 @@ const Analytics = ({ id }) => {
                     <div className="col-md-4">
                         <div className="dash-counter">
                             <span>Driver Active</span>
-                            <h3>{driverList.data?.data.totalActiveDrivers || 0}</h3>
+                            <h3>
+                                {driverList.data?.data.totalActiveDrivers || 0}
+                            </h3>
                         </div>
                     </div>
                     <div className="col-md-4">
@@ -125,7 +149,10 @@ const Analytics = ({ id }) => {
                     <div className="col-md-4">
                         <div className="dash-counter">
                             <span>Driver Active {timeTitle}</span>
-                            <h3>{driverList.data?.data.totalActiveDriversThisMonth || 0}</h3>
+                            <h3>
+                                {driverList.data?.data
+                                    .totalActiveDriversThisMonth || 0}
+                            </h3>
                         </div>
                     </div>
                 </div>
@@ -133,14 +160,16 @@ const Analytics = ({ id }) => {
 
             <div className="clearfix"></div>
 
-
-
             {/* Notification Type Dropdown inside Hotspot Box */}
             <div className="filter-date">
-                <select className="form-select" value={selectedNotification} onChange={handleNotificationChange}>
+                <select
+                    className="form-select"
+                    value={selectedNotification}
+                    onChange={handleNotificationChange}
+                >
                     <option value="">Select Notification Type</option>
                     {notificationTypes.data?.data?.map((type, index) => (
-                        <option key={index} value={type.id}>
+                        <option key={index} value={type._id}>
                             {type.type}
                         </option>
                     ))}
@@ -165,13 +194,22 @@ const Analytics = ({ id }) => {
                                 <p>No data Found</p>
                             ) : (
                                 hotspot.data?.data
-                                    .sort((a, b) => (a.timesCalled > b.timesCalled ? -1 : 1))
+                                    .sort((a, b) =>
+                                        a.timesCalled > b.timesCalled ? -1 : 1
+                                    )
                                     .map((d, index) => (
                                         <div className="location" key={index}>
                                             <span>{d.address}</span>
                                             <span>{d.timesCalled}</span>
                                             <span>
-                                                <FaLocationDot className="viewlocation" onClick={() => nav(`/home/hotspot/location?lat=${d.lat}&long=${d.long}`)} />
+                                                <FaLocationDot
+                                                    className="viewlocation"
+                                                    onClick={() =>
+                                                        nav(
+                                                            `/home/hotspot/location?lat=${d.lat}&long=${d.long}`
+                                                        )
+                                                    }
+                                                />
                                             </span>
                                         </div>
                                     ))

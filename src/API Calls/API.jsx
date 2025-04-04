@@ -8,26 +8,49 @@ import apiClient from "./APIClient";
 
 // get list of user
 
-export const useGetUserList = (key, role, company_id, page = 1, limit = 10, filter, notification_type) => {
-    const nav = useNavigate()
+export const useGetUserList = (
+    key,
+    role,
+    company_id,
+    page = 1,
+    limit = 10,
+    filter,
+    notification_type
+) => {
+    const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
-            params: { role, page, limit, filter, company_id, notification_type }
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                company_id,
+                notification_type,
+            },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, role, company_id, page, limit, filter, notification_type],
+        queryKey: [
+            key,
+            role,
+            company_id,
+            page,
+            limit,
+            filter,
+            notification_type,
+        ],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         placeholderData: keepPreviousData,
-        retry: false
+        retry: false,
     });
 
     if (res.error && res.error.response?.status === 401) {
         localStorage.clear();
-        nav("/")
+        nav("/");
     }
     return res;
 };
@@ -36,7 +59,9 @@ export const useGetArmedSosDetails = (id) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/${id}`);
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/armed-sos/${id}`
+        );
     };
 
     const res = useQuery({
@@ -44,7 +69,7 @@ export const useGetArmedSosDetails = (id) => {
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000, // 15 minutes stale time
         placeholderData: keepPreviousData, // Keep previous data while fetching new
-        retry: false // Don't retry on failure
+        retry: false, // Don't retry on failure
     });
 
     // Handle unauthorized access
@@ -56,53 +81,55 @@ export const useGetArmedSosDetails = (id) => {
     return res;
 };
 
+export const useGetArmedSoSByCompanyId = (companyId) => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/armed-sos/company/${companyId}`
+        );
+    };
 
-export const useGetArmedSoSByCompanyId = (companyId)=>{
-    const queryFn = async () =>{
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/company/${companyId}`)
-    }
-
-    const res  = useQuery({
-        queryKey:[companyId],
-        queryFn:queryFn,
+    const res = useQuery({
+        queryKey: [companyId],
+        queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         retry: false,
-
-    })
+    });
     if (res.error && res.error.response?.status === 401) {
         localStorage.clear();
-        nav("/")
+        nav("/");
     }
     return res;
-}
+};
 
 export const useGetArmedSoS = () => {
-    const navigate = useNavigate();  // Fix: Use navigate for redirection
+    const navigate = useNavigate(); // Fix: Use navigate for redirection
 
-    const queryFn = async () => apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos`);
+    const queryFn = async () =>
+        apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos`);
 
     const res = useQuery({
         queryKey: ["ArmedSOS List"],
         queryFn,
         staleTime: 15 * 60 * 1000,
         retry: false,
-        onError: (error) => {  // Fix: Handle error using onError
+        onError: (error) => {
+            // Fix: Handle error using onError
             if (error.response?.status === 401) {
                 localStorage.clear();
                 navigate("/");
             }
-        }
+        },
     });
 
     return res;
 };
 
 export const useGetTripList = (key, page = 1, limit = 10, filter) => {
-    const nav = useNavigate()
+    const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userTrip`, {
-            params: { page, limit, filter }
+            params: { page, limit, filter },
         });
     };
 
@@ -115,11 +142,10 @@ export const useGetTripList = (key, page = 1, limit = 10, filter) => {
 
     if (res.error && res.error.response?.status === 401) {
         localStorage.clear();
-        nav("/")
+        nav("/");
     }
     return res;
 };
-
 
 export const useDeleteUserTrip = (onSuccess, onError) => {
     const mutationFn = async (id) => {
@@ -139,9 +165,10 @@ export const useDeleteUserTrip = (onSuccess, onError) => {
 
 // get list of Province
 export const useGetProvinceList = (id) => {
-
     const queryFn = async (queryId) => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/province?country_id=${queryId}`);
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/province?country_id=${queryId}`
+        );
     };
 
     const res = useQuery({
@@ -149,7 +176,7 @@ export const useGetProvinceList = (id) => {
         queryFn: () => queryFn(id),
         staleTime: 15 * 60 * 1000,
         enabled: Boolean(id),
-        retry: false
+        retry: false,
     });
 
     return res;
@@ -158,7 +185,6 @@ export const useGetProvinceList = (id) => {
 // get list of Country
 
 export const useGetCountryList = () => {
-
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/country`);
     };
@@ -167,7 +193,7 @@ export const useGetCountryList = () => {
         queryKey: ["Country List"],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
-        retry: false
+        retry: false,
     });
 
     return res;
@@ -176,7 +202,6 @@ export const useGetCountryList = () => {
 // get list of Services
 
 export const useGetServicesList = () => {
-
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/services`);
     };
@@ -185,7 +210,7 @@ export const useGetServicesList = () => {
         queryKey: ["Services List"],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
-        retry: false
+        retry: false,
     });
 
     return res?.data?.data;
@@ -194,16 +219,17 @@ export const useGetServicesList = () => {
 // get single user
 
 export const useGetUser = (userId) => {
-
     const queryFn = async () => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/users/${userId}`);
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/users/${userId}`
+        );
     };
 
     const res = useQuery({
-        queryKey: ['user', userId],
+        queryKey: ["user", userId],
         queryFn: queryFn,
         staleTime: Infinity,
-        enabled: userId !== undefined
+        enabled: userId !== undefined,
     });
 
     return res;
@@ -213,11 +239,13 @@ export const useGetUser = (userId) => {
 
 export const useGetRecentSOS = () => {
     const queryFn = async () => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`);
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`
+        );
     };
 
     const res = useQuery({
-        queryKey: ['recentSOS'],
+        queryKey: ["recentSOS"],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -235,13 +263,20 @@ export const useGetChartData = (notificationType) => {
         const startDate = `${currentYear}-01-01`;
         const endDate = `${currentYear}-12-31`;
 
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/sos-month`, {
-            params: { start_date: startDate, end_date: endDate, type: notificationType },
-        });
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/sos-month`,
+            {
+                params: {
+                    start_date: startDate,
+                    end_date: endDate,
+                    type: notificationType,
+                },
+            }
+        );
     };
 
     const res = useQuery({
-        queryKey: ['chartData', notificationType],  // Re-fetch when notificationType changes
+        queryKey: ["chartData", notificationType], // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -259,40 +294,52 @@ export const useGetChartData = (notificationType) => {
     return chartData;
 };
 
-
 // get hotspot
 
 export const useGetHotspot = (type, company_id, notificationType) => {
+    const params = {};
+    if (type) {
+        params.type = type;
+    }
+    if (notificationType) {
+        params.notificationType = notificationType;
+    }
+    if (company_id) {
+        params.company_id = company_id;
+    }
     const queryFn = async () => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/hotspot`, {
-            params: company_id ? { type, company_id, notificationType } : { type, notificationType },
-        });
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/hotspot`,
+            {
+                params,
+            }
+        );
     };
 
     const res = useQuery({
-        queryKey: ['hotspot', type, notificationType], // Add notificationType to the query key
+        queryKey: ["hotspot", type, notificationType], // Add notificationType to the query key
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
-        placeholderData: []
+        placeholderData: [],
     });
 
     return res;
 };
 
-
-export const useGetNotificationType = () =>{
-
-    const queryFn = async () =>{
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/notificationType`)
-    }
+export const useGetNotificationType = () => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/notificationType`
+        );
+    };
     const res = useQuery({
-        queryKey:['notificationType'],
-        queryFn:queryFn,
-        staleTime:15*60*1000,
+        queryKey: ["notificationType"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
     });
 
-    return res
-}   
+    return res;
+};
 
 // get all orders
 
@@ -300,13 +347,16 @@ export const useGetAllOrders = (page = 0, limit = 100) => {
     // const token = localStorage.getItem("accessToken");
 
     const queryFn = async () => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/payment/getAllOrders`, {
-            params: { page, limit },
-        });
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/payment/getAllOrders`,
+            {
+                params: { page, limit },
+            }
+        );
     };
 
     const res = useQuery({
-        queryKey: ['allOrders', page, limit],
+        queryKey: ["allOrders", page, limit],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -320,11 +370,12 @@ export const useUpdateStatus = (onSucess, onError) => {
     // const token = localStorage.getItem("accessToken");
 
     const mutationFn = async ({ id, quantity, status }) => {
-        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/payment/updateOrder/${id}`,
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/payment/updateOrder/${id}`,
             {
                 item_quantity: quantity,
-                status
-            },
+                status,
+            }
         );
     };
 
@@ -332,10 +383,10 @@ export const useUpdateStatus = (onSucess, onError) => {
         mutationFn: mutationFn,
         onSuccess: () => onSucess(),
         onError: (err) => onError(err),
-    })
+    });
 
-    return res
-}
+    return res;
+};
 
 // reset password
 
@@ -374,12 +425,14 @@ export const useDeleteUser = (onSuccess, onError) => {
     return mutation;
 };
 
-
 // login user
 
 export const useUserLogin = (onSuccess, onError) => {
     const mutationFn = async (data) => {
-        return await apiClient.post(`${import.meta.env.VITE_BASEURL}/users/login`, data);
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/users/login`,
+            data
+        );
     };
 
     const mutation = useMutation({
@@ -395,7 +448,10 @@ export const useUserLogin = (onSuccess, onError) => {
 
 export const useRegister = (onSuccess, onError) => {
     const mutationFn = async (data) => {
-        return await apiClient.post(`${import.meta.env.VITE_BASEURL}/users/register`, data);
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/users/register`,
+            data
+        );
     };
 
     const mutation = useMutation({
@@ -411,7 +467,10 @@ export const useRegister = (onSuccess, onError) => {
 
 export const useUpdateUser = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
-        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/users/${id}`, data);
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/users/${id}`,
+            data
+        );
     };
 
     const mutation = useMutation({
@@ -427,7 +486,10 @@ export const useUpdateUser = (onSuccess, onError) => {
 
 export const useUpdateLocationStatus = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
-        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/location/${id}`, data);
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/location/${id}`,
+            data
+        );
     };
 
     const mutation = useMutation({
@@ -440,30 +502,48 @@ export const useUpdateLocationStatus = (onSuccess, onError) => {
 };
 
 export const useGetLocationByLocationId = (locationId) => {
-
     const queryFn = async () => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/${locationId}?google_map_api=true`);
+        try {
+            if (locationId) {
+                const response = await apiClient.get(
+                    locationId`${
+                        import.meta.env.VITE_BASEURL
+                    }/location/${locationId}?google_map_api=true`
+                );
+                return response.data;
+            }
+        } catch (error) {
+            return error.response?.data || "Failed to fetch location";
+        }
     };
 
     const res = useQuery({
-        queryKey: ['location', locationId],
+        queryKey: ["location", locationId],
         queryFn: queryFn,
         staleTime: 0,
         refetchInterval: 5000,
+        onError: (err) => console.error("API Error:", err.message),
     });
 
-    return res.data?.data;
+    return {
+        locations: res.data,
+        error: res.error,
+        isLoading: res.isLoading,
+    };
 };
 
 export const useFileUpload = (onSuccess, onError) => {
     const mutationFn = async (data) => {
-        return await apiClient.post(`${import.meta.env.VITE_BASEURL}/users/register/bulk`, data);
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/users/register/bulk`,
+            data
+        );
     };
 
     const mutation = useMutation({
         mutationFn,
         onSuccess,
-        onError
+        onError,
     });
 
     return mutation;

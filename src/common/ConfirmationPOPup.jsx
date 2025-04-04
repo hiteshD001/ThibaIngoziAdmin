@@ -105,3 +105,22 @@ export const SOSStatusUpdate = ({ ...p }) => {
     </div>
   );
 };
+
+export const GoogleMapConfirm = ({ ...p }) => {
+  return (
+    <div className="popup-overlay">
+      <div className="popup-content">
+        <p>{p.message}</p>
+        <div className="popup-buttons">
+          <button
+            className="popup-button confirm"
+            onClick={() => p.handleConfirm()}
+          >
+            {" "}
+            Confirm{" "}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
