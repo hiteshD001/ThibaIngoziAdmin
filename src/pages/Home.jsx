@@ -1,6 +1,10 @@
 import { Link, NavLink } from "react-router-dom";
 
-import { useGetRecentSOS, useGetUser, useUpdateLocationStatus } from "../API Calls/API";
+import {
+    useGetRecentSOS,
+    useGetUser,
+    useUpdateLocationStatus,
+} from "../API Calls/API";
 import { useWebSocket } from "../API Calls/WebSocketContext";
 
 import nouser from "../assets/images/NoUser.png";
@@ -15,43 +19,50 @@ import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 
 const Home = () => {
-    const recentSOS = useGetRecentSOS()
-    const [statusUpdate, setStatusUpdate] = useState(false)
-    const [selectedId, setSelectedId] = useState('')
+    const recentSOS = useGetRecentSOS();
+    const [statusUpdate, setStatusUpdate] = useState(false);
+    const [selectedId, setSelectedId] = useState("");
 
-    const { isConnected, activeUserList } = useWebSocket()
+    const { isConnected, activeUserList } = useWebSocket();
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
-        setStatusUpdate(false)
-        setSelectedId('')
-    }
-    const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
+        setStatusUpdate(false);
+        setSelectedId("");
+    };
+    const onError = (error) => {
+        toast.error(
+            error.response.data.message || "Something went Wrong",
+            toastOption
+        );
+    };
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
     const userinfo = useGetUser(localStorage.getItem("userID"));
 
     const handleUpdate = (status) => {
         const toUpdate = {
-            "help_received":status
-        }
+            help_received: status,
+        };
         mutate({
             id: selectedId,
             data: toUpdate,
-        })
-    }
+        });
+    };
     const handleCancel = () => {
-        setSelectedId('')
-        setStatusUpdate(false)
-    }
-
+        setSelectedId("");
+        setStatusUpdate(false);
+    };
     return (
         <div className="container-fluid">
             <Analytics />
             <div className="row">
                 <div className="col-md-12">
                     <div className="theme-table">
-                        <div className="tab-heading"> <h3>Active Drivers</h3> </div>
+                        <div className="tab-heading">
+                            {" "}
+                            <h3>Active Drivers</h3>{" "}
+                        </div>
 
-                        {(isConnected && activeUserList.length > 0) ?
+                        {isConnected && activeUserList.length > 0 ? (
                             <table
                                 id="example"
                                 className="table table-striped nowrap"
@@ -64,7 +75,8 @@ const Home = () => {
                                         <th>Address</th>
                                         <th>Request reached</th>
                                         <th>Request Accept</th>
-                                        <th style={{width: '11%'}}>Status</th>
+                                        <th style={{ width: "11%" }}>Type</th>
+                                        <th style={{ width: "11%" }}>Status</th>
                                         <th>Location</th>
                                     </tr>
                                 </thead>
@@ -72,38 +84,63 @@ const Home = () => {
                                     {activeUserList.map((row) => (
                                         <tr key={row._id}>
                                             <td>
-                                                <div className={!row.user_id?.username ? "prof nodata" : "prof"}>
+                                                <div
+                                                    className={
+                                                        !row.user_id?.username
+                                                            ? "prof nodata"
+                                                            : "prof"
+                                                    }
+                                                >
                                                     <img
                                                         className="profilepicture"
-                                                        src={row.user_id?.profileImage || nouser}
+                                                        src={
+                                                            row.user_id
+                                                                ?.profileImage ||
+                                                            nouser
+                                                        }
                                                     />
                                                     {row.user_id?.username}
                                                 </div>
                                             </td>
 
-                                            <td className={!row.user_id?.company_name ? "companynamenodata" : ""}>
+                                            <td
+                                                className={
+                                                    !row.user_id?.company_name
+                                                        ? "companynamenodata"
+                                                        : ""
+                                                }
+                                            >
                                                 {row.user_id?.company_name}
                                             </td>
 
-                                            <td className={!row.address ? "nodata" : ""}>
+                                            <td
+                                                className={
+                                                    !row.address ? "nodata" : ""
+                                                }
+                                            >
                                                 {row.address}
                                             </td>
 
-                                            <td>
-                                                {row.req_reach}
-                                            </td>
+                                            <td>{row.req_reach}</td>
 
+                                            <td>{row.req_accept}</td>
+                                            <td>{row.type.type}</td>
                                             <td>
-                                                {row.req_accept}
-                                            </td>
-
-                                            <td>
-                                                <button onClick={() => {setStatusUpdate(true);setSelectedId(row._id)}} className="tbl-btn">
+                                                <button
+                                                    onClick={() => {
+                                                        setStatusUpdate(true);
+                                                        setSelectedId(row._id);
+                                                    }}
+                                                    className="tbl-btn"
+                                                >
                                                     Update
                                                 </button>
                                             </td>
                                             <td>
-                                                <NavLink to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`} className="tbl-btn">
+                                                <NavLink
+                                                    to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
+                                                    className="tbl-btn"
+                                                >
                                                     view
                                                 </NavLink>
                                             </td>
@@ -111,8 +148,9 @@ const Home = () => {
                                     ))}
                                 </tbody>
                             </table>
-                            : <p className="no-data-found">No Active Drivers</p>
-                        }
+                        ) : (
+                            <p className="no-data-found">No Active Drivers</p>
+                        )}
                     </div>
                 </div>
             </div>
@@ -145,29 +183,61 @@ const Home = () => {
                                     {recentSOS.data.data.map((row) => (
                                         <tr key={row._id}>
                                             <td>
-                                                <div className={!row.user_id?.username ? "prof nodata" : "prof"}>
+                                                <div
+                                                    className={
+                                                        !row.user_id?.username
+                                                            ? "prof nodata"
+                                                            : "prof"
+                                                    }
+                                                >
                                                     <img
                                                         className="profilepicture"
-                                                        src={row.user_id?.profileImage || nouser}
+                                                        src={
+                                                            row.user_id
+                                                                ?.selfieImage ||
+                                                            nouser
+                                                        }
                                                     />
                                                     {row.user_id?.username}
                                                 </div>
                                             </td>
 
-                                            <td className={!row.user_id?.company_name ? "companynamenodata" : ""}>
+                                            <td
+                                                className={
+                                                    !row.user_id?.company_name
+                                                        ? "companynamenodata"
+                                                        : ""
+                                                }
+                                            >
                                                 {row.user_id?.company_name}
                                             </td>
 
-                                            <td className={!row.address ? "nodata" : ""}>
+                                            <td
+                                                className={
+                                                    !row.address ? "nodata" : ""
+                                                }
+                                            >
                                                 {row.address}
                                             </td>
 
-                                            <td className={!row.createdAt ? "nodata" : ""}>
-                                                {format(row.createdAt, "dd/MM/yyyy  hh:mm aa")}
+                                            <td
+                                                className={
+                                                    !row.createdAt
+                                                        ? "nodata"
+                                                        : ""
+                                                }
+                                            >
+                                                {format(
+                                                    row.createdAt,
+                                                    "dd/MM/yyyy  hh:mm aa"
+                                                )}
                                             </td>
 
                                             <td>
-                                                <Link to={`total-drivers/vehicle-information/${row.user_id._id}`} className="tbl-btn">
+                                                <Link
+                                                    to={`total-drivers/vehicle-information/${row.user_id._id}`}
+                                                    className="tbl-btn"
+                                                >
                                                     view
                                                 </Link>
                                             </td>
@@ -181,7 +251,12 @@ const Home = () => {
                     </div>
                 </div>
             </div>
-            {statusUpdate && <SOSStatusUpdate handleCancel={handleCancel} handleUpdate={handleUpdate} />}
+            {statusUpdate && (
+                <SOSStatusUpdate
+                    handleCancel={handleCancel}
+                    handleUpdate={handleUpdate}
+                />
+            )}
         </div>
     );
 };

@@ -10,7 +10,7 @@ export const WebSocketProvider = ({ ...props }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [activeUserList, setActiveUserList] = useState([]);
     const pingIntervalRef = useRef(null);
-    const url = import.meta.env.VITE_WEB_SOCKET_URL
+    const url = import.meta.env.VITE_WEB_SOCKET_URL;
 
     useEffect(() => {
         const connectWebSocket = () => {
@@ -22,9 +22,9 @@ export const WebSocketProvider = ({ ...props }) => {
 
                 pingIntervalRef.current = setInterval(() => {
                     if (socket.readyState === WebSocket.OPEN) {
-                        socket.send(JSON.stringify({ type: 'ping' }));
+                        socket.send(JSON.stringify({ type: "ping" }));
                     }
-                }, 30000); 
+                }, 30000);
             };
 
             socket.onclose = () => {
@@ -40,7 +40,7 @@ export const WebSocketProvider = ({ ...props }) => {
                 const data = JSON.parse(event.data);
                 if (data.length === 0) {
                     setActiveUserList([]);
-                } else if (data.type === 'pong') {
+                } else if (data.type === "pong") {
                     console.log("Pong received");
                 } else {
                     setActiveUserList(() => [...data]);
@@ -62,7 +62,9 @@ export const WebSocketProvider = ({ ...props }) => {
     }, [url]);
 
     return (
-        <WebSocketContext.Provider value={{ isConnected, activeUserList, socketRef }}>
+        <WebSocketContext.Provider
+            value={{ isConnected, activeUserList, socketRef }}
+        >
             {children}
         </WebSocketContext.Provider>
     );
