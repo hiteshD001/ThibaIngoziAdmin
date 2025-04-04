@@ -105,8 +105,7 @@ const ListOfTrips = () => {
                               {new Date(data.createdAt).toLocaleString()}
                             </td>
                             <td>
-                              {new Date(data.updatedAt).toLocaleString()}
-                              {/* {data.trip_status === 'ended' ? new Date(data.updatedAt).toLocaleString() : '---'} */}
+                              {data.trip_status === 'ended' ? new Date(data.endedAt).toLocaleString() : '---'}
                             </td>
                             <td>
                               {data.ended_by}
