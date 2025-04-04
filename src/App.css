@@ -1267,9 +1267,9 @@ width: 20%;
     /* Prevents white overlay */
 }
 
-.gm-style div {
+/* .gm-style div {
     background: transparent !important;
-}
+} */
 
 .gm-style canvas {
     background-color: transparent !important;

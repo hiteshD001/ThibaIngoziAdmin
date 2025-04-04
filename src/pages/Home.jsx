@@ -59,7 +59,7 @@ const Home = () => {
                     <div className="theme-table">
                         <div className="tab-heading">
                             {" "}
-                            <h3>Active Drivers</h3>{" "}
+                            <h3>Active SOS</h3>{" "}
                         </div>
 
                         {isConnected && activeUserList.length > 0 ? (
@@ -149,7 +149,7 @@ const Home = () => {
                                 </tbody>
                             </table>
                         ) : (
-                            <p className="no-data-found">No Active Drivers</p>
+                            <p className="no-data-found">No Active SOS</p>
                         )}
                     </div>
                 </div>
@@ -159,7 +159,7 @@ const Home = () => {
                 <div className="col-md-12">
                     <div className="theme-table">
                         <div className="tab-heading">
-                            <h3>Recent Active Driver</h3>
+                            <h3>Recent Active SOS</h3>
                         </div>
 
                         {recentSOS.isFetching ? (
@@ -246,7 +246,7 @@ const Home = () => {
                                 </tbody>
                             </table>
                         ) : (
-                            <p className="no-data-found">No Recent Drivers</p>
+                            <p className="no-data-found">No Recent SOS</p>
                         )}
                     </div>
                 </div>

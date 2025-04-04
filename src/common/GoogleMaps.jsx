@@ -1,117 +1,16 @@
-// import { APIProvider, Map, Marker, Polyline } from '@vis.gl/react-google-maps';
-// import { useEffect, useState } from 'react';
-// import { useSearchParams } from 'react-router-dom';
-
-// const GoogleMaps = () => {
-//     const [params] = useSearchParams();
-//     const [currentLocation, setCurrentLocation] = useState();
-//     const [path, setPath] = useState([]);
-
-//     // Parse start and end locations from query params
-//     const startLocation = {
-//         lat: parseFloat(params.get("lat")),
-//         lng: parseFloat(params.get("long"))
-//     };
-
-//     const endLocation = {
-//         lat: parseFloat(params.get("end_lat")),
-//         lng: parseFloat(params.get("end_long"))
-//     };
-
-//     // Initialize currentLocation on first render
-//   useEffect(() => {
-//     if (startLocation.lat && startLocation.lng) {
-//       setCurrentLocation(startLocation);
-//       setPath([startLocation]); // Initialize path with the start location
-//     }
-//   }, [params]); // Only run when params change
-
-//   useEffect(() => {
-//     if (!currentLocation) return; // Ensure the initial location is set
-
-//     const interval = setInterval(() => {
-//       setCurrentLocation((prevLocation) => {
-//         if (!prevLocation) return startLocation; // Prevents undefined errors
-
-//         const newLocation = {
-//           lat: prevLocation.lat + 0.1, // Simulate movement
-//           lng: prevLocation.lng + 0.1,
-//         };
-
-//         setPath((prevPath) => {
-//           const updatedPath = [...prevPath, newLocation];
-//           console.log(updatedPath, "-- Updated Path --"); // Debugging
-//           return updatedPath;
-//         }); // Update polyline path
-//         return newLocation;
-//     });
-// }, 2000);
-
-// return () => clearInterval(interval);
-// }, [currentLocation]); // Only run when currentLocation changes
-
-// console.log(path, "-- Path --");
-//     return (
-//         <div style={{ position: "relative" }}>
-//             <div className='req_container'>
-//                 {params.get("req_reach") && <span className='req_count'>Request Reached <p>{params.get("req_reach")}</p></span>}
-//                 {params.get("req_accept") && <span className='req_count'>Request Accepted <p>{params.get("req_accept")}</p></span>}
-//             </div>
-//             <APIProvider apiKey={import.meta.env.VITE_MAP_API_KEY}>
-//                 <Map
-//                     style={{ width: "100%", height: "calc(100vh - 100px )" }}
-//                     defaultZoom={16}
-//                     mapId="mymap"
-//                     defaultCenter={startLocation}
-//                 >
-//                     {/* Start Location Marker */}
-//                     <Marker
-//                         key="startLocation"
-//                         position={startLocation}
-//                         title="Trip Start"
-//                     />
-//                     {
-//                     endLocation&&
-//                     /* End Location Marker */
-//                     <Marker
-//                         key="endLocation"
-//                         position={endLocation}
-//                         title="Trip End"
-//                         // icon={{
-//                         //     url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-//                         // }}
-//                     />
-//                     }
-//                     {path.length > 1 && ( // Polyline only renders if 2+ points exist
-//             <Polyline
-//               path={path}
-//               options={{
-//                 strokeColor: "#FF0000",
-//                 strokeOpacity: 0.8,
-//                 strokeWeight: 4,
-//               }}
-//             />
-//           )}
-//                 </Map>
-//             </APIProvider>
-//         </div>
-//     );
-// };
-
-// export default GoogleMaps;
-
 import {
     GoogleMap,
     Marker,
     DirectionsRenderer,
+    InfoWindow,
     useJsApiLoader,
-    Polyline,
     Circle,
 } from "@react-google-maps/api";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetLocationByLocationId } from "../API Calls/API";
 import { GoogleMapConfirm } from "./ConfirmationPOPup";
+
 const mapContainerStyle = { width: "100%", height: "calc(100vh - 100px )" };
 
 const GoogleMaps = () => {
@@ -120,6 +19,12 @@ const GoogleMaps = () => {
     const [directions, setDirections] = useState(null);
     const [confirm, setConfirm] = useState(false);
     const [message, setMessage] = useState("");
+    const [startMarkerVisible, setStartMarkerVisible] = useState(false);
+    const [endMarkerVisible, setEndMarkerVisible] = useState(false);
+    const [startInfo, setStartInfo] = useState("");
+    const [endInfo, setEndInfo] = useState("");
+    const [startAddress, setStartAddress] = useState("");
+    const [endAddress, setEndAddress] = useState("");
     const { locations } = useGetLocationByLocationId(params.get("locationId"));
     const mapRef = useRef(null);
     const startLocation = {
@@ -135,6 +40,22 @@ const GoogleMaps = () => {
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_MAP_API_KEY,
     });
+
+    // Reverse geocoding to get the address from lat/lng
+    const getAddressFromLatLng = (lat, lng) => {
+        const geocoder = new window.google.maps.Geocoder();
+        return new Promise((resolve, reject) => {
+            const latLng = new window.google.maps.LatLng(lat, lng);
+            geocoder.geocode({ location: latLng }, (results, status) => {
+                if (status === "OK" && results[0]) {
+                    resolve(results[0].formatted_address);
+                } else {
+                    reject("No address found");
+                }
+            });
+        });
+    };
+
     useEffect(() => {
         let location = null;
         if (
@@ -145,6 +66,18 @@ const GoogleMaps = () => {
             !endLocation.lng
         )
             return;
+
+        // Fetch the addresses for the start and end locations
+        Promise.all([
+            getAddressFromLatLng(startLocation.lat, startLocation.lng),
+            getAddressFromLatLng(endLocation.lat, endLocation.lng),
+        ])
+            .then(([startAddr, endAddr]) => {
+                setStartAddress(startAddr);
+                setEndAddress(endAddr);
+            })
+            .catch((err) => console.error("Geocoding error:", err));
+
         if (locations?.long && locations?.lat) {
             location = {
                 lat: Number(locations.lat),
@@ -177,10 +110,30 @@ const GoogleMaps = () => {
         );
     }, [isLoaded, params, locations]);
 
+    const handleStartMarkerHover = () => {
+        const startedAt = new Date(params.get("startedAt")).toLocaleString();
+        const startLocationInfo = `Start Location: ${startAddress}`;
+        setStartInfo(`${startLocationInfo}`);
+        setStartMarkerVisible(true);
+    };
+
+    const handleEndMarkerHover = () => {
+        const endedAt = new Date(params.get("endedAt")).toLocaleString();
+        const endLocationInfo = `End Location: ${endAddress}`;
+        setEndInfo(` ${endLocationInfo}`);
+        setEndMarkerVisible(true);
+    };
+
+    const handleMarkerMouseOut = () => {
+        setStartMarkerVisible(false);
+        setEndMarkerVisible(false);
+    };
+
     const handleConfirm = () => {
         setConfirm(false);
         nav("/home/total-drivers");
     };
+
     if (!isLoaded) return <p>Loading Map...</p>;
 
     return (
@@ -193,10 +146,32 @@ const GoogleMaps = () => {
                 center={mapCenter}
             >
                 {startLocation && (
-                    <Marker position={startLocation} title="Start Location" />
+                    <Marker
+                        position={startLocation}
+                        title="Start Location"
+                        onMouseOver={handleStartMarkerHover}
+                        onMouseOut={handleMarkerMouseOut}
+                    >
+                        {startMarkerVisible && (
+                            <InfoWindow>
+                                <div>{startInfo}</div>
+                            </InfoWindow>
+                        )}
+                    </Marker>
                 )}
                 {endLocation && (
-                    <Marker position={endLocation} title="End Location" />
+                    <Marker
+                        position={endLocation}
+                        title="End Location"
+                        onMouseOver={handleEndMarkerHover}
+                        onMouseOut={handleMarkerMouseOut}
+                    >
+                        {endMarkerVisible && (
+                            <InfoWindow>
+                                <div>{endInfo}</div>
+                            </InfoWindow>
+                        )}
+                    </Marker>
                 )}
 
                 {directions && (

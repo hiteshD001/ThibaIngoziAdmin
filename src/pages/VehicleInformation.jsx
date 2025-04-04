@@ -237,22 +237,21 @@ const VehicleInformation = () => {
                                     <PhoneInput
                                         country={"za"}
                                         disabled={!edit}
-                                        value={`${
-                                            driverform.values
-                                                .mobile_no_country_code ?? ""
-                                        }${driverform.values.mobile_no ?? ""}`}
+                                        value={`${driverform.values
+                                            .mobile_no_country_code ?? ""
+                                            }${driverform.values.mobile_no ?? ""}`}
                                         onChange={(phone, countryData) => {
                                             const withoutCountryCode =
                                                 phone.startsWith(
                                                     countryData.dialCode
                                                 )
                                                     ? phone
-                                                          .slice(
-                                                              countryData
-                                                                  .dialCode
-                                                                  .length
-                                                          )
-                                                          .trim()
+                                                        .slice(
+                                                            countryData
+                                                                .dialCode
+                                                                .length
+                                                        )
+                                                        .trim()
                                                     : phone;
 
                                             driverform.setFieldValue(
@@ -354,134 +353,140 @@ const VehicleInformation = () => {
                                         </label>
                                     </div>
                                 </div>
-                                <div className="col-md-6">
+                                <div className="col-md-12">
                                     <div className="row">
                                         <div className="col-md-6">
-                                            <label>Selfie Image</label>
+                                            <div className="row">
+                                                <div className="col-md-6">
+                                                    <label>Selfie Image</label>
 
-                                            {driverform.values
-                                                .selfieImage instanceof File ? (
-                                                <div className="form-control mt-2 img-preview-container">
-                                                    <img
-                                                        src={URL.createObjectURL(
-                                                            driverform.values
-                                                                .selfieImage
-                                                        )}
-                                                        alt="Selfie Preview"
-                                                        className="img-preview"
-                                                        width="100"
-                                                        onLoad={(e) =>
-                                                            URL.revokeObjectURL(
-                                                                e.target.src
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
-                                            ) : (
-                                                vehicleInfo.data?.data.user
-                                                    ?.selfieImage && (
-                                                    <div className="form-control mt-2 img-preview-container">
-                                                        <img
-                                                            src={
-                                                                vehicleInfo.data
-                                                                    ?.data.user
-                                                                    ?.selfieImage
-                                                            }
-                                                            alt="Selfie Image"
-                                                            className="img-preview"
-                                                            width="100"
+                                                    {driverform.values
+                                                        .selfieImage instanceof File ? (
+                                                        <div className="form-control mt-2 img-preview-container">
+                                                            <img
+                                                                src={URL.createObjectURL(
+                                                                    driverform.values
+                                                                        .selfieImage
+                                                                )}
+                                                                alt="Selfie Preview"
+                                                                className="img-preview"
+                                                                width="100"
+                                                                onLoad={(e) =>
+                                                                    URL.revokeObjectURL(
+                                                                        e.target.src
+                                                                    )
+                                                                }
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        vehicleInfo.data?.data.user
+                                                            ?.selfieImage && (
+                                                            <div className="form-control mt-2 img-preview-container">
+                                                                <img
+                                                                    src={
+                                                                        vehicleInfo.data
+                                                                            ?.data.user
+                                                                            ?.selfieImage
+                                                                    }
+                                                                    alt="Selfie Image"
+                                                                    className="img-preview"
+                                                                    width="100"
+                                                                />
+                                                            </div>
+                                                        )
+                                                    )}
+
+                                                    <div className="custom-file-input">
+                                                        <input
+                                                            type="file"
+                                                            id="selfieImage"
+                                                            accept="image/*"
+                                                            disabled={!edit}
+                                                            onChange={(event) => {
+                                                                const file =
+                                                                    event.currentTarget
+                                                                        .files[0];
+                                                                driverform.setFieldValue(
+                                                                    "selfieImage",
+                                                                    file
+                                                                );
+                                                            }}
                                                         />
+                                                        <label htmlFor="selfieImage">
+                                                            Choose Selfie Image
+                                                        </label>
                                                     </div>
-                                                )
-                                            )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <div className="row">
+                                                <div className="col-md-6">
+                                                    <label>Full Image</label>
 
-                                            <div className="custom-file-input">
-                                                <input
-                                                    type="file"
-                                                    id="selfieImage"
-                                                    accept="image/*"
-                                                    disabled={!edit}
-                                                    onChange={(event) => {
-                                                        const file =
-                                                            event.currentTarget
-                                                                .files[0];
-                                                        driverform.setFieldValue(
-                                                            "selfieImage",
-                                                            file
-                                                        );
-                                                    }}
-                                                />
-                                                <label htmlFor="selfieImage">
-                                                    Choose Selfie Image
-                                                </label>
+                                                    {driverform.values
+                                                        .fullImage instanceof File ? (
+                                                        <div className="form-control mt-2 img-preview-container">
+                                                            <img
+                                                                src={URL.createObjectURL(
+                                                                    driverform.values
+                                                                        .fullImage
+                                                                )}
+                                                                alt="full Image"
+                                                                className="img-preview"
+                                                                width="100"
+                                                                onLoad={(e) =>
+                                                                    URL.revokeObjectURL(
+                                                                        e.target.src
+                                                                    )
+                                                                }
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        vehicleInfo.data?.data.user
+                                                            ?.fullImage && (
+                                                            <div className="form-control mt-2 img-preview-container">
+                                                                <img
+                                                                    src={
+                                                                        vehicleInfo.data
+                                                                            ?.data.user
+                                                                            ?.fullImage
+                                                                    }
+                                                                    alt="full Image"
+                                                                    className="img-preview"
+                                                                    width="100"
+                                                                />
+                                                            </div>
+                                                        )
+                                                    )}
+
+                                                    <div className="custom-file-input">
+                                                        <input
+                                                            type="file"
+                                                            id="fullImage"
+                                                            accept="image/*"
+                                                            disabled={!edit}
+                                                            onChange={(event) => {
+                                                                const file =
+                                                                    event.currentTarget
+                                                                        .files[0];
+                                                                driverform.setFieldValue(
+                                                                    "fullImage",
+                                                                    file
+                                                                );
+                                                            }}
+                                                        />
+                                                        <label htmlFor="fullImage">
+                                                            Choose Full Image
+                                                        </label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="col-md-6">
-                                    <div className="row">
-                                        <div className="col-md-6">
-                                            <label>Full Image</label>
 
-                                            {driverform.values
-                                                .fullImage instanceof File ? (
-                                                <div className="form-control mt-2 img-preview-container">
-                                                    <img
-                                                        src={URL.createObjectURL(
-                                                            driverform.values
-                                                                .fullImage
-                                                        )}
-                                                        alt="full Image"
-                                                        className="img-preview"
-                                                        width="100"
-                                                        onLoad={(e) =>
-                                                            URL.revokeObjectURL(
-                                                                e.target.src
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
-                                            ) : (
-                                                vehicleInfo.data?.data.user
-                                                    ?.fullImage && (
-                                                    <div className="form-control mt-2 img-preview-container">
-                                                        <img
-                                                            src={
-                                                                vehicleInfo.data
-                                                                    ?.data.user
-                                                                    ?.fullImage
-                                                            }
-                                                            alt="full Image"
-                                                            className="img-preview"
-                                                            width="100"
-                                                        />
-                                                    </div>
-                                                )
-                                            )}
-
-                                            <div className="custom-file-input">
-                                                <input
-                                                    type="file"
-                                                    id="fullImage"
-                                                    accept="image/*"
-                                                    disabled={!edit}
-                                                    onChange={(event) => {
-                                                        const file =
-                                                            event.currentTarget
-                                                                .files[0];
-                                                        driverform.setFieldValue(
-                                                            "fullImage",
-                                                            file
-                                                        );
-                                                    }}
-                                                />
-                                                <label htmlFor="fullImage">
-                                                    Choose Full Image
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
+
                             </div>
                         </form>
                     </div>
@@ -686,7 +691,7 @@ const VehicleInformation = () => {
                                                         (item, index) =>
                                                             vehicleForm.values
                                                                 .images[
-                                                                index
+                                                            index
                                                             ] && (
                                                                 <div
                                                                     key={index}
@@ -711,7 +716,7 @@ const VehicleInformation = () => {
                                                                                 vehicleForm
                                                                                     .values
                                                                                     .images[
-                                                                                    index
+                                                                                index
                                                                                 ]
                                                                             }
                                                                             alt={
@@ -768,27 +773,25 @@ const VehicleInformation = () => {
                                     <PhoneInput
                                         country={"za"}
                                         disabled={!edit}
-                                        value={`${
-                                            emergencyform.values
-                                                .emergency_contact_1_country_code ??
+                                        value={`${emergencyform.values
+                                            .emergency_contact_1_country_code ??
                                             ""
-                                        }${
-                                            emergencyform.values
+                                            }${emergencyform.values
                                                 ?.emergency_contact_1_contact ??
                                             ""
-                                        }`}
+                                            }`}
                                         onChange={(phone, countryData) => {
                                             const withoutCountryCode =
                                                 phone.startsWith(
                                                     countryData.dialCode
                                                 )
                                                     ? phone
-                                                          .slice(
-                                                              countryData
-                                                                  .dialCode
-                                                                  .length
-                                                          )
-                                                          .trim()
+                                                        .slice(
+                                                            countryData
+                                                                .dialCode
+                                                                .length
+                                                        )
+                                                        .trim()
                                                     : phone;
 
                                             emergencyform.setFieldValue(
@@ -830,27 +833,25 @@ const VehicleInformation = () => {
                                     <PhoneInput
                                         country={"za"}
                                         disabled={!edit}
-                                        value={`${
-                                            emergencyform.values
-                                                .emergency_contact_2_country_code ??
+                                        value={`${emergencyform.values
+                                            .emergency_contact_2_country_code ??
                                             ""
-                                        }${
-                                            emergencyform.values
+                                            }${emergencyform.values
                                                 .emergency_contact_2_contact ??
                                             ""
-                                        }`}
+                                            }`}
                                         onChange={(phone, countryData) => {
                                             const withoutCountryCode =
                                                 phone.startsWith(
                                                     countryData.dialCode
                                                 )
                                                     ? phone
-                                                          .slice(
-                                                              countryData
-                                                                  .dialCode
-                                                                  .length
-                                                          )
-                                                          .trim()
+                                                        .slice(
+                                                            countryData
+                                                                .dialCode
+                                                                .length
+                                                        )
+                                                        .trim()
                                                     : phone;
 
                                             emergencyform.setFieldValue(
@@ -894,13 +895,11 @@ const VehicleInformation = () => {
                                         <tr key={index}>
                                             <td>
                                                 {sos.armedUserId
-                                                    ? `${
-                                                          sos.armedUserId
-                                                              .first_name || ""
-                                                      } ${
-                                                          sos.armedUserId
-                                                              .last_name || ""
-                                                      }`
+                                                    ? `${sos.armedUserId
+                                                        .first_name || ""
+                                                    } ${sos.armedUserId
+                                                        .last_name || ""
+                                                    }`
                                                     : "Unknown"}
                                             </td>
                                             <td>
@@ -930,25 +929,22 @@ const VehicleInformation = () => {
                                             </td>
                                             <td>
                                                 {sos.armedLocationId
-                                                    ? `${
-                                                          sos.armedLocationId
-                                                              .city
-                                                              ? sos
-                                                                    .armedLocationId
-                                                                    .city + ","
-                                                              : ""
-                                                      } ${
-                                                          sos.armedLocationId
-                                                              .street
-                                                              ? sos
-                                                                    .armedLocationId
-                                                                    .street +
-                                                                ","
-                                                              : ""
-                                                      } ${
-                                                          sos.armedLocationId
-                                                              .suburb || ""
-                                                      }`
+                                                    ? `${sos.armedLocationId
+                                                        .city
+                                                        ? sos
+                                                            .armedLocationId
+                                                            .city + ","
+                                                        : ""
+                                                    } ${sos.armedLocationId
+                                                        .street
+                                                        ? sos
+                                                            .armedLocationId
+                                                            .street +
+                                                        ","
+                                                        : ""
+                                                    } ${sos.armedLocationId
+                                                        .suburb || ""
+                                                    }`
                                                     : "Unknown"}
                                             </td>
                                             <td>
