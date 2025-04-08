@@ -77,6 +77,11 @@ export const companyValidation = yup.object({
     company_bio: yup.string().required("Bio is required")
 })
 
+export const companyEditValidation = yup.object({
+    email: Email,
+    company_name: Username,
+    mobile_no: MobileNumber,
+})
 export const driverValidation = yup.object({
     company_id: yup.string(),
     first_name: Username,
@@ -106,6 +111,6 @@ export const vehicleValidation = yup.object({
     postal_code: yup.number().required('This field is required'),
     country: yup.string().required('This field is required'),
     hijakingId: yup.string().optional(),
-    hijakingPass: yup.string().optional(),
+    hijakingPass: yup.string().optional().matches(/^\d{6}$/, 'password should be last 6 digits of IMEI number'),
     passport_no: yup.string().optional()
 })

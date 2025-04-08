@@ -301,7 +301,7 @@ const VehicleInformation = () => {
                                     <input
                                         type="text"
                                         name="hijakingId"
-                                        placeholder="Hijacking ID"
+                                        placeholder="Device IMEI number"
                                         className="form-control"
                                         value={driverform.values.hijakingId}
                                         onChange={driverform.handleChange}
@@ -317,7 +317,7 @@ const VehicleInformation = () => {
                                     <input
                                         type="text"
                                         name="hijakingPass"
-                                        placeholder="Hijacking Password"
+                                        placeholder="Device Password"
                                         className="form-control"
                                         value={driverform.values.hijakingPass}
                                         onChange={driverform.handleChange}

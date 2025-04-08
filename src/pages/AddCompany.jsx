@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useFormik } from "formik";
 import { companyValidation } from "../common/FormValidation";
 
@@ -19,6 +19,8 @@ import '../css/company.css'
 const AddCompany = () => {
 	const client = useQueryClient();
 	const nav = useNavigate();
+	const [showPassword, setShowPassword] = useState(false);
+
 
 	const companyForm = useFormik({
 		initialValues: {
@@ -55,7 +57,7 @@ const AddCompany = () => {
 			}
 			if (values.services) {
 				values.services.forEach((serviceId) => {
-  					formData.append("services[]", serviceId);
+					formData.append("services[]", serviceId);
 				});
 			}
 			if (values.fullImage) {
@@ -82,7 +84,7 @@ const AddCompany = () => {
 	const serviceslist = useGetServicesList()
 
 	useLayoutEffect(() => {
-		if(serviceslist) {
+		if (serviceslist) {
 			const groupedOptions = Object.keys(serviceslist).map((category) => ({
 				label: category,
 				options: serviceslist[category].map((service) => ({
@@ -92,7 +94,7 @@ const AddCompany = () => {
 			}));
 			setServicesList(groupedOptions ?? [])
 		}
-	},[serviceslist])
+	}, [serviceslist])
 
 
 	return (
@@ -157,14 +159,29 @@ const AddCompany = () => {
 										<p className="err">{companyForm.errors.email}</p>
 									)}
 
-									<input
-										type="password"
-										name="password"
-										placeholder="Password"
-										className="form-control"
-										value={companyForm.values.password}
-										onChange={companyForm.handleChange}
-									/>
+									<div className="position-relative">
+										<input
+											type={showPassword ? "text" : "password"}
+											name="password"
+											placeholder="Password"
+											className="form-control"
+											value={companyForm.values.password}
+											onChange={companyForm.handleChange}
+										/>
+										<span
+											onClick={() => setShowPassword(!showPassword)}
+											style={{
+												position: "absolute",
+												right: "10px",
+												top: "50%",
+												transform: "translateY(-50%)",
+												cursor: "pointer",
+												userSelect: "none"
+											}}
+										>
+											{showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+										</span>
+									</div>
 									{companyForm.touched.password && (
 										<p className="err">{companyForm.errors.password}</p>
 									)}
@@ -186,22 +203,35 @@ const AddCompany = () => {
 										<p className="err">{companyForm.errors.mobile_no}</p>
 									)}
 									<Select
-  										isMulti
-  										name="services"
-  										options={servicesList}
-  										className="form-control add-company-services"
-  										classNamePrefix="select"
+										isMulti
+										name="services"
+										options={servicesList}
+										classNamePrefix="select"
 										placeholder="Select Services"
-  										value={servicesList
-  										  	.flatMap((group) => group.options)
-  										  	.filter((option) => companyForm.values.services?.includes(option.value))}
-  										onChange={(selectedOptions) => {
-  										  	const selectedValues = selectedOptions.map((option) => option.value);
-  										  	companyForm.setFieldValue("services", selectedValues);
-  										}}
+										className="form-control add-company-services"
+										value={servicesList
+											.flatMap((group) => group.options)
+											.filter((option) => companyForm.values.services?.includes(option.value))}
+										onChange={(selectedOptions) => {
+											const selectedValues = selectedOptions?.map((option) => option.value) || [];
+											companyForm.setFieldValue("services", selectedValues);
+										}}
+										styles={{
+											valueContainer: (base) => ({
+												...base,
+												flexWrap: 'wrap',
+												maxHeight: '50px',
+												overflowY: 'auto',
+											}),
+											multiValue: (base) => ({
+												...base,
+												margin: '2px',
+											}),
+										}}
 									/>
+
 									{companyForm.touched.services && companyForm.errors.services && (
-									  <p className="err">{companyForm.errors.services}</p>
+										<p className="err">{companyForm.errors.services}</p>
 									)}
 
 
