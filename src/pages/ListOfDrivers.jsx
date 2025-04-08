@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { companyValidation } from "../common/FormValidation";
-import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSoS } from "../API Calls/API";
+import { companyEditValidation, companyValidation } from "../common/FormValidation";
+import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSoS, useGetServicesList } from "../API Calls/API";
+import Select from "react-select";
 import { useQueryClient } from "@tanstack/react-query"
 import Prev from "../assets/images/left.png";
 import Next from "../assets/images/right.png";
@@ -28,6 +29,7 @@ const ListOfDrivers = () => {
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
     const [servicesList, setServicesList] = useState({});
+    const [GrpservicesList, setGrpservicesList] = useState({});
     const companyInfo = useGetUser(params.id)
     const notification_type = "677534649c3a99e13dcd7456"
     const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
@@ -38,23 +40,24 @@ const ListOfDrivers = () => {
             mobile_no: "",
             email: "",
             isArmed: "",
+            services: []
         },
-        validationSchema: companyValidation,
-        // onSubmit: (values) => {
-        //     setedit(false);
-        //     const formData = new FormData();
-        //     formData.append(key, values[key]);
-        //     mutate({ id: params.id, data: formData });
-        // },
+        validationSchema: companyEditValidation,
+        onSubmit: (values) => {
+            setedit(false);
+            const formData = new FormData();
+            Object.entries(values).forEach(([key, value]) => {
+                if (key === "services") {
+                    value.forEach((id) => formData.append("services[]", id));
+                } else {
+                    formData.append(key, value);
+                }
+            });
+            mutate({ id: params.id, data: formData });
+        },
     });
-    const submithandler = (values) => {
-        setedit(false);
-        const formData = new FormData();
-        Object.entries(values).forEach(([key, value]) => {
-            formData.append(key, value);
-        });
-        mutate({ id: params.id, data: formData })
-    }
+    const serviceslist = useGetServicesList()
+
     useEffect(() => {
         if (companyInfo.data) {
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
@@ -68,8 +71,10 @@ const ListOfDrivers = () => {
                 mobile_no: companyInfo.data.data.user.mobile_no || "",
                 email: companyInfo.data.data.user.email || "",
                 isArmed: companyInfo.data.data.user.isArmed || false,
+                services: companyInfo.data?.data?.user?.services.map(service => service._id) || [],
             });
-            const services = companyInfo.data?.data?.user?.services
+
+            const services = companyInfo.data?.data?.user?.services;
             const groupedServices = services.reduce((acc, service) => {
                 if (!acc[service.type]) {
                     acc[service.type] = [];
@@ -78,10 +83,22 @@ const ListOfDrivers = () => {
                 return acc;
             }, {});
             setServicesList(groupedServices);
-
         }
+
     }, [companyInfo.data?.data?.user]);
 
+    useLayoutEffect(() => {
+        if (serviceslist) {
+            const groupedOptions = Object.keys(serviceslist).map((category) => ({
+                label: category,
+                options: serviceslist[category].map((service) => ({
+                    label: service.serviceName,
+                    value: service._id,
+                })),
+            }));
+            setGrpservicesList(groupedOptions ?? [])
+        }
+    }, [serviceslist])
     const onSuccess = () => {
         client.invalidateQueries(["user", params.id]);
         toast.success("User Updated Successfully.");
@@ -183,31 +200,76 @@ const ListOfDrivers = () => {
                                     </div>
                                 </div>
                             </div>
+                            {
+                                edit ? (
+                                    <div className="company-info">
+                                        <div className="comapny-titles">Company Services</div>
+                                        <div className="comapny-det">
+                                            <Select
+                                                isMulti
+                                                name="services"
+                                                options={GrpservicesList}
+                                                classNamePrefix="select"
+                                                placeholder="Select Services"
+                                                className="form-control"
+                                                value={GrpservicesList
+                                                    .flatMap((group) => group.options)
+                                                    .filter((option) => CompanyForm.values.services?.includes(option.value))}
+                                                onChange={(selectedOptions) => {
+                                                    const selectedValues = selectedOptions?.map((option) => option.value) || [];
+                                                    CompanyForm.setFieldValue("services", selectedValues);
+                                                }}
+                                                styles={{
+                                                    control: (base, state) => ({
+                                                        ...base,
+                                                        border: 'none !important',
+                                                        boxShadow: 'none',
+                                                        backgroundColor: 'transparent',
+                                                    }),
+                                                    valueContainer: (base) => ({
+                                                        ...base,
+                                                        flexWrap: 'wrap',
+                                                        maxHeight: '50px',
+                                                        overflowY: 'auto',
+                                                    }),
+                                                    multiValue: (base) => ({
+                                                        ...base,
+                                                        margin: '2px',
+                                                    }),
+                                                }}
 
-                            {Object.keys(servicesList).length > 0 && (
-                                <div className="company-info">
-                                    <div className="comapny-titles">Company Services</div>
-                                    <div className="comapny-det">
-                                        {Object.keys(servicesList).map((serviceKey, index) => (
-                                            <div
-                                                key={index}
-                                                className={Object.keys(servicesList).length > index + 1 ? "c-ser" : "c-ser2"}
-                                            >
-                                                <span>{serviceKey}</span>
-                                                {servicesList[serviceKey]?.map((service, index) => (
-                                                    <p key={index}>{service?.serviceName}</p>
+                                            />
+                                        </div>
+                                    </div>
+
+                                ) : (
+                                    Object.keys(servicesList).length > 0 && (
+                                        <div className="company-info">
+                                            <div className="comapny-titles">Company Services</div>
+                                            <div className="comapny-det comapny-det2">
+                                                {Object.keys(servicesList).map((serviceKey, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className={Object.keys(servicesList).length > index + 1 ? "c-ser" : "c-ser2"}
+                                                    >
+                                                        <span>{serviceKey}</span>
+                                                        {servicesList[serviceKey]?.map((service, index) => (
+                                                            <p key={index}>{service?.serviceName}</p>
+                                                        ))}
+                                                    </div>
                                                 ))}
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
+                                        </div>
+                                    )
+                                )
+                            }
+
 
                             <div className="col-md-12 text-end">
                                 <div className="saveform">
                                     {edit ? (
                                         <button type="submit"
-                                            onClick={() => submithandler(CompanyForm.values)} className="btn btn-dark">Save</button>
+                                            onClick={() => CompanyForm.submitForm()} className="btn btn-dark">Save</button>
                                     ) : (
                                         <button
                                             onClick={() => setedit(true)}

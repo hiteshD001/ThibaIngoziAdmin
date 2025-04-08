@@ -639,6 +639,10 @@ table#example {
     width: 85%;
     background: #fff;
 }
+.comapny-det2 {
+    align-items: start!important;
+    justify-content:flex-start!important;
+}
 
 .comapny-det .c-info {
     padding: 10px 2%;

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { useFormik } from "formik";
 import { companyValidation } from "../common/FormValidation";
 
@@ -19,6 +19,8 @@ import '../css/company.css'
 const AddCompany = () => {
 	const client = useQueryClient();
 	const nav = useNavigate();
+	const [showPassword, setShowPassword] = useState(false);
+
 
 	const companyForm = useFormik({
 		initialValues: {
@@ -157,14 +159,29 @@ const AddCompany = () => {
 										<p className="err">{companyForm.errors.email}</p>
 									)}
 
-									<input
-										type="password"
-										name="password"
-										placeholder="Password"
-										className="form-control"
-										value={companyForm.values.password}
-										onChange={companyForm.handleChange}
-									/>
+									<div className="position-relative">
+										<input
+											type={showPassword ? "text" : "password"}
+											name="password"
+											placeholder="Password"
+											className="form-control"
+											value={companyForm.values.password}
+											onChange={companyForm.handleChange}
+										/>
+										<span
+											onClick={() => setShowPassword(!showPassword)}
+											style={{
+												position: "absolute",
+												right: "10px",
+												top: "50%",
+												transform: "translateY(-50%)",
+												cursor: "pointer",
+												userSelect: "none"
+											}}
+										>
+											{showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+										</span>
+									</div>
 									{companyForm.touched.password && (
 										<p className="err">{companyForm.errors.password}</p>
 									)}
