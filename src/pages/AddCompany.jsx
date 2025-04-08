@@ -55,7 +55,7 @@ const AddCompany = () => {
 			}
 			if (values.services) {
 				values.services.forEach((serviceId) => {
-  					formData.append("services[]", serviceId);
+					formData.append("services[]", serviceId);
 				});
 			}
 			if (values.fullImage) {
@@ -82,7 +82,7 @@ const AddCompany = () => {
 	const serviceslist = useGetServicesList()
 
 	useLayoutEffect(() => {
-		if(serviceslist) {
+		if (serviceslist) {
 			const groupedOptions = Object.keys(serviceslist).map((category) => ({
 				label: category,
 				options: serviceslist[category].map((service) => ({
@@ -92,7 +92,7 @@ const AddCompany = () => {
 			}));
 			setServicesList(groupedOptions ?? [])
 		}
-	},[serviceslist])
+	}, [serviceslist])
 
 
 	return (
@@ -186,22 +186,35 @@ const AddCompany = () => {
 										<p className="err">{companyForm.errors.mobile_no}</p>
 									)}
 									<Select
-  										isMulti
-  										name="services"
-  										options={servicesList}
-  										className="form-control add-company-services"
-  										classNamePrefix="select"
+										isMulti
+										name="services"
+										options={servicesList}
+										classNamePrefix="select"
 										placeholder="Select Services"
-  										value={servicesList
-  										  	.flatMap((group) => group.options)
-  										  	.filter((option) => companyForm.values.services?.includes(option.value))}
-  										onChange={(selectedOptions) => {
-  										  	const selectedValues = selectedOptions.map((option) => option.value);
-  										  	companyForm.setFieldValue("services", selectedValues);
-  										}}
+										className="form-control add-company-services"
+										value={servicesList
+											.flatMap((group) => group.options)
+											.filter((option) => companyForm.values.services?.includes(option.value))}
+										onChange={(selectedOptions) => {
+											const selectedValues = selectedOptions?.map((option) => option.value) || [];
+											companyForm.setFieldValue("services", selectedValues);
+										}}
+										styles={{
+											valueContainer: (base) => ({
+												...base,
+												flexWrap: 'wrap',
+												maxHeight: '50px',
+												overflowY: 'auto',
+											}),
+											multiValue: (base) => ({
+												...base,
+												margin: '2px',
+											}),
+										}}
 									/>
+
 									{companyForm.touched.services && companyForm.errors.services && (
-									  <p className="err">{companyForm.errors.services}</p>
+										<p className="err">{companyForm.errors.services}</p>
 									)}
 
 

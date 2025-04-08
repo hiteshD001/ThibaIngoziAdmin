@@ -149,6 +149,12 @@ const GoogleMaps = () => {
                     <Marker
                         position={startLocation}
                         title="Start Location"
+                        label={{
+                            text: "S",
+                            color: "white",
+                            fontSize: "14px",
+                            fontWeight: "bold"
+                        }}
                         onMouseOver={handleStartMarkerHover}
                         onMouseOut={handleMarkerMouseOut}
                     >
@@ -158,11 +164,19 @@ const GoogleMaps = () => {
                             </InfoWindow>
                         )}
                     </Marker>
+
+
                 )}
                 {endLocation && (
                     <Marker
                         position={endLocation}
                         title="End Location"
+                        label={{
+                            text: "E",
+                            color: "white",
+                            fontSize: "14px",
+                            fontWeight: "bold"
+                        }}
                         onMouseOver={handleEndMarkerHover}
                         onMouseOut={handleMarkerMouseOut}
                     >
@@ -184,7 +198,7 @@ const GoogleMaps = () => {
                                 strokeWeight: 5,
                             },
                             suppressPolylines: false,
-                            suppressMarkers: false,
+                            suppressMarkers: true,
                             suppressInfoWindows: true,
                         }}
                         panel={null}
