@@ -74,25 +74,14 @@ export const LogoutConfirm = ({ ...p }) => {
 };
 
 export const SOSStatusUpdate = ({ ...p }) => {
-  const [status, setStatus] = useState('')
   return (
     <div className="popup-overlay">
       <div className="popup-content">
-        <select
-										name="help_received"
-										className="form-control"
-										value={status}
-										onChange={(e) => setStatus(e.target.value)}
-									>
-										<option value="" hidden> Select </option>
-										<option value="help_received"> Help Received </option>
-										<option value="cancel"> Cancel </option>
-									</select>
+        <p>Are you sure want to make this changes. It can't be change once change.</p>
         <div className="popup-buttons">
           <button
             className="popup-button confirm"
-            onClick={() => p.handleUpdate(status)}
-            disabled={status === ''}
+            onClick={() => p.handleUpdate()}
           >
             {" "}
             Submit{" "}
