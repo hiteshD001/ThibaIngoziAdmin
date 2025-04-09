@@ -318,16 +318,23 @@ const VehicleInformation = () => {
                                         type="text"
                                         name="hijakingPass"
                                         placeholder="Device Password"
+                                        style={{ marginBottom: '0px' }}
                                         className="form-control"
                                         value={driverform.values.hijakingPass}
                                         onChange={driverform.handleChange}
                                         disabled={!edit}
                                     />
-                                    {driverform.touched.hijakingPass && (
+                                    <div
+                                        className="alert  mt-2 mb-0 py-1 px-3"
+                                        style={{ fontSize: "13px" }}
+                                    >
+                                        <strong>Note:</strong> Password should be the last 6 digits of the IMEI number.
+                                    </div>
+                                    {/* {driverform.touched.hijakingPass && (
                                         <p className="err">
                                             {driverform.errors.hijakingPass}
                                         </p>
-                                    )}
+                                    )} */}
                                 </div>
                                 <div className="col-md-6">
                                     <div className=" form-checkbox form-control">
