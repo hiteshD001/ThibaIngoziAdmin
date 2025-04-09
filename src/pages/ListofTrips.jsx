@@ -6,10 +6,12 @@ import search from "../assets/images/search.png";
 import Prev from "../assets/images/left.png";
 import Next from "../assets/images/right.png";
 import nouser from "../assets/images/NoUser.png";
-
+import { format } from "date-fns";
 import { useGetTripList, useGetUserList } from "../API Calls/API";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
+// import moment from "moment/moment";
+
 
 const ListOfTrips = () => {
   const nav = useNavigate();
@@ -101,22 +103,9 @@ const ListOfTrips = () => {
                             <td>
                               {data.trip_status}
                             </td>
+                            <td> {format(data.createdAt, "HH:mm:ss - dd/MM/yyyy")}</td>
                             <td>
-                              {(() => {
-                                const date = new Date(data.createdAt);
-                                const time = date.toLocaleTimeString('en-GB');
-                                const day = date.toLocaleDateString('en-GB');
-                                return `${time} - ${day}`;
-                              })()}
-
-                            </td>
-                            <td>
-                              {data.trip_status === 'ended' ? (() => {
-                                const date = new Date(data.endedAt);
-                                const time = date.toLocaleTimeString('en-GB');
-                                const day = date.toLocaleDateString('en-GB');
-                                return `${time} - ${day}`;
-                              })() : '---'}
+                              {data.trip_status === 'ended' ? format(data.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---'}
                             </td>
                             <td>
                               {data.ended_by}

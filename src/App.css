@@ -501,7 +501,7 @@ table#example {
 .theme-table table tbody tr td {
     border-color: rgb(0 0 0 / 5%) !important;
     vertical-align: middle;
-    line-break: anywhere;
+    /* line-break:anywhere; */
 }
 
 .theme-table table thead {
@@ -510,7 +510,7 @@ table#example {
 
 .theme-table thead tr th,
 .theme-table table tr td {
-    padding: 12px 20px !important;
+    padding: 12px 8px !important;
 }
 
 * {

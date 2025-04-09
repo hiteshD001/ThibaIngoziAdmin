@@ -80,7 +80,7 @@ const Home = () => {
                                         <th style={{ width: "9%" }}>Request reached</th>
                                         <th style={{ width: "9%" }}>Request Accept</th>
                                         <th style={{ width: "9%" }}>Type</th>
-                                        <th style={{ width: "11%" }}>Date</th>
+                                        <th style={{ width: "11%" }}>Time</th>
                                         <th style={{ width: "11%" }}>Status</th>
                                         <th style={{ width: "10%" }}>Location</th>
                                     </tr>
@@ -129,24 +129,26 @@ const Home = () => {
                                             <td>{row.req_reach}</td>
 
                                             <td>{row.req_accept}</td>
-                                            <td>{row.type.type}</td>
-                                            <td>{moment(row?.createdAt).format('YYYY-MM-DD')}</td>
+                                            <td>{row.type?.type || "-"}</td>
+                                            <td>{moment(row?.createdAt).format('HH:mm:ss')}</td>
                                             <td>
                                                 <select
-										name="help_received"
-										className="form-control"
-										onChange={(e) => {setStatus(e.target.value);
-                                            setStatusUpdate(true);
-                                                        setSelectedId(row._id);}}
-									>
-										<option value="" hidden> Select </option>
-										<option value="help_received"> Help Received </option>
-										<option value="cancel"> Cancel </option>
-									</select>
+                                                    name="help_received"
+                                                    className="form-control"
+                                                    onChange={(e) => {
+                                                        setStatus(e.target.value);
+                                                        setStatusUpdate(true);
+                                                        setSelectedId(row._id);
+                                                    }}
+                                                >
+                                                    <option value="" hidden> Select </option>
+                                                    <option value="help_received"> Help Received </option>
+                                                    <option value="cancel"> Cancel </option>
+                                                </select>
                                             </td>
                                             <td>
                                                 <NavLink
-                                                type="button"
+                                                    type="button"
                                                     to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
                                                     className="tbl-btn"
                                                 >
@@ -236,19 +238,12 @@ const Home = () => {
                                                         : ""
                                                 }
                                             >
-                                                {format(
-                                                    row.createdAt,
-                                                    "hh:mm aa  dd/MM/yyyy"
-                                                )}
-                                                {/* {format(
-                                                    row.createdAt,
-                                                    "dd/MM/yyyy  hh:mm aa"
-                                                )} */}
+                                                {format(row.createdAt, "HH:mm:ss - dd/MM/yyyy")}
                                             </td>
 
                                             <td>
                                                 <Link
-                                                    to={`total-drivers/vehicle-information/${row.user_id._id}`}
+                                                    to={`total-drivers/driver-information/${row.user_id._id}`}
                                                     className="tbl-btn"
                                                 >
                                                     view
