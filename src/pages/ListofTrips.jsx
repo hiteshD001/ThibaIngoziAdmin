@@ -102,10 +102,21 @@ const ListOfTrips = () => {
                               {data.trip_status}
                             </td>
                             <td>
-                              {new Date(data.createdAt).toLocaleString()}
+                              {(() => {
+                                const date = new Date(data.createdAt);
+                                const time = date.toLocaleTimeString('en-GB');
+                                const day = date.toLocaleDateString('en-GB');
+                                return `${time} - ${day}`;
+                              })()}
+
                             </td>
                             <td>
-                              {data.trip_status === 'ended' ? new Date(data.endedAt).toLocaleString() : '---'}
+                              {data.trip_status === 'ended' ? (() => {
+                                const date = new Date(data.endedAt);
+                                const time = date.toLocaleTimeString('en-GB');
+                                const day = date.toLocaleDateString('en-GB');
+                                return `${time} - ${day}`;
+                              })() : '---'}
                             </td>
                             <td>
                               {data.ended_by}

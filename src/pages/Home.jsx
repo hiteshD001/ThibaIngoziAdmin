@@ -229,8 +229,12 @@ const Home = () => {
                                             >
                                                 {format(
                                                     row.createdAt,
-                                                    "dd/MM/yyyy  hh:mm aa"
+                                                    "hh:mm aa  dd/MM/yyyy"
                                                 )}
+                                                {/* {format(
+                                                    row.createdAt,
+                                                    "dd/MM/yyyy  hh:mm aa"
+                                                )} */}
                                             </td>
 
                                             <td>
