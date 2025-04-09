@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useDeleteUser, useDeleteUserTrip } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
+import { useState } from "react";
 
 export const DeleteConfirm = ({ ...p }) => {
   const client = useQueryClient();
@@ -65,6 +66,47 @@ export const LogoutConfirm = ({ ...p }) => {
           </button>
           <button className="popup-button" onClick={() => p.setconfirm(false)}>
             cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const SOSStatusUpdate = ({ ...p }) => {
+  return (
+    <div className="popup-overlay">
+      <div className="popup-content">
+        <p>Are you sure want to make this changes. It can't be change once change.</p>
+        <div className="popup-buttons">
+          <button
+            className="popup-button confirm"
+            onClick={() => p.handleUpdate()}
+          >
+            {" "}
+            Submit{" "}
+          </button>
+          <button className="popup-button" onClick={() => p.handleCancel()}>
+            cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const GoogleMapConfirm = ({ ...p }) => {
+  return (
+    <div className="popup-overlay">
+      <div className="popup-content">
+        <p>{p.message}</p>
+        <div className="popup-buttons">
+          <button
+            className="popup-button confirm"
+            onClick={() => p.handleConfirm()}
+          >
+            {" "}
+            Confirm{" "}
           </button>
         </div>
       </div>

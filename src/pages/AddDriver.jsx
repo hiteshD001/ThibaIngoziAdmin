@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 
@@ -18,6 +18,7 @@ const AddDriver = () => {
     const client = useQueryClient();
     const [role] = useState(localStorage.getItem("role"))
     const nav = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
 
     const driverForm = useFormik({
         initialValues: role === 'super_admin' ? formValues1 : formValues2,
@@ -130,14 +131,29 @@ const AddDriver = () => {
                                         <p className="err">{driverForm.errors.email}</p>
                                     )}
 
-                                    <input
-                                        type="password"
-                                        name="password"
-                                        placeholder="Password"
-                                        className="form-control"
-                                        value={driverForm.values.password}
-                                        onChange={driverForm.handleChange}
-                                    />
+                                    <div className="position-relative">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            name="password"
+                                            placeholder="Password"
+                                            className="form-control"
+                                            value={driverForm.values.password}
+                                            onChange={driverForm.handleChange}
+                                        />
+                                        <span
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            style={{
+                                                position: "absolute",
+                                                right: "10px",
+                                                top: "50%",
+                                                transform: "translateY(-50%)",
+                                                cursor: "pointer",
+                                                userSelect: "none"
+                                            }}
+                                        >
+                                            {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                                        </span>
+                                    </div>
                                     {driverForm.touched.password && (
                                         <p className="err">{driverForm.errors.password}</p>
                                     )}

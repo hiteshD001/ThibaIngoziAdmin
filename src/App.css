@@ -501,7 +501,7 @@ table#example {
 .theme-table table tbody tr td {
     border-color: rgb(0 0 0 / 5%) !important;
     vertical-align: middle;
-    line-break: anywhere;
+    /* line-break:anywhere; */
 }
 
 .theme-table table thead {
@@ -510,7 +510,7 @@ table#example {
 
 .theme-table thead tr th,
 .theme-table table tr td {
-    padding: 12px 20px !important;
+    padding: 12px 8px !important;
 }
 
 * {
@@ -639,6 +639,10 @@ table#example {
     width: 85%;
     background: #fff;
 }
+.comapny-det2 {
+    align-items: start!important;
+    justify-content:flex-start!important;
+}
 
 .comapny-det .c-info {
     padding: 10px 2%;
@@ -662,6 +666,67 @@ table#example {
 }
 
 .comapny-det .c-info p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 28px;
+    line-break: anywhere;
+}
+
+.comapny-det .c-ser {
+    padding: 10px 2%;
+    width: 33%;
+    position: relative;
+}
+
+.comapny-det .c-ser2 {
+    padding: 10px 2%;
+    width: 33%;
+}
+
+.comapny-det .c-ser::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 10%;
+    width: 1px;
+    height: 80%;
+    background-color: #d9d9d9;
+}
+
+.comapny-det .c-ser span {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    color: rgb(28 28 28 / 40%);
+}
+
+.comapny-det .c-ser p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 28px;
+    line-break: anywhere;
+}
+
+.comapny-det .c-ser2::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 10%;
+    width: 1px;
+    height: 80%;
+    background-color: #d9d9d9;
+}
+
+.comapny-det .c-ser2 span {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 18px;
+    color: rgb(28 28 28 / 40%);
+}
+
+.comapny-det .c-ser2 p {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
@@ -1199,4 +1264,17 @@ width: 20%;
     font-size: 50px;
     color: #d9534f;
     margin-bottom: 20px;
+}
+
+.gm-style {
+    background-color: transparent !important;
+    /* Prevents white overlay */
+}
+
+/* .gm-style div {
+    background: transparent !important;
+} */
+
+.gm-style canvas {
+    background-color: transparent !important;
 }
