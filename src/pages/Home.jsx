@@ -17,10 +17,12 @@ import { SOSStatusUpdate } from "../common/ConfirmationPOPup";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
+import moment from "moment/moment";
 
 const Home = () => {
     const recentSOS = useGetRecentSOS();
     const [statusUpdate, setStatusUpdate] = useState(false);
+    const [status, setStatus] = useState('')
     const [selectedId, setSelectedId] = useState("");
 
     const { isConnected, activeUserList } = useWebSocket();
@@ -38,7 +40,7 @@ const Home = () => {
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
     const userinfo = useGetUser(localStorage.getItem("userID"));
 
-    const handleUpdate = (status) => {
+    const handleUpdate = () => {
         const toUpdate = {
             help_received: status,
         };
@@ -46,10 +48,12 @@ const Home = () => {
             id: selectedId,
             data: toUpdate,
         });
+        setStatusUpdate(false)
     };
     const handleCancel = () => {
         setSelectedId("");
         setStatusUpdate(false);
+        setStatus('')
     };
     return (
         <div className="container-fluid">
@@ -71,13 +75,14 @@ const Home = () => {
                                 <thead>
                                     <tr>
                                         <th>Driver</th>
-                                        <th>Company</th>
+                                        <th style={{ width: "10%" }}>Company</th>
                                         <th>Address</th>
-                                        <th>Request reached</th>
-                                        <th>Request Accept</th>
-                                        <th style={{ width: "11%" }}>Type</th>
+                                        <th style={{ width: "9%" }}>Request reached</th>
+                                        <th style={{ width: "9%" }}>Request Accept</th>
+                                        <th style={{ width: "9%" }}>Type</th>
+                                        <th style={{ width: "11%" }}>Date</th>
                                         <th style={{ width: "11%" }}>Status</th>
-                                        <th>Location</th>
+                                        <th style={{ width: "10%" }}>Location</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -125,19 +130,23 @@ const Home = () => {
 
                                             <td>{row.req_accept}</td>
                                             <td>{row.type.type}</td>
+                                            <td>{moment(row?.createdAt).format('YYYY-MM-DD')}</td>
                                             <td>
-                                                <button
-                                                    onClick={() => {
-                                                        setStatusUpdate(true);
-                                                        setSelectedId(row._id);
-                                                    }}
-                                                    className="tbl-btn"
-                                                >
-                                                    Update
-                                                </button>
+                                                <select
+										name="help_received"
+										className="form-control"
+										onChange={(e) => {setStatus(e.target.value);
+                                            setStatusUpdate(true);
+                                                        setSelectedId(row._id);}}
+									>
+										<option value="" hidden> Select </option>
+										<option value="help_received"> Help Received </option>
+										<option value="cancel"> Cancel </option>
+									</select>
                                             </td>
                                             <td>
                                                 <NavLink
+                                                type="button"
                                                     to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
                                                     className="tbl-btn"
                                                 >

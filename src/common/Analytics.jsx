@@ -185,8 +185,8 @@ const Analytics = ({ id }) => {
                                     )
                                     .map((d, index) => (
                                         <div className="location" key={index}>
-                                            <span>{d.address}</span>
-                                            <span>{d.timesCalled}</span>
+                                            <span>{d.address || "N/A"}</span>
+                                            <span>{d.timesCalled || 0}</span>
                                             <span>
                                                 <FaLocationDot
                                                     className="viewlocation"
