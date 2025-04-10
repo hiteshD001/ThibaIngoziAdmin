@@ -112,14 +112,14 @@ const GoogleMaps = () => {
 
     const handleStartMarkerHover = () => {
         const startedAt = new Date(params.get("startedAt")).toLocaleString();
-        const startLocationInfo = `Start Location: ${startAddress}`;
+        const startLocationInfo = `${params.get("locationId") ? "SOS location" : "Start Location"}: ${startAddress}`;
         setStartInfo(`${startLocationInfo}`);
         setStartMarkerVisible(true);
     };
 
     const handleEndMarkerHover = () => {
         const endedAt = new Date(params.get("endedAt")).toLocaleString();
-        const endLocationInfo = `End Location: ${endAddress}`;
+        const endLocationInfo = `${params.get("locationId") ? "Your location" : "End Location"}: ${endAddress}`;
         setEndInfo(` ${endLocationInfo}`);
         setEndMarkerVisible(true);
     };
@@ -148,7 +148,7 @@ const GoogleMaps = () => {
                 {startLocation && (
                     <Marker
                         position={startLocation}
-                        title="Start Location"
+                        title={params.get("locationId") ? "SOS location" : "Start Location"}
                         label={{
                             text: "S",
                             color: "white",
@@ -170,7 +170,7 @@ const GoogleMaps = () => {
                 {endLocation && (
                     <Marker
                         position={endLocation}
-                        title="End Location"
+                        title={params.get("locationId") ? "Your Location" : "End Location"}
                         label={{
                             text: "E",
                             color: "white",
