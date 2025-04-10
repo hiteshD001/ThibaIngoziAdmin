@@ -63,9 +63,14 @@ useEffect(() => {
     const userinfo = useGetUser(localStorage.getItem("userID"));
 
     const handleUpdate = () => {
-        const toUpdate = {
-            help_received: status,
-        };
+        let toUpdate = {}
+
+        if(status === 'cancel') {
+            toUpdate.cancel_received = status
+        } else {
+            toUpdate.help_received = status
+        }
+
         mutate({
             id: selectedId,
             data: toUpdate,
@@ -154,7 +159,7 @@ useEffect(() => {
                                             <td>{row.type?.type || "-"}</td>
                                             <td>{moment(row?.createdAt).format('HH:mm:ss')}</td>
                                             <td>
-                                                {!row?.help_received && <select
+                                                {!row?.help_received && !row?.cancel_received && <select
                                                     name="help_received"
                                                     className="form-control"
                                                     onChange={(e) => {
