@@ -897,76 +897,45 @@ const VehicleInformation = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {vehicleInfo?.data?.data?.armedSos?.map(
-                                    (sos, index) => (
+                                {vehicleInfo?.data?.data?.armedSos?.length > 0 ? (
+                                    vehicleInfo.data.data.armedSos.map((sos, index) => (
                                         <tr key={index}>
                                             <td>
                                                 {sos.armedUserId
-                                                    ? `${sos.armedUserId
-                                                        .first_name || ""
-                                                    } ${sos.armedUserId
-                                                        .last_name || ""
-                                                    }`
+                                                    ? `${sos.armedUserId.first_name || ""} ${sos.armedUserId.last_name || ""}`
                                                     : "Unknown"}
                                             </td>
                                             <td>
-                                                {sos?.responders?.map(
-                                                    (responder, index) => (
-                                                        <div key={index}>
-                                                            {
-                                                                responder
-                                                                    ?.armedUserId
-                                                                    ?.first_name
-                                                            }{" "}
-                                                            {
-                                                                responder
-                                                                    ?.armedUserId
-                                                                    ?.last_name
-                                                            }
-                                                        </div>
-                                                    )
-                                                )}
+                                                {sos?.responders?.map((responder, i) => (
+                                                    <div key={i}>
+                                                        {responder?.armedUserId?.first_name} {responder?.armedUserId?.last_name}
+                                                    </div>
+                                                ))}
                                             </td>
                                             <td>{sos?.armedSosstatus}</td>
-                                            <td>
-                                                {
-                                                    sos?.armedLocationId
-                                                        ?.armedRadius
-                                                }
-                                            </td>
+                                            <td>{sos?.armedLocationId?.armedRadius}</td>
                                             <td>
                                                 {sos.armedLocationId
-                                                    ? `${sos.armedLocationId
-                                                        .city
-                                                        ? sos
-                                                            .armedLocationId
-                                                            .city + ","
-                                                        : ""
-                                                    } ${sos.armedLocationId
-                                                        .street
-                                                        ? sos
-                                                            .armedLocationId
-                                                            .street +
-                                                        ","
-                                                        : ""
-                                                    } ${sos.armedLocationId
-                                                        .suburb || ""
-                                                    }`
+                                                    ? `${sos.armedLocationId.city ? sos.armedLocationId.city + "," : ""} ${sos.armedLocationId.street ? sos.armedLocationId.street + "," : ""} ${sos.armedLocationId.suburb || ""}`
                                                     : "Unknown"}
                                             </td>
                                             <td>
                                                 <NavLink
                                                     to={`/home/total-drivers/sos-information/${sos._id}`}
-                                                    style={{
-                                                        marginRight: "5px",
-                                                    }}
+                                                    style={{ marginRight: "5px" }}
                                                     className="tbl-btn"
                                                 >
                                                     view
                                                 </NavLink>
                                             </td>
                                         </tr>
-                                    )
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={6} style={{ textAlign: 'center' }}>
+                                            No data found
+                                        </td>
+                                    </tr>
                                 )}
                             </tbody>
                         </table>

@@ -183,10 +183,11 @@ const Home = () => {
                             >
                                 <thead>
                                     <tr>
-                                        <th>Driver</th>
+                                        <th>User</th>
                                         <th>Company</th>
                                         <th>Last Active Status</th>
-                                        <th>Time Stamp</th>
+                                        <th>Start Time Stamp</th>
+                                        <th>End Time Stamp</th>
                                         <th>&nbsp;</th>
                                     </tr>
                                 </thead>
@@ -240,7 +241,16 @@ const Home = () => {
                                             >
                                                 {format(row.createdAt, "HH:mm:ss - dd/MM/yyyy")}
                                             </td>
-
+                                            <td
+                                                className={
+                                                    !row.updatedAt
+                                                        ? "nodata"
+                                                        : ""
+                                                }
+                                            >
+                                                {moment(row?.updatedAt).format("HH:mm:ss - dd/MM/yyyy")}
+                                                {/* {format(row.updatedAt, "HH:mm:ss - dd/MM/yyyy")} */}
+                                            </td>
                                             <td>
                                                 <Link
                                                     to={`total-drivers/driver-information/${row.user_id._id}`}
