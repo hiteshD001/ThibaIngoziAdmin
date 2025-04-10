@@ -253,6 +253,24 @@ export const useGetRecentSOS = () => {
     return res;
 };
 
+// active driver list
+
+export const useGetActiveSOS = () => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/sos-location`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["activeSOS"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res?.data?.data;
+};
+
 // get chart data
 
 export const useGetChartData = (notificationType) => {
