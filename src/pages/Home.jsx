@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 
 import {
+    useGetActiveSOS,
     useGetRecentSOS,
     useGetUser,
     useUpdateLocationStatus,
@@ -14,22 +15,26 @@ import { format } from "date-fns";
 import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { SOSStatusUpdate } from "../common/ConfirmationPOPup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Home = () => {
     const recentSOS = useGetRecentSOS();
+    const activeSOS = useGetActiveSOS();
     const [statusUpdate, setStatusUpdate] = useState(false);
     const [status, setStatus] = useState('')
+    const [activeUsers, setActiveUsers] = useState([])
     const [selectedId, setSelectedId] = useState("");
-
     const { isConnected, activeUserList } = useWebSocket();
+    const queryClient = useQueryClient();
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
         setStatusUpdate(false);
         setSelectedId("");
+        queryClient.refetchQueries(["activeSOS"]);
     };
     const onError = (error) => {
         toast.error(
@@ -37,6 +42,23 @@ const Home = () => {
             toastOption
         );
     };
+
+    const getUniqueById = (array) => {
+  const map = new Map();
+  array.forEach(item => {
+    map.set(item._id, item); // or item.id depending on your data
+  });
+  return [...map.values()];
+};
+
+useEffect(() => {
+    setActiveUsers([])
+  setActiveUsers(prev => {
+    const combined = [...prev, ...activeUserList || [], ...activeSOS || []];
+    return getUniqueById(combined);
+  });
+}, [activeUserList, activeSOS]);
+
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
     const userinfo = useGetUser(localStorage.getItem("userID"));
 
@@ -66,7 +88,7 @@ const Home = () => {
                             <h3>Active SOS</h3>{" "}
                         </div>
 
-                        {isConnected && activeUserList.length > 0 ? (
+                        {isConnected && activeUsers?.length > 0 ? (
                             <table
                                 id="example"
                                 className="table table-striped nowrap"
@@ -86,7 +108,7 @@ const Home = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {activeUserList.map((row) => (
+                                    {activeUsers.map((row) => (
                                         <tr key={row._id}>
                                             <td>
                                                 <div
@@ -132,7 +154,7 @@ const Home = () => {
                                             <td>{row.type?.type || "-"}</td>
                                             <td>{moment(row?.createdAt).format('HH:mm:ss')}</td>
                                             <td>
-                                                <select
+                                                {!row?.help_received && <select
                                                     name="help_received"
                                                     className="form-control"
                                                     onChange={(e) => {
@@ -144,7 +166,7 @@ const Home = () => {
                                                     <option value="" hidden> Select </option>
                                                     <option value="help_received"> Help Received </option>
                                                     <option value="cancel"> Cancel </option>
-                                                </select>
+                                                </select>}
                                             </td>
                                             <td>
                                                 <NavLink
