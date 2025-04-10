@@ -360,11 +360,11 @@ const VehicleInformation = () => {
                                         </label>
                                     </div>
                                 </div>
-                                <div className="col-md-6">
+                                {/* <div className="col-md-6">
                                     <div className="alert p-2 mb-2" style={{ fontSize: '14px' }}>
                                         <strong>Note:</strong> Password should be last 6 digits of IMEI number.
                                     </div>
-                                </div>
+                                </div> */}
 
                                 <div className="col-md-12">
                                     <div className="row">
