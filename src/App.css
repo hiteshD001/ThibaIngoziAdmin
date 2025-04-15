@@ -700,13 +700,25 @@ table#example {
     line-height: 18px;
     color: rgb(28 28 28 / 40%);
 }
+.comapny-det .c-pay3{
+    width: auto!important;
+}
 
 .comapny-det .c-ser p {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
     line-height: 28px;
-    line-break: anywhere;
+    /* line-break: anywhere; */
+}
+.comapny-det .c-pay{
+    display: flex;
+    flex-direction: column;
+}
+.comapny-det .c-pay2 {
+    gap:25px;
+    display: flex;
+    flex-direction: row;
 }
 
 .comapny-det .c-ser2::after {
@@ -731,7 +743,7 @@ table#example {
     font-size: 18px;
     font-weight: 600;
     line-height: 28px;
-    line-break: anywhere;
+    /* line-break: anywhere; */
 }
 
 .vehiclpic {

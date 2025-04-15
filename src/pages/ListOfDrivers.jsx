@@ -63,7 +63,6 @@ const ListOfDrivers = () => {
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
         }
     }, [companyInfo.data]);
-
     useEffect(() => {
         if (companyInfo.data?.data?.user) {
             CompanyForm.setValues({
@@ -263,6 +262,32 @@ const ListOfDrivers = () => {
                                     )
                                 )
                             }
+                            <div className="company-info">
+                                <div className="comapny-titles">Company Payout</div>
+                                <div className="comapny-det comapny-det2">
+                                    <div className="c-info c-pay3">
+                                        <div className="c-pay2">
+                                            <div className="c-pay">
+                                                <span>totalCompanyAmount:</span>
+                                                <p>{companyInfo.data?.data.totalCompanyAmount}</p>
+                                            </div>
+                                            <button className="btn btn-primary">Pay</button>
+                                        </div>
+                                    </div>
+
+
+                                    <div className="c-info">
+                                        <div className="c-pay2">
+                                            <div className="c-pay">
+                                                <span>totalDriverAmount:</span>
+                                                <p>{companyInfo.data?.data.totalDriverAmount}</p>
+                                            </div>
+                                            <button className="btn btn-primary">Pay</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
 
 
                             <div className="col-md-12 text-end">
