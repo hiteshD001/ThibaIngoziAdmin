@@ -1,7 +1,8 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { companyEditValidation, companyValidation } from "../common/FormValidation";
-import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSoS, useGetServicesList } from "../API Calls/API";
+import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSoS, useGetServicesList, armedSosPayout, payoutUserUpdate } from "../API Calls/API";
+import PayoutPopup from "../common/Popup";
 import Select from "react-select";
 import { useQueryClient } from "@tanstack/react-query"
 import Prev from "../assets/images/left.png";
@@ -30,6 +31,9 @@ const ListOfDrivers = () => {
     const [confirmation, setconfirmation] = useState("");
     const [servicesList, setServicesList] = useState({});
     const [GrpservicesList, setGrpservicesList] = useState({});
+    const [payPopup, setPopup] = useState('')
+    const [selectedPayoutType, setSelectedPayoutType] = useState('');
+
     const companyInfo = useGetUser(params.id)
     const notification_type = "677534649c3a99e13dcd7456"
     const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
@@ -56,6 +60,17 @@ const ListOfDrivers = () => {
             mutate({ id: params.id, data: formData });
         },
     });
+
+    const PayoutForm = useFormik({
+        initialValues: {
+            firstName: '',
+            surname: '',
+            branchCode: '',
+            amount: 0,
+            accountNumber: '',
+            customerCode: ''
+        }
+    })
     const serviceslist = useGetServicesList()
 
     useEffect(() => {
@@ -104,6 +119,77 @@ const ListOfDrivers = () => {
     }
     const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
     const { mutate } = useUpdateUser(onSuccess, onError);
+
+
+    const payoutMutation = armedSosPayout(
+        (res) => {
+            console.log("Success!", res);
+            payoutUpdateMutation.mutate({
+                user_id: companyInfo.data.data.user._id,
+                type: selectedPayoutType,
+                amount: PayoutForm.values.amount,
+            });
+            // payoutUpdateMutation.mutate({
+            //     user_id: companyInfo.data.data.user._id,
+            //     type: companyInfo.data.data.user.role,
+            //     amount: PayoutForm.values.amount,
+            // });
+
+            closePopup();
+        },
+        (err) => {
+            toast.error('payment failed')
+            console.error("Error!", err);
+        }
+    );
+
+    const payoutUpdateMutation = payoutUserUpdate(
+        (res) => {
+            toast.success('payment successful');
+        },
+        (err) => {
+            toast.error('payment failed')
+        }
+    );
+
+    const handleChange = () => {
+        payoutMutation.mutate(PayoutForm.values);
+    };
+
+    const handlePopup = (event, type, payoutType) => {
+        event.stopPropagation();
+
+        const isCompany = payoutType === 'company';
+        const selectedAmount = isCompany
+            ? companyInfo.data?.data.totalCompanyAmount
+            : companyInfo.data?.data.totalDriverAmount;
+
+        PayoutForm.setValues({
+            firstName: companyInfo.data?.data.user?.first_name || "",
+            surname: companyInfo.data?.data.user?.last_name || "",
+            branchCode: companyInfo.data?.data.user.bankId?.branch_code || "",
+            accountNumber: companyInfo.data?.data.user?.accountNumber || "",
+            customerCode: companyInfo.data?.data.user?.customerCode || "",
+            amount: selectedAmount || 0,
+        });
+
+        setPopup(type);
+        setSelectedPayoutType(payoutType);
+    };
+
+    const closePopup = (event) => {
+        // event.stopPropagation();
+        setPopup('')
+    }
+    const renderPopup = () => {
+        switch (payPopup) {
+            case 'payout':
+                return <PayoutPopup yesAction={handleChange} noAction={closePopup} />;
+            default:
+                return null;
+        }
+    };
+
 
     return (
         <div className="container-fluid">
@@ -268,10 +354,11 @@ const ListOfDrivers = () => {
                                     <div className="c-info c-pay3">
                                         <div className="c-pay2">
                                             <div className="c-pay">
-                                                <span>totalCompanyAmount:</span>
+                                                <span>Total Company Amount:</span>
                                                 <p>{companyInfo.data?.data.totalCompanyAmount}</p>
                                             </div>
-                                            <button className="btn btn-primary">Pay</button>
+                                            <button disabled={edit} style={{ height: '50px' }} className="btn btn-primary" onClick={(event) => handlePopup(event, 'payout', 'company')}>Pay</button>
+                                            {renderPopup()}
                                         </div>
                                     </div>
 
@@ -279,10 +366,10 @@ const ListOfDrivers = () => {
                                     <div className="c-info">
                                         <div className="c-pay2">
                                             <div className="c-pay">
-                                                <span>totalDriverAmount:</span>
+                                                <span>Total Driver Amount:</span>
                                                 <p>{companyInfo.data?.data.totalDriverAmount}</p>
                                             </div>
-                                            <button className="btn btn-primary">Pay</button>
+                                            <button disabled={edit} style={{ height: '50px' }} className="btn btn-primary" onClick={(event) => handlePopup(event, 'payout', 'driver')}>Pay</button>
                                         </div>
                                     </div>
 
@@ -305,6 +392,7 @@ const ListOfDrivers = () => {
                                     )}
                                 </div>
                             </div>
+
                         </>
                     )}
 

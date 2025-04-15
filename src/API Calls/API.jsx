@@ -524,9 +524,8 @@ export const useGetLocationByLocationId = (locationId) => {
         try {
             if (locationId) {
                 const response = await apiClient.get(
-                    locationId`${
-                        import.meta.env.VITE_BASEURL
-                    }/location/${locationId}?google_map_api=true`
+                    locationId`${import.meta.env.VITE_BASEURL
+                        }/location/${locationId}?google_map_api=true`
                 );
                 return response.data;
             }
@@ -566,3 +565,40 @@ export const useFileUpload = (onSuccess, onError) => {
 
     return mutation;
 };
+
+
+// payout api
+
+export const armedSosPayout = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/armed-sos/payout`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const payoutUserUpdate = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/armed-sos/payout/user`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}

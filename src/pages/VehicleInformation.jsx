@@ -3,7 +3,7 @@ import { NavLink, useParams } from "react-router-dom";
 
 import { useFormik } from "formik";
 import { vehicleValidation } from "../common/FormValidation";
-
+import PayoutPopup from "../common/Popup";
 import { useQueryClient } from "@tanstack/react-query";
 import {
     useGetCountryList,
@@ -22,6 +22,8 @@ const VehicleInformation = () => {
     const params = useParams();
     const client = useQueryClient();
     const userinfo = useGetUser(localStorage.getItem("userID"));
+    const [payPopup, setPopup] = useState('')
+
 
     const driverform = useFormik({
         initialValues: {
@@ -134,7 +136,27 @@ const VehicleInformation = () => {
             // console.log('driver', driverform.values)
         }
     }, [vehicleInfo.data]);
+    const handleChange = () => {
+        alert('in progress')
+    };
 
+    const handlePopup = (event, type) => {
+        event.stopPropagation();
+        setPopup(type);
+    };
+
+    const closePopup = (event) => {
+        // event.stopPropagation();
+        setPopup('')
+    }
+    const renderPopup = () => {
+        switch (payPopup) {
+            case 'payout':
+                return <PayoutPopup yesAction={handleChange} noAction={closePopup} />;
+            default:
+                return null;
+        }
+    };
     return (
         <div className="container-fluid">
             <div className="row">
@@ -946,6 +968,23 @@ const VehicleInformation = () => {
                             </tbody>
                         </table>
                     </div>
+                    <div className="theme-table payout-section">
+                        <div className="payout-info">
+                            <div className="tab-heading">
+                                <h3>Driver Payout</h3>
+                            </div>
+                            <h4 className="payout-amount">Amount: ₹{driverform.data?.data.totalDriverAmount || 0}</h4>
+                        </div>
+                        <button
+                            className="btn btn-primary"
+                            onClick={(event) => handlePopup(event, 'payout', 'driver')}
+                            disabled={edit}
+                        >
+                            Pay
+                        </button>
+                        {renderPopup()}
+                    </div>
+
                 </div>
 
                 <div className="col-md-12 text-end">
@@ -969,7 +1008,7 @@ const VehicleInformation = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
