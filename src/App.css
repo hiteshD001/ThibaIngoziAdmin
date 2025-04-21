@@ -686,15 +686,17 @@ table#example {
     justify-content: space-between;
     width: 85%;
     background: #fff;
+    overflow-x:auto;
 }
 .comapny-det2 {
+    overflow-x: auto;
     align-items: start!important;
     justify-content:flex-start!important;
 }
 
 .comapny-det .c-info {
     padding: 10px 2%;
-    width: 33%;
+    min-width: 25%;
     position: relative;
 }
 .comapny-det .c-info::after {
@@ -706,6 +708,7 @@ table#example {
     height: 80%;
     background-color: #d9d9d9;
 }
+
 .comapny-det .c-info span {
     font-size: 14px;
     font-weight: 400;
@@ -726,6 +729,16 @@ table#example {
     width: 33%;
     position: relative;
 }
+
+.comapny-det .c-ser,
+.comapny-det .c-ser2 {
+    min-width: 150px;
+    min-height: 80px;
+    flex-shrink: 0;
+    position: relative;
+    padding-right: 0px;
+}
+
 
 .comapny-det .c-ser2 {
     padding: 10px 2%;
@@ -1187,8 +1200,21 @@ button.Cancel-btn:hover {
     object-fit: cover;
 }
 .comapny-det .c-info2{
-padding: 10px 2%;
-width: 20%;
+display: flex;
+justify-content: center;
+align-items: center;
+min-width: 18%;
+min-height: 60px;
+position: relative;
+}
+.comapny-det .c-info2::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 10%;
+    width: 1px;
+    height: 80%;
+    background-color: #d9d9d9;
 }
 .form-checkbox{
     height: 60px;

@@ -203,7 +203,7 @@ export const useGetCountryList = () => {
 
 export const useGetServicesList = () => {
     const queryFn = async () => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/services`);
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/notificationType`);
     };
 
     const res = useQuery({

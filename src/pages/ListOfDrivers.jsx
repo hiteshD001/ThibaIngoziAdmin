@@ -52,7 +52,7 @@ const ListOfDrivers = () => {
             const formData = new FormData();
             Object.entries(values).forEach(([key, value]) => {
                 if (key === "services") {
-                    value.forEach((id) => formData.append("services[]", id));
+                    value.forEach((id) => formData.append("companyService[]", id));
                 } else {
                     formData.append(key, value);
                 }
@@ -78,38 +78,61 @@ const ListOfDrivers = () => {
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
         }
     }, [companyInfo.data]);
+
+
     useEffect(() => {
-        if (companyInfo.data?.data?.user) {
+        const user = companyInfo.data?.data?.user;
+        if (user) {
+            // Set Formik values
             CompanyForm.setValues({
-                company_name: companyInfo.data.data.user.company_name || "",
-                mobile_no: companyInfo.data.data.user.mobile_no || "",
-                email: companyInfo.data.data.user.email || "",
-                isArmed: companyInfo.data.data.user.isArmed || false,
-                services: companyInfo.data?.data?.user?.services.map(service => service._id) || [],
+                company_name: user.company_name || "",
+                mobile_no: user.mobile_no || "",
+                email: user.email || "",
+                isArmed: user.isArmed || false,
+                services: user.services
+                    ?.filter(s => s.serviceId?.isService)
+                    .map(s => s.serviceId._id) || [],
             });
 
-            const services = companyInfo.data?.data?.user?.services;
-            const groupedServices = services.reduce((acc, service) => {
-                if (!acc[service.type]) {
-                    acc[service.type] = [];
-                }
-                acc[service.type].push(service);
+            // Prepare grouped service list
+            const filteredServices = user.services?.filter(s => s.serviceId?.isService);
+
+            const grouped = filteredServices?.reduce((acc, s) => {
+                const type = s.serviceId.type;
+                if (!acc[type]) acc[type] = [];
+                acc[type].push({
+                    label: s.serviceId.type,
+                    value: s.serviceId._id,
+                });
                 return acc;
             }, {});
-            setServicesList(groupedServices);
-        }
 
+            // Convert to array format if needed (for dropdowns like MUI Select)
+            const groupedOptions = Object.keys(grouped || {}).map(type => ({
+                label: type,
+                options: grouped[type],
+            }));
+
+            setServicesList(groupedOptions);
+            console.log("Grouped Options", groupedOptions);
+        }
     }, [companyInfo.data?.data?.user]);
 
+
     useLayoutEffect(() => {
-        if (serviceslist) {
-            const groupedOptions = Object.keys(serviceslist).map((category) => ({
-                label: category,
-                options: serviceslist[category].map((service) => ({
-                    label: service.serviceName,
-                    value: service._id,
-                })),
-            }));
+        if (Array.isArray(serviceslist)) {
+            const filteredServices = serviceslist.filter(service => service.isService);
+
+            const groupedOptions = [
+                {
+                    label: "Services",
+                    options: filteredServices.map((service) => ({
+                        label: service.type,
+                        value: service._id,
+                    })),
+                }
+            ];
+
             setGrpservicesList(groupedOptions ?? [])
         }
     }, [serviceslist])
@@ -283,6 +306,29 @@ const ListOfDrivers = () => {
                                         </label>
 
                                     </div>
+                                    <div className="c-info2">
+
+                                        <input
+                                            type="checkbox"
+                                            name="isArmed"
+                                            id="isArmed"
+                                            className="form-check-input me-1"
+                                            checked={CompanyForm.values.isArmed}
+                                            onChange={(e) =>
+                                                CompanyForm.setFieldValue(
+                                                    "isArmed",
+                                                    e.target.checked
+                                                )
+                                            }
+                                            disabled={!edit}
+                                        />
+                                        <label
+                                            htmlFor="isArmed"
+                                        >
+                                            Security
+                                        </label>
+
+                                    </div>
                                 </div>
                             </div>
                             {
@@ -305,9 +351,9 @@ const ListOfDrivers = () => {
                                                     CompanyForm.setFieldValue("services", selectedValues);
                                                 }}
                                                 styles={{
-                                                    control: (base, state) => ({
+                                                    control: (base) => ({
                                                         ...base,
-                                                        border: 'none !important',
+                                                        border: 'none',
                                                         boxShadow: 'none',
                                                         backgroundColor: 'transparent',
                                                     }),
@@ -322,24 +368,21 @@ const ListOfDrivers = () => {
                                                         margin: '2px',
                                                     }),
                                                 }}
-
                                             />
                                         </div>
                                     </div>
-
                                 ) : (
-                                    Object.keys(servicesList).length > 0 && (
+                                    servicesList.length > 0 && (
                                         <div className="company-info">
                                             <div className="comapny-titles">Company Services</div>
                                             <div className="comapny-det comapny-det2">
-                                                {Object.keys(servicesList).map((serviceKey, index) => (
+                                                {servicesList.map((group, index) => (
                                                     <div
                                                         key={index}
-                                                        className={Object.keys(servicesList).length > index + 1 ? "c-ser" : "c-ser2"}
+                                                        className={servicesList.length > index + 1 ? "c-ser" : "c-ser2"}
                                                     >
-                                                        <span>{serviceKey}</span>
-                                                        {servicesList[serviceKey]?.map((service, index) => (
-                                                            <p key={index}>{service?.serviceName}</p>
+                                                        {group.options.map((service, idx) => (
+                                                            <p key={`${index}-${idx}`}>{service.label}</p>
                                                         ))}
                                                     </div>
                                                 ))}
@@ -348,6 +391,7 @@ const ListOfDrivers = () => {
                                     )
                                 )
                             }
+
                             <div className="company-info">
                                 <div className="comapny-titles">Company Payout</div>
                                 <div className="comapny-det comapny-det2">
