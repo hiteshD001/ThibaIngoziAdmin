@@ -68,7 +68,7 @@ const ResetPassword = () => {
                     </button>
                 </form>
 
-                <footer>© 2024 Thiba Ingozi</footer>
+                <footer>© 2025 Thiba Ingozi</footer>
             </div>
         </div>
     );
