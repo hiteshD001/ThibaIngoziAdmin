@@ -44,6 +44,7 @@ const ListOfDrivers = () => {
             mobile_no: "",
             email: "",
             isArmed: "",
+            isPaymentToken: "",
             services: []
         },
         validationSchema: companyEditValidation,
@@ -83,18 +84,17 @@ const ListOfDrivers = () => {
     useEffect(() => {
         const user = companyInfo.data?.data?.user;
         if (user) {
-            // Set Formik values
             CompanyForm.setValues({
                 company_name: user.company_name || "",
                 mobile_no: user.mobile_no || "",
                 email: user.email || "",
                 isArmed: user.isArmed || false,
+                isPaymentToken: user.isPaymentToken || false,
                 services: user.services
                     ?.filter(s => s.serviceId?.isService)
                     .map(s => s.serviceId._id) || [],
             });
 
-            // Prepare grouped service list
             const filteredServices = user.services?.filter(s => s.serviceId?.isService);
 
             const grouped = filteredServices?.reduce((acc, s) => {
@@ -107,7 +107,6 @@ const ListOfDrivers = () => {
                 return acc;
             }, {});
 
-            // Convert to array format if needed (for dropdowns like MUI Select)
             const groupedOptions = Object.keys(grouped || {}).map(type => ({
                 label: type,
                 options: grouped[type],
@@ -310,22 +309,22 @@ const ListOfDrivers = () => {
 
                                         <input
                                             type="checkbox"
-                                            name="isArmed"
-                                            id="isArmed"
+                                            name="isPaymentToken"
+                                            id="isPaymentToken"
                                             className="form-check-input me-1"
-                                            checked={CompanyForm.values.isArmed}
+                                            checked={CompanyForm.values.isPaymentToken}
                                             onChange={(e) =>
                                                 CompanyForm.setFieldValue(
-                                                    "isArmed",
+                                                    "isPaymentToken",
                                                     e.target.checked
                                                 )
                                             }
                                             disabled={!edit}
                                         />
                                         <label
-                                            htmlFor="isArmed"
+                                            htmlFor="isPaymentToken"
                                         >
-                                            Security
+                                            Sos payment
                                         </label>
 
                                     </div>

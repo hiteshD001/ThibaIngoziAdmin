@@ -41,6 +41,7 @@ const AddCompany = () => {
 			role: "company",
 			type: "email_pass",
 			isArmed: false,
+			isPaymentToken: false,
 			selfieImage: "",
 			fullImage: "",
 			services: [],
@@ -444,6 +445,19 @@ const AddCompany = () => {
 										/>
 										<label className="form-check-label" htmlFor="isArmed">
 											Security
+										</label>
+									</div>
+									<div className=" form-checkbox form-control">
+										<input
+											type="checkbox"
+											name="isPaymentToken"
+											id="isPaymentToken"
+											className="form-check-input"
+											checked={companyForm.values.isPaymentToken}
+											onChange={(e) => companyForm.setFieldValue("isPaymentToken", e.target.checked)}
+										/>
+										<label className="form-check-label" htmlFor="isPaymentToken">
+											Sos payment
 										</label>
 									</div>
 								</div>

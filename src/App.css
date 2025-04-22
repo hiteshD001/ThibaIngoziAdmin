@@ -687,11 +687,18 @@ table#example {
     width: 85%;
     background: #fff;
     overflow-x:auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 transparent;
+    -ms-overflow-style: auto;
 }
+
 .comapny-det2 {
     overflow-x: auto;
     align-items: start!important;
     justify-content:flex-start!important;
+    scrollbar-width: thin;
+    scrollbar-color: #888 transparent;
+    -ms-overflow-style: auto;
 }
 
 .comapny-det .c-info {
@@ -1247,6 +1254,9 @@ position: relative;
 .form-checkbox:has(.form-check-input:disabled) .form-check-label{
     opacity: 1;
 }
+
+
+
 
 
 @media only screen and (max-width: 1200px) {
