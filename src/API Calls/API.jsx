@@ -124,6 +124,116 @@ export const useGetArmedSoS = () => {
     return res;
 };
 
+// armed sos amount
+
+export const useCreateSosAmount = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `https://gaurdianlink-142r.onrender.com/api/v2/armed-sos/sosAmount`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useUpdateSosAmount = (onSucess, onError) => {
+
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `https://gaurdianlink-142r.onrender.com/api/v2/armed-sos/sosAmount/${id}`,
+            data
+        );
+    };
+
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+
+    return res;
+};
+
+export const useGetSoSAmountList = (
+    key,
+    page = 1,
+    limit = 10,
+    filter,
+) => {
+    const navigate = useNavigate();
+
+    const queryFn = async () =>
+        apiClient.get(`https://gaurdianlink-142r.onrender.com/api/v2/armed-sos/get/sosAmounts`, {
+            params: {
+                page,
+                limit,
+                filter,
+            },
+        });
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            page,
+            limit,
+            filter,
+        ],
+        queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+        onError: (error) => {
+            if (error.response?.status === 401) {
+                localStorage.clear();
+                navigate("/");
+            }
+        },
+    });
+
+    return res;
+};
+
+export const useGetSoSAmount = (id) => {
+    const navigate = useNavigate();
+
+    const queryFn = async () =>
+        apiClient.get(`https://gaurdianlink-142r.onrender.com/api/v2/armed-sos/sos/split-amount/${id}`);
+
+    const res = useQuery({
+        queryKey: ["ArmedSOSAmount List"],
+        queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+        onError: (error) => {
+            if (error.response?.status === 401) {
+                localStorage.clear();
+                navigate("/");
+            }
+        },
+    });
+
+    return res;
+};
+
+export const useDeleteSosAmount = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(`https://gaurdianlink-142r.onrender.com/api/v2/armed-sos/delete/sosAmount/${id}`)
+    }
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    })
+    return mutation
+}
+
+// trip
 export const useGetTripList = (key, page = 1, limit = 10, filter) => {
     const nav = useNavigate();
 

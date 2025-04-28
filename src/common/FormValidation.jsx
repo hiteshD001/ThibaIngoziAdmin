@@ -82,6 +82,16 @@ export const companyEditValidation = yup.object({
     company_name: Username,
     mobile_no: MobileNumber,
 })
+
+export const SosAmount = yup.object({
+    amount: Number,
+    driverSplitAmount: Number,
+    companySplitAmount: Number,
+    // type: String,
+    notificationTypeId: String,
+    currency: String,
+
+})
 export const driverValidation = yup.object({
     company_id: yup.string(),
     first_name: Username,

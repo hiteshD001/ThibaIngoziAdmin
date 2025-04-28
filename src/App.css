@@ -743,7 +743,7 @@ table#example {
     min-height: 80px;
     flex-shrink: 0;
     position: relative;
-    padding-right: 0px;
+    padding-right: 2px;
 }
 
 

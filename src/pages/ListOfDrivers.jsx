@@ -133,6 +133,7 @@ const ListOfDrivers = () => {
             ];
 
             setGrpservicesList(groupedOptions ?? [])
+            console.log("grp", GrpservicesList)
         }
     }, [serviceslist])
     const onSuccess = () => {
@@ -349,6 +350,8 @@ const ListOfDrivers = () => {
                                                     const selectedValues = selectedOptions?.map((option) => option.value) || [];
                                                     CompanyForm.setFieldValue("services", selectedValues);
                                                 }}
+                                                menuPortalTarget={document.body}
+                                                menuPosition="fixed"
                                                 styles={{
                                                     control: (base) => ({
                                                         ...base,
@@ -366,8 +369,13 @@ const ListOfDrivers = () => {
                                                         ...base,
                                                         margin: '2px',
                                                     }),
+                                                    menu: (base) => ({
+                                                        ...base,
+                                                        zIndex: 9999, // ensure it's above modals and overflow parents
+                                                    }),
                                                 }}
                                             />
+
                                         </div>
                                     </div>
                                 ) : (
