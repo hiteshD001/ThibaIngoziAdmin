@@ -56,7 +56,7 @@ const AddSosAmount = () => {
 
     useLayoutEffect(() => {
         if (Array.isArray(serviceslist)) {
-            const filteredServices = serviceslist.filter(service => service.isService);
+            const filteredServices = serviceslist.filter(service => service);
 
             const groupedOptions = [
                 {

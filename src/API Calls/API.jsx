@@ -129,7 +129,7 @@ export const useGetArmedSoS = () => {
 export const useCreateSosAmount = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
-            `https://gaurdianlink-142r.onrender.com/api/v2/armed-sos/sosAmount`,
+            `${import.meta.env.VITE_BASEURL}/armed-sos/sosAmount`,
             data
         );
     };
@@ -147,7 +147,7 @@ export const useUpdateSosAmount = (onSucess, onError) => {
 
     const mutationFn = async ({ id, data }) => {
         return await apiClient.put(
-            `https://gaurdianlink-142r.onrender.com/api/v2/armed-sos/sosAmount/${id}`,
+            `${import.meta.env.VITE_BASEURL}/armed-sos/sosAmount/${id}`,
             data
         );
     };
@@ -170,7 +170,7 @@ export const useGetSoSAmountList = (
     const navigate = useNavigate();
 
     const queryFn = async () =>
-        apiClient.get(`https://gaurdianlink-142r.onrender.com/api/v2/armed-sos/get/sosAmounts`, {
+        apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/get/sosAmounts`, {
             params: {
                 page,
                 limit,
@@ -203,7 +203,7 @@ export const useGetSoSAmount = (id) => {
     const navigate = useNavigate();
 
     const queryFn = async () =>
-        apiClient.get(`https://gaurdianlink-142r.onrender.com/api/v2/armed-sos/sos/split-amount/${id}`);
+        apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/sos/split-amount/${id}`);
 
     const res = useQuery({
         queryKey: ["ArmedSOSAmount List"],
@@ -223,7 +223,7 @@ export const useGetSoSAmount = (id) => {
 
 export const useDeleteSosAmount = (onSuccess, onError) => {
     const mutationFn = async (id) => {
-        return await apiClient.delete(`https://gaurdianlink-142r.onrender.com/api/v2/armed-sos/delete/sosAmount/${id}`)
+        return await apiClient.delete(`${import.meta.env.VITE_BASEURL}/armed-sos/delete/sosAmount/${id}`)
     }
     const mutation = useMutation({
         mutationFn,

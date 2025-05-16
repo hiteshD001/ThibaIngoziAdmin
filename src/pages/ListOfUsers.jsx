@@ -22,9 +22,7 @@ const ListOfUsers = () => {
     const [confirmation, setconfirmation] = useState("");
 
     const notification_type = "677534649c3a99e13dcd7456"
-    const UserList = useGetUserList("user list", "passanger", params.id, page, 10, filter, notification_type)
-
-    console.log(UserList.data)
+    const UserList = useGetUserList("user list", "passanger", params.id, page, 10, filter)
 
 
     return (

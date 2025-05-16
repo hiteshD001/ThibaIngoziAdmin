@@ -33,11 +33,13 @@ const ArmedSosAmount = () => {
         onSubmit: (values) => {
             const updatedValues = {
                 notificationTypeId: values.notificationTypeId,
-                amount: values.amount,
-                driverSplitAmount: values.driverSplitAmount,
-                companySplitAmount: values.companySplitAmount,
+                amount: Number(values.amount),
+                driverSplitAmount: Number(values.driverSplitAmount),
+                companySplitAmount: Number(values.companySplitAmount),
                 currency: values.currency,
             };
+            console.log("Submitting:", updatedValues);
+
             mutate({ id, data: updatedValues });
             setEdit(false);
         },
@@ -68,7 +70,6 @@ const ArmedSosAmount = () => {
             });
         }
     }, [data?.data]);
-
 
     useLayoutEffect(() => {
         if (Array.isArray(serviceslist)) {

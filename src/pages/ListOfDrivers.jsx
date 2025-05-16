@@ -62,18 +62,6 @@ const ListOfDrivers = () => {
         },
     });
 
-    const PayoutForm = useFormik({
-        initialValues: {
-            firstName: '',
-            surname: '',
-            branchCode: '',
-            amount: 0,
-            accountNumber: '',
-            customerCode: ''
-        }
-    })
-    const serviceslist = useGetServicesList()
-
     useEffect(() => {
         if (companyInfo.data) {
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
@@ -113,11 +101,10 @@ const ListOfDrivers = () => {
             }));
 
             setServicesList(groupedOptions);
-            console.log("Grouped Options", groupedOptions);
         }
     }, [companyInfo.data?.data?.user]);
 
-
+    const serviceslist = useGetServicesList()
     useLayoutEffect(() => {
         if (Array.isArray(serviceslist)) {
             const filteredServices = serviceslist.filter(service => service.isService);
@@ -133,7 +120,6 @@ const ListOfDrivers = () => {
             ];
 
             setGrpservicesList(groupedOptions ?? [])
-            console.log("grp", GrpservicesList)
         }
     }, [serviceslist])
     const onSuccess = () => {
@@ -144,22 +130,45 @@ const ListOfDrivers = () => {
     const { mutate } = useUpdateUser(onSuccess, onError);
 
 
+    const PayoutForm = useFormik({
+        initialValues: {
+            firstName: '',
+            surname: '',
+            branchCode: '',
+            amount: 0,
+            accountNumber: '',
+            customerCode: ''
+        }
+    })
+
+    const parseXmlResponse = (xmlString) => {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+        const result = xmlDoc.getElementsByTagName("Result")[0]?.textContent;
+        const message = xmlDoc.getElementsByTagName("ResultMessage")[0]?.textContent;
+
+        return { result, message };
+    };
+
     const payoutMutation = armedSosPayout(
         (res) => {
-            console.log("Success!", res);
-            payoutUpdateMutation.mutate({
-                user_id: companyInfo.data.data.user._id,
-                type: selectedPayoutType,
-                amount: PayoutForm.values.amount,
-            });
-            // payoutUpdateMutation.mutate({
-            //     user_id: companyInfo.data.data.user._id,
-            //     type: companyInfo.data.data.user.role,
-            //     amount: PayoutForm.values.amount,
-            // });
+            const { result, message } = parseXmlResponse(res.data);
 
-            closePopup();
+            if (result === "Success") {
+                payoutUpdateMutation.mutate({
+                    user_id: companyInfo.data.data.user._id,
+                    type: selectedPayoutType,
+                    amount: PayoutForm.values.amount,
+                });
+                toast.success('Payment successful');
+                closePopup();
+            } else {
+                toast.error(message || 'Payment failed');
+                console.error("Payment Error:", message);
+            }
         },
+
         (err) => {
             toast.error('payment failed')
             console.error("Error!", err);
