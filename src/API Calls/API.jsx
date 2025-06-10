@@ -124,6 +124,116 @@ export const useGetArmedSoS = () => {
     return res;
 };
 
+// armed sos amount
+
+export const useCreateSosAmount = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/armed-sos/sosAmount`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useUpdateSosAmount = (onSucess, onError) => {
+
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/armed-sos/sosAmount/${id}`,
+            data
+        );
+    };
+
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+
+    return res;
+};
+
+export const useGetSoSAmountList = (
+    key,
+    page = 1,
+    limit = 10,
+    filter,
+) => {
+    const navigate = useNavigate();
+
+    const queryFn = async () =>
+        apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/get/sosAmounts`, {
+            params: {
+                page,
+                limit,
+                filter,
+            },
+        });
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            page,
+            limit,
+            filter,
+        ],
+        queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+        onError: (error) => {
+            if (error.response?.status === 401) {
+                localStorage.clear();
+                navigate("/");
+            }
+        },
+    });
+
+    return res;
+};
+
+export const useGetSoSAmount = (id) => {
+    const navigate = useNavigate();
+
+    const queryFn = async () =>
+        apiClient.get(`${import.meta.env.VITE_BASEURL}/armed-sos/sos/split-amount/${id}`);
+
+    const res = useQuery({
+        queryKey: ["ArmedSOSAmount List"],
+        queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+        onError: (error) => {
+            if (error.response?.status === 401) {
+                localStorage.clear();
+                navigate("/");
+            }
+        },
+    });
+
+    return res;
+};
+
+export const useDeleteSosAmount = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(`${import.meta.env.VITE_BASEURL}/armed-sos/delete/sosAmount/${id}`)
+    }
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    })
+    return mutation
+}
+
+// trip
 export const useGetTripList = (key, page = 1, limit = 10, filter) => {
     const nav = useNavigate();
 
@@ -203,7 +313,7 @@ export const useGetCountryList = () => {
 
 export const useGetServicesList = () => {
     const queryFn = async () => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/services`);
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/notificationType`);
     };
 
     const res = useQuery({
@@ -524,9 +634,8 @@ export const useGetLocationByLocationId = (locationId) => {
         try {
             if (locationId) {
                 const response = await apiClient.get(
-                    locationId`${
-                        import.meta.env.VITE_BASEURL
-                    }/location/${locationId}?google_map_api=true`
+                    locationId`${import.meta.env.VITE_BASEURL
+                        }/location/${locationId}?google_map_api=true`
                 );
                 return response.data;
             }
@@ -566,3 +675,40 @@ export const useFileUpload = (onSuccess, onError) => {
 
     return mutation;
 };
+
+
+// payout api
+
+export const armedSosPayout = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/armed-sos/payout`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const payoutUserUpdate = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/armed-sos/payout/user`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}

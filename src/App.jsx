@@ -8,8 +8,6 @@ import RequestHardware from "./pages/RequestHardware";
 import PaymentSuceed from "./pages/PaymentSuceed";
 import PaymentFailed from "./pages/PaymentFailed";
 import PaymentExpired from "./pages/PaymentExpired";
-
-
 import Home from "./pages/Home";
 import ListOfCompanies from "./pages/ListOfCompanies";
 import AddCompany from "./pages/AddCompany";
@@ -18,7 +16,9 @@ import AddDriver from "./pages/AddDriver";
 import VehicleInformation from "./pages/VehicleInformation";
 import HardwareManagement from "./pages/HardwareManagement";
 import Profile from "./pages/Profile";
-
+import AddSosAmount from "./pages/AddSosAmount";
+import ArmedSosAmount from "./pages/ArmedSosAmount";
+import ListOfSosAmount from "./pages/ListOfSosAmount";
 import "react-phone-input-2/lib/style.css";
 import "./App.css";
 import { AuthGuard, LogGuard, RouteGuard } from "./common/Guard";
@@ -28,6 +28,7 @@ import PassangerInformation from "./pages/Passangerinformation";
 import ListOfUsers from "./pages/ListOfUsers";
 import AddUser from "./pages/AddUser";
 import SosInformation from "./pages/SosInformation"
+import ArmedSosDetails from "./pages/SosInformation";
 
 function App() {
     return (
@@ -99,8 +100,8 @@ const router = createBrowserRouter([
                         element: <VehicleInformation />
                     },
                     {
-                        path:"sos-information/:id",
-                        element:<SosInformation/>
+                        path: "sos-information/:id",
+                        element: <SosInformation />
                     }
                 ]
             },
@@ -135,6 +136,23 @@ const router = createBrowserRouter([
                     {
                         path: "user-information/:id",
                         element: <PassangerInformation />
+                    },
+                ]
+            },
+            {
+                path: "total-sos-amount",
+                children: [
+                    {
+                        path: "",
+                        element: <ListOfSosAmount />
+                    },
+                    {
+                        path: "add-sos",
+                        element: <AddSosAmount />
+                    },
+                    {
+                        path: "sos-amount/:id",
+                        element: <ArmedSosAmount />
                     },
                 ]
             },

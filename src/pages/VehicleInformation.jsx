@@ -3,7 +3,7 @@ import { NavLink, useParams } from "react-router-dom";
 
 import { useFormik } from "formik";
 import { vehicleValidation } from "../common/FormValidation";
-
+import PayoutPopup from "../common/Popup";
 import { useQueryClient } from "@tanstack/react-query";
 import {
     useGetCountryList,
@@ -22,6 +22,8 @@ const VehicleInformation = () => {
     const params = useParams();
     const client = useQueryClient();
     const userinfo = useGetUser(localStorage.getItem("userID"));
+    const [payPopup, setPopup] = useState('')
+
 
     const driverform = useFormik({
         initialValues: {
@@ -43,6 +45,7 @@ const VehicleInformation = () => {
             hijakingPass: "",
             hijakingId: "",
             passport_no: "",
+            isPaymentToken: "",
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
@@ -134,7 +137,27 @@ const VehicleInformation = () => {
             // console.log('driver', driverform.values)
         }
     }, [vehicleInfo.data]);
+    const handleChange = () => {
+        alert('in progress')
+    };
 
+    const handlePopup = (event, type) => {
+        event.stopPropagation();
+        setPopup(type);
+    };
+
+    const closePopup = (event) => {
+        // event.stopPropagation();
+        setPopup('')
+    }
+    const renderPopup = () => {
+        switch (payPopup) {
+            case 'payout':
+                return <PayoutPopup yesAction={handleChange} noAction={closePopup} />;
+            default:
+                return null;
+        }
+    };
     return (
         <div className="container-fluid">
             <div className="row">
@@ -325,7 +348,7 @@ const VehicleInformation = () => {
                                         disabled={!edit}
                                     />
                                     <div
-                                        className="alert  mt-2 mb-0 py-1 px-3"
+                                        className="alert  mt-1 mb-1 mb-0 py-1 px-3"
                                         style={{ fontSize: "13px" }}
                                     >
                                         <strong>Note:</strong> Password should be the last 6 digits of the IMEI number.
@@ -357,6 +380,30 @@ const VehicleInformation = () => {
                                             htmlFor="isArmed"
                                         >
                                             Security
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className="col-md-6">
+                                    <div className="form-checkbox form-control">
+                                        <input
+                                            type="checkbox"
+                                            name="isPaymentToken"
+                                            id="isPaymentToken"
+                                            className="form-check-input"
+                                            checked={driverform.values.isPaymentToken}
+                                            onChange={(e) =>
+                                                driverform.setFieldValue(
+                                                    "isPaymentToken",
+                                                    e.target.checked
+                                                )
+                                            }
+                                            disabled={!edit}
+                                        />
+                                        <label
+                                            className="form-check-label"
+                                            htmlFor="isPaymentToken"
+                                        >
+                                            Sos Payment
                                         </label>
                                     </div>
                                 </div>
@@ -882,7 +929,26 @@ const VehicleInformation = () => {
                             </div>
                         </form>
                     </div>
-
+                    <div className="col-md-12 text-end">
+                        <div className="saveform">
+                            {edit ? (
+                                <button
+                                    type="submit"
+                                    onClick={driverform.handleSubmit}
+                                    className="btn btn-dark"
+                                >
+                                    Save
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => setedit(true)}
+                                    className="btn btn-dark"
+                                >
+                                    Edit
+                                </button>
+                            )}
+                        </div>
+                    </div>
                     <div className="theme-table">
                         <div className="tab-heading">
                             <h3>Armed SOS</h3>
@@ -946,30 +1012,28 @@ const VehicleInformation = () => {
                             </tbody>
                         </table>
                     </div>
+                    <div className="theme-table payout-section">
+                        <div className="payout-info">
+                            <div className="tab-heading">
+                                <h3>Driver Payout</h3>
+                            </div>
+                            <h4 className="payout-amount">Amount: ₹{driverform.data?.data.totalDriverAmount || 0}</h4>
+                        </div>
+                        <button
+                            className="btn btn-primary"
+                            onClick={(event) => handlePopup(event, 'payout', 'driver')}
+                            disabled={edit}
+                        >
+                            Pay
+                        </button>
+                        {renderPopup()}
+                    </div>
+
                 </div>
 
-                <div className="col-md-12 text-end">
-                    <div className="saveform">
-                        {edit ? (
-                            <button
-                                type="submit"
-                                onClick={driverform.handleSubmit}
-                                className="btn btn-dark"
-                            >
-                                Save
-                            </button>
-                        ) : (
-                            <button
-                                onClick={() => setedit(true)}
-                                className="btn btn-dark"
-                            >
-                                Edit
-                            </button>
-                        )}
-                    </div>
-                </div>
+
             </div>
-        </div>
+        </div >
     );
 };
 

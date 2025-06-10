@@ -1,29 +1,23 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API";
-import { useQueryClient } from "@tanstack/react-query"
+import icon from "../assets/images/icon.png";
+import search from "../assets/images/search.png";
 import Prev from "../assets/images/left.png";
 import Next from "../assets/images/right.png";
 import nouser from "../assets/images/NoUser.png";
-import search from "../assets/images/search.png";
-import icon from "../assets/images/icon.png";
 
+import { useGetSoSAmountList } from "../API Calls/API";
+import { DeleteSosAmount } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
-import { DeleteConfirm } from "../common/ConfirmationPOPup";
-import ImportSheet from "../common/ImportSheet";
 
-const ListOfUsers = () => {
-    const [popup, setpopup] = useState(false)
+const ListOfSosAmount = () => {
     const nav = useNavigate();
-    const params = useParams();
     const [page, setpage] = useState(1);
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
 
-    const notification_type = "677534649c3a99e13dcd7456"
-    const UserList = useGetUserList("user list", "passanger", params.id, page, 10, filter)
-
+    const sosList = useGetSoSAmountList("ArmedSOSAmount List", page, 10, filter)
 
     return (
         <div className="container-fluid">
@@ -31,10 +25,7 @@ const ListOfUsers = () => {
                 <div className="col-md-12">
                     <div className="theme-table">
                         <div className="tab-heading">
-                            <div className="count">
-                                <h3>Total Users</h3>
-                                <p>{UserList.isSuccess && UserList.data?.data.totalUsers || 0}</p>
-                            </div>
+                            <h3>List of Sos Amount</h3>
                             <div className="tbl-filter">
                                 <div className="input-group">
                                     <span className="input-group-text">
@@ -52,21 +43,18 @@ const ListOfUsers = () => {
                                     </span>
                                 </div>
                                 <button
-                                    onClick={() => nav("/home/total-users/add-user")}
                                     className="btn btn-primary"
+                                    onClick={() => nav("add-sos")}
                                 >
-                                    + Add User
-                                </button>
-                                <button className="btn btn-primary" onClick={() => setpopup(true)}>
-                                    + Import Sheet
+                                    + Add Sos
                                 </button>
                             </div>
                         </div>
-                        {UserList.isFetching ? (
+                        {!sosList.data ? (
                             <Loader />
                         ) : (
                             <>
-                                {UserList.data?.data.users ? (
+                                {sosList.data?.data ? (
                                     <>
                                         <table
                                             id="example"
@@ -75,60 +63,51 @@ const ListOfUsers = () => {
                                         >
                                             <thead>
                                                 <tr>
-                                                    <th>User</th>
-                                                    {/* <th>Email</th> */}
-                                                    <th>Contact No.</th>
-                                                    <th>Contact Email</th>
+                                                    <th>Armed Sos Amount</th>
+                                                    <th>Driver Split Amount</th>
+                                                    <th>Company Split Amount</th>
+                                                    <th>Currency</th>
+                                                    <th>Type</th>
+
                                                     <th>&nbsp;</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {UserList?.data && UserList.data?.data?.users?.map((user) => (
-                                                    <tr key={user._id}>
+                                                {sosList.data?.data.map((data) => (
+                                                    <tr key={data._id}>
+                                                        <td>{data.amount}</td>
                                                         <td>
-                                                            <div
-                                                                className={
-                                                                    (!user.first_name && !user.last_name) ? "prof nodata" : "prof"
-                                                                }
-                                                            >
-                                                                <img
-                                                                    className="profilepicture"
-                                                                    src={
-                                                                        user.profileImage
-                                                                            ? user.profileImage
-                                                                            : nouser
-                                                                    }
-                                                                />
-                                                                {user.first_name} {user.last_name}
+                                                            <div className={data.driverSplitAmount === null ? "nodata" : ""}>
+                                                                {data.driverSplitAmount == null ? 0 : data.driverSplitAmount}
                                                             </div>
                                                         </td>
-                                                        {/* <td className={!user.company_name ? "companynamenodata" : ""}>
-                                                            {user.company_name}
-                                                        </td> */}
-                                                        <td className={!user?.mobile_no ? "nodata" : ""}>
-                                                            {`${user?.mobile_no_country_code ?? ''}${user?.mobile_no ?? ''}`}
+
+                                                        <td className={data.companySplitAmount === null ? "nodata" : ""}>
+                                                            {data.companySplitAmount == null ? 0 : data.companySplitAmount}
                                                         </td>
-                                                        <td className={!user.email ? "nodata" : ""}>
-                                                            {user.email}
+
+                                                        <td className={!data.currency ? "nodata" : ""}>
+                                                            {data.currency}
+                                                        </td>
+                                                        <td className={!data.notificationTypeId?.type ? "nodata" : ""}>
+                                                            {data.notificationTypeId?.type}
                                                         </td>
                                                         <td>
                                                             <span
-                                                                onClick={() => setconfirmation(user._id)}
+                                                                onClick={() => setconfirmation(data._id)}
                                                                 className="tbl-gray"
                                                             >
                                                                 Delete
                                                             </span>
-                                                            {confirmation === user._id && (
-                                                                <DeleteConfirm
-                                                                    id={user._id}
+                                                            {confirmation === data._id && (
+                                                                < DeleteSosAmount
+                                                                    id={data._id}
                                                                     setconfirmation={setconfirmation}
                                                                 />
                                                             )}
                                                             <span
                                                                 onClick={() =>
-                                                                    nav(
-                                                                        `/home/total-users/user-information/${user._id}`
-                                                                    )
+                                                                    nav(`/home/total-sos-amount/sos-amount/${data._id}`)
                                                                 }
                                                                 className="tbl-btn"
                                                             >
@@ -150,7 +129,7 @@ const ListOfUsers = () => {
                                             </div>
                                             <div className="pagiation-right">
                                                 <button
-                                                    disabled={page === UserList.data?.data.totalPages}
+                                                    disabled={page === sosList.data?.data.totalPages}
                                                     onClick={() => setpage((p) => p + 1)}
                                                 >
                                                     Next <img src={Next} />
@@ -166,9 +145,8 @@ const ListOfUsers = () => {
                     </div>
                 </div>
             </div>
-            {popup && <ImportSheet setpopup={setpopup} />}
         </div>
     );
 };
 
-export default ListOfUsers;
+export default ListOfSosAmount;

@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useDeleteUser, useDeleteUserTrip } from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip, useDeleteSosAmount } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useState } from "react";
@@ -36,6 +36,48 @@ export const DeleteConfirm = ({ ...p }) => {
             }}
             className="popup-button confirm"
             onClick={() => p.trip ? deleteTrip.mutate(p.id) : deleteDriver.mutate(p.id)}
+          >
+            Confirm
+          </button>
+          <button
+            className="popup-button"
+            onClick={() => p.setconfirmation("")}
+          >
+            cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const DeleteSosAmount = ({ ...p }) => {
+  const client = useQueryClient();
+
+  const onSuccess = () => {
+    toast.success("Delete Sos Amount Successfully.");
+    client.invalidateQueries("ArmedSOSAmount List");
+  }
+  const onError = (error) => {
+    toast.error(error.response.data.message || "Something went Wrong", toastOption)
+  }
+
+
+  const deleteSos = useDeleteSosAmount(onSuccess, onError)
+
+  return (
+    <div className="popup-overlay">
+      <div className="popup-content">
+        <p>Are you sure you want to delete this?</p>
+        <div className="popup-buttons">
+          <button
+            disabled={deleteSos.isPending}
+            style={{
+              opacity: deleteSos.isPending ? 0.5 : 1,
+              cursor: deleteSos.isPending ? "not-allowed" : "",
+            }}
+            className="popup-button confirm"
+            onClick={() => deleteSos.mutate(p.id)}
           >
             Confirm
           </button>

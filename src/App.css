@@ -17,6 +17,51 @@
     min-height: 100vh;
 }
 
+.payout-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+}
+
+.payout-info {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.payout-amount {
+    font-weight: 600;
+    font-size: 18px;
+    color: #4a4a4a;
+    margin-top: 8px;
+}
+
+.payout-btn {
+    height: 45px;
+    padding: 0 20px;
+    background-color: #007bff;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.payout-btn:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.payout-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
 .login-box {
     background: #fff;
     margin: 60px 0 40px 0;
@@ -133,6 +178,9 @@ input[type="checkbox"] {
     width: 240px;
     margin-left: 40px;
 }
+.w-45 {
+    width: 45%;
+}
 
 .sidebar .logo img {
     width: 90%;
@@ -144,7 +192,7 @@ input[type="checkbox"] {
     top: 10px;
     left: 15px;
     z-index: 999999;
-    background: #f7f7f7;
+    /* background: #f7f7f7!important; */
     padding: 0px;
     border-radius: 0px 4px 4px 0px;
 }
@@ -638,15 +686,24 @@ table#example {
     justify-content: space-between;
     width: 85%;
     background: #fff;
+    overflow-x:auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 transparent;
+    -ms-overflow-style: auto;
 }
+
 .comapny-det2 {
+    overflow-x: auto;
     align-items: start!important;
     justify-content:flex-start!important;
+    scrollbar-width: thin;
+    scrollbar-color: #888 transparent;
+    -ms-overflow-style: auto;
 }
 
 .comapny-det .c-info {
     padding: 10px 2%;
-    width: 33%;
+    min-width: 25%;
     position: relative;
 }
 .comapny-det .c-info::after {
@@ -658,6 +715,7 @@ table#example {
     height: 80%;
     background-color: #d9d9d9;
 }
+
 .comapny-det .c-info span {
     font-size: 14px;
     font-weight: 400;
@@ -678,6 +736,16 @@ table#example {
     width: 33%;
     position: relative;
 }
+
+.comapny-det .c-ser,
+.comapny-det .c-ser2 {
+    min-width: 150px;
+    min-height: 80px;
+    flex-shrink: 0;
+    position: relative;
+    padding-right: 2px;
+}
+
 
 .comapny-det .c-ser2 {
     padding: 10px 2%;
@@ -700,13 +768,25 @@ table#example {
     line-height: 18px;
     color: rgb(28 28 28 / 40%);
 }
+.comapny-det .c-pay3{
+    width: auto!important;
+}
 
 .comapny-det .c-ser p {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
     line-height: 28px;
-    line-break: anywhere;
+    /* line-break: anywhere; */
+}
+.comapny-det .c-pay{
+    display: flex;
+    flex-direction: column;
+}
+.comapny-det .c-pay2 {
+    gap:25px;
+    display: flex;
+    flex-direction: row;
 }
 
 .comapny-det .c-ser2::after {
@@ -731,7 +811,7 @@ table#example {
     font-size: 18px;
     font-weight: 600;
     line-height: 28px;
-    line-break: anywhere;
+    /* line-break: anywhere; */
 }
 
 .vehiclpic {
@@ -1127,8 +1207,21 @@ button.Cancel-btn:hover {
     object-fit: cover;
 }
 .comapny-det .c-info2{
-padding: 10px 2%;
-width: 20%;
+display: flex;
+justify-content: center;
+align-items: center;
+min-width: 18%;
+min-height: 60px;
+position: relative;
+}
+.comapny-det .c-info2::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 10%;
+    width: 1px;
+    height: 80%;
+    background-color: #d9d9d9;
 }
 .form-checkbox{
     height: 60px;
@@ -1161,6 +1254,9 @@ width: 20%;
 .form-checkbox:has(.form-check-input:disabled) .form-check-label{
     opacity: 1;
 }
+
+
+
 
 
 @media only screen and (max-width: 1200px) {

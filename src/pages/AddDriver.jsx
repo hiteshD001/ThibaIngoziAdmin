@@ -359,6 +359,20 @@ const AddDriver = () => {
                                         </label>
                                     </div>
 
+                                    <div className=" form-checkbox form-control">
+                                        <input
+                                            type="checkbox"
+                                            name="isPaymentToken"
+                                            id="isPaymentToken"
+                                            className="form-check-input"
+                                            checked={driverForm.values.isPaymentToken}
+                                            onChange={(e) => driverForm.setFieldValue("isPaymentToken", e.target.checked)}
+                                        />
+                                        <label className="form-check-label" htmlFor="isPaymentToken">
+                                            Sos payment
+                                        </label>
+                                    </div>
+
                                 </div>
                             </div>
                         </form>
@@ -405,7 +419,8 @@ const formValues1 = {
     fcm_token: "fcm_token",
     isArmed: false,
     selfieImage: "",
-    fullImage: ""
+    fullImage: "",
+    isPaymentToken: false,
 }
 
 const formValues2 = {
@@ -427,5 +442,6 @@ const formValues2 = {
     fcm_token: "fcm_token",
     isArmed: false,
     selfieImage: "",
-    fullImage: ""
+    fullImage: "",
+    isPaymentToken: false,
 }

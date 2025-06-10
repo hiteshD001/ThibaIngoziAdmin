@@ -41,8 +41,11 @@ const AddCompany = () => {
 			role: "company",
 			type: "email_pass",
 			isArmed: false,
+			isPaymentToken: false,
 			selfieImage: "",
-			fullImage: ""
+			fullImage: "",
+			services: [],
+			// companyService: [],
 		},
 		validationSchema: companyValidation,
 		onSubmit: (values) => {
@@ -55,11 +58,21 @@ const AddCompany = () => {
 			if (values.selfieImage) {
 				formData.append("selfieImage", values.selfieImage);
 			}
-			if (values.services) {
+			// if (values.services && values.services.length > 0) {
+			// 	values.services.forEach((serviceId) => {
+			// 		if (serviceId) {
+			// 			formData.append("services[]", serviceId);
+			// 		}
+			// 	});
+			// }
+			if (values.services && values.services.length > 0) {
 				values.services.forEach((serviceId) => {
-					formData.append("services[]", serviceId);
+					if (serviceId) {
+						formData.append("companyService[]", serviceId);
+					}
 				});
 			}
+
 			if (values.fullImage) {
 				formData.append("fullImage", values.fullImage);
 			}
@@ -84,17 +97,24 @@ const AddCompany = () => {
 	const serviceslist = useGetServicesList()
 
 	useLayoutEffect(() => {
-		if (serviceslist) {
-			const groupedOptions = Object.keys(serviceslist).map((category) => ({
-				label: category,
-				options: serviceslist[category].map((service) => ({
-					label: service.serviceName,
-					value: service._id,
-				})),
-			}));
-			setServicesList(groupedOptions ?? [])
+		if (Array.isArray(serviceslist)) {
+			const filteredServices = serviceslist.filter(service => service.isService);
+
+			const groupedOptions = [
+				{
+					label: "Services",
+					options: filteredServices.map((service) => ({
+						label: service.type,
+						value: service._id,
+					})),
+				}
+			];
+
+			setServicesList(groupedOptions);
 		}
-	}, [serviceslist])
+	}, [serviceslist]);
+
+
 
 
 	return (
@@ -425,6 +445,19 @@ const AddCompany = () => {
 										/>
 										<label className="form-check-label" htmlFor="isArmed">
 											Security
+										</label>
+									</div>
+									<div className=" form-checkbox form-control">
+										<input
+											type="checkbox"
+											name="isPaymentToken"
+											id="isPaymentToken"
+											className="form-check-input"
+											checked={companyForm.values.isPaymentToken}
+											onChange={(e) => companyForm.setFieldValue("isPaymentToken", e.target.checked)}
+										/>
+										<label className="form-check-label" htmlFor="isPaymentToken">
+											Sos payment
 										</label>
 									</div>
 								</div>

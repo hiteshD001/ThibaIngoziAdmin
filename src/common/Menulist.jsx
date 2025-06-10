@@ -66,6 +66,18 @@ export const superadmin_menulist = [
         },
         company: "User Information"
     },
+    {
+        id: "total-sos-amount",
+        name: "Armed Sos Amount",
+        path: "/home/total-sos-amount",
+        image: drivers,
+        submenu: {
+            name: "List of Sos Amounts",
+            path: "/home/total-sos-amount",
+            image: arrowLeft
+        },
+        company: "Sos Information"
+    },
     // {
     //     id: "hardware-management",
     //     name: "Hardware Management",
@@ -115,6 +127,18 @@ export const Companyadmin_menulist = () => {
             info: "Vehicle Information",
             company: "Company Information"
 
+        },
+        {
+            id: "total-armed-sos",
+            name: "Armed Sos Amount",
+            path: "/home/total-sos-amount",
+            image: drivers,
+            submenu: {
+                name: "List of Sos Amounts",
+                path: "/home/total-sos-amount",
+                image: arrowLeft
+            },
+            company: "User Information"
         },
         // {
         //     id: "settings",
