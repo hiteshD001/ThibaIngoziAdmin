@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-
+import { useSearchParams, Link } from "react-router-dom";
 import { useResetPassword } from "../API Calls/API";
 
 import { toast } from "react-toastify";
@@ -15,7 +14,7 @@ const ResetPassword = () => {
     const [showpass, setshowpass] = useState(false);
     const [showconfirmpass, setshowconfirmpass] = useState(false);
     const [p] = useSearchParams()
-
+    const [resetSuccessful, setResetSuccessful] = useState(false);
     const resetPasswordForm = useFormik({
         initialValues: {
             password: "",
@@ -25,10 +24,34 @@ const ResetPassword = () => {
         onSubmit: (val) => resetpass.mutate({ password: val?.password, token: p.get('token') })
     })
 
+
     const resetpass = useResetPassword(
         (error) => toast.error(error.response.data.message || "Error", toastOption),
-        (data) => toast.success(data.data.message, toastOption)
-    )
+        (data) => {
+            setResetSuccessful(true);
+            toast.success(data.data.message, toastOption);
+
+        }
+    );
+    if (resetSuccessful) {
+        return (
+            <div className="reset-container">
+                <div className="wrapper">
+                    <h2>Password Reset Successful</h2>
+                    <div className="success-message">
+                        <p>Your password has been successfully reset.</p>
+                        <p>
+                            You can now login with your new password.{" "}
+                            {/* <Link to={`https://admin.thibaingozi.com/`} className="login-link">
+                                Login
+                            </Link> */}
+                        </p>
+                    </div>
+                    <footer>© 2025 Thiba Ingozi</footer>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="reset-container">

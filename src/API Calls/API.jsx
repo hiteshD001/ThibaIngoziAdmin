@@ -520,10 +520,11 @@ export const useUpdateStatus = (onSucess, onError) => {
 
 export const useResetPassword = (onSuccess, onError) => {
     const mutationFn = async ({ password, token }) => {
-        return await apiClient.post(
+        const response = await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/users/reset-password/${token}`,
             { newPassword: password }
         );
+        return response.data
     };
 
     const mutation = useMutation({
