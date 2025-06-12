@@ -21,7 +21,14 @@ const ResetPassword = () => {
             confirmPassword: ""
         },
         validationSchema: resetPasswordValidation,
-        onSubmit: (val) => resetpass.mutate({ password: val?.password, token: p.get('token') })
+        onSubmit: (val) => {
+            const token = p.get('token');
+            if (!token) {
+                toast.error("Invalid or expired reset link", toastOption);
+                return;
+            }
+            resetpass.mutate({ password: val.password, token });
+        }
     })
 
 
