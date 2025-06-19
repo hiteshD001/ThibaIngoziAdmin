@@ -1,7 +1,7 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { companyEditValidation, companyValidation } from "../common/FormValidation";
-import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSoS, useGetServicesList, armedSosPayout, payoutUserUpdate } from "../API Calls/API";
+import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSoS, useGetServicesList, armedSosPayout, payoutUserUpdate, useGetSecurityList } from "../API Calls/API";
 import PayoutPopup from "../common/Popup";
 import Select from "react-select";
 import { useQueryClient } from "@tanstack/react-query"
@@ -45,7 +45,8 @@ const ListOfDrivers = () => {
             email: "",
             isArmed: "",
             isPaymentToken: "",
-            services: []
+            services: [],
+            securityCompany: [],
         },
         validationSchema: companyEditValidation,
         onSubmit: (values) => {
@@ -54,12 +55,14 @@ const ListOfDrivers = () => {
             Object.entries(values).forEach(([key, value]) => {
                 if (key === "services") {
                     value.forEach((id) => formData.append("companyService[]", id));
+                } else if (key === "securityCompany") {
+                    value.forEach((id) => formData.append("securityCompany[]", id));
                 } else {
                     formData.append(key, value);
                 }
             });
             mutate({ id: params.id, data: formData });
-        },
+        }
     });
 
     useEffect(() => {
@@ -81,6 +84,7 @@ const ListOfDrivers = () => {
                 services: user.services
                     ?.filter(s => s.serviceId?.isService)
                     .map(s => s.serviceId._id) || [],
+                securityCompany: user.securityCompany?.map((item) => item.securityCompanyId._id) || [],
             });
 
             const filteredServices = user.services?.filter(s => s.serviceId?.isService);
@@ -104,6 +108,11 @@ const ListOfDrivers = () => {
         }
     }, [companyInfo.data?.data?.user]);
 
+    const securityList = useGetSecurityList()
+    const securityCompanyOptions = securityList?.data?.data?.company?.map((item) => ({
+        label: item.company_name,
+        value: item._id,
+    })) || [];
     const serviceslist = useGetServicesList()
     useLayoutEffect(() => {
         if (Array.isArray(serviceslist)) {
@@ -402,6 +411,71 @@ const ListOfDrivers = () => {
                                                         ))}
                                                     </div>
                                                 ))}
+                                            </div>
+                                        </div>
+                                    )
+                                )
+                            }
+                            {
+                                edit ? (<div className="company-info">
+                                    <div className="comapny-titles">Security Companies</div>
+                                    <div className="comapny-det">
+                                        <Select
+                                            isMulti
+                                            name="securityCompany"
+                                            options={securityCompanyOptions}
+                                            classNamePrefix="select"
+                                            placeholder="Select Security Companies"
+                                            className="form-control"
+                                            value={securityCompanyOptions.filter(option =>
+                                                CompanyForm.values.securityCompany.includes(option.value)
+                                            )}
+                                            onChange={(selectedOptions) => {
+                                                const selectedIds = selectedOptions?.map((option) => option.value) || [];
+                                                CompanyForm.setFieldValue("securityCompany", selectedIds);
+                                            }}
+                                            menuPortalTarget={document.body}
+                                            menuPosition="fixed"
+                                            styles={{
+                                                control: (base) => ({
+                                                    ...base,
+                                                    border: 'none',
+                                                    boxShadow: 'none',
+                                                    backgroundColor: 'transparent',
+                                                }),
+                                                valueContainer: (base) => ({
+                                                    ...base,
+                                                    flexWrap: 'wrap',
+                                                    maxHeight: '50px',
+                                                    overflowY: 'auto',
+                                                }),
+                                                multiValue: (base) => ({
+                                                    ...base,
+                                                    margin: '2px',
+                                                }),
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    zIndex: 9999, // ensure it's above modals and overflow parents
+                                                }),
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                ) : (
+                                    CompanyForm.values.securityCompany.length > 0 && (
+                                        <div className="company-info">
+                                            <div className="comapny-titles">Security Companies</div>
+                                            <div className="comapny-det comapny-det2">
+                                                {securityCompanyOptions
+                                                    .filter(opt => CompanyForm.values.securityCompany.includes(opt.value))
+                                                    .map((company, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className={servicesList.length > index + 1 ? "c-ser" : "c-ser2"}
+                                                        >
+                                                            <p key={index}>{company.label}</p>
+                                                        </div>
+                                                    ))}
                                             </div>
                                         </div>
                                     )

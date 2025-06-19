@@ -3,12 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
-
 import { driverValidation } from "../common/FormValidation";
 
 import { useFormik } from "formik";
 
-import { useGetCountryList, useGetProvinceList, useGetUserList, useRegister } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetUserList, useRegister, useGeteHailingList } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 
 import Loader from "../common/Loader";
@@ -25,9 +24,13 @@ const AddDriver = () => {
         validationSchema: driverValidation,
         onSubmit: (values) => {
             const formData = new FormData();
-            Object.keys(values).forEach(key => {
+            Object.keys(values).forEach((key) => {
                 if (key !== "selfieImage" && key !== "fullImage") {
-                    formData.append(key, values[key]);
+                    if (key === "other_e_hailing_company") {
+                        formData.append("other_e_hailing_company", values[key].join(","));
+                    } else {
+                        formData.append(key, values[key]);
+                    }
                 }
             });
             if (values.selfieImage) {
@@ -64,6 +67,13 @@ const AddDriver = () => {
     const companyList = useGetUserList("company list", "company")
     const provincelist = useGetProvinceList(driverForm.values.country)
     const countrylist = useGetCountryList()
+    const eHailingList = useGeteHailingList()
+
+    const eHailingOptions = eHailingList?.data?.data?.data?.map(item => ({
+        label: item.name,
+        value: item._id,
+    })) || [];
+
     return (
         <div className="container-fluid">
             <div className="row">
@@ -198,62 +208,72 @@ const AddDriver = () => {
                                     {driverForm.touched.id_no && (
                                         <p className="err">{driverForm.errors.id_no}</p>
                                     )}
-                                    <div className="row">
-                                        <div className="col-md-6">
-                                            <label>Selfie Image</label>
+                                    <select
+                                        name="primary_e_hailing_company"
+                                        className="form-control"
+                                        value={driverForm.values.primary_e_hailing_company}
+                                        onChange={(e) => {
+                                            driverForm.setFieldValue("primary_e_hailing_company", e.target.value);
+                                        }}
+                                    >
+                                        <option value="" hidden>Primary E-hailing Company</option>
+                                        {eHailingOptions.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {/* <Select
 
-                                            {driverForm.values.selfieImage && (
-                                                <div className="form-control mt-2 img-preview-container">
-                                                    <img
-                                                        src={URL.createObjectURL(driverForm.values.selfieImage)}
-                                                        alt="Selfie Preview"
-                                                        className="img-preview"
-                                                        width="100"
-                                                    />
-                                                </div>
-                                            )}
+                                        name="primary_e_hailing_company"
+                                        options={eHailingOptions}
+                                        classNamePrefix="select"
+                                        placeholder="Primary E-hailing Company"
+                                        className="form-control add-company-services"
+                                        value={eHailingOptions.find(
+                                            (option) => option.value === driverForm.values.primary_e_hailing_company
+                                        )}
+                                        onChange={(selectedOption) => {
+                                            driverForm.setFieldValue("primary_e_hailing_company", selectedOption?.value || "");
+                                        }}
+                                        styles={{
+                                            valueContainer: (base) => ({
+                                                ...base,
+                                                flexWrap: 'wrap',
+                                                maxHeight: '50px',
+                                                overflowY: 'auto',
+                                            }),
+                                            multiValue: (base) => ({
+                                                ...base,
+                                                margin: '2px',
+                                            }),
+                                        }}
+                                    /> */}
 
-                                            <div className="custom-file-input">
-                                                <input type="file" id="selfieImage" accept="image/*"
-                                                    onChange={(event) => {
-                                                        const file = event.currentTarget.files[0];
-                                                        driverForm.setFieldValue("selfieImage", file);
-                                                    }} />
-                                                <label htmlFor="selfieImage">
-                                                    {driverForm.values.selfieImage ? driverForm.values.selfieImage.name : "Choose Selfie Image"}
-                                                </label>
+                                    {/* {driverForm.touched.primary_e_hailing_company && driverForm.errors.primary_e_hailing_company && (
+                                        <p className="err">{driverForm.errors.primary_e_hailing_company}</p>
+                                    )} */}
+                                    <label>Other eHailing platforms</label>
+                                    <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', flexflexWrap: 'wrap', paddingTop: '10px' }}>
+                                        {eHailingOptions.map((option) => (
+                                            <div key={option.value} style={{ display: "flex", alignItems: "center", marginBottom: "4px", flexDirection: 'row' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    value={option.value}
+                                                    checked={driverForm.values.other_e_hailing_company?.includes(option.value)}
+                                                    onChange={(e) => {
+                                                        const selected = driverForm.values.other_e_hailing_company || [];
+                                                        const updated = e.target.checked
+                                                            ? [...selected, e.target.value]
+                                                            : selected.filter(id => id !== e.target.value);
+                                                        driverForm.setFieldValue("other_e_hailing_company", updated);
+                                                    }}
+                                                />
+                                                <span style={{ marginLeft: "8px" }}>{option.label}</span>
                                             </div>
-
-
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <label>Full Image</label>
-
-                                            {driverForm.values.fullImage && (
-                                                <div className="form-control img-preview-container mt-2">
-                                                    <img
-                                                        src={URL.createObjectURL(driverForm.values.fullImage)}
-                                                        alt="Full Image Preview"
-                                                        className="img-preview"
-                                                        width="100"
-                                                    />
-                                                </div>
-                                            )}
-
-                                            <div className="custom-file-input">
-                                                <input type="file" id="fullImage" accept="image/*"
-                                                    onChange={(event) => {
-                                                        const file = event.currentTarget.files[0];
-                                                        driverForm.setFieldValue("fullImage", file);
-                                                    }} />
-                                                <label htmlFor="fullImage">
-                                                    {driverForm.values.fullImage ? driverForm.values.fullImage.name : "Choose Full Image"}
-                                                </label>
-                                            </div>
-
-                                        </div>
+                                        ))}
                                     </div>
+
                                 </div>
 
                                 <div className="col-md-6">
@@ -372,7 +392,62 @@ const AddDriver = () => {
                                             Sos payment
                                         </label>
                                     </div>
+                                    <div className="row">
+                                        <div className="col-md-6">
+                                            <label>Selfie Image</label>
 
+                                            {driverForm.values.selfieImage && (
+                                                <div className="form-control mt-2 img-preview-container">
+                                                    <img
+                                                        src={URL.createObjectURL(driverForm.values.selfieImage)}
+                                                        alt="Selfie Preview"
+                                                        className="img-preview"
+                                                        width="100"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            <div className="custom-file-input">
+                                                <input type="file" id="selfieImage" accept="image/*"
+                                                    onChange={(event) => {
+                                                        const file = event.currentTarget.files[0];
+                                                        driverForm.setFieldValue("selfieImage", file);
+                                                    }} />
+                                                <label htmlFor="selfieImage">
+                                                    {driverForm.values.selfieImage ? driverForm.values.selfieImage.name : "Choose Selfie Image"}
+                                                </label>
+                                            </div>
+
+
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <label>Full Image</label>
+
+                                            {driverForm.values.fullImage && (
+                                                <div className="form-control img-preview-container mt-2">
+                                                    <img
+                                                        src={URL.createObjectURL(driverForm.values.fullImage)}
+                                                        alt="Full Image Preview"
+                                                        className="img-preview"
+                                                        width="100"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            <div className="custom-file-input">
+                                                <input type="file" id="fullImage" accept="image/*"
+                                                    onChange={(event) => {
+                                                        const file = event.currentTarget.files[0];
+                                                        driverForm.setFieldValue("fullImage", file);
+                                                    }} />
+                                                <label htmlFor="fullImage">
+                                                    {driverForm.values.fullImage ? driverForm.values.fullImage.name : "Choose Full Image"}
+                                                </label>
+                                            </div>
+
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -420,6 +495,8 @@ const formValues1 = {
     isArmed: false,
     selfieImage: "",
     fullImage: "",
+    primary_e_hailing_company: "",
+    other_e_hailing_company: [],
     isPaymentToken: false,
 }
 
@@ -443,5 +520,7 @@ const formValues2 = {
     isArmed: false,
     selfieImage: "",
     fullImage: "",
+    primary_e_hailing_company: "",
+    other_e_hailing_company: [],
     isPaymentToken: false,
 }

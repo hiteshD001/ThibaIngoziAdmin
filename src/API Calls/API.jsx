@@ -55,6 +55,37 @@ export const useGetUserList = (
     return res;
 };
 
+// get security service list
+export const useGetSecurityList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/users/get/securityCompany`
+        );
+    };
+    const res = useQuery({
+        queryKey: ["SecurityType"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res;
+};
+// get eHailing lisy
+export const useGeteHailingList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/eHailingCompany`
+        );
+    };
+    const res = useQuery({
+        queryKey: ["eHailing"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res;
+};
+
 export const useGetArmedSosDetails = (id) => {
     const nav = useNavigate();
 

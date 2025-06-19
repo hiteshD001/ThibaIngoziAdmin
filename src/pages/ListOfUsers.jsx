@@ -75,7 +75,9 @@ const ListOfUsers = () => {
                                         >
                                             <thead>
                                                 <tr>
+
                                                     <th>User</th>
+                                                    <th>Company</th>
                                                     {/* <th>Email</th> */}
                                                     <th>Contact No.</th>
                                                     <th>Contact Email</th>
@@ -85,6 +87,7 @@ const ListOfUsers = () => {
                                             <tbody>
                                                 {UserList?.data && UserList.data?.data?.users?.map((user) => (
                                                     <tr key={user._id}>
+
                                                         <td>
                                                             <div
                                                                 className={
@@ -100,6 +103,16 @@ const ListOfUsers = () => {
                                                                     }
                                                                 />
                                                                 {user.first_name} {user.last_name}
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div
+                                                                className={
+                                                                    (!user?.company_name) ? "prof nodata" : "prof"
+                                                                }
+                                                            >
+
+                                                                {user?.company_name}
                                                             </div>
                                                         </td>
                                                         {/* <td className={!user.company_name ? "companynamenodata" : ""}>

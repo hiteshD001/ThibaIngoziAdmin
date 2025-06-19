@@ -6,7 +6,7 @@ import { companyValidation } from "../common/FormValidation";
 
 import { useQueryClient } from "@tanstack/react-query";
 
-import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList } from "../API Calls/API";
 
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
@@ -45,26 +45,25 @@ const AddCompany = () => {
 			selfieImage: "",
 			fullImage: "",
 			services: [],
-			// companyService: [],
+			securityCompany: [],
 		},
 		validationSchema: companyValidation,
 		onSubmit: (values) => {
 			const formData = new FormData();
 			Object.keys(values).forEach(key => {
 				if (key !== "selfieImage" && key !== "fullImage" && key !== "services") {
-					formData.append(key, values[key]);
+					if (key === "securityCompany") {
+						values[key]?.forEach(id => {
+							formData.append("securityCompany[]", id);
+						});
+					} else {
+						formData.append(key, values[key]);
+					}
 				}
 			});
 			if (values.selfieImage) {
 				formData.append("selfieImage", values.selfieImage);
 			}
-			// if (values.services && values.services.length > 0) {
-			// 	values.services.forEach((serviceId) => {
-			// 		if (serviceId) {
-			// 			formData.append("services[]", serviceId);
-			// 		}
-			// 	});
-			// }
 			if (values.services && values.services.length > 0) {
 				values.services.forEach((serviceId) => {
 					if (serviceId) {
@@ -95,6 +94,11 @@ const AddCompany = () => {
 	const provincelist = useGetProvinceList(companyForm.values.country)
 	const countrylist = useGetCountryList()
 	const serviceslist = useGetServicesList()
+	const securityList = useGetSecurityList()
+	const securityCompanyOptions = securityList?.data?.data?.company?.map((item) => ({
+		label: item.company_name,
+		value: item._id,
+	})) || [];
 
 	useLayoutEffect(() => {
 		if (Array.isArray(serviceslist)) {
@@ -447,6 +451,38 @@ const AddCompany = () => {
 											Security
 										</label>
 									</div>
+									<Select
+										isMulti
+										name="securityCompany"
+										options={securityCompanyOptions}
+										classNamePrefix="select"
+										placeholder="companyService"
+										// disabled={companyForm.values.isArmed === true || companyForm.values.isArmed === "true"}
+										className="form-control add-company-services"
+										value={securityCompanyOptions.filter(option =>
+											companyForm.values.securityCompany?.includes(option.value)
+										)}
+										onChange={(selectedOptions) => {
+											const selectedValues = selectedOptions?.map((option) => option.value) || [];
+											companyForm.setFieldValue("securityCompany", selectedValues);
+										}}
+										styles={{
+											valueContainer: (base) => ({
+												...base,
+												flexWrap: 'wrap',
+												maxHeight: '50px',
+												overflowY: 'auto',
+											}),
+											multiValue: (base) => ({
+												...base,
+												margin: '2px',
+											}),
+										}}
+									/>
+
+									{companyForm.touched.services && companyForm.errors.services && (
+										<p className="err">{companyForm.errors.services}</p>
+									)}
 									<div className=" form-checkbox form-control">
 										<input
 											type="checkbox"
@@ -457,7 +493,7 @@ const AddCompany = () => {
 											onChange={(e) => companyForm.setFieldValue("isPaymentToken", e.target.checked)}
 										/>
 										<label className="form-check-label" htmlFor="isPaymentToken">
-											Sos payment
+											Is All Sos payment
 										</label>
 									</div>
 								</div>
