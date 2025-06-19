@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useDeleteUser, useDeleteUserTrip, useDeleteSosAmount } from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useState } from "react";
@@ -20,8 +20,14 @@ export const DeleteConfirm = ({ ...p }) => {
     client.invalidateQueries("Trip list");
   }
 
+  const onSuccessMeetingTrip = () => {
+    toast.success("Meeting Link Trip Delete Successfully")
+    client.invalidateQueries("Meeting Link Trip list");
+  }
+
   const deleteDriver = useDeleteUser(onSuccess, onError)
   const deleteTrip = useDeleteUserTrip(onSuccessTrip, onError)
+  const deleteMeetingLinkTrip = useDeleteUserMeetingTripTrip(onSuccessMeetingTrip, onError)
 
   return (
     <div className="popup-overlay">
@@ -35,7 +41,7 @@ export const DeleteConfirm = ({ ...p }) => {
               cursor: deleteDriver.isPending ? "not-allowed" : "",
             }}
             className="popup-button confirm"
-            onClick={() => p.trip ? deleteTrip.mutate(p.id) : deleteDriver.mutate(p.id)}
+            onClick={() => p.trip ?  (p.trip == 'trip' ? deleteTrip.mutate(p.id): deleteMeetingLinkTrip.mutate(p.id)) : deleteDriver.mutate(p.id)}
           >
             Confirm
           </button>

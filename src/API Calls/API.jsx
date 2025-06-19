@@ -273,6 +273,46 @@ export const useDeleteUserTrip = (onSuccess, onError) => {
     return mutation;
 };
 
+//meetingLink trip
+export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userMeetingTrip`, {
+            params: { page, limit, filter },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [key, page, limit, filter],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useDeleteUserMeetingTripTrip = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/userMeetingTrip/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
 // get list of Province
 export const useGetProvinceList = (id) => {
     const queryFn = async (queryId) => {

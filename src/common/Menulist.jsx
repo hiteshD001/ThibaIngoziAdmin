@@ -55,6 +55,18 @@ export const superadmin_menulist = [
         company: "User Information"
     },
     {
+        id: "total-meeting-link-trips",
+        name: "Total Meeting Link Trips",
+        path: "/home/total-meeting-link-trips",
+        image: trip,
+        submenu: {
+            name: "List of Meeting Link Trips",
+            path: "/home/total-meeting-link-trips",
+            image: arrowLeft
+        },
+        company: "User Information"
+    },
+    {
         id: "total-users",
         name: "Users",
         path: "/home/total-users",
