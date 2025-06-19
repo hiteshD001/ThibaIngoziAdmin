@@ -106,6 +106,7 @@ export const driverValidation = yup.object({
     postal_code: Number,
     country: String,
     id_no: ID,
+    // primary_e_hailing_company: String,
 })
 
 export const vehicleValidation = yup.object({

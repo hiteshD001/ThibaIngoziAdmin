@@ -20,7 +20,8 @@ const PassangerInformation = () => {
         initialValues: {
             first_name: "",
             last_name: "",
-            // company_id: "",
+            company_id: "",
+            company_name: '',
             email: "",
             mobile_no: "",
             mobile_no_country_code: "",
@@ -79,14 +80,13 @@ const PassangerInformation = () => {
 
     const provincelist = useGetProvinceList(driverform.values.country)
     const countrylist = useGetCountryList()
-
+    const companyList = useGetUserList("company list", "company");
     useEffect(() => {
         const data = UserInfo.data?.data
 
         if (data) {
             setdriverformvalues({ form: driverform, data: UserInfo.data?.data.user })
             setdriverformvalues({ form: emergencyform, data: UserInfo.data?.data?.user })
-
         }
     }, [UserInfo.data])
 
@@ -163,6 +163,35 @@ const PassangerInformation = () => {
                                     {driverform.touched.email && <p className="err">{driverform.errors.email}</p>}
                                 </div>
                                 <div className="col-md-6">
+                                    <select
+                                        name="company_id"
+                                        className="form-control"
+                                        value={driverform.values.company_id}
+                                        onChange={(e) => {
+                                            const selectedId = e.target.value;
+                                            const selectedCompany = companyList.data?.data.users.find(
+                                                (user) => user._id === selectedId
+                                            );
+
+                                            driverform.setFieldValue("company_id", selectedId);
+                                            driverform.setFieldValue("company_name", selectedCompany?.company_name || "");
+                                        }}
+                                        disabled={!edit}
+                                    >
+                                        <option value="" hidden>Others</option>
+                                        {companyList.data?.data.users.map((user) => (
+                                            <option key={user._id} value={user._id}>
+                                                {user.company_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {driverform.touched.company_id && (
+                                        <p className="err">
+                                            {driverform.errors.company_id}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="col-md-6">
 
                                     <PhoneInput
                                         country={"za"}
@@ -191,100 +220,105 @@ const PassangerInformation = () => {
                                     {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>} */}
                                 </div>
 
-                                <div className="col-md-6">
+                                <div className="col-md-12">
                                     <div className="row">
                                         <div className="col-md-6">
-                                            <label>Selfie Image</label>
+                                            <div className="row">
+                                                <div className="col-md-6">
+                                                    <label>Selfie Image</label>
 
-                                            {driverform.values.selfieImage instanceof File ? (
-                                                <div className="form-control mt-2 img-preview-container">
-                                                    <img
-                                                        src={URL.createObjectURL(driverform.values.selfieImage)}
-                                                        alt="Selfie Preview"
-                                                        className="img-preview"
-                                                        width="100"
-                                                        onLoad={(e) => URL.revokeObjectURL(e.target.src)}
-                                                    />
-                                                </div>
-                                            ) : (
-                                                UserInfo.data?.data.user?.selfieImage && (
-                                                    <div className="form-control mt-2 img-preview-container">
-                                                        <img
-                                                            src={UserInfo.data?.data.user?.selfieImage}
-                                                            alt="Selfie Image"
-                                                            className="img-preview"
-                                                            width="100"
+                                                    {driverform.values.selfieImage instanceof File ? (
+                                                        <div className="form-control mt-2 img-preview-container">
+                                                            <img
+                                                                src={URL.createObjectURL(driverform.values.selfieImage)}
+                                                                alt="Selfie Preview"
+                                                                className="img-preview"
+                                                                width="100"
+                                                                onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        UserInfo.data?.data.user?.selfieImage && (
+                                                            <div className="form-control mt-2 img-preview-container">
+                                                                <img
+                                                                    src={UserInfo.data?.data.user?.selfieImage}
+                                                                    alt="Selfie Image"
+                                                                    className="img-preview"
+                                                                    width="100"
+                                                                />
+                                                            </div>
+                                                        )
+                                                    )}
+
+
+                                                    <div className="custom-file-input">
+                                                        <input
+                                                            type="file"
+                                                            id="selfieImage"
+                                                            accept="image/*"
+                                                            disabled={!edit}
+                                                            onChange={(event) => {
+                                                                const file = event.currentTarget.files[0];
+                                                                driverform.setFieldValue("selfieImage", file);
+                                                            }}
                                                         />
+                                                        <label htmlFor="selfieImage">
+                                                            Choose Selfie Image
+                                                        </label>
                                                     </div>
-                                                )
-                                            )}
 
-
-                                            <div className="custom-file-input">
-                                                <input
-                                                    type="file"
-                                                    id="selfieImage"
-                                                    accept="image/*"
-                                                    disabled={!edit}
-                                                    onChange={(event) => {
-                                                        const file = event.currentTarget.files[0];
-                                                        driverform.setFieldValue("selfieImage", file);
-                                                    }}
-                                                />
-                                                <label htmlFor="selfieImage">
-                                                    Choose Selfie Image
-                                                </label>
+                                                </div>
                                             </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <div className="row">
+                                                <div className="col-md-6">
+                                                    <label>Full Image</label>
 
+                                                    {driverform.values.fullImage instanceof File ? (
+                                                        <div className="form-control mt-2 img-preview-container">
+                                                            <img
+                                                                src={URL.createObjectURL(driverform.values.fullImage)}
+                                                                alt="full Image"
+                                                                className="img-preview"
+                                                                width="100"
+                                                                onLoad={(e) => URL.revokeObjectURL(e.target.src)}
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        UserInfo.data?.data.user?.fullImage && (
+                                                            <div className="form-control mt-2 img-preview-container">
+                                                                <img
+                                                                    src={UserInfo.data?.data.user?.fullImage}
+                                                                    alt="full Image"
+                                                                    className="img-preview"
+                                                                    width="100"
+                                                                />
+                                                            </div>
+                                                        )
+                                                    )}
+
+                                                    <div className="custom-file-input">
+                                                        <input
+                                                            type="file"
+                                                            id="fullImage"
+                                                            accept="image/*"
+                                                            disabled={!edit}
+                                                            onChange={(event) => {
+                                                                const file = event.currentTarget.files[0];
+                                                                driverform.setFieldValue("fullImage", file);
+                                                            }}
+                                                        />
+                                                        <label htmlFor="fullImage">
+                                                            Choose Full Image
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <div className="row">
-                                        <div className="col-md-6">
-                                            <label>Full Image</label>
 
-                                            {driverform.values.fullImage instanceof File ? (
-                                                <div className="form-control mt-2 img-preview-container">
-                                                    <img
-                                                        src={URL.createObjectURL(driverform.values.fullImage)}
-                                                        alt="full Image"
-                                                        className="img-preview"
-                                                        width="100"
-                                                        onLoad={(e) => URL.revokeObjectURL(e.target.src)}
-                                                    />
-                                                </div>
-                                            ) : (
-                                                UserInfo.data?.data.user?.fullImage && (
-                                                    <div className="form-control mt-2 img-preview-container">
-                                                        <img
-                                                            src={UserInfo.data?.data.user?.fullImage}
-                                                            alt="full Image"
-                                                            className="img-preview"
-                                                            width="100"
-                                                        />
-                                                    </div>
-                                                )
-                                            )}
-
-                                            <div className="custom-file-input">
-                                                <input
-                                                    type="file"
-                                                    id="fullImage"
-                                                    accept="image/*"
-                                                    disabled={!edit}
-                                                    onChange={(event) => {
-                                                        const file = event.currentTarget.files[0];
-                                                        driverform.setFieldValue("fullImage", file);
-                                                    }}
-                                                />
-                                                <label htmlFor="fullImage">
-                                                    Choose Full Image
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </form>
                     </div>
