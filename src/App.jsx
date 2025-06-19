@@ -29,6 +29,7 @@ import ListOfUsers from "./pages/ListOfUsers";
 import AddUser from "./pages/AddUser";
 import SosInformation from "./pages/SosInformation"
 import ArmedSosDetails from "./pages/SosInformation";
+import ListOfMeetingLinkTrips from "./pages/ListOfMeetingLinkTrip";
 
 function App() {
     return (
@@ -111,6 +112,23 @@ const router = createBrowserRouter([
                     {
                         path: "",
                         element: <ListOfTrips />
+                    },
+                    {
+                        path: "user-information/:id",
+                        element: <PassangerInformation />
+                    },
+                    {
+                        path: "location",
+                        element: <GoogleMaps />
+                    },
+                ]
+            },
+            {
+                path: "total-meeting-link-trips",
+                children: [
+                    {
+                        path: "",
+                        element: <ListOfMeetingLinkTrips />
                     },
                     {
                         path: "user-information/:id",

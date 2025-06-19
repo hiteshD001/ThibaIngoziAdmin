@@ -78,6 +78,7 @@ const ListOfUsers = () => {
 
                                                     <th>User</th>
                                                     <th>Company</th>
+                                                    <th>Company</th>
                                                     {/* <th>Email</th> */}
                                                     <th>Contact No.</th>
                                                     <th>Contact Email</th>
@@ -105,17 +106,7 @@ const ListOfUsers = () => {
                                                                 {user.first_name} {user.last_name}
                                                             </div>
                                                         </td>
-                                                        <td>
-                                                            <div
-                                                                className={
-                                                                    (!user?.company_name) ? "prof nodata" : "prof"
-                                                                }
-                                                            >
-
-                                                                {user?.company_name}
-                                                            </div>
-                                                        </td>
-                                                        {/* <td className={!user.company_name ? "companynamenodata" : ""}>
+                                                        {/* {/* <td className={!user.company_name ? "companynamenodata" : ""}>
                                                             {user.company_name}
                                                         </td> */}
                                                         <td className={!user?.mobile_no ? "nodata" : ""}>
