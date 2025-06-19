@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
@@ -118,7 +119,11 @@ const AddCompany = () => {
 		}
 	}, [serviceslist]);
 
-
+	useEffect(() => {
+		if (companyForm.values.isArmed === true || companyForm.values.isArmed === "true") {
+			companyForm.setFieldValue("securityCompany", []);
+		}
+	}, [companyForm.values.isArmed]);
 
 
 	return (
@@ -456,8 +461,8 @@ const AddCompany = () => {
 										name="securityCompany"
 										options={securityCompanyOptions}
 										classNamePrefix="select"
-										placeholder="companyService"
-										// disabled={companyForm.values.isArmed === true || companyForm.values.isArmed === "true"}
+										placeholder="Security Companies"
+										isDisabled={companyForm.values.isArmed === true || companyForm.values.isArmed === "true"}
 										className="form-control add-company-services"
 										value={securityCompanyOptions.filter(option =>
 											companyForm.values.securityCompany?.includes(option.value)
@@ -467,6 +472,13 @@ const AddCompany = () => {
 											companyForm.setFieldValue("securityCompany", selectedValues);
 										}}
 										styles={{
+											control: (base, state) => ({
+												...base,
+												backgroundColor: state.isDisabled ? 'white' : base.backgroundColor,
+												opacity: state.isDisabled ? 1 : base.opacity,
+												color: 'black',
+												cursor: 'default',
+											}),
 											valueContainer: (base) => ({
 												...base,
 												flexWrap: 'wrap',
