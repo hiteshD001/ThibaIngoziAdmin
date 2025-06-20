@@ -30,6 +30,9 @@ import AddUser from "./pages/AddUser";
 import SosInformation from "./pages/SosInformation"
 import ArmedSosDetails from "./pages/SosInformation";
 import ListOfMeetingLinkTrips from "./pages/ListOfMeetingLinkTrip";
+import AddWantedPerson from './pages/AddWantedPerson'
+import ListOfWantedPerson from "./pages/ListOfWantedPerson";
+import WantedPerson from "./pages/WantedPerson";
 
 function App() {
     return (
@@ -171,6 +174,23 @@ const router = createBrowserRouter([
                     {
                         path: "sos-amount/:id",
                         element: <ArmedSosAmount />
+                    },
+                ]
+            },
+            {
+                path: "total-wanted",
+                children: [
+                    {
+                        path: "",
+                        element: <ListOfWantedPerson />
+                    },
+                    {
+                        path: "add-wanted",
+                        element: <AddWantedPerson />
+                    },
+                    {
+                        path: "wanted-person/:id",
+                        element: <WantedPerson />
                     },
                 ]
             },
