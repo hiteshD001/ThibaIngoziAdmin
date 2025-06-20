@@ -44,20 +44,20 @@ const Home = () => {
     };
 
     const getUniqueById = (array) => {
-        const map = new Map();
-        array.forEach(item => {
-            map.set(item._id, item); // or item.id depending on your data
-        });
-        return [...map.values()];
-    };
+  const map = new Map();
+  array.forEach(item => {
+    map.set(item._id, item); // or item.id depending on your data
+  });
+  return [...map.values()];
+};
 
-    useEffect(() => {
-        setActiveUsers([])
-        setActiveUsers(prev => {
-            const combined = [...prev, ...activeUserList || [], ...activeSOS || []];
-            return getUniqueById(combined);
-        });
-    }, [activeUserList, activeSOS]);
+useEffect(() => {
+    setActiveUsers([])
+  setActiveUsers(prev => {
+    const combined = [...prev, ...activeUserList || [], ...activeSOS || []];
+    return getUniqueById(combined);
+  });
+}, [activeUserList, activeSOS]);
 
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
     const userinfo = useGetUser(localStorage.getItem("userID"));
@@ -197,7 +197,7 @@ const Home = () => {
 
                         {recentSOS.isFetching ? (
                             <Loader />
-                        ) : Array.isArray(recentSOS?.data?.data) && recentSOS.data?.data?.length > 0 ? (
+                        ) : recentSOS.data?.data?.length > 0 ? (
                             <table
                                 id="example"
                                 className="table table-striped nowrap"

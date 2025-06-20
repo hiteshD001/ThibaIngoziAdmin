@@ -90,18 +90,6 @@ export const superadmin_menulist = [
         },
         company: "Sos Information"
     },
-    {
-        id: "total-wanted",
-        name: "Wanted by SAPS",
-        path: "/home/total-wanted",
-        image: drivers,
-        submenu: {
-            name: "Wanted by SAPS",
-            path: "/home/total-wanted",
-            image: arrowLeft
-        },
-        company: "Weanted person details"
-    },
     // {
     //     id: "hardware-management",
     //     name: "Hardware Management",

@@ -83,32 +83,6 @@ export const companyEditValidation = yup.object({
     mobile_no: MobileNumber,
 })
 
-export const wantedPersonValidation = yup.object({
-    full_name: yup.string().required("This field is required"),
-    offenses: yup.string().required("This field is required"),
-    incident_date: yup
-        .date()
-        .typeError("Please provide a valid date")
-        .required("Incident date is required"),
-    province: yup.string().required("This field is required"),
-    city: yup.string().required("This field is required"),
-    suburb: yup.string().required("This field is required"),
-    case_number: yup.string().required("This field is required"),
-    contact_number: yup
-        .string()
-        .matches(/^[0-9+\- ]+$/, "Invalid contact number")
-        .required("This field is required"),
-    description: yup.string().required("This field is required"),
-    status: yup
-        .string()
-        .oneOf(["Wanted", "Captured"], "Status must be 'Wanted' or 'Captured'")
-        .required("This field is required"),
-    images: yup
-        .array()
-        .max(4, "You can upload up to 4 images only")
-        .of(yup.mixed())
-});
-
 export const SosAmount = yup.object({
     amount: Number,
     driverSplitAmount: Number,

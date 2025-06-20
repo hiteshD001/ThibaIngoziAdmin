@@ -154,7 +154,7 @@ const Analytics = ({ id }) => {
                     onChange={handleNotificationChange}
                 >
                     <option value="">Select Notification Type</option>
-                    {Array.isArray(notificationTypes.data?.data) && notificationTypes.data?.data?.map((type, index) => (
+                    {notificationTypes.data?.data?.map((type, index) => (
                         <option key={index} value={type._id}>
                             {type.type}
                         </option>
@@ -179,7 +179,7 @@ const Analytics = ({ id }) => {
                             ) : hotspot.data?.data.length === 0 ? (
                                 <p>No data Found</p>
                             ) : (
-                                Array.isArray(hotspot.data?.data) && hotspot.data?.data
+                                hotspot.data?.data
                                     .sort((a, b) =>
                                         a.timesCalled > b.timesCalled ? -1 : 1
                                     )

@@ -481,24 +481,14 @@ export const useGetChartData = (notificationType) => {
     });
 
     useEffect(() => {
-        const rawData = res?.data?.data;
-
-        if (Array.isArray(rawData) && rawData.length > 0) {
+        if (res.data?.data) {
             const newData = new Array(12).fill(0);
-            rawData.forEach((item) => {
-                if (
-                    typeof item?.month === "number" &&
-                    item.month >= 1 &&
-                    item.month <= 12 &&
-                    typeof item?.count === "number"
-                ) {
-                    newData[item.month - 1] = item.count;
-                }
+            res.data.data.forEach((item) => {
+                newData[item.month - 1] = item.count;
             });
             setChartData(newData);
         }
-    }, [res?.data]);
-
+    }, [res.data]);
 
     return chartData;
 };
