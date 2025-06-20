@@ -232,6 +232,11 @@ const ListOfDrivers = () => {
     };
 
 
+    useEffect(() => {
+        if (CompanyForm.values.isArmed === true || CompanyForm.values.isArmed === "true") {
+            CompanyForm.setFieldValue("securityCompany", []);
+        }
+    }, [CompanyForm.values.isArmed]);
     return (
         <div className="container-fluid">
             <div className="row">
@@ -357,6 +362,7 @@ const ListOfDrivers = () => {
                                             <Select
                                                 isMulti
                                                 name="services"
+
                                                 options={GrpservicesList}
                                                 classNamePrefix="select"
                                                 placeholder="Select Services"
@@ -424,6 +430,7 @@ const ListOfDrivers = () => {
                                             isMulti
                                             name="securityCompany"
                                             options={securityCompanyOptions}
+                                            isDisabled={CompanyForm.values.isArmed}
                                             classNamePrefix="select"
                                             placeholder="Select Security Companies"
                                             className="form-control"
@@ -455,7 +462,7 @@ const ListOfDrivers = () => {
                                                 }),
                                                 menu: (base) => ({
                                                     ...base,
-                                                    zIndex: 9999, // ensure it's above modals and overflow parents
+                                                    zIndex: 9999,
                                                 }),
                                             }}
                                         />
@@ -466,16 +473,18 @@ const ListOfDrivers = () => {
                                         <div className="company-info">
                                             <div className="comapny-titles">Security Companies</div>
                                             <div className="comapny-det comapny-det2">
-                                                {securityCompanyOptions
-                                                    .filter(opt => CompanyForm.values.securityCompany.includes(opt.value))
-                                                    .map((company, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className={servicesList.length > index + 1 ? "c-ser" : "c-ser2"}
-                                                        >
-                                                            <p key={index}>{company.label}</p>
-                                                        </div>
-                                                    ))}
+                                                {(CompanyForm.values.isArmed !== true) &&
+                                                    securityCompanyOptions
+                                                        .filter(opt => CompanyForm.values.securityCompany.includes(opt.value))
+                                                        .map((company, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className={servicesList.length > index + 1 ? "c-ser" : "c-ser2"}
+                                                            >
+                                                                <p>{company.label}</p>
+                                                            </div>
+                                                        ))
+                                                }
                                             </div>
                                         </div>
                                     )
