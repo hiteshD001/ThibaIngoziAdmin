@@ -11,6 +11,7 @@ import {
     useGetUser,
     useGetUserList,
     useUpdateUser,
+    useGeteHailingList
 } from "../API Calls/API";
 
 import { toast } from "react-toastify";
@@ -30,6 +31,7 @@ const VehicleInformation = () => {
             first_name: "",
             last_name: "",
             company_id: "",
+            company_name: '',
             email: "",
             mobile_no: "",
             mobile_no_country_code: "",
@@ -44,18 +46,25 @@ const VehicleInformation = () => {
             fullImage: null,
             hijakingPass: "",
             hijakingId: "",
+            primary_e_hailing_company: "",
+            other_e_hailing_company: [],
             passport_no: "",
             isPaymentToken: "",
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
             setedit(false);
-
             const formData = new FormData();
 
             Object.keys(values).forEach((key) => {
                 if (key !== "selfieImage" && key !== "fullImage") {
-                    formData.append(key, values[key]);
+                    if (key === "other_e_hailing_company") {
+                        const cleanedIds = (Array.isArray(values[key]) ? values[key] : [])
+                            .filter(id => typeof id === 'string' && /^[a-f\d]{24}$/i.test(id)); // Only valid ObjectIDs
+                        formData.append("other_e_hailing_company", cleanedIds.join(","));
+                    } else {
+                        formData.append(key, values[key]);
+                    }
                 }
             });
 
@@ -68,7 +77,8 @@ const VehicleInformation = () => {
             }
 
             mutate({ id: params.id, data: formData });
-        },
+        }
+
     });
 
     const vehicleForm = useFormik({
@@ -113,8 +123,16 @@ const VehicleInformation = () => {
         const data = vehicleInfo.data?.data;
 
         if (data) {
-            // console.log(data.user)
-            setdriverformvalues({ form: driverform, data: data.user });
+            const user = data.user;
+            setdriverformvalues({
+                form: driverform,
+                data: {
+                    ...user,
+                    other_e_hailing_company: user.other_e_hailing_company
+                        ? user.other_e_hailing_company.split(",").filter(Boolean)
+                        : [],
+                },
+            });
             setdriverformvalues({ form: emergencyform, data: data.user });
 
             const vehicleData = data.vehicle?.[0];
@@ -158,6 +176,12 @@ const VehicleInformation = () => {
                 return null;
         }
     };
+    const eHailingList = useGeteHailingList()
+
+    const eHailingOptions = eHailingList?.data?.data?.data?.map(item => ({
+        label: item.name,
+        value: item._id,
+    })) || [];
     return (
         <div className="container-fluid">
             <div className="row">
@@ -205,22 +229,23 @@ const VehicleInformation = () => {
                                         name="company_id"
                                         className="form-control"
                                         value={driverform.values.company_id}
-                                        onChange={driverform.handleChange}
+                                        onChange={(e) => {
+                                            const selectedId = e.target.value;
+                                            const selectedCompany = companyList.data?.data.users.find(
+                                                (user) => user._id === selectedId
+                                            );
+
+                                            driverform.setFieldValue("company_id", selectedId);
+                                            driverform.setFieldValue("company_name", selectedCompany?.company_name || "");
+                                        }}
                                         disabled={!edit}
                                     >
-                                        <option value="" hidden>
-                                            Others
-                                        </option>
-                                        {companyList.data?.data.users.map(
-                                            (user) => (
-                                                <option
-                                                    key={user._id}
-                                                    value={user._id}
-                                                >
-                                                    {user.company_name}
-                                                </option>
-                                            )
-                                        )}
+                                        <option value="" hidden>Others</option>
+                                        {companyList.data?.data.users.map((user) => (
+                                            <option key={user._id} value={user._id}>
+                                                {user.company_name}
+                                            </option>
+                                        ))}
                                     </select>
                                     {driverform.touched.company_id && (
                                         <p className="err">
@@ -407,6 +432,60 @@ const VehicleInformation = () => {
                                         </label>
                                     </div>
                                 </div>
+                                <div className="col-md-6">
+
+                                    <select
+                                        name="primary_e_hailing_company"
+                                        className="form-control"
+                                        value={driverform.values.primary_e_hailing_company}
+                                        onChange={(e) => {
+                                            driverform.setFieldValue("primary_e_hailing_company", e.target.value);
+                                        }}
+                                        disabled={!edit}
+                                    >
+                                        <option value="" hidden>Select E-Hailing Company</option>
+                                        {eHailingOptions.map((option) => (
+                                            <option key={option.value} value={option.value}>
+                                                {option.label}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    {/* Validation Error */}
+                                    {driverform.touched.primary_e_hailing_company && (
+                                        <p className="err">{driverform.errors.primary_e_hailing_company}</p>
+                                    )}
+
+
+                                </div>
+                                <div className="col-md-6">
+                                    <label>Other eHailing platforms</label>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', paddingTop: '10px' }}>
+                                        {eHailingOptions.map((option) => (
+                                            <div
+                                                key={option.value}
+                                                style={{ display: "flex", alignItems: "center", marginBottom: "4px" }}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    value={option.value}
+                                                    disabled={!edit}
+                                                    className="form-check-input"
+                                                    checked={driverform.values.other_e_hailing_company?.includes(option.value)}
+                                                    onChange={(e) => {
+                                                        const selected = driverform.values.other_e_hailing_company || [];
+                                                        const updated = e.target.checked
+                                                            ? [...selected, option.value]
+                                                            : selected.filter(id => id !== option.value);
+                                                        driverform.setFieldValue("other_e_hailing_company", updated);
+                                                    }}
+                                                />
+                                                <span style={{ marginLeft: "8px" }}>{option.label}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 {/* <div className="col-md-6">
                                     <div className="alert p-2 mb-2" style={{ fontSize: '14px' }}>
                                         <strong>Note:</strong> Password should be last 6 digits of IMEI number.

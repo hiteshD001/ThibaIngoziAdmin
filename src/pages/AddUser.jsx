@@ -8,7 +8,7 @@ import { driverValidation } from "../common/FormValidation";
 
 import { useFormik } from "formik";
 
-import { useGetCountryList, useGetProvinceList, useRegister } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetUserList, useRegister } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 
 import Loader from "../common/Loader";
@@ -20,45 +20,14 @@ const AddUser = () => {
     const nav = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
 
-
-    const userform = {
-        first_name: "",
-        last_name: "",
-        email: "",
-        password: "",
-        mobile_no: "",
-        mobile_no_country_code: "",
-        street: "",
-        province: "",
-        city: "",
-        suburb: "",
-        postal_code: "",
-        country: "",
-        id_no: "",
-        role: "passanger",
-        type: "email_pass",
-        fcm_token: "fcm_token",
-        selfieImage: "",
-        fullImage: ""
-    };
-
     const onSuccess = () => {
         toast.success("User added successfully.");
         UserForm.resetForm();
         client.invalidateQueries("user list");
         nav("/home/total-users");
     };
-
-    const onError = (error) => {
-        toast.error(error.response?.data?.message || "Something went wrong", toastOption);
-    };
-
-    const newUser = useRegister(onSuccess, onError);
-
-
-
     const UserForm = useFormik({
-        initialValues: userform,
+        initialValues: role === 'super_admin' ? formValues1 : formValues2,
         validationSchema: driverValidation,
         onSubmit: (values) => {
             const formData = new FormData();
@@ -76,6 +45,20 @@ const AddUser = () => {
             newUser.mutate(formData);
         },
     });
+    const handlecountryChange = (e) => {
+        const { name, value } = e.target
+
+        const companyname = companyList.data?.data.users.find((user) => user._id === value)?.company_name
+
+        UserForm.setFieldValue(name, value)
+        UserForm.setFieldValue('company_name', companyname)
+    }
+    const onError = (error) => {
+        toast.error(error.response?.data?.message || "Something went wrong", toastOption);
+    };
+
+    const newUser = useRegister(onSuccess, onError);
+    const companyList = useGetUserList("company list", "company")
     const countrylist = useGetCountryList();
     const provincelist = useGetProvinceList(UserForm.values.country);
 
@@ -113,6 +96,26 @@ const AddUser = () => {
                                     {UserForm.touched.last_name && (
                                         <p className="err">{UserForm.errors.last_name}</p>
                                     )}
+                                    {role === 'super_admin' && <>
+                                        <select
+                                            name="company_id"
+                                            className="form-control"
+                                            value={UserForm.values.company_id}
+                                            onChange={(e) => handlecountryChange(e)}
+                                        >
+                                            <option value="" hidden>
+                                                Company Name
+                                            </option>
+                                            {companyList.data?.data.users.map((user) => (
+                                                <option key={user._id} value={user._id}>
+                                                    {user.company_name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {UserForm.touched.company_id && (
+                                            <p className="err">{UserForm.errors.company_id}</p>
+                                        )}
+                                    </>}
                                     <input
                                         type="text"
                                         name="email"
@@ -367,3 +370,46 @@ export default AddUser;
 
 
 
+const formValues1 = {
+    company_id: "",
+    company_name: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    mobile_no: "",
+    mobile_no_country_code: "",
+    street: "",
+    province: "",
+    city: "",
+    suburb: "",
+    postal_code: "",
+    country: "",
+    id_no: "",
+    role: "passanger",
+    type: "email_pass",
+    fcm_token: "fcm_token",
+    selfieImage: "",
+    fullImage: ""
+}
+
+const formValues2 = {
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+    mobile_no: "",
+    mobile_no_country_code: "",
+    street: "",
+    province: "",
+    city: "",
+    suburb: "",
+    postal_code: "",
+    country: "",
+    id_no: "",
+    role: "passanger",
+    type: "email_pass",
+    fcm_token: "fcm_token",
+    selfieImage: "",
+    fullImage: ""
+} 

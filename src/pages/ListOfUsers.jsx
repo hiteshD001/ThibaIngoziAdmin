@@ -75,6 +75,7 @@ const ListOfUsers = () => {
                                         >
                                             <thead>
                                                 <tr>
+
                                                     <th>User</th>
                                                     <th>Company</th>
                                                     {/* <th>Email</th> */}
@@ -86,6 +87,7 @@ const ListOfUsers = () => {
                                             <tbody>
                                                 {UserList?.data && UserList.data?.data?.users?.map((user) => (
                                                     <tr key={user._id}>
+
                                                         <td>
                                                             <div
                                                                 className={
