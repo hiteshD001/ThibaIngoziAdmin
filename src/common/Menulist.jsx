@@ -152,12 +152,18 @@ export const Companyadmin_menulist = () => {
             },
             company: "User Information"
         },
-        // {
-        //     id: "settings",
-        //     name: "Settings",
-        //     path: "",
-        //     image: settings
-        // },
+        {
+            id: "total-users",
+            name: "Users",
+            path: "/home/total-users",
+            image: drivers,
+            submenu: {
+                name: "List of Users",
+                path: "/home/total-users",
+                image: arrowLeft
+            },
+            company: "User Information"
+        },
         {
             id: "profile",
             name: "Profile",
