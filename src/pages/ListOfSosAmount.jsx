@@ -44,6 +44,12 @@ const ListOfSosAmount = () => {
                                 </div>
                                 <button
                                     className="btn btn-primary"
+                                    onClick={() => nav("add-service")}
+                                >
+                                    + Add Service
+                                </button>
+                                <button
+                                    className="btn btn-primary"
                                     onClick={() => nav("add-sos")}
                                 >
                                     + Add Sos

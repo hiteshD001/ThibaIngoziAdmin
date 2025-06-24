@@ -29,6 +29,7 @@ import ListOfUsers from "./pages/ListOfUsers";
 import AddUser from "./pages/AddUser";
 import SosInformation from "./pages/SosInformation"
 import ArmedSosDetails from "./pages/SosInformation";
+import AddService from "./pages/AddService";
 import ListOfMeetingLinkTrips from "./pages/ListOfMeetingLinkTrip";
 
 function App() {
@@ -167,6 +168,10 @@ const router = createBrowserRouter([
                     {
                         path: "add-sos",
                         element: <AddSosAmount />
+                    },
+                    {
+                        path: "add-service",
+                        element: <AddService />
                     },
                     {
                         path: "sos-amount/:id",
