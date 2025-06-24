@@ -13,6 +13,7 @@ import Loader from "../common/Loader";
 
 const ListOfSosAmount = () => {
     const nav = useNavigate();
+    const [role] = useState(localStorage.getItem("role"))
     const [page, setpage] = useState(1);
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
@@ -42,12 +43,16 @@ const ListOfSosAmount = () => {
                                         <img src={icon} />
                                     </span>
                                 </div>
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={() => nav("add-service")}
-                                >
-                                    + Add Service
-                                </button>
+                                {
+                                    role === 'super_admin' && (
+                                        <button
+                                            className="btn btn-primary"
+                                            onClick={() => nav("add-service")}
+                                        >
+                                            + Add Service
+                                        </button>
+                                    )
+                                }
                                 <button
                                     className="btn btn-primary"
                                     onClick={() => nav("add-sos")}
