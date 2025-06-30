@@ -56,7 +56,7 @@ const AddService = () => {
                                     </div>
 
                                     <div className="row">
-                                        <div className="col-md-6 mt-2">
+                                        <div className="col-md-4 mt-2">
                                             <input
                                                 type="text"
                                                 name="type"
@@ -70,19 +70,29 @@ const AddService = () => {
                                                 <p className="err">{serviceForm.errors.type}</p>
                                             )}
                                         </div>
+                                        <div className="col-md-4 mt-3">
+                                            <button
+                                                type="submit"
+                                                className="btn btn-primary"
+                                                disabled={newService.isPending}
+                                            >
+                                                {newService.isPending ? <Loader color="white" /> : "Save"}
+                                            </button>
+                                        </div>
                                     </div>
+                                    {/* <div className="col-md-12">
+                                        <button
+                                            type="submit"
+                                            className="btn btn-primary"
+                                            disabled={newService.isPending}
+                                        >
+                                            {newService.isPending ? <Loader color="white" /> : "Save"}
+                                        </button>
+                                    </div> */}
                                 </div>
                             </div>
 
-                            <div className="col-md-12 text-end">
-                                <button
-                                    type="submit"
-                                    className="btn btn-dark"
-                                    disabled={newService.isPending}
-                                >
-                                    {newService.isPending ? <Loader color="white" /> : "Save"}
-                                </button>
-                            </div>
+
                         </form>
                     </div>
                 </div>

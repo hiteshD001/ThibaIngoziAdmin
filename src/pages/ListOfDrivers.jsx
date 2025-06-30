@@ -47,6 +47,7 @@ const ListOfDrivers = () => {
             isPaymentToken: "",
             services: [],
             securityCompany: [],
+            isEnrollToken: ""
         },
         validationSchema: companyEditValidation,
         onSubmit: (values) => {
@@ -81,6 +82,7 @@ const ListOfDrivers = () => {
                 email: user.email || "",
                 isArmed: user.isArmed || false,
                 isPaymentToken: user.isPaymentToken || false,
+                isEnrollToken: user.isEnrollToken || false,
                 services: user.services
                     ?.filter(s => s.serviceId?.isService)
                     .map(s => s.serviceId._id) || [],
@@ -349,6 +351,29 @@ const ListOfDrivers = () => {
                                             htmlFor="isPaymentToken"
                                         >
                                             Sos payment
+                                        </label>
+
+                                    </div>
+                                    <div className="c-info2">
+
+                                        <input
+                                            type="checkbox"
+                                            name="isEnrollToken"
+                                            id="isEnrollToken"
+                                            className="form-check-input me-1"
+                                            checked={CompanyForm.values.isEnrollToken}
+                                            onChange={(e) =>
+                                                CompanyForm.setFieldValue(
+                                                    "isEnrollToken",
+                                                    e.target.checked
+                                                )
+                                            }
+                                            disabled={!edit}
+                                        />
+                                        <label
+                                            htmlFor="isEnrollToken"
+                                        >
+                                            Pay subscription
                                         </label>
 
                                     </div>

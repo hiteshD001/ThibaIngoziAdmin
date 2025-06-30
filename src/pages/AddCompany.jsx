@@ -46,6 +46,7 @@ const AddCompany = () => {
 			selfieImage: "",
 			fullImage: "",
 			services: [],
+			isEnrollToken: false,
 			securityCompany: [],
 		},
 		validationSchema: companyValidation,
@@ -327,6 +328,19 @@ const AddCompany = () => {
 									{companyForm.touched.id_no && (
 										<p className="err">{companyForm.errors.id_no}</p>
 									)}
+									<div className=" form-checkbox form-control">
+										<input
+											type="checkbox"
+											name="isEnrollToken"
+											id="isEnrollToken"
+											className="form-check-input"
+											checked={companyForm.values.isEnrollToken}
+											onChange={(e) => companyForm.setFieldValue("isEnrollToken", e.target.checked)}
+										/>
+										<label className="form-check-label" htmlFor="isEnrollToken">
+											Pay subscription
+										</label>
+									</div>
 									<div className="row">
 										<div className="col-md-6">
 											<label>Selfie Image</label>
@@ -393,6 +407,7 @@ const AddCompany = () => {
 										</div>
 
 									</div>
+
 								</div>
 
 								<div className="col-md-6">
