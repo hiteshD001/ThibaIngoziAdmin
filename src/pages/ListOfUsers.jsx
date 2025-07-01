@@ -16,13 +16,16 @@ import ImportSheet from "../common/ImportSheet";
 const ListOfUsers = () => {
     const [popup, setpopup] = useState(false)
     const nav = useNavigate();
+    const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const [page, setpage] = useState(1);
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
+    let companyId = localStorage.getItem('userID')
+    const paramId = role === "company" ? companyId : params.id;
 
     const notification_type = "677534649c3a99e13dcd7456"
-    const UserList = useGetUserList("user list", "passanger", params.id, page, 10, filter)
+    const UserList = useGetUserList("user list", "passanger", paramId, page, 10, filter)
 
 
     return (

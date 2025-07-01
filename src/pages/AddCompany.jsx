@@ -7,11 +7,11 @@ import { companyValidation } from "../common/FormValidation";
 
 import { useQueryClient } from "@tanstack/react-query";
 
-import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType } from "../API Calls/API";
 
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
-
+import CreatableSelect from 'react-select/creatable';
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 import { useLayoutEffect, useState } from "react";
@@ -46,6 +46,7 @@ const AddCompany = () => {
 			selfieImage: "",
 			fullImage: "",
 			services: [],
+			isEnrollToken: false,
 			securityCompany: [],
 		},
 		validationSchema: companyValidation,
@@ -96,6 +97,7 @@ const AddCompany = () => {
 	const countrylist = useGetCountryList()
 	const serviceslist = useGetServicesList()
 	const securityList = useGetSecurityList()
+	const createService = useCreateNotificationType();
 	const securityCompanyOptions = securityList?.data?.data?.company?.map((item) => ({
 		label: item.company_name,
 		value: item._id,
@@ -231,12 +233,12 @@ const AddCompany = () => {
 									{companyForm.touched.mobile_no && (
 										<p className="err">{companyForm.errors.mobile_no}</p>
 									)}
-									<Select
+									<CreatableSelect
 										isMulti
 										name="services"
 										options={servicesList}
 										classNamePrefix="select"
-										placeholder="Select Services"
+										placeholder="Select or Create Services"
 										className="form-control add-company-services"
 										value={servicesList
 											.flatMap((group) => group.options)
@@ -244,6 +246,43 @@ const AddCompany = () => {
 										onChange={(selectedOptions) => {
 											const selectedValues = selectedOptions?.map((option) => option.value) || [];
 											companyForm.setFieldValue("services", selectedValues);
+										}}
+										isValidNewOption={(inputValue, selectValue, selectOptions) => {
+											const existingOptions = servicesList.flatMap(group => group.options);
+											return (
+												inputValue.trim().length > 0 &&
+												!existingOptions.some(
+													(option) => option.label.toLowerCase() === inputValue.trim().toLowerCase()
+												)
+											);
+										}}
+										onCreateOption={async (inputValue) => {
+											try {
+												const res = await createService.mutateAsync({
+													type: inputValue,
+													isService: true
+												});
+
+												if (res?.data?._id) {
+													const newOption = {
+														label: res.data.type,
+														value: res.data._id,
+													};
+
+													setServicesList(prev => {
+														const updated = [...prev];
+														updated[0].options.push(newOption);
+														return updated;
+													});
+
+													companyForm.setFieldValue("services", [
+														...(companyForm.values.services || []),
+														res.data._id
+													]);
+												}
+											} catch (err) {
+												console.error("Error creating service", err);
+											}
 										}}
 										styles={{
 											valueContainer: (base) => ({
@@ -258,6 +297,8 @@ const AddCompany = () => {
 											}),
 										}}
 									/>
+
+
 
 									{companyForm.touched.services && companyForm.errors.services && (
 										<p className="err">{companyForm.errors.services}</p>
@@ -287,6 +328,19 @@ const AddCompany = () => {
 									{companyForm.touched.id_no && (
 										<p className="err">{companyForm.errors.id_no}</p>
 									)}
+									<div className=" form-checkbox form-control">
+										<input
+											type="checkbox"
+											name="isEnrollToken"
+											id="isEnrollToken"
+											className="form-check-input"
+											checked={companyForm.values.isEnrollToken}
+											onChange={(e) => companyForm.setFieldValue("isEnrollToken", e.target.checked)}
+										/>
+										<label className="form-check-label" htmlFor="isEnrollToken">
+											Pay subscription
+										</label>
+									</div>
 									<div className="row">
 										<div className="col-md-6">
 											<label>Selfie Image</label>
@@ -353,6 +407,7 @@ const AddCompany = () => {
 										</div>
 
 									</div>
+
 								</div>
 
 								<div className="col-md-6">

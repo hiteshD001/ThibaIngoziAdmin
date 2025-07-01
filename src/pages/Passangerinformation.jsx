@@ -13,6 +13,7 @@ import PhoneInput from "react-phone-input-2"
 
 const PassangerInformation = () => {
     const [edit, setEdit] = useState(false)
+    const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const client = useQueryClient()
 
@@ -176,7 +177,7 @@ const PassangerInformation = () => {
                                             driverform.setFieldValue("company_id", selectedId);
                                             driverform.setFieldValue("company_name", selectedCompany?.company_name || "");
                                         }}
-                                        disabled={!edit}
+                                        disabled={role !== "super_admin" || !edit}
                                     >
                                         <option value="" hidden>Others</option>
                                         {companyList.data?.data.users.map((user) => (
