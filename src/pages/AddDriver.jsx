@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
@@ -18,6 +18,8 @@ const AddDriver = () => {
     const [role] = useState(localStorage.getItem("role"))
     const nav = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
+    const location = useLocation();
+    const companyId = location.state?.companyId;
 
     const driverForm = useFormik({
         initialValues: role === 'super_admin' ? formValues1 : formValues2,
@@ -73,7 +75,19 @@ const AddDriver = () => {
         label: item.name,
         value: item._id,
     })) || [];
+    useEffect(() => {
+        if (companyId && companyList?.data?.data?.users?.length) {
+            driverForm.setFieldValue('company_id', companyId);
 
+            const matchedCompany = companyList.data.data.users.find(
+                (user) => user._id === companyId
+            );
+
+            if (matchedCompany) {
+                driverForm.setFieldValue('company_name', matchedCompany.company_name);
+            }
+        }
+    }, [companyId, companyList?.data?.data?.users]);
     return (
         <div className="container-fluid">
             <div className="row">
@@ -208,6 +222,7 @@ const AddDriver = () => {
                                     {driverForm.touched.id_no && (
                                         <p className="err">{driverForm.errors.id_no}</p>
                                     )}
+
                                     <select
                                         name="primary_e_hailing_company"
                                         className="form-control"
@@ -379,19 +394,7 @@ const AddDriver = () => {
                                         </label>
                                     </div>
 
-                                    <div className=" form-checkbox form-control">
-                                        <input
-                                            type="checkbox"
-                                            name="isPaymentToken"
-                                            id="isPaymentToken"
-                                            className="form-check-input"
-                                            checked={driverForm.values.isPaymentToken}
-                                            onChange={(e) => driverForm.setFieldValue("isPaymentToken", e.target.checked)}
-                                        />
-                                        <label className="form-check-label" htmlFor="isPaymentToken">
-                                            Sos payment
-                                        </label>
-                                    </div>
+
                                     <div className="row">
                                         <div className="col-md-6">
                                             <label>Selfie Image</label>
@@ -497,7 +500,7 @@ const formValues1 = {
     fullImage: "",
     primary_e_hailing_company: "",
     other_e_hailing_company: [],
-    isPaymentToken: false,
+    // isPaymentToken: false,
 }
 
 const formValues2 = {
@@ -522,5 +525,4 @@ const formValues2 = {
     fullImage: "",
     primary_e_hailing_company: "",
     other_e_hailing_company: [],
-    isPaymentToken: false,
 }

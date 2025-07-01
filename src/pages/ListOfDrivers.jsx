@@ -36,7 +36,7 @@ const ListOfDrivers = () => {
 
     const companyInfo = useGetUser(params.id)
     const notification_type = "677534649c3a99e13dcd7456"
-    const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
+    const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter)
     const getArmedSOS = useGetArmedSoS()
     const CompanyForm = useFormik({
         initialValues: {
@@ -239,6 +239,14 @@ const ListOfDrivers = () => {
             CompanyForm.setFieldValue("securityCompany", []);
         }
     }, [CompanyForm.values.isArmed]);
+
+    const handleAddDriver = () => {
+        if (role === 'company' && params.id) {
+            nav('/home/total-drivers/add-driver', { state: { companyId: params.id } });
+        } else {
+            nav('/home/total-drivers/add-driver');
+        }
+    };
     return (
         <div className="container-fluid">
             <div className="row">
@@ -592,13 +600,19 @@ const ListOfDrivers = () => {
                                     </span>
                                 </div>
                                 <button
-                                    onClick={() => nav("/home/total-drivers/add-driver")}
+                                    onClick={handleAddDriver}
                                     className="btn btn-primary"
                                 >
                                     + Add Driver
                                 </button>
+                                <button
+                                    onClick={() => nav("/home/total-drivers/add-driver")}
+                                    className="btn btn-primary"
+                                >
+                                    Export Sheet
+                                </button>
                                 <button className="btn btn-primary" onClick={() => setpopup(true)}>
-                                    + Import Sheet
+                                    Import Sheet
                                 </button>
                             </div>
                         </div>
