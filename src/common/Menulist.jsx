@@ -1,43 +1,37 @@
-import home from "../assets/images/home.png";
-import drivers from "../assets/images/drivers.png";
+import Dashboard from '../assets/images/Dashboard.svg'
+import Driver from "../assets/images/Driver.svg";
+import users from '../assets/images/users.svg'
+import MeetingLink from '../assets/images/MeetingLink.svg'
+import Report from '../assets/images/Report.svg'
+import Trip from '../assets/images/Trip.svg'
 import arrowLeft from "../assets/images/arrow-left.png";
+import ArmedSos from '../assets/images/ArmedSos.svg'
 // import settings from "../assets/images/settings.png";
 import profile from "../assets/images/profile.png";
-import logout from "../assets/images/logout.png";
-import comapnies from "../assets/images/companies.png";
-import hardware from "../assets/images/hardware.png";
+import Logout from "../assets/images/Logout.svg";
+import Company from "../assets/images/Company.svg";
 import trip from "../assets/images/trip.png"
 import { useState } from "react";
 
 export const superadmin_menulist = [
     {
         id: "home",
-        name: "Home",
+        name: "Dashboard",
         path: "/home",
-        image: home
+        image: Dashboard
     },
     {
         id: "total-companies",
         name: "Total Companies",
         path: "/home/total-companies",
-        image: comapnies,
-        submenu: {
-            name: "List of Companies",
-            path: "/home/total-companies",
-            image: arrowLeft
-        },
+        image: Company,
         add: "Add Company"
     },
     {
         id: "total-drivers",
         name: "Total Drivers",
         path: "/home/total-drivers",
-        image: drivers,
-        submenu: {
-            name: "List of Drivers",
-            path: "/home/total-drivers",
-            image: arrowLeft
-        },
+        image: Driver,
         add: "Add Drivers",
         info: "Vehicle Information",
         company: "Company Information"
@@ -46,48 +40,28 @@ export const superadmin_menulist = [
         id: "total-trips",
         name: "Total Trips",
         path: "/home/total-trips",
-        image: trip,
-        submenu: {
-            name: "List of Trips",
-            path: "/home/total-trips",
-            image: arrowLeft
-        },
+        image: Trip,
         company: "User Information"
     },
     {
         id: "total-meeting-link-trips",
         name: "Total Meeting Link Trips",
         path: "/home/total-meeting-link-trips",
-        image: trip,
-        submenu: {
-            name: "List of Meeting Link Trips",
-            path: "/home/total-meeting-link-trips",
-            image: arrowLeft
-        },
+        image: MeetingLink,
         company: "User Information"
     },
     {
         id: "total-users",
         name: "Users",
         path: "/home/total-users",
-        image: drivers,
-        submenu: {
-            name: "List of Users",
-            path: "/home/total-users",
-            image: arrowLeft
-        },
+        image: users,
         company: "User Information"
     },
     {
         id: "total-sos-amount",
         name: "Armed Sos Amount",
         path: "/home/total-sos-amount",
-        image: drivers,
-        submenu: {
-            name: "List of Sos Amounts",
-            path: "/home/total-sos-amount",
-            image: arrowLeft
-        },
+        image: ArmedSos,
         company: "Sos Information"
     },
     // {
@@ -102,16 +76,22 @@ export const superadmin_menulist = [
     //     path: "",
     //     image: settings
     // },
+    // {
+    //     id: "profile",
+    //     name: "Profile",
+    //     path: "/home/profile",
+    //     image: profile
+    // },
     {
-        id: "profile",
-        name: "Profile",
-        path: "/home/profile",
-        image: profile
+        id: "report",
+        name: "Reports",
+        path: "/home/reports",
+        image: Report
     },
     {
         id: "logout",
         name: "Logout",
-        image: logout
+        image: Logout
     },
 ]
 
@@ -123,18 +103,13 @@ export const Companyadmin_menulist = () => {
             id: "home",
             name: "Home",
             path: "/home",
-            image: home
+            image: Dashboard
         },
         {
             id: "total-drivers",
             name: "Total Drivers",
             path: `/home/total-drivers/${id}`,
-            image: drivers,
-            submenu: {
-                name: "List of Drivers",
-                path: `/home/total-drivers/${id}`,
-                image: arrowLeft
-            },
+            image: Driver,
             add: "Add Drivers",
             info: "Vehicle Information",
             company: "Company Information"
@@ -144,36 +119,26 @@ export const Companyadmin_menulist = () => {
             id: "total-armed-sos",
             name: "Armed Sos Amount",
             path: "/home/total-sos-amount",
-            image: drivers,
-            submenu: {
-                name: "List of Sos Amounts",
-                path: "/home/total-sos-amount",
-                image: arrowLeft
-            },
+            image: ArmedSos,
             company: "User Information"
         },
         {
             id: "total-users",
             name: "Users",
             path: "/home/total-users",
-            image: drivers,
-            submenu: {
-                name: "List of Users",
-                path: "/home/total-users",
-                image: arrowLeft
-            },
+            image: users,
             company: "User Information"
         },
-        {
-            id: "profile",
-            name: "Profile",
-            path: "/home/profile",
-            image: profile
-        },
+        // {
+        //     id: "profile",
+        //     name: "Profile",
+        //     path: "/home/profile",
+        //     image: profile
+        // },
         {
             id: "logout",
             name: "Logout",
-            image: logout
+            image: Logout
         },
     ]
 } 

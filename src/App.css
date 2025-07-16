@@ -1,5 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&display=swap");
-
+/* styles.css */
+:root {
+    --Blue: #367BE0;
+    --secondary-color: #6c757d;
+    --placeholder-color: #9CA3AF;
+    --heading-font: 'Poppins', sans-serif;
+}
 * {
     font-family: "Inter", sans-serif;
     font-style: normal;
@@ -13,8 +19,15 @@
     text-decoration: underline;
 }
 .login-page {
-    background-color: #f7f9fb;
+    background-color: #1376BC;
     min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('./assets/images/LoginBackground.svg');
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
 }
 
 .payout-section {
@@ -90,7 +103,7 @@
     padding: 4px 12px;
     border-radius: 12px;
     border: 1px solid rgb(28 28 28 / 10%);
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     box-shadow: none !important;
     outline: none !important;
 }
@@ -100,7 +113,7 @@
 }
 
 .forgotpwd a {
-    font-size: 16px;
+    font-size: 0.9rem;
     font-weight: 400;
     line-height: 20px;
     text-decoration: none;
@@ -121,7 +134,7 @@
 
 .password-toggle-icon {
     position: absolute;
-    top: 50%;
+    top: 70%;
     right: 10px;
     transform: translateY(-50%);
     cursor: pointer;
@@ -163,20 +176,26 @@ input[type="checkbox"] {
 
 .sidebar {
     width: 280px;
-    background: #f7f7f7;
+    background: #1C1C1C;
     height: 100vh;
-    overflow: auto;
+    /* overflow: auto; */
     border-right: 1px solid #0000001a;
     float: left;
     transition: all 0.3s;
     left: 0;
+    padding-inline: 25px;
+    /* position: fixed; */
+    z-index: 1050;
 }
-
+.sidebar.show {
+    transform: translateX(0);
+}
 .sidebar .logo {
     text-align: center;
     padding: 10px 0 20px 0;
     width: 240px;
-    margin-left: 40px;
+    margin-top: 15px;
+    /* margin-left: 40px; */
 }
 .w-45 {
     width: 45%;
@@ -224,26 +243,28 @@ input[type="checkbox"] {
     padding-left: 40px;
 }
 
+
 .sidebar ul {
-    padding: 0;
+    border-top: 2px solid white;
     margin: 0;
+    padding: 0;
+    padding-top: 10px;
     list-style-type: none;
 }
-
+.sidebar ul li{
+    padding-block: 5px;
+}
 .sidebar ul li span {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 15px;
+    font-weight: 500;
     line-height: 20px;
-    color: #1c1c1c;
+    color: white;
     text-decoration: none;
     padding: 14px;
     display: flex;
-    background: #f7f7f7;
-    border-bottom: 2px solid #b1bfd3;
-    gap: 10px;
+    gap: 15px;
     align-items: center;
     padding-top: 12px;
-    padding-bottom: 12px;
     transition: all 0.3s;
     cursor: pointer;
 }
@@ -269,7 +290,9 @@ input[type="checkbox"] {
 
 .sidebar ul li span:hover,
 .sidebar ul li span.active {
-    background-color: #e5ecf6;
+    border-radius: 8px;
+    background-color: var(--Blue);
+    color: white;
 }
 
 .sidebar ul li span.logout {
@@ -286,9 +309,9 @@ input[type="checkbox"] {
     /* transition: all 0.3s; */
 }
 
-.outlet {
+/* .outlet {
     margin-top: 90px;
-}
+} */
 
 header {
     position: fixed;
@@ -302,7 +325,7 @@ header {
 }
 
 .breadcrumb {
-    gap: 20px;
+    gap: 0px;
     margin: 0;
     margin-top: 10px;
 }
@@ -886,8 +909,8 @@ button.Cancel-btn:hover {
 
 .err {
     text-align: left;
-    /* padding: 0; */
-    padding: -30px 0 20px 0;
+    padding: 0;
+    /* padding: -30px 0 20px 0; */
     font-size: 10px;
     line-height: 18px;
     padding-left: 10px;
@@ -1256,7 +1279,12 @@ position: relative;
     opacity: 1;
 }
 
-
+.placeholder-gray::placeholder {
+    color: #ADAEBC!important;
+    /* Bootstrap's default gray */
+    opacity: 1;
+    /* Ensures full visibility */
+}
 
 
 
@@ -1302,9 +1330,9 @@ position: relative;
         z-index: 9999;
     }
 
-    .outlet {
+    /* .outlet {
         margin-top: 140px;
-    }
+    } */
     .img-preview-container {
         min-height: 180px;
     }
