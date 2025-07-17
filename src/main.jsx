@@ -6,7 +6,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ToastContainer } from 'react-toastify'
 
 import App from './App.jsx'
-
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Provider } from 'react-redux';
 import store from './Redux Store/Store.jsx';
 
@@ -22,9 +23,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <WebSocketProvider>
       <QueryClientProvider client={client}>
-        <ToastContainer />
-        <App />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <ToastContainer />
+          <App />
+        </LocalizationProvider>
       </QueryClientProvider>
+
     </WebSocketProvider>
   </Provider>
   // </React.StrictMode>,

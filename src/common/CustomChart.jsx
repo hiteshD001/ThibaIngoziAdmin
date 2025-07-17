@@ -27,18 +27,18 @@ const CustomChart = ({ ...props }) => {
         datasets: [
             {
                 label: "Month",
-                borderColor: "#A8C5DA",
-                pointBorderColor: "#A8C5DA",
-                pointBackgroundColor: "#A8C5DA",
-                pointHoverBackgroundColor: "#A8C5DA",
-                pointHoverBorderColor: "#A8C5DA",
+                borderColor: "#3B82F6",
+                pointBorderColor: "#3B82F6",
+                pointBackgroundColor: "#3B82F6",
+                pointHoverBackgroundColor: "#3B82F6",
+                pointHoverBorderColor: "#3B82F6",
                 pointBorderWidth: 1,
                 pointHoverRadius: 1,
                 pointHoverBorderWidth: 1,
-                pointRadius: 3,
+                pointRadius: 4,
                 fill: false,
                 borderWidth: 4,
-                tension: 0.3,
+                tension: 0,
                 // eslint-disable-next-line react/prop-types
                 data: props.data,
             },
@@ -62,38 +62,61 @@ const CustomChart = ({ ...props }) => {
     };
 
     const options = {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: "top",
+                position: "bottom",
+                labels: {
+                    boxWidth: 8,
+                    boxHeight: 8,
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                    padding: 20,
+                    color: "#374151",
+                    font: {
+                        size: 14,
+                        family: 'Arial',
+                        weight: '500',
+                    }
+                }
             },
         },
         scales: {
             y: {
                 beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Number of Alerts',
+                    color: '#111',
+                    font: {
+                        size: 14,
+                    }
+                },
                 ticks: {
-                    fontColor: "rgba(0,0,0,0.5)",
-                    fontStyle: "bold",
-                    beginAtZero: true,
-                    stepSize: 10,
-                    padding: 20,
+                    color: "rgba(0,0,0,0.7)",
+                    stepSize: 1,
+                    padding: 10,
                 },
                 grid: {
-                    drawTicks: false,
-                    display: false,
-                },
+                    display: true,
+                    drawBorder: false,
+                    drawOnChartArea: true,
+                    drawTicks: true,
+                    color: "#E5E7EB"
+                }
             },
             x: {
                 grid: {
-                    zeroLineColor: "transparent",
+                    display: false
                 },
                 ticks: {
-                    padding: 20,
-                    fontColor: "rgba(0,0,0,0.5)",
-                    fontStyle: "bold",
-                },
-            },
-        },
+                    color: "#4B5563"
+                }
+            }
+        }
     };
+
 
     return <Line data={data} options={options} />;
 };

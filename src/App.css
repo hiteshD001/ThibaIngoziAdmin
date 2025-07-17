@@ -305,13 +305,14 @@ input[type="checkbox"] {
     width: calc(100% - 280px);
     float: left;
     height: 100vh;
-    overflow: auto;
+    overflow-y: auto;
     /* transition: all 0.3s; */
 }
 
-/* .outlet {
-    margin-top: 90px;
-} */
+.outlet {
+    padding-top: 30px;
+    background-color: #f7f9fb;
+}
 
 header {
     position: fixed;
@@ -319,7 +320,7 @@ header {
     background-color: #fff;
     padding: 14px 20px;
     border-bottom: 1px solid rgb(0 0 0 / 10%);
-    margin-bottom: 30px;
+    /* margin-bottom: 30px; */
     z-index: 999;
     width: calc(100vw - 280px);
 }
@@ -416,7 +417,27 @@ header {
     background: #e3f5ff;
     margin-bottom: 30px;
 }
-
+.dash-counter.orange{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-direction: row;
+    background-color: #FFF3E5;
+}
+.dash-counter.blue{
+    display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-direction: row;
+    background-color: #E9EFFF;
+}
+.dash-counter.green {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-direction: row;
+    background-color: #EAF8EC;
+}
 .dash-counter.gray {
     background: #e5ecf6;
 }
@@ -439,16 +460,16 @@ header {
     margin: 0;
 }
 
-canvas {
-    background: #f7f9fb;
-}
+/* canvas {
+   background: white
+} */
 
 .requests-chart {
-    background: #f7f9fb;
-    padding: 24px;
+    background: white;
+    padding: 30px 50px 50px 50px;
     border-radius: 16px;
     margin-bottom: 30px;
-    height: 500px;
+    height:550px;
 }
 
 .chart-heading h3 {
@@ -574,9 +595,13 @@ table#example {
     vertical-align: middle;
     /* line-break:anywhere; */
 }
+.table{
+    min-width: 600px;
+    --bs-table-bg:transparent!important;
+}
 
 .theme-table table thead {
-    background: #fff;
+    background-color: #F9FAFB !important;
 }
 
 .theme-table thead tr th,
@@ -599,7 +624,7 @@ table#example {
 }
 
 .theme-table table thead tr th {
-    color: rgb(28 28 28 / 40%);
+    color: #4B5563;
 }
 
 .theme-table table tr td .tbl-btn {
