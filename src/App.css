@@ -306,11 +306,12 @@ input[type="checkbox"] {
     float: left;
     height: 100vh;
     overflow-y: auto;
+    overflow-x: hidden;
     /* transition: all 0.3s; */
 }
 
 .outlet {
-    padding-top: 30px;
+    padding-top: 20px;
     background-color: #f7f9fb;
 }
 
@@ -1336,10 +1337,6 @@ position: relative;
     }
 
     header {
-        width: calc(100% - 1px);
-    }
-
-    .content {
         width: calc(100% - 1px);
     }
 
