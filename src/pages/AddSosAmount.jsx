@@ -1,22 +1,31 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import Select from "react-select";
 import { toastOption } from "../common/ToastOptions";
 import { useLayoutEffect, useState } from "react";
 import { SosAmount } from "../common/FormValidation";
-import { useGetServicesList } from "../API Calls/API";
+import { useGetServicesList, useCreateSosAmount } from "../API Calls/API";
 import { useFormik } from "formik";
-import { useCreateSosAmount } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
-
 import Loader from "../common/Loader";
+import { BootstrapInput } from "../common/BootstrapInput";
+import {
+    Paper,
+    Typography,
+    Button,
+    Box,
+    Grid,
+    FormControl,
+    InputLabel,
+    TextField
+} from "@mui/material";
+import Select from "react-select";
 
 const AddSosAmount = () => {
     const client = useQueryClient();
-    const [servicesList, setServicesList] = useState([])
-    const [role] = useState(localStorage.getItem("role"));
+    const [servicesList, setServicesList] = useState([]);
     const nav = useNavigate();
-    const serviceslist = useGetServicesList()
+    const serviceslist = useGetServicesList();
+
     const sosform = {
         amount: "",
         driverSplitAmount: "",
@@ -24,6 +33,7 @@ const AddSosAmount = () => {
         currency: "",
         notificationTypeId: ""
     };
+
     const onSuccess = () => {
         toast.success("Sos added successfully.");
         Sosform.resetForm();
@@ -36,8 +46,6 @@ const AddSosAmount = () => {
     };
 
     const newSos = useCreateSosAmount(onSuccess, onError);
-
-
 
     const Sosform = useFormik({
         initialValues: sosform,
@@ -57,7 +65,6 @@ const AddSosAmount = () => {
     useLayoutEffect(() => {
         if (Array.isArray(serviceslist)) {
             const filteredServices = serviceslist.filter(service => service);
-
             const groupedOptions = [
                 {
                     label: "Services",
@@ -67,134 +74,213 @@ const AddSosAmount = () => {
                     })),
                 }
             ];
-
             setServicesList(groupedOptions);
         }
     }, [serviceslist]);
 
-
     return (
-        <div className="container-fluid">
-            <div className="row">
-                <div className="col-md-12">
-                    <div className="theme-table">
-                        <form>
-                            <div className="row">
-                                <div className="col-md-12">
-                                    <div className="tab-heading">
-                                        <h3>Sos Information</h3>
-                                    </div>
-                                    <div className="row">
-                                        <div className="col-md-6">
-                                            <input
-                                                type="number"
-                                                name="amount"
-                                                placeholder="amount"
-                                                className="form-control"
-                                                value={Sosform.values.amount}
-                                                onChange={Sosform.handleChange}
-                                            />
-                                            {Sosform.touched.amount && (
-                                                <p className="err">{Sosform.errors.amount}</p>
-                                            )}
-                                            <input
-                                                type="number"
-                                                name="driverSplitAmount"
-                                                placeholder="driverSplitAmount"
-                                                className="form-control"
-                                                value={Sosform.values.driverSplitAmount}
-                                                onChange={Sosform.handleChange}
-                                            />
-                                            {Sosform.touched.driverSplitAmount && (
-                                                <p className="err">{Sosform.errors.driverSplitAmount}</p>
-                                            )}
-                                            <input
-                                                type="number"
-                                                name="companySplitAmount"
-                                                placeholder="companySplitAmount"
-                                                className="form-control"
-                                                value={Sosform.values.companySplitAmount}
-                                                onChange={Sosform.handleChange}
-                                            />
-                                            {Sosform.touched.companySplitAmount && (
-                                                <p className="err">{Sosform.errors.companySplitAmount}</p>
-                                            )}
+        <Box px={3} sx={{ height: '90vh' }}>
+            <Paper elevation={2} sx={{ p: 3, borderRadius: '10px' }}>
+                <Box sx={{ p: 1, mb: 3, borderBottom: '1px solid #E5E7EB' }}>
+                    <Typography variant="h6" fontWeight={550} color="black">
+                        Sos Information
+                    </Typography>
+                </Box>
 
-                                        </div>
-                                        <div className="col-md-6">
+                <form onSubmit={Sosform.handleSubmit}>
+                    <Grid container spacing={3}>
+                        <Grid size={{ xs: 12, md: 6 }}>
+                            <FormControl variant="standard" fullWidth sx={{ mb: 3 }}>
+                                <InputLabel
+                                    shrink
+                                    htmlFor="amount"
+                                    sx={{
+                                        fontSize: '1.3rem',
+                                        color: 'rgba(0, 0, 0, 0.8)',
+                                        '&.Mui-focused': {
+                                            color: 'black',
+                                        },
+                                    }}
+                                >
+                                    Amount:
+                                </InputLabel>
+                                <BootstrapInput
+                                    type="number"
+                                    name="amount"
+                                    id="amount"
+                                    placeholder="Amount"
+                                    value={Sosform.values.amount}
+                                    onChange={Sosform.handleChange}
+                                />
+                                {Sosform.touched.amount && <div style={{ color: 'red', fontSize: 12 }}>{Sosform.errors.amount}</div>}
+                            </FormControl>
 
-                                            <input
-                                                type="text"
-                                                name="currency"
-                                                placeholder="currency"
-                                                className="form-control"
-                                                value={Sosform.values.currency}
-                                                onChange={Sosform.handleChange}
-                                            />
-                                            {Sosform.touched.currency && (
-                                                <p className="err">{Sosform.errors.currency}</p>
-                                            )}
-                                            <Select
-                                                name="notificationTypeId"
-                                                options={servicesList}
-                                                placeholder="Select Service"
-                                                classNamePrefix="select"
-                                                className="form-control add-company-services"
-                                                value={servicesList
-                                                    .flatMap((group) => group.options)
-                                                    .find((option) => option.value === Sosform.values.notificationTypeId)}
-                                                onChange={(selectedOption) => {
-                                                    Sosform.setFieldValue("notificationTypeId", selectedOption?.value || "");
-                                                }}
-                                                styles={{
-                                                    option: (base, state) => ({
-                                                        ...base,
-                                                        backgroundColor: state.isSelected
-                                                            ? "white"
-                                                            : state.isFocused
-                                                                ? "#e6e6e6"
-                                                                : "white",
-                                                        color: "black",
-                                                    }),
-                                                    valueContainer: (base) => ({
-                                                        ...base,
-                                                        maxHeight: "50px",
-                                                        overflowY: "auto",
-                                                    }),
-                                                }}
-                                            />
+                            <FormControl variant="standard" fullWidth sx={{ mb: 3 }}>
+                                <InputLabel
+                                    shrink
+                                    htmlFor="driverSplitAmount"
+                                    sx={{
+                                        fontSize: '1.3rem',
 
-                                            {Sosform.touched.notificationTypeId && Sosform.errors.notificationTypeId && (
-                                                <p className="err">{Sosform.errors.notificationTypeId}</p>
-                                            )}
-                                        </div>
-                                    </div>
+                                        color: 'rgba(0, 0, 0, 0.8)',
+                                        '&.Mui-focused': {
+                                            color: 'black',
+                                        },
+                                    }}
+                                >Driver Split Amount:
+                                </InputLabel>
+                                <BootstrapInput
+                                    id='driverSplitAmount'
+                                    type="number"
+                                    name="driverSplitAmount"
+                                    placeholder="Driver Split Amount"
+                                    value={Sosform.values.driverSplitAmount}
+                                    onChange={Sosform.handleChange}
+                                />
+                                {Sosform.touched.driverSplitAmount && <div style={{ color: 'red', fontSize: 12 }}>{Sosform.errors.driverSplitAmount}</div>}
+                            </FormControl>
 
+                            <FormControl variant="standard" fullWidth sx={{ mb: 3 }}>
+                                <InputLabel
+                                    shrink
+                                    htmlFor="companySplitAmount"
+                                    sx={{
+                                        fontSize: '1.3rem',
 
+                                        color: 'rgba(0, 0, 0, 0.8)',
+                                        '&.Mui-focused': {
+                                            color: 'black',
+                                        },
+                                    }}
+                                >Company Split Amount:
+                                </InputLabel>
+                                <BootstrapInput
+                                    id='companySplitAmount'
+                                    type="number"
+                                    name="companySplitAmount"
+                                    placeholder="Company Split Amount"
+                                    value={Sosform.values.companySplitAmount}
+                                    onChange={Sosform.handleChange}
+                                />
+                                {Sosform.touched.companySplitAmount && <div style={{ color: 'red', fontSize: 12 }}>{Sosform.errors.companySplitAmount}</div>}
+                            </FormControl>
+                        </Grid>
 
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div className="col-md-12 text-end">
-                    <div className="saveform">
-                        <button
+                        <Grid size={{ xs: 12, md: 6 }}>
+
+                            <FormControl variant="standard" fullWidth sx={{ mb: 3 }}>
+                                <InputLabel
+                                    shrink
+                                    htmlFor="currency"
+                                    sx={{
+                                        fontSize: '1.3rem',
+
+                                        color: 'rgba(0, 0, 0, 0.8)',
+                                        '&.Mui-focused': {
+                                            color: 'black',
+                                        },
+                                    }}
+                                >Currency:
+                                </InputLabel>
+                                <BootstrapInput
+                                    id='currency'
+                                    type="text"
+                                    name="currency"
+                                    placeholder="Currency"
+                                    value={Sosform.values.currency}
+                                    onChange={Sosform.handleChange}
+                                />
+                                {Sosform.touched.currency && <div style={{ color: 'red', fontSize: 12 }}>{Sosform.errors.currency}</div>}
+                            </FormControl>
+
+                            <FormControl variant="standard" fullWidth sx={{ mb: 2 }}>
+
+                                <label
+                                    htmlFor="notificationTypeId"
+                                    style={{
+                                        fontSize: '1rem',
+                                        color: 'rgba(0, 0, 0, 0.8)',
+                                        fontWeight: 500,
+                                        marginBottom: '6px',
+                                        display: 'block'
+                                    }}
+                                >
+                                    Select Service:
+                                </label>
+                                <Select
+                                    id="notificationTypeId"
+                                    name="notificationTypeId"
+                                    options={servicesList}
+                                    placeholder="Select Service"
+                                    classNamePrefix="select"
+                                    value={
+                                        Sosform.values.notificationTypeId
+                                            ? servicesList.flatMap((group) => group.options).find((option) => option.value === Sosform.values.notificationTypeId)
+                                            : null
+                                    }
+                                    onChange={(selectedOption) => {
+                                        Sosform.setFieldValue("notificationTypeId", selectedOption?.value || "");
+                                    }}
+                                    styles={{
+                                        control: (base, state) => ({
+                                            ...base,
+                                            backgroundColor: "white",
+                                            height: '45px',
+                                            border:
+                                                state.isFocused ? "1px solid #E0E3E7 !important" : "1px solid #E0E3E7 !important",
+                                            boxShadow: state.isFocused ? "0 0 0 2px rgba(25, 118, 210, 0.25)" : "none",
+                                            "&:hover": {
+                                                border: "1px solid #E0E3E7!important",
+                                            },
+                                        }),
+                                        option: (base, state) => ({
+                                            ...base,
+                                            backgroundColor: state.isSelected
+                                                ? "#f0f0f0"
+                                                : state.isFocused
+                                                    ? "#f9f9f9"
+                                                    : "white",
+                                            color: "black",
+                                        }),
+                                        valueContainer: (base) => ({
+                                            ...base,
+                                            maxHeight: "50px",
+                                            overflowY: "auto",
+                                        }),
+                                    }}
+                                />
+                                {Sosform.touched.notificationTypeId && Sosform.errors.notificationTypeId && (
+                                    <div style={{ color: 'red', fontSize: 12 }}>{Sosform.errors.notificationTypeId}</div>
+                                )}
+                            </FormControl>
+                        </Grid>
+                    </Grid>
+
+                    <Box display="flex" justifyContent="flex-end" gap={2} mt={3}>
+                        <Button
+                            variant="contained"
+                            onClick={() => Sosform.resetForm()}
+                            sx={{
+                                backgroundColor: 'white', color: 'var(--font-gray)', boxShadow: 'none', border: '1px solid var(--light-gray)', width: '130px', height: '48px', borderRadius: '10px', '&:hover': {
+                                    boxShadow: 'none'
+                                }
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
                             type="submit"
-                            onClick={Sosform.handleSubmit}
-                            className="btn btn-dark"
+                            variant="contained"
+                            sx={{ backgroundColor: 'var(--Blue)', width: '130px', height: '48px', borderRadius: '10px' }}
                             disabled={newSos.isPending}
                         >
                             {newSos.isPending ? <Loader color="white" /> : "Save"}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        </Button>
+                    </Box>
+                </form>
+            </Paper>
+        </Box>
     );
 };
 
 export default AddSosAmount;
-
-
-
