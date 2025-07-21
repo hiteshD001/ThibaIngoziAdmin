@@ -711,7 +711,7 @@ const ListOfDrivers = () => {
                     </div>
                 </div>
             </div>
-            {popup && <ImportSheet setpopup={setpopup} />}
+            {popup && <ImportSheet setpopup={setpopup} type="driver" />}
         </div>
     );
 };

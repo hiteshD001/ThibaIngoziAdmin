@@ -172,7 +172,7 @@ const ListOfUsers = () => {
                     </div>
                 </div>
             </div>
-            {popup && <ImportSheet setpopup={setpopup} />}
+            {popup && <ImportSheet setpopup={setpopup} type="user" />}
         </div>
     );
 };

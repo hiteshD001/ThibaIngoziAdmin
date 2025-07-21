@@ -750,7 +750,7 @@ export const useGetLocationByLocationId = (locationId) => {
         isLoading: res.isLoading,
     };
 };
-
+// driver import 
 export const useFileUpload = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
@@ -767,6 +767,18 @@ export const useFileUpload = (onSuccess, onError) => {
 
     return mutation;
 };
+// user import
+export const useUserFileUpload = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(`${import.meta.env.VITE_BASEURL}/users/register/bulk/passenger`, data);
+    }
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    })
+    return mutation;
+}
 
 
 // payout api
