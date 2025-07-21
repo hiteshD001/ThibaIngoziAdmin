@@ -6,7 +6,7 @@ import { useCreateNotificationType } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Yup from "yup";
 import Loader from "../common/Loader";
-
+import { BootstrapInput } from "../common/BootstrapInput";
 import {
     Paper,
     Typography,
@@ -14,6 +14,7 @@ import {
     Button,
     Box,
     Divider, Grid,
+    FormControl, InputLabel
 } from "@mui/material";
 
 const AddService = () => {
@@ -50,8 +51,8 @@ const AddService = () => {
     });
 
     return (
-        <Box p={3} sx={{ height: '100vh' }}>
-            <Paper elevation={2} sx={{ p: 3, borderRadius: '10px' }}>
+        <Box px={3} sx={{ height: '90vh' }}>
+            <Paper elevation={2} sx={{ p: 3, borderRadius: '10px', pb: 25 }}>
                 <Box
                     sx={{
                         p: 1,
@@ -59,7 +60,7 @@ const AddService = () => {
                         borderBottom: '1px solid #E5E7EB'
                     }}
                 >
-                    <Typography variant="h6" color="black">
+                    <Typography variant="h6" fontWeight={550} color="black">
                         Add New Service
                     </Typography>
                 </Box>
@@ -67,27 +68,56 @@ const AddService = () => {
                 <form onSubmit={serviceForm.handleSubmit}>
                     <Grid container display="flex" flexDirection="column" gap={2}>
                         <Grid size={{ xs: 5 }}>
-                            <TextField
-                                label="Service Name"
-                                name="type"
-                                placeholder="Enter service name"
-                                fullWidth
-                                value={serviceForm.values.type}
-                                onChange={serviceForm.handleChange}
-                                onBlur={serviceForm.handleBlur}
-                                error={serviceForm.touched.type && Boolean(serviceForm.errors.type)}
-                                helperText={serviceForm.touched.type && serviceForm.errors.type}
-                            />
+                            <FormControl variant="standard" fullWidth sx={{ mb: 2 }}>
+                                <InputLabel
+                                    shrink
+                                    htmlFor="bootstrap-input-name"
+                                    sx={{
+                                        fontSize: '1.3rem',
+                                        mb: 10,
+                                        color: 'rgba(0, 0, 0, 0.6)',
+                                        '&.Mui-focused': {
+                                            color: 'black',
+                                        },
+                                    }}
+                                >
+                                    Service name:
+                                </InputLabel>
+                                <BootstrapInput
+                                    name="type"
+                                    id="bootstrap-input-name"
+                                    placeholder="Enter service name"
+                                    value={serviceForm.values.type}
+                                    onChange={serviceForm.handleChange}
+                                    onBlur={serviceForm.handleBlur}
+                                />
+                                {serviceForm.touched.type && !serviceForm.isSubmitting && (
+                                    <div style={{ color: 'red', fontSize: 12 }}>{serviceForm.errors.type}</div>
+                                )}
+                            </FormControl>
                         </Grid>
 
-                        <Grid display={'flex'} justifyContent={'flex-end'} size={{ xs: 12 }}>
+                        <Grid display={'flex'} justifyContent={'flex-end'} gap={2} size={{ xs: 12 }}>
+                            <Button
+                                variant="contained"
+                                onClick={() => serviceForm.resetForm()}
+                                sx={{
+                                    backgroundColor: 'white', color: 'var(--font-gray)', boxShadow: 'none', border: '1px solid var(--light-gray)', width: '130px', height: '48px', borderRadius: '10px', '&:hover': {
+                                        boxShadow: 'none'
+                                    }
+                                }}
+                            >
+                                Cancel
+                            </Button>
                             <Button
                                 variant="contained"
                                 type="submit"
+                                sx={{ backgroundColor: 'var(--Blue)', width: '130px', height: '48px', borderRadius: '10px' }}
                                 disabled={newService.isPending}
                             >
                                 {newService.isPending ? <Loader color="white" /> : "Save"}
                             </Button>
+
                         </Grid>
                     </Grid>
                 </form>

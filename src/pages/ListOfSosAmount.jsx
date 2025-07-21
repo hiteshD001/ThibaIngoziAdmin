@@ -101,34 +101,35 @@ const ListOfSosAmount = () => {
                     <Box sx={{ px: 3, pt: 3, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
                         <TableContainer >
                             <Table>
-                                <TableHead>
+                                <TableHead >
                                     <TableRow>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', borderTopLeftRadius: '10px' }}>Armed SOS Amount</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB' }}>Driver Split Amount</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB' }}>Company Split Amount</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB' }}>Currency</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB' }}>Type</TableCell>
-                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px' }}>Actions</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', borderTopLeftRadius: '10px', color: '#4B5563' }}>Armed SOS Amount</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Driver Split Amount</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company Split Amount</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Currency</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Type</TableCell>
+                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {sosList.data.data.map((data) => (
                                         <TableRow key={data._id}>
-                                            <TableCell>{data.amount}</TableCell>
-                                            <TableCell>{data.driverSplitAmount ?? 0}</TableCell>
-                                            <TableCell>{data.companySplitAmount ?? 0}</TableCell>
-                                            <TableCell>{data.currency || "-"}</TableCell>
-                                            <TableCell>{data.notificationTypeId?.type || "-"}</TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>{data.amount}</TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>{data.driverSplitAmount ?? 0}</TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>{data.companySplitAmount ?? 0}</TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>{data.currency || "-"}</TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>{data.notificationTypeId?.type || "-"}</TableCell>
                                             <TableCell align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                <IconButton onClick={() => nav(`/home/total-sos-amount/sos-amount/${data._id}`)}>
+                                                    <img src={ViewBtn} alt="view button" />
+                                                </IconButton>
                                                 <IconButton onClick={() => setConfirmation(data._id)}>
                                                     <img src={delBtn} alt="delete button" />
                                                 </IconButton>
                                                 {confirmation === data._id && (
                                                     <DeleteSosAmount id={data._id} setconfirmation={setConfirmation} />
                                                 )}
-                                                <IconButton onClick={() => nav(`/home/total-sos-amount/sos-amount/${data._id}`)}>
-                                                    <img src={ViewBtn} alt="view button" />
-                                                </IconButton>
+
                                             </TableCell>
                                         </TableRow>
                                     ))}
