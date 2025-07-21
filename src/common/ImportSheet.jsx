@@ -76,7 +76,7 @@ const ImportSheet = ({ setpopup }) => {
                         </div>
                         <p className="fileerror">{error}</p>
 
-                        <a className="samplefile" href={"/assests/Drivers.xlsx"} download={"Sample_Driver.xlsx"}>Downlaod Sample .xlsx file here <MdFileDownload className="icon" /> </a>
+                        <a className="samplefile" href={"/assests/Driver.xlsx"} download={"Sample_Driver.xlsx"}>Downlaod Sample .xlsx file here <MdFileDownload className="icon" /> </a>
                     </div>
 
                     {apiError && apiError.length > 0 && (
