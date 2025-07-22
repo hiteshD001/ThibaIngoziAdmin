@@ -41,7 +41,7 @@ export const DeleteConfirm = ({ ...p }) => {
               cursor: deleteDriver.isPending ? "not-allowed" : "",
             }}
             className="popup-button confirm"
-            onClick={() => p.trip ?  (p.trip == 'trip' ? deleteTrip.mutate(p.id): deleteMeetingLinkTrip.mutate(p.id)) : deleteDriver.mutate(p.id)}
+            onClick={() => p.trip ? (p.trip == 'trip' ? deleteTrip.mutate(p.id) : deleteMeetingLinkTrip.mutate(p.id)) : deleteDriver.mutate(p.id)}
           >
             Confirm
           </button>

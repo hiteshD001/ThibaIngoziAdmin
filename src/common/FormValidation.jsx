@@ -30,7 +30,17 @@ export const resetPasswordValidation = yup.object({
         .required("Confirm Password is Required")
         .oneOf([yup.ref('password'), null], 'Passwords must match')
 })
-
+export const changePasswordValidation = yup.object({
+    company_id: yup.string().required("Company is required"),
+    newPassword: yup
+        .string()
+        .required("New Password is required")
+        .min(6, "Password must be at least 6 characters"),
+    confirmPassword: yup
+        .string()
+        .required("Confirm Password is required")
+        .oneOf([yup.ref('newPassword'), null], 'Passwords must match'),
+});
 export const loginValidation = yup.object({
     email: Email,
     password: Password,
