@@ -31,7 +31,7 @@ import SosInformation from "./pages/SosInformation"
 import ArmedSosDetails from "./pages/SosInformation";
 import AddService from "./pages/AddService";
 import ListOfMeetingLinkTrips from "./pages/ListOfMeetingLinkTrip";
-
+import ChangePassword from "./pages/ChangePassword";
 function App() {
     return (
         <>
@@ -64,6 +64,10 @@ const router = createBrowserRouter([
             {
                 path: "",
                 element: <Home />
+            },
+            {
+                path: "change-password",
+                element: <ChangePassword />
             },
             {
                 path: "hotspot/location",

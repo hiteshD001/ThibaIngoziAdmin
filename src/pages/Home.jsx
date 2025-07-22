@@ -44,20 +44,20 @@ const Home = () => {
     };
 
     const getUniqueById = (array) => {
-  const map = new Map();
-  array.forEach(item => {
-    map.set(item._id, item); // or item.id depending on your data
-  });
-  return [...map.values()];
-};
+        const map = new Map();
+        array.forEach(item => {
+            map.set(item._id, item); // or item.id depending on your data
+        });
+        return [...map.values()];
+    };
 
-useEffect(() => {
-    setActiveUsers([])
-  setActiveUsers(prev => {
-    const combined = [...prev, ...activeUserList || [], ...activeSOS || []];
-    return getUniqueById(combined);
-  });
-}, [activeUserList, activeSOS]);
+    useEffect(() => {
+        setActiveUsers([])
+        setActiveUsers(prev => {
+            const combined = [...prev, ...activeUserList || [], ...activeSOS || []];
+            return getUniqueById(combined);
+        });
+    }, [activeUserList, activeSOS]);
 
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
     const userinfo = useGetUser(localStorage.getItem("userID"));
@@ -85,10 +85,10 @@ useEffect(() => {
                     <div className="theme-table">
                         <div className="tab-heading">
                             {" "}
-                            <h3>Active SOS</h3>{" "}
+                            <h3>Active SOS Alerts</h3>{" "}
                         </div>
 
-                        {isConnected && activeUsers?.length > 0 ? (
+                        {activeUsers?.length > 0 ? (
                             <table
                                 id="example"
                                 className="table table-striped nowrap"
@@ -192,7 +192,7 @@ useEffect(() => {
                 <div className="col-md-12">
                     <div className="theme-table">
                         <div className="tab-heading">
-                            <h3>Recent Active SOS</h3>
+                            <h3>Recently Closed SOS Alerts</h3>
                         </div>
 
                         {recentSOS.isFetching ? (

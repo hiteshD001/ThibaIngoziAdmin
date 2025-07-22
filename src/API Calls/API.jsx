@@ -816,3 +816,21 @@ export const payoutUserUpdate = (onSuccess, onError) => {
 
     return mutation;
 }
+
+// change password
+export const useChangePassword = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/users/change-password`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
