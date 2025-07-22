@@ -41,7 +41,7 @@ export const DeleteConfirm = ({ ...p }) => {
               cursor: deleteDriver.isPending ? "not-allowed" : "",
             }}
             className="popup-button confirm"
-            onClick={() => p.trip ?  (p.trip == 'trip' ? deleteTrip.mutate(p.id): deleteMeetingLinkTrip.mutate(p.id)) : deleteDriver.mutate(p.id)}
+            onClick={() => p.trip ? (p.trip == 'trip' ? deleteTrip.mutate(p.id) : deleteMeetingLinkTrip.mutate(p.id)) : deleteDriver.mutate(p.id)}
           >
             Confirm
           </button>
@@ -125,7 +125,7 @@ export const SOSStatusUpdate = ({ ...p }) => {
   return (
     <div className="popup-overlay">
       <div className="popup-content">
-        <p>Are you sure want to make this changes. It can't be change once change.</p>
+        <p>Are you sure you want to make this change? It can’t be changed once updated.</p>
         <div className="popup-buttons">
           <button
             className="popup-button confirm"

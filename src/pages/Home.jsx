@@ -99,6 +99,13 @@ const Home = () => {
             return getUniqueById(combined);
         });
     }, [activeUserList, activeSOS]);
+    useEffect(() => {
+        setActiveUsers([])
+        setActiveUsers(prev => {
+            const combined = [...prev, ...activeUserList || [], ...activeSOS || []];
+            return getUniqueById(combined);
+        });
+    }, [activeUserList, activeSOS]);
 
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
     const userinfo = useGetUser(localStorage.getItem("userID"));
