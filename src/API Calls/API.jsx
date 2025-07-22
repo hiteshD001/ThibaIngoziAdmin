@@ -69,8 +69,6 @@ export const useGetCompanyList = (
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
             params: {
                 role,
-                page,
-                limit,
                 filter,
                 company_id,
                 notification_type,
