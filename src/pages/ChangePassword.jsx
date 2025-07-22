@@ -47,7 +47,7 @@ const ChangePassword = () => {
     );
 
     return (
-        <div className="reset-container">
+        <div className="reset-container changePass-container">
             <div className="wrapper">
                 <h2>Change Password</h2>
                 <form className="form" onSubmit={changePasswordForm.handleSubmit}>
