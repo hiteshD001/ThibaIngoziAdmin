@@ -16,6 +16,7 @@ export const superadmin_menulist = [
         path: "/home",
         image: home
     },
+
     {
         id: "total-companies",
         name: "Total Companies",
@@ -89,6 +90,12 @@ export const superadmin_menulist = [
             image: arrowLeft
         },
         company: "Sos Information"
+    },
+    {
+        id: "changePassword",
+        name: "Change Password",
+        path: "/home/change-password",
+        image: home
     },
     // {
     //     id: "hardware-management",
@@ -164,16 +171,19 @@ export const Companyadmin_menulist = () => {
             },
             company: "User Information"
         },
+
         {
             id: "profile",
             name: "Profile",
             path: "/home/profile",
             image: profile
         },
+
         {
             id: "logout",
             name: "Logout",
             image: logout
         },
+
     ]
 } 
