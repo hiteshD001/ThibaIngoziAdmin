@@ -525,6 +525,26 @@ export const useGetHotspot = (type, company_id, notificationType) => {
     return res;
 };
 
+
+// notifications
+
+export const useCreateNotificationType = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/notificationType/create`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
 export const useGetNotificationType = () => {
     const queryFn = async () => {
         return await apiClient.get(
@@ -730,7 +750,7 @@ export const useGetLocationByLocationId = (locationId) => {
         isLoading: res.isLoading,
     };
 };
-
+// driver import 
 export const useFileUpload = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
@@ -747,6 +767,18 @@ export const useFileUpload = (onSuccess, onError) => {
 
     return mutation;
 };
+// user import
+export const useUserFileUpload = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(`${import.meta.env.VITE_BASEURL}/users/register/bulk/passenger`, data);
+    }
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    })
+    return mutation;
+}
 
 
 // payout api

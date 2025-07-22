@@ -47,6 +47,7 @@ const ListOfDrivers = () => {
             isPaymentToken: "",
             services: [],
             securityCompany: [],
+            isEnrollToken: ""
         },
         validationSchema: companyEditValidation,
         onSubmit: (values) => {
@@ -81,6 +82,7 @@ const ListOfDrivers = () => {
                 email: user.email || "",
                 isArmed: user.isArmed || false,
                 isPaymentToken: user.isPaymentToken || false,
+                isEnrollToken: user.isEnrollToken || false,
                 services: user.services
                     ?.filter(s => s.serviceId?.isService)
                     .map(s => s.serviceId._id) || [],
@@ -232,6 +234,11 @@ const ListOfDrivers = () => {
     };
 
 
+    useEffect(() => {
+        if (CompanyForm.values.isArmed === true || CompanyForm.values.isArmed === "true") {
+            CompanyForm.setFieldValue("securityCompany", []);
+        }
+    }, [CompanyForm.values.isArmed]);
     return (
         <div className="container-fluid">
             <div className="row">
@@ -347,6 +354,29 @@ const ListOfDrivers = () => {
                                         </label>
 
                                     </div>
+                                    <div className="c-info2">
+
+                                        <input
+                                            type="checkbox"
+                                            name="isEnrollToken"
+                                            id="isEnrollToken"
+                                            className="form-check-input me-1"
+                                            checked={CompanyForm.values.isEnrollToken}
+                                            onChange={(e) =>
+                                                CompanyForm.setFieldValue(
+                                                    "isEnrollToken",
+                                                    e.target.checked
+                                                )
+                                            }
+                                            disabled={!edit}
+                                        />
+                                        <label
+                                            htmlFor="isEnrollToken"
+                                        >
+                                            Pay subscription
+                                        </label>
+
+                                    </div>
                                 </div>
                             </div>
                             {
@@ -357,6 +387,7 @@ const ListOfDrivers = () => {
                                             <Select
                                                 isMulti
                                                 name="services"
+
                                                 options={GrpservicesList}
                                                 classNamePrefix="select"
                                                 placeholder="Select Services"
@@ -424,6 +455,7 @@ const ListOfDrivers = () => {
                                             isMulti
                                             name="securityCompany"
                                             options={securityCompanyOptions}
+                                            isDisabled={CompanyForm.values.isArmed}
                                             classNamePrefix="select"
                                             placeholder="Select Security Companies"
                                             className="form-control"
@@ -455,7 +487,7 @@ const ListOfDrivers = () => {
                                                 }),
                                                 menu: (base) => ({
                                                     ...base,
-                                                    zIndex: 9999, // ensure it's above modals and overflow parents
+                                                    zIndex: 9999,
                                                 }),
                                             }}
                                         />
@@ -466,16 +498,18 @@ const ListOfDrivers = () => {
                                         <div className="company-info">
                                             <div className="comapny-titles">Security Companies</div>
                                             <div className="comapny-det comapny-det2">
-                                                {securityCompanyOptions
-                                                    .filter(opt => CompanyForm.values.securityCompany.includes(opt.value))
-                                                    .map((company, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className={servicesList.length > index + 1 ? "c-ser" : "c-ser2"}
-                                                        >
-                                                            <p key={index}>{company.label}</p>
-                                                        </div>
-                                                    ))}
+                                                {(CompanyForm.values.isArmed !== true) &&
+                                                    securityCompanyOptions
+                                                        .filter(opt => CompanyForm.values.securityCompany.includes(opt.value))
+                                                        .map((company, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className={servicesList.length > index + 1 ? "c-ser" : "c-ser2"}
+                                                            >
+                                                                <p>{company.label}</p>
+                                                            </div>
+                                                        ))
+                                                }
                                             </div>
                                         </div>
                                     )
@@ -677,7 +711,7 @@ const ListOfDrivers = () => {
                     </div>
                 </div>
             </div>
-            {popup && <ImportSheet setpopup={setpopup} />}
+            {popup && <ImportSheet setpopup={setpopup} type="driver" />}
         </div>
     );
 };

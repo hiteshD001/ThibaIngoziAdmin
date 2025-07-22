@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
@@ -19,7 +19,7 @@ const AddUser = () => {
     const [role] = useState(localStorage.getItem("role"));
     const nav = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
-
+    let companyId = localStorage.getItem('userID')
     const onSuccess = () => {
         toast.success("User added successfully.");
         UserForm.resetForm();
@@ -27,7 +27,9 @@ const AddUser = () => {
         nav("/home/total-users");
     };
     const UserForm = useFormik({
-        initialValues: role === 'super_admin' ? formValues1 : formValues2,
+        initialValues: role === 'super_admin'
+            ? formValues1
+            : { ...formValues2, company_id: companyId },
         validationSchema: driverValidation,
         onSubmit: (values) => {
             const formData = new FormData();
@@ -62,6 +64,17 @@ const AddUser = () => {
     const countrylist = useGetCountryList();
     const provincelist = useGetProvinceList(UserForm.values.country);
 
+
+    useEffect(() => {
+        if (role !== 'super_admin' && companyList.data?.data?.users?.length) {
+            const matchedCompany = companyList.data.data.users.find(
+                (user) => user._id === companyId
+            );
+            if (matchedCompany) {
+                UserForm.setFieldValue('company_name', matchedCompany.company_name);
+            }
+        }
+    }, [companyList.data, companyId, role]);
     return (
         <div className="container-fluid">
             <div className="row">
