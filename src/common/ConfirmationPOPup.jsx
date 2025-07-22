@@ -125,7 +125,7 @@ export const SOSStatusUpdate = ({ ...p }) => {
   return (
     <div className="popup-overlay">
       <div className="popup-content">
-        <p>Are you sure want to make this changed. It can't be changed once change.</p>
+        <p>Are you sure you want to make this change? It can’t be changed once updated.</p>
         <div className="popup-buttons">
           <button
             className="popup-button confirm"
