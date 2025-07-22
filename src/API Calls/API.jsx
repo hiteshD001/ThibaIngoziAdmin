@@ -81,8 +81,6 @@ export const useGetCompanyList = (
             key,
             role,
             company_id,
-            page,
-            limit,
             filter,
             notification_type,
         ],
