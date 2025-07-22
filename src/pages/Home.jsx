@@ -88,7 +88,7 @@ useEffect(() => {
                             <h3>Active SOS</h3>{" "}
                         </div>
 
-                        {isConnected && activeUsers?.length > 0 ? (
+                        {isConnected && activeUserList?.length > 0 ? (
                             <table
                                 id="example"
                                 className="table table-striped nowrap"
@@ -108,7 +108,7 @@ useEffect(() => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {activeUsers.map((row) => (
+                                    {activeUserList.map((row) => (
                                         <tr key={row._id}>
                                             <td>
                                                 <div
@@ -122,7 +122,7 @@ useEffect(() => {
                                                         className="profilepicture"
                                                         src={
                                                             row.user_id
-                                                                ?.profileImage ||
+                                                                ?.selfieImage || row.user_id.fullImage ||
                                                             nouser
                                                         }
                                                     />
