@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { useGetUserList, useChangePassword } from "../API Calls/API";
+import { useGetCompanyList, useChangePassword } from "../API Calls/API";
 
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
@@ -15,7 +15,8 @@ const ChangePassword = () => {
     const [showconfirmpass, setshowconfirmpass] = useState(false);
     const [p] = useSearchParams()
     const [resetSuccessful, setResetSuccessful] = useState(false);
-    const companyList = useGetUserList("company list", "company");
+    // const companyList = useGetUserList("company list", "company");
+    const companyList = useGetCompanyList("company list", "company");
     const changePasswordForm = useFormik({
         initialValues: {
             company_id: "",
