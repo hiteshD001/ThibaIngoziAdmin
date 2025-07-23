@@ -92,10 +92,16 @@ export const superadmin_menulist = [
         company: "Sos Information"
     },
     {
-        id: "changePassword",
+        id: "change-password",
         name: "Change Password",
         path: "/home/change-password",
-        image: home
+        image: home,
+        company: "Company Change Password",
+        submenu: {
+            name: "Change Password",
+            path: "/home/change-password",
+            image: arrowLeft
+        },
     },
     // {
     //     id: "hardware-management",
