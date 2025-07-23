@@ -20,6 +20,7 @@ export const BootstrapInput = styled(InputBase)(({ theme }) => ({
             'box-shadow',
         ]),
         fontFamily: [
+            '"Montserrat"',
             '-apple-system',
             'BlinkMacSystemFont',
             '"Segoe UI"',

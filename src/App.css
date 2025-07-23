@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 /* styles.css */
 :root {
     --Blue: #367BE0;
@@ -8,12 +8,20 @@
     --heading-font: 'Poppins', sans-serif;
 }
 * {
-    font-family: "Inter", sans-serif;
+    font-family: "Montserrat", sans-serif;
     font-style: normal;
 }
 .link{
     text-decoration: none;
     color: #000000;
+}
+.link2 {
+    text-decoration: none;
+    color: var(--Blue);
+}
+.link2:hover{
+    padding-bottom: 1;
+    text-decoration: underline;
 }
 .link:hover{
     padding-bottom: 1;

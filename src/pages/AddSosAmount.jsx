@@ -88,8 +88,8 @@ const AddSosAmount = () => {
                 </Box>
 
                 <form onSubmit={Sosform.handleSubmit}>
-                    <Grid container spacing={3}>
-                        <Grid size={{ xs: 12, md: 6 }}>
+                    <Grid container spacing={{ xs: 0, sm: 3 }}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             <FormControl variant="standard" fullWidth sx={{ mb: 3 }}>
                                 <InputLabel
                                     shrink
@@ -166,7 +166,7 @@ const AddSosAmount = () => {
                             </FormControl>
                         </Grid>
 
-                        <Grid size={{ xs: 12, md: 6 }}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
 
                             <FormControl variant="standard" fullWidth sx={{ mb: 3 }}>
                                 <InputLabel
@@ -249,6 +249,7 @@ const AddSosAmount = () => {
                                         }),
                                     }}
                                 />
+
                                 {Sosform.touched.notificationTypeId && Sosform.errors.notificationTypeId && (
                                     <div style={{ color: 'red', fontSize: 12 }}>{Sosform.errors.notificationTypeId}</div>
                                 )}

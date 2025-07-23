@@ -10,7 +10,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Provider } from 'react-redux';
 import store from './Redux Store/Store.jsx';
-
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css'
@@ -23,10 +24,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
     <WebSocketProvider>
       <QueryClientProvider client={client}>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <ToastContainer />
-          <App />
-        </LocalizationProvider>
+        <ThemeProvider theme={theme}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <ToastContainer />
+            <App />
+          </LocalizationProvider>
+        </ThemeProvider>
       </QueryClientProvider>
 
     </WebSocketProvider>

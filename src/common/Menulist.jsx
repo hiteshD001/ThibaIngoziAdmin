@@ -69,26 +69,9 @@ export const superadmin_menulist = [
         id: "change-password",
         name: "Change Password",
         path: "/home/change-password",
-        image: home,
-        company: "Company Change Password",
-        submenu: {
-            name: "Change Password",
-            path: "/home/change-password",
-            image: arrowLeft
-        },
+        image: Dashboard,
     },
-    {
-        id: "change-password",
-        name: "Change Password",
-        path: "/home/change-password",
-        image: home,
-        company: "Company Change Password",
-        submenu: {
-            name: "Change Password",
-            path: "/home/change-password",
-            image: arrowLeft
-        },
-    },
+
     // {
     //     id: "hardware-management",
     //     name: "Hardware Management",

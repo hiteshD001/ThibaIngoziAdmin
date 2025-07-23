@@ -111,7 +111,7 @@ const ArmedSosAmount = () => {
 
                 <form onSubmit={sosForm.handleSubmit}>
                     <Grid container spacing={3}>
-                        <Grid size={{ xs: 12, md: 6 }}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             {edit ? (
                                 <FormControl variant="standard" fullWidth sx={{ mb: 3 }}>
                                     <InputLabel
@@ -184,7 +184,7 @@ const ArmedSosAmount = () => {
                             ) : displayField("Company Split Amount", sosForm.values.companySplitAmount)}
                         </Grid>
 
-                        <Grid size={{ xs: 12, md: 6 }}>
+                        <Grid size={{ xs: 12, sm: 6 }}>
                             {edit ? (
                                 <FormControl variant="standard" fullWidth sx={{ mb: 3 }}>
                                     <InputLabel shrink htmlFor="currency" sx={{

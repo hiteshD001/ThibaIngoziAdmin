@@ -49,7 +49,7 @@ const ListOfSosAmount = () => {
 
     return (
         <Box p={2}>
-            <Paper elevation={3} sx={{ backgroundColor: "rgb(252, 252, 252)", padding: 3, borderRadius: '10px' }}>
+            <Paper elevation={3} sx={{ backgroundColor: "rgb(252, 252, 252)", padding: 2, borderRadius: '10px' }}>
                 <Grid container display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <Grid size={{ xs: 12, md: 4 }} sx={{ mb: { xs: 2, md: 0 } }}>
                         <Typography variant="h6" fontWeight={550}>List of SOS Amount</Typography>
@@ -98,9 +98,9 @@ const ListOfSosAmount = () => {
                 {!sosList.data ? (
                     <Loader />
                 ) : sosList.data?.data?.length ? (
-                    <Box sx={{ px: 3, pt: 3, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                    <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
                         <TableContainer >
-                            <Table>
+                            <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', paddingBlock: '13px' } }}>
                                 <TableHead >
                                     <TableRow>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', borderTopLeftRadius: '10px', color: '#4B5563' }}>Armed SOS Amount</TableCell>
@@ -136,47 +136,66 @@ const ListOfSosAmount = () => {
                                 </TableBody>
                             </Table>
 
-                            <Grid container justifyContent="space-between" alignItems="center" mt={2}>
-                                <Grid >
-                                    <Typography variant="body2">
-                                        Rows per page:&nbsp;
-                                        <Select
-                                            size="small"
-                                            value={rowsPerPage}
-                                            onChange={(e) => {
-                                                setRowsPerPage(Number(e.target.value));
-                                                setCurrentPage(1);
-                                            }}
-                                        >
-                                            {[5, 10, 15, 20].map((num) => (
-                                                <MenuItem key={num} value={num}>
-                                                    {num}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </Typography>
-                                </Grid>
-                                <Grid>
-                                    <Box display="flex" alignItems="center" gap={2}>
-                                        <Typography variant="body2">
-                                            {currentPage} / {totalPages}
-                                        </Typography>
-                                        <IconButton
-                                            disabled={currentPage === 1}
-                                            onClick={() => setCurrentPage((prev) => prev - 1)}
-                                        >
-                                            <ArrowBackIosNewIcon fontSize="small" />
-                                        </IconButton>
-                                        <IconButton
-                                            disabled={currentPage === totalPages}
-                                            onClick={() => setCurrentPage((prev) => prev + 1)}
-                                        >
-                                            <ArrowForwardIosIcon fontSize="small" />
-                                        </IconButton>
-                                    </Box>
-                                </Grid>
-                            </Grid>
+
                         </TableContainer>
+                        <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                            <Grid >
+                                <Typography variant="body2">
+                                    Rows per page:&nbsp;
+                                    <Select
+                                        size="small"
+                                        value={rowsPerPage}
+                                        sx={{
+                                            border: 'none',
+                                            boxShadow: 'none',
+                                            outline: 'none',
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '& .MuiOutlinedInput-root': {
+                                                boxShadow: 'none',
+                                                outline: 'none',
+                                            },
+                                            '& .MuiSelect-select': {
+                                                outline: 'none',
+                                            },
+                                        }}
+                                        onChange={(e) => {
+                                            setRowsPerPage(Number(e.target.value));
+                                            setCurrentPage(1);
+                                        }}
+                                    >
+                                        {[5, 10, 15, 20].map((num) => (
+                                            <MenuItem key={num} value={num}>
+                                                {num}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Typography>
+                            </Grid>
+                            <Grid>
+                                <Box display="flex" alignItems="center" gap={2}>
+                                    <Typography variant="body2">
+                                        {currentPage} / {totalPages}
+                                    </Typography>
+                                    <IconButton
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                                    >
+                                        <ArrowBackIosNewIcon fontSize="small" />
+                                    </IconButton>
+                                    <IconButton
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                                    >
+                                        <ArrowForwardIosIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+                        </Grid>
                     </Box>
                 ) : (
                     <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>

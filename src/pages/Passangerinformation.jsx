@@ -1,18 +1,31 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-
 import { useFormik } from "formik"
 import { vehicleValidation } from "../common/FormValidation"
-
 import { useQueryClient } from "@tanstack/react-query"
 import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API"
-
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
+import {
+    Box,
+    Button,
+    Typography,
+    InputLabel,
+    FormControl,
+    FormHelperText,
+    Grid,
+    Paper,
+    Chip,
+} from "@mui/material";
+import { BootstrapInput } from "../common/BootstrapInput";
+import CustomSelect from "../common/CustomSelect";
+import GrayPlus from '../assets/images/GrayPlus.svg'
 
 const PassangerInformation = () => {
-    const [edit, setEdit] = useState(false)
+    const [editInfo, setEditInfo] = useState(false);
+    const [editAddress, setEditAddress] = useState(false);
+    const [editEmergency, setEditEmergency] = useState(false);
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const client = useQueryClient()
@@ -21,7 +34,7 @@ const PassangerInformation = () => {
         initialValues: {
             first_name: "",
             last_name: "",
-            company_id: "",
+            companyId: "",
             company_name: '',
             email: "",
             mobile_no: "",
@@ -39,24 +52,19 @@ const PassangerInformation = () => {
         validationSchema: vehicleValidation
     })
 
-
     const submithandler = (values) => {
-        setEdit(false);
         const formData = new FormData();
         Object.keys(values).forEach(key => {
             if (key !== 'selfieImage' && key !== 'fullImage') {
                 formData.append(key, values[key]);
             }
         });
-
         if (values.selfieImage && values.selfieImage instanceof File) {
             formData.append("selfieImage", values.selfieImage);
         }
-
         if (values.fullImage && values.fullImage instanceof File) {
             formData.append("fullImage", values.fullImage);
         }
-
         mutate({ id: params.id, data: formData })
     }
 
@@ -73,130 +81,114 @@ const PassangerInformation = () => {
     const onSuccess = () => {
         toast.success("User Updated Successfully.");
         client.invalidateQueries("user list")
-        // setEdit(false);
     }
     const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
-
     const { mutate } = useUpdateUser(onSuccess, onError)
-
     const provincelist = useGetProvinceList(driverform.values.country)
     const countrylist = useGetCountryList()
     const companyList = useGetUserList("company list", "company");
     useEffect(() => {
         const data = UserInfo.data?.data
-
         if (data) {
-            setdriverformvalues({ form: driverform, data: UserInfo.data?.data.user })
+            setdriverformvalues({
+                form: driverform, data: {
+                    ...UserInfo.data?.data.user,
+                    companyId: UserInfo.data?.data.user?.company_id?._id || "",
+                }
+            })
             setdriverformvalues({ form: emergencyform, data: UserInfo.data?.data?.user })
         }
     }, [UserInfo.data])
 
+    const displayField = (label, value) => (
+        <Box mb={3}>
+            <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>{label}</Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ ml: 0.5 }}>
+                {value || "-"}
+            </Typography>
+        </Box>
+    );
     return (
-        <div className="container-fluid">
-            <div className="row">
+        <Box p={2}>
 
-                <div className="col-md-12">
-                    <div className="theme-table">
-                        <div className="tab-heading">
-                            <h3>User Information</h3>
-                        </div>
-                        <form>
-                            <div className="row">
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
+            {/* user information */}
+            <Paper elevation={0} sx={{ p: 3, borderRadius: '10px', mb: 3 }}>
+                <form>
+                    <Grid container spacing={editInfo ? 3 : 1}>
+                        <Grid size={12}>
+                            <Typography variant="h6" gutterBottom fontWeight={600}>
+                                User Information
+                            </Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                            {editInfo ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="first_name" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        First Name
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="first_name"
                                         name="first_name"
-                                        placeholder="Name"
-                                        className="form-control"
+                                        placeholder="First Name"
                                         value={driverform.values.first_name}
                                         onChange={driverform.handleChange}
-                                        disabled={!edit}
+
                                     />
-                                    {driverform.touched.first_name && <p className="err">{driverform.errors.first_name}</p>}
-                                </div>
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
+                                    {driverform.touched.first_name && <FormHelperText error>{driverform.errors.first_name}</FormHelperText>}
+                                </FormControl>
+                            ) : displayField("First Name", driverform.values.first_name)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                            {editInfo ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="last_name" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Last Name
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="last_name"
                                         name="last_name"
-                                        placeholder="Surname"
-                                        className="form-control"
+                                        placeholder="Last Name"
                                         value={driverform.values.last_name}
                                         onChange={driverform.handleChange}
-                                        disabled={!edit}
+
                                     />
-                                    {driverform.touched.last_name && <p className="err">{driverform.errors.last_name}</p>}
-                                </div>
-                                {/* <div className="col-md-6">
-                                    <select
-                                        name="company_id"
-                                        className="form-control"
-                                        value={driverform.values.company_id}
-                                        onChange={driverform.handleChange}
-                                        disabled={!edit}
-                                    >
-                                        <option value="" hidden>Others</option>
-                                        {companyList.data?.data.users.map(user => <option key={user._id} value={user._id}>{user.company_name}</option>)}
-                                    </select>
-                                    {driverform.touched.company_id && <p className="err">{driverform.errors.company_id}</p>}
-                                </div> */}
-                                {/* <div className="col-md-6">
-                                    <input
-                                        type="text"
-                                        name="company_name"
-                                        placeholder="Company Name"
-                                        className="form-control"
-                                        value={vehicleForm.values.company_name}
-                                        onChange={vehicleForm.handleChange}
-                                        disabled={!edit}
-                                    />
-                                    {vehicleForm.touched.company_name && <p className="err">{vehicleForm.errors.company_name}</p>}
-                                </div> */}
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
-                                        name="email"
-                                        placeholder="Email"
-                                        className="form-control"
-                                        value={driverform.values.email}
-                                        onChange={driverform.handleChange}
-                                        disabled={!edit}
-                                    />
-                                    {driverform.touched.email && <p className="err">{driverform.errors.email}</p>}
-                                </div>
-                                <div className="col-md-6">
-                                    <select
-                                        name="company_id"
-                                        className="form-control"
-                                        value={driverform.values.company_id}
-                                        onChange={(e) => {
+                                    {driverform.touched.last_name && <FormHelperText error>{driverform.errors.last_name}</FormHelperText>}
+                                </FormControl>
+                            ) : displayField("Last Name", driverform.values.last_name)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                            {role === "super_admin" && (
+                                editInfo ? (
+                                    <CustomSelect
+                                        label="Company Name"
+                                        name="companyId"
+                                        value={driverform.values.companyId || ''}
+                                        onChange={e => {
                                             const selectedId = e.target.value;
                                             const selectedCompany = companyList.data?.data.users.find(
                                                 (user) => user._id === selectedId
                                             );
-
-                                            driverform.setFieldValue("company_id", selectedId);
+                                            driverform.setFieldValue("companyId", selectedId);
                                             driverform.setFieldValue("company_name", selectedCompany?.company_name || "");
                                         }}
-                                        disabled={role !== "super_admin" || !edit}
-                                    >
-                                        <option value="" hidden>Others</option>
-                                        {companyList.data?.data.users.map((user) => (
-                                            <option key={user._id} value={user._id}>
-                                                {user.company_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {driverform.touched.company_id && (
-                                        <p className="err">
-                                            {driverform.errors.company_id}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="col-md-6">
+                                        options={companyList?.data?.data?.users?.map(user => ({
+                                            value: user._id,
+                                            label: user.company_name
+                                        })) || []}
+                                        error={driverform.errors.companyId}
+                                    // helperText={driverform.errors.companyId}
 
+                                    />
+                                ) : displayField("Company Name", driverform.values.company_name)
+                            )}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                            {editInfo ? (
+                                <FormControl variant="standard" fullWidth>
+                                    <label style={{ marginBottom: 5 }}>Phone Number</label>
                                     <PhoneInput
                                         country={"za"}
-                                        disabled={!edit}
+
                                         value={`${driverform.values.mobile_no_country_code ?? ''}${driverform.values.mobile_no ?? ''}`}
                                         onChange={(phone, countryData) => {
                                             const withoutCountryCode = phone.startsWith(countryData.dialCode)
@@ -206,347 +198,483 @@ const PassangerInformation = () => {
                                             driverform.setFieldValue("mobile_no", withoutCountryCode);
                                             driverform.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
                                         }}
-                                        inputClass="form-control"
+                                        inputStyle={{
+                                            width: '100%',
+                                            height: '46px',
+                                            borderRadius: '6px',
+                                            border: '1px solid #E0E3E7',
+                                            fontSize: '16px',
+                                            paddingLeft: '48px',
+                                            background: '#fff',
+                                            outline: 'none',
+                                            boxShadow: 'none',
+                                            borderColor: '#E0E3E7',
+                                        }}
+                                        buttonStyle={{
+                                            borderRadius: '6px 0 0 6px',
+                                            border: '1px solid #E0E3E7',
+                                            background: '#fff'
+                                        }}
+                                        containerStyle={{
+                                            height: '46px',
+                                            width: '100%',
+                                            marginBottom: '8px'
+                                        }}
+                                        specialLabel=""
+                                        inputProps={{
+                                            name: 'mobile_no',
+                                            required: true,
+                                            autoFocus: false
+                                        }}
                                     />
-                                    {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>}
-                                    {/* <input
-                                        type="text"
-                                        name="mobile_no"
-                                        placeholder="Mobile No."
-                                        className="form-control"
-                                        value={driverform.values.mobile_no}
-                                        onChange={driverform.handleChange}
-                                        disabled={!edit}
-                                    />
-                                    {driverform.touched.mobile_no && <p className="err">{driverform.errors.mobile_no}</p>} */}
-                                </div>
-
-                                <div className="col-md-12">
-                                    <div className="row">
-                                        <div className="col-md-6">
-                                            <div className="row">
-                                                <div className="col-md-6">
-                                                    <label>Selfie Image</label>
-
-                                                    {driverform.values.selfieImage instanceof File ? (
-                                                        <div className="form-control mt-2 img-preview-container">
-                                                            <img
-                                                                src={URL.createObjectURL(driverform.values.selfieImage)}
-                                                                alt="Selfie Preview"
-                                                                className="img-preview"
-                                                                width="100"
-                                                                onLoad={(e) => URL.revokeObjectURL(e.target.src)}
-                                                            />
-                                                        </div>
-                                                    ) : (
-                                                        UserInfo.data?.data.user?.selfieImage && (
-                                                            <div className="form-control mt-2 img-preview-container">
-                                                                <img
-                                                                    src={UserInfo.data?.data.user?.selfieImage}
-                                                                    alt="Selfie Image"
-                                                                    className="img-preview"
-                                                                    width="100"
-                                                                />
-                                                            </div>
-                                                        )
-                                                    )}
-
-
-                                                    <div className="custom-file-input">
-                                                        <input
-                                                            type="file"
-                                                            id="selfieImage"
-                                                            accept="image/*"
-                                                            disabled={!edit}
-                                                            onChange={(event) => {
-                                                                const file = event.currentTarget.files[0];
-                                                                driverform.setFieldValue("selfieImage", file);
-                                                            }}
-                                                        />
-                                                        <label htmlFor="selfieImage">
-                                                            Choose Selfie Image
-                                                        </label>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="col-md-6">
-                                            <div className="row">
-                                                <div className="col-md-6">
-                                                    <label>Full Image</label>
-
-                                                    {driverform.values.fullImage instanceof File ? (
-                                                        <div className="form-control mt-2 img-preview-container">
-                                                            <img
-                                                                src={URL.createObjectURL(driverform.values.fullImage)}
-                                                                alt="full Image"
-                                                                className="img-preview"
-                                                                width="100"
-                                                                onLoad={(e) => URL.revokeObjectURL(e.target.src)}
-                                                            />
-                                                        </div>
-                                                    ) : (
-                                                        UserInfo.data?.data.user?.fullImage && (
-                                                            <div className="form-control mt-2 img-preview-container">
-                                                                <img
-                                                                    src={UserInfo.data?.data.user?.fullImage}
-                                                                    alt="full Image"
-                                                                    className="img-preview"
-                                                                    width="100"
-                                                                />
-                                                            </div>
-                                                        )
-                                                    )}
-
-                                                    <div className="custom-file-input">
-                                                        <input
-                                                            type="file"
-                                                            id="fullImage"
-                                                            accept="image/*"
-                                                            disabled={!edit}
-                                                            onChange={(event) => {
-                                                                const file = event.currentTarget.files[0];
-                                                                driverform.setFieldValue("fullImage", file);
-                                                            }}
-                                                        />
-                                                        <label htmlFor="fullImage">
-                                                            Choose Full Image
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </form>
-                    </div>
-
-                    <div className="theme-table">
-                        <div className="tab-heading">
-                            <h3>Address</h3>
-                        </div>
-                        <form>
-                            <div className="row">
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
-                                        name="street"
-                                        placeholder="Street"
-                                        className="form-control"
-                                        value={driverform.values.street}
-                                        onChange={driverform.handleChange}
-                                        disabled={!edit}
-                                    />
-                                    {driverform.touched.street && (
-                                        <p className="err">{driverform.errors.street}</p>
+                                    {driverform.touched.mobile_no && driverform.errors.mobile_no && (
+                                        <FormHelperText error>{driverform.errors.mobile_no}</FormHelperText>
                                     )}
-                                </div>
-
-                                <div className="col-md-6">
-                                    <select
-                                        name="country"
-                                        className="form-control"
-                                        value={driverform.values.country}
+                                </FormControl>
+                            ) : displayField("Phone Number", `${driverform.values.mobile_no_country_code ?? ''}${driverform.values.mobile_no ?? ''}`)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                            {editInfo ? (
+                                <FormControl variant="standard" fullWidth>
+                                    <InputLabel shrink htmlFor="email" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Email
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="email"
+                                        name="email"
+                                        placeholder="Email"
+                                        value={driverform.values.email}
                                         onChange={driverform.handleChange}
-                                        disabled={!edit}
+
+                                    />
+                                    {driverform.touched.email && <FormHelperText error>{driverform.errors.email}</FormHelperText>}
+                                </FormControl>
+                            ) : displayField("Email", driverform.values.email)}
+                        </Grid>
+                        {/* <Grid size={{ xs: 12, sm: 6 }}>
+                            {editInfo ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="id_no" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        ID No
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="id_no"
+                                        name="id_no"
+                                        placeholder="ID No."
+                                        value={driverform.values.id_no}
+                                        onChange={driverform.handleChange}
+
+                                    />
+                                    {driverform.touched.id_no && <FormHelperText error>{driverform.errors.id_no}</FormHelperText>}
+                                </FormControl>
+                            ) : displayField("ID No", driverform.values.id_no)}
+                        </Grid> */}
+                        <Grid size={12}>
+                            <Grid container gap={4} sx={{ mt: 1 }}>
+                                <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
+                                    <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>Selfie Image</label>
+                                    <Box
+                                        sx={{
+                                            border: '2px dashed #E0E3E7',
+                                            borderRadius: '12px',
+                                            minHeight: 180,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: editInfo ? 'pointer' : 'not-allowed',
+                                            position: 'relative',
+                                            background: '#fafbfc'
+                                        }}
+                                        component="label"
                                     >
-                                        <option value="" hidden> Country </option>
-                                        {countrylist.data?.data.data?.map((country) => (
-                                            <option key={country._id} value={country._id}>
-                                                {country.country_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {driverform.touched.country && (
-                                        <p className="err">{driverform.errors.country}</p>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            hidden
+                                            name="selfieImage"
+                                            disabled={!editInfo}
+                                            onChange={e => driverform.setFieldValue('selfieImage', e.currentTarget.files[0])}
+                                        />
+                                        {driverform.values.selfieImage instanceof File ? (
+                                            <img
+                                                src={URL.createObjectURL(driverform.values.selfieImage)}
+                                                alt="Selfie Preview"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                            />
+                                        ) : driverform.values.selfieImage ? (
+                                            <img
+                                                src={driverform.values.selfieImage}
+                                                alt="Selfie"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                            />
+                                        ) : (<><img src={GrayPlus} alt="gray plus" />
+                                            <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
+                                        )}
+                                    </Box>
+                                    {driverform.touched.selfieImage && driverform.errors.selfieImage && (
+                                        <FormHelperText error>{driverform.errors.selfieImage}</FormHelperText>
                                     )}
-                                </div>
-
-                                <div className="col-md-6">
-                                    <select
-                                        name="province"
-                                        className="form-control"
-                                        disabled={!driverform.values.country || !edit}
-                                        value={driverform.values.province}
-                                        onChange={driverform.handleChange}
+                                </Grid>
+                                <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
+                                    <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>Full Image</label>
+                                    <Box
+                                        sx={{
+                                            border: '2px dashed #E0E3E7',
+                                            borderRadius: '12px',
+                                            minHeight: 180,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: editInfo ? 'pointer' : 'not-allowed',
+                                            position: 'relative',
+                                            background: '#fafbfc'
+                                        }}
+                                        component="label"
                                     >
-                                        <option value="" hidden>Province</option>
-                                        {provincelist.data?.data.data?.map((province) => (
-                                            <option key={province._id} value={province._id}>
-                                                {province.province_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {driverform.touched.province && (
-                                        <p className="err">{driverform.errors.province}</p>
-                                    )}
-                                </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            hidden
+                                            name="fullImage"
+                                            disabled={!editInfo}
+                                            onChange={e => driverform.setFieldValue('fullImage', e.currentTarget.files[0])}
+                                        />
+                                        {driverform.values.fullImage instanceof File ? (
+                                            <img
+                                                src={URL.createObjectURL(driverform.values.fullImage)}
+                                                alt="Full Preview"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                            />
+                                        ) : driverform.values.fullImage ? (
+                                            <img
+                                                src={driverform.values.fullImage}
+                                                alt="Full Image"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                            />
+                                        ) : (<><img src={GrayPlus} alt="gray plus" />
+                                            <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
+                                        )
+                                        }
 
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
+                                    </Box>
+                                    {driverform.touched.fullImage && driverform.errors.fullImage && (
+                                        <FormHelperText error>{driverform.errors.fullImage}</FormHelperText>
+                                    )}
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        <Grid size={12}>
+                            <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+                                {editInfo ? (
+                                    <>
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => {
+                                                submithandler(driverform.values);
+                                                setEditInfo(false);
+                                            }}
+                                        >
+                                            Save
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px' }}
+                                            onClick={() => {
+                                                setdriverformvalues({ form: driverform, data: UserInfo.data?.data?.user });
+                                                setEditInfo(false);
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Button
+                                        variant="contained"
+                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                        onClick={() => setEditInfo(true)}
+                                    >
+                                        Edit
+                                    </Button>
+                                )}
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Paper>
+
+            {/* Address */}
+            <Paper elevation={0} sx={{ p: 3, borderRadius: '10px', mb: 3 }}>
+                <form>
+                    <Grid container spacing={editAddress ? 3 : 1}>
+                        <Grid size={12}>
+                            <Typography variant="h6" gutterBottom fontWeight={600}>
+                                Address
+                            </Typography>
+                        </Grid>
+
+                        <Grid size={{ xs: 12, sm: editAddress ? 6 : 4 }}>
+                            {editAddress ? (
+                                <CustomSelect
+                                    label="Country"
+                                    name="country"
+                                    value={driverform.values.country}
+                                    onChange={driverform.handleChange}
+                                    options={countrylist.data?.data.data?.map(country => ({
+                                        value: country._id,
+                                        label: country.country_name
+                                    })) || []}
+                                    error={driverform.errors.country}
+                                    helperText={driverform.errors.country}
+                                    disabled={!editAddress}
+                                />
+                            ) : displayField("Country", countrylist.data?.data.data?.find(c => c._id === driverform.values.country)?.country_name)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: editAddress ? 6 : 4 }}>
+                            {editAddress ? (
+                                <CustomSelect
+                                    label="Province"
+                                    name="province"
+                                    value={driverform.values.province}
+                                    onChange={driverform.handleChange}
+                                    options={provincelist.data?.data.data?.map(province => ({
+                                        value: province._id,
+                                        label: province.province_name
+                                    })) || []}
+                                    error={driverform.errors.province}
+                                    helperText={driverform.errors.province}
+                                    disabled={!driverform.values.country || !editAddress}
+                                />
+                            ) : displayField("Province", provincelist.data?.data.data?.find(p => p._id === driverform.values.province)?.province_name)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: editAddress ? 6 : 4 }}>
+                            {editAddress ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="city" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        City
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="city"
                                         name="city"
                                         placeholder="City"
-                                        className="form-control"
                                         value={driverform.values.city}
                                         onChange={driverform.handleChange}
-                                        disabled={!edit}
+                                        disabled={!editAddress}
                                     />
-                                    {driverform.touched.city && (
-                                        <p className="err">{driverform.errors.city}</p>
-                                    )}
-                                </div>
-
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
+                                    {driverform.touched.city && <FormHelperText error>{driverform.errors.city}</FormHelperText>}
+                                </FormControl>
+                            ) : displayField("City", driverform.values.city)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: editAddress ? 6 : 4 }}>
+                            {editAddress ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="suburb" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Suburb
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="suburb"
                                         name="suburb"
                                         placeholder="Suburb"
-                                        className="form-control"
                                         value={driverform.values.suburb}
                                         onChange={driverform.handleChange}
-                                        disabled={!edit}
+                                        disabled={!editAddress}
                                     />
-                                    {driverform.touched.suburb && (
-                                        <p className="err">{driverform.errors.suburb}</p>
-                                    )}
-                                </div>
-
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
+                                    {driverform.touched.suburb && <FormHelperText error>{driverform.errors.suburb}</FormHelperText>}
+                                </FormControl>
+                            ) : displayField("Suburb", driverform.values.suburb)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: editAddress ? 6 : 4 }}>
+                            {editAddress ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="street" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Street
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="street"
+                                        name="street"
+                                        placeholder="Street"
+                                        value={driverform.values.street}
+                                        onChange={driverform.handleChange}
+                                        disabled={!editAddress}
+                                    />
+                                    {driverform.touched.street && <FormHelperText error>{driverform.errors.street}</FormHelperText>}
+                                </FormControl>
+                            ) : displayField("Street", driverform.values.street)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: editAddress ? 6 : 4 }}>
+                            {editAddress ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="postal_code" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Postal Code
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="postal_code"
                                         name="postal_code"
                                         placeholder="Postal Code"
-                                        className="form-control"
                                         value={driverform.values.postal_code}
                                         onChange={driverform.handleChange}
-                                        disabled={!edit}
+                                        disabled={!editAddress}
                                     />
-                                    {driverform.touched.postal_code && (
-                                        <p className="err">{driverform.errors.postal_code}</p>
-                                    )}
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+                                    {driverform.touched.postal_code && <FormHelperText error>{driverform.errors.postal_code}</FormHelperText>}
+                                </FormControl>
+                            ) : displayField("Postal Code", driverform.values.postal_code)}
+                        </Grid>
+                        <Grid size={12}>
+                            <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+                                {editAddress ? (
+                                    <>
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => {
+                                                submithandler(driverform.values);
+                                                setEditAddress(false);
+                                            }}
+                                        >
+                                            Save
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px' }}
+                                            onClick={() => {
+                                                setdriverformvalues({ form: driverform, data: UserInfo.data?.data?.user });
+                                                setEditAddress(false);
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Button
+                                        variant="contained"
+                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                        onClick={() => setEditAddress(true)}
+                                    >
+                                        Edit
+                                    </Button>
+                                )}
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Paper>
 
-                    {/* <div className="theme-table">
-                        <div className="tab-heading">
-                            <h3>Vehicle Information</h3>
-                        </div>
-                        <form>
-                            <div className="row">
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
-                                        name="vehicle_name"
-                                        placeholder="Vehicle Name"
-                                        className="form-control"
-                                        value={vehicleForm.values.vehicle_name}
-                                        onChange={vehicleForm.handleChange}
-                                        disabled
-                                    />
-                                </div>
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
-                                        name="type"
-                                        placeholder="Vehicle Type"
-                                        className="form-control"
-                                        value={vehicleForm.values.type}
-                                        onChange={vehicleForm.handleChange}
-                                        disabled
-                                    />
-                                </div>
-                                <div className="col-md-6">
-                                    <div className="vehiclpic">
-                                        <span>Car Images </span>
-                                        <div className="carimages">
-                                            {vehicleForm.values.images && vehicleForm.values.images.map((image, i) => <img key={i} src={image} />)}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
-                                        name="reg_no"
-                                        placeholder="Vehicle Registration No."
-                                        className="form-control"
-                                        value={vehicleForm.values.reg_no}
-                                        onChange={vehicleForm.handleChange}
-                                        disabled
-                                    />
-                                </div>
-                            </div>
-                        </form>
-                    </div> */}
-
-                    <div className="theme-table">
-                        <div className="tab-heading">
-                            <h3>Emergency Contact</h3>
-                        </div>
-                        <form>
-                            <div className="row">
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
+            {/* emergency */}
+            <Paper elevation={0} sx={{ p: 3, borderRadius: '10px', mb: 3 }}>
+                <form>
+                    <Grid container spacing={editEmergency ? 3 : 1}>
+                        <Grid size={12}>
+                            <Typography variant="h6" gutterBottom fontWeight={600}>
+                                Emergency Contact
+                            </Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            {editEmergency ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="emergency_contact_1_email" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Emergency Contact 1 Email
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="emergency_contact_1_email"
                                         name="emergency_contact_1_email"
                                         placeholder="emergencycontact@gu.link"
-                                        className="form-control"
                                         value={emergencyform.values.emergency_contact_1_email}
                                         onChange={emergencyform.handleChange}
-                                        disabled
                                     />
-                                </div>
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
+                                </FormControl>
+                            ) : displayField("Email", emergencyform.values.emergency_contact_1_email)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            {editEmergency ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="emergency_contact_1_contact" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Emergency Contact 1 Contact
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="emergency_contact_1_contact"
                                         name="emergency_contact_1_contact"
                                         placeholder="Contact No."
-                                        className="form-control"
                                         value={emergencyform.values.emergency_contact_1_contact}
                                         onChange={emergencyform.handleChange}
-                                        disabled
                                     />
-                                </div>
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
+                                </FormControl>
+                            ) : displayField("Contact Number", emergencyform.values.emergency_contact_1_contact)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            {editEmergency ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="emergency_contact_2_email" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Emergency Contact 2 Email
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="emergency_contact_2_email"
                                         name="emergency_contact_2_email"
                                         placeholder="emergencycontact@gu.link"
-                                        className="form-control"
                                         value={emergencyform.values.emergency_contact_2_email}
                                         onChange={emergencyform.handleChange}
-                                        disabled
                                     />
-                                </div>
-                                <div className="col-md-6">
-                                    <input
-                                        type="text"
+                                </FormControl>
+                            ) : displayField("Email 2", emergencyform.values.emergency_contact_2_email)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            {editEmergency ? (
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="emergency_contact_2_contact" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Emergency Contact 2 Contact
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="emergency_contact_2_contact"
                                         name="emergency_contact_2_contact"
                                         placeholder="Contact No."
-                                        className="form-control"
                                         value={emergencyform.values.emergency_contact_2_contact}
                                         onChange={emergencyform.handleChange}
-                                        disabled
                                     />
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <div className="col-md-12 text-end">
-                    <div className="saveform">
-                        {edit ?
-                            <button type="submit" onClick={() => submithandler(driverform.values)} className="btn btn-dark">Save</button> :
-                            <button onClick={() => setEdit(true)} className="btn btn-dark">Edit</button>}
-                    </div>
-                </div>
-            </div>
-        </div>
+                                </FormControl>
+                            ) : displayField("Contact Number 2", emergencyform.values.emergency_contact_2_contact)}
+                        </Grid>
+                        <Grid size={12}>
+                            <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+                                {editEmergency ? (
+                                    <>
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => {
+                                                // Save logic for emergency contact (if needed, call submithandler or a separate handler)
+                                                setEditEmergency(false);
+                                            }}
+                                        >
+                                            Save
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px' }}
+                                            onClick={() => {
+                                                setdriverformvalues({ form: emergencyform, data: UserInfo.data?.data?.user });
+                                                setEditEmergency(false);
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Button
+                                        variant="contained"
+                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                        onClick={() => setEditEmergency(true)}
+                                    >
+                                        Edit
+                                    </Button>
+                                )}
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Paper>
+
+        </Box>
     )
 }
 
@@ -555,16 +683,12 @@ export default PassangerInformation
 const setdriverformvalues = ({ ...props }) => {
     const { form, data } = props;
     let newdata = {};
-
     Object.keys(form.values).forEach((key) => {
-
         if (key === 'images') {
             newdata = { ...newdata, [key]: Array.from({ length: 5 }, (_, i) => data?.[`image_${i + 1}`] || null).filter(Boolean) };
         } else {
             newdata = { ...newdata, [key]: data?.[key] ?? '' };
         }
-
     });
-
     form.setValues(newdata)
 }

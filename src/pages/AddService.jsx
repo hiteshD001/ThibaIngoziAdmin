@@ -52,7 +52,7 @@ const AddService = () => {
 
     return (
         <Box px={3} sx={{ height: '90vh' }}>
-            <Paper elevation={2} sx={{ p: 3, borderRadius: '10px', pb: 25 }}>
+            <Paper elevation={2} sx={{ p: 3, borderRadius: '10px', pb: { xs: 10, sm: 25 } }}>
                 <Box
                     sx={{
                         p: 1,
@@ -67,7 +67,7 @@ const AddService = () => {
 
                 <form onSubmit={serviceForm.handleSubmit}>
                     <Grid container display="flex" flexDirection="column" gap={2}>
-                        <Grid size={{ xs: 5 }}>
+                        <Grid size={{ xs: 12, sm: 5 }}>
                             <FormControl variant="standard" fullWidth sx={{ mb: 2 }}>
                                 <InputLabel
                                     shrink
