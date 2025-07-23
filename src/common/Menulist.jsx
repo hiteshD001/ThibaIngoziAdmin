@@ -20,6 +20,7 @@ export const superadmin_menulist = [
         path: "/home",
         image: Dashboard
     },
+
     {
         id: "total-companies",
         name: "Total Companies",
@@ -63,6 +64,30 @@ export const superadmin_menulist = [
         path: "/home/total-sos-amount",
         image: ArmedSos,
         company: "Sos Information"
+    },
+    {
+        id: "change-password",
+        name: "Change Password",
+        path: "/home/change-password",
+        image: home,
+        company: "Company Change Password",
+        submenu: {
+            name: "Change Password",
+            path: "/home/change-password",
+            image: arrowLeft
+        },
+    },
+    {
+        id: "change-password",
+        name: "Change Password",
+        path: "/home/change-password",
+        image: home,
+        company: "Company Change Password",
+        submenu: {
+            name: "Change Password",
+            path: "/home/change-password",
+            image: arrowLeft
+        },
     },
     // {
     //     id: "hardware-management",
@@ -140,5 +165,6 @@ export const Companyadmin_menulist = () => {
             name: "Logout",
             image: Logout
         },
+
     ]
 } 

@@ -55,6 +55,47 @@ export const useGetUserList = (
     return res;
 };
 
+// get list of company
+export const useGetCompanyList = (
+    key,
+    role,
+    company_id,
+    filter,
+    notification_type
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+            params: {
+                role,
+                filter,
+                company_id,
+                notification_type,
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            company_id,
+            filter,
+            notification_type,
+        ],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
 // get security service list
 export const useGetSecurityList = () => {
     const queryFn = async () => {
