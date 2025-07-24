@@ -200,7 +200,7 @@ const AddDriver = () => {
                                     <input
                                         type="text"
                                         name="id_no"
-                                        placeholder="ID No."
+                                        placeholder="ID No./ Passport No."
                                         className="form-control"
                                         value={driverForm.values.id_no}
                                         onChange={driverForm.handleChange}

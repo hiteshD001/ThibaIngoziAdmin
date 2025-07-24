@@ -200,7 +200,7 @@ const AddUser = () => {
                                     <input
                                         type="text"
                                         name="id_no"
-                                        placeholder="ID No."
+                                        placeholder="ID No./ Passport No."
                                         className="form-control"
                                         value={UserForm.values.id_no}
                                         onChange={UserForm.handleChange}
