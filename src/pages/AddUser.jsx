@@ -341,9 +341,10 @@ const AddUser = () => {
 
                     </Grid>
                 </Paper>
+                {/* Address Section */}
                 <Paper elevation={0} sx={{ p: 3, mt: 3, mb: 3, borderRadius: '10px' }}>
                     <Grid container spacing={3}>
-                        {/* Address Section */}
+
                         <Grid size={12}>
                             <Typography variant="h6" gutterBottom fontWeight={600}>
                                 Address

@@ -115,8 +115,8 @@ const ListOfUsers = () => {
                         <TableContainer >
                             <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
                                 <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
-                                    <TableRow>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>User</TableCell>
+                                    <TableRow >
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>User</TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company</TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Contact No.</TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Contact Email</TableCell>

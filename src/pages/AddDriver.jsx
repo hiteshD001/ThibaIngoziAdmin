@@ -4,15 +4,31 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import { driverValidation } from "../common/FormValidation";
-
+import {
+    Box,
+    Button,
+    Typography,
+    // TextField,
+    // Select,
+    // MenuItem,
+    InputLabel,
+    FormControl,
+    FormHelperText,
+    IconButton,
+    Grid,
+    Paper,
+    Checkbox,
+    FormControlLabel,
+    FormGroup
+} from "@mui/material";
 import { useFormik } from "formik";
-
+import { BootstrapInput } from "../common/BootstrapInput";
 import { useGetCountryList, useGetProvinceList, useGetUserList, useRegister, useGeteHailingList } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
-
+import CustomSelect from "../common/CustomSelect";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
-
+import GrayPlus from '../assets/images/GrayPlus.svg'
 const AddDriver = () => {
     const client = useQueryClient();
     const [role] = useState(localStorage.getItem("role"))
@@ -46,7 +62,7 @@ const AddDriver = () => {
     });
 
 
-    const handlecountryChange = (e) => {
+    const handleCompanyChange = (e) => {
         const { name, value } = e.target
 
         const companyname = companyList.data?.data.users.find((user) => user._id === value)?.company_name
@@ -64,7 +80,9 @@ const AddDriver = () => {
     const onError = (error) => {
         toast.error(error.response.data.message || "Something went Wrong", toastOption)
     }
-
+    const handleCancel = () => {
+        nav("/home/total-drivers");
+    };
     const newdriver = useRegister(onSuccess, onError)
     const companyList = useGetUserList("company list", "company")
     const provincelist = useGetProvinceList(driverForm.values.country)
@@ -89,387 +107,604 @@ const AddDriver = () => {
         }
     }, [companyId, companyList?.data?.data?.users]);
     return (
-        <div className="container-fluid">
-            <div className="row">
-                <div className="col-md-12">
-                    <div className="theme-table">
-                        <form>
-                            <div className="row">
-                                <div className="col-md-6">
-                                    <div className="tab-heading">
-                                        <h3>Driver Information</h3>
-                                    </div>
+        <Box p={2}>
+            <form onSubmit={driverForm.handleSubmit}>
+                <Paper elevation={0} sx={{ p: 3, borderRadius: '10px' }}>
+                    <Grid container spacing={3}>
+                        {/* User Info Section */}
+                        <Grid size={12}>
+                            <Typography variant="h6" gutterBottom fontWeight={600}>
+                                Driver Information
+                            </Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth >
+                                <InputLabel shrink htmlFor="first_name" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    First Name
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="first_name"
+                                    name="first_name"
+                                    placeholder="First Name"
+                                    value={driverForm.values.first_name}
+                                    onChange={driverForm.handleChange}
+                                />
+                                {driverForm.touched.first_name && <div style={{ color: 'red', fontSize: 12 }}>{driverForm.errors.first_name}</div>}
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth >
+                                <InputLabel shrink htmlFor="last_name" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    Last Name
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="last_name"
+                                    name="last_name"
+                                    placeholder="Last Name"
+                                    value={driverForm.values.last_name}
+                                    onChange={driverForm.handleChange}
+                                />
+                                {driverForm.touched.last_name && <div style={{ color: 'red', fontSize: 12 }}>{driverForm.errors.last_name}</div>}
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            {role === "super_admin" && (
+                                <CustomSelect
+                                    label="Company Name"
+                                    name="company_id"
+                                    value={driverForm.values.company_id}
+                                    onChange={handleCompanyChange}
+                                    options={companyList.data?.data.users.map(user => ({
+                                        value: user._id,
+                                        label: user.company_name
+                                    })) || []}
+                                    error={driverForm.errors.company_id}
+                                    helperText={driverForm.errors.company_id}
+                                />
+                            )}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth>
+                                <InputLabel shrink htmlFor="email" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    Email
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="email"
+                                    name="email"
+                                    placeholder="Enter email"
+                                    value={driverForm.values.email}
+                                    onChange={driverForm.handleChange}
+                                />
+                                {driverForm.touched.email && <div style={{ color: 'red', fontSize: 12 }}>{driverForm.errors.email}</div>}
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth sx={{ position: 'relative' }}>
+                                <InputLabel shrink htmlFor="password" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    Password
+                                </InputLabel>
 
-                                    <input
-                                        type="text"
-                                        name="first_name"
-                                        placeholder="First Name"
-                                        className="form-control"
-                                        value={driverForm.values.first_name}
-                                        onChange={driverForm.handleChange}
+                                <BootstrapInput
+                                    id="password"
+                                    name="password"
+                                    placeholder="Enter Password"
+                                    type={showPassword ? "text" : "password"}
+                                    value={driverForm.values.password}
+                                    onChange={driverForm.handleChange}
+                                    style={{ paddingRight: 0 }}
+                                />
+                                <IconButton
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{
+                                        position: 'absolute',
+                                        right: 8,
+                                        top: '70%',
+                                        transform: 'translateY(-50%)',
+                                        padding: 0,
+                                        zIndex: 2
+                                    }}
+                                    tabIndex={-1}
+                                >
+                                    {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                                </IconButton>
+
+                                {driverForm.touched.password && <div style={{ color: 'red', fontSize: 12 }}>{driverForm.errors.password}</div>}
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth>
+                                <label style={{ marginBottom: 5 }}>Phone Number</label>
+                                <PhoneInput
+                                    country="za"
+                                    value={driverForm.values.mobile_no || ""}
+                                    onChange={(value, countryData) => {
+                                        driverForm.setFieldValue("mobile_no", value);
+                                        driverForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
+                                    }}
+                                    inputStyle={{
+                                        width: '100%',
+                                        height: '46px',
+                                        borderRadius: '6px',
+                                        border: '1px solid #E0E3E7',
+                                        fontSize: '16px',
+                                        paddingLeft: '48px',
+                                        background: '#fff',
+                                        outline: 'none',
+                                        boxShadow: 'none',
+                                        borderColor: '#E0E3E7',
+                                    }}
+                                    buttonStyle={{
+                                        borderRadius: '6px 0 0 6px',
+                                        border: '1px solid #E0E3E7',
+                                        background: '#fff'
+                                    }}
+                                    containerStyle={{
+                                        height: '46px',
+                                        width: '100%',
+                                        marginBottom: '8px'
+                                    }}
+                                    specialLabel=""
+                                    inputProps={{
+                                        name: 'mobile_no',
+                                        required: true,
+                                        autoFocus: false
+                                    }}
+                                />
+                            </FormControl>
+                            {driverForm.touched.mobile_no && <FormHelperText error>{driverForm.errors.mobile_no}</FormHelperText>}
+
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth >
+                                <InputLabel shrink htmlFor="id_no" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    ID No
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="id_no"
+                                    name="id_no"
+                                    placeholder="Enter ID No."
+                                    value={driverForm.values.id_no}
+                                    onChange={driverForm.handleChange}
+                                />
+                                {driverForm.touched.id_no && <div style={{ color: 'red', fontSize: 12 }}>{driverForm.errors.id_no}</div>}
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+
+                            <CustomSelect
+                                label="Primary E-hailing Company"
+                                name="primary_e_hailing_company"
+                                value={driverForm.values.primary_e_hailing_company}
+                                onChange={(e) => driverForm.setFieldValue("primary_e_hailing_company", e.target.value)}
+                                options={
+                                    eHailingOptions.map((option) => ({
+                                        value: option.value,
+                                        label: option.label,
+                                    }))
+                                }
+                                error={driverForm.touched.primary_e_hailing_company && Boolean(driverForm.errors.primary_e_hailing_company)}
+                                helperText={driverForm.touched.primary_e_hailing_company && driverForm.errors.primary_e_hailing_company}
+                            />
+
+
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        name="isArmed"
+                                        checked={driverForm.values.isArmed}
+                                        onChange={(e) => driverForm.setFieldValue("isArmed", e.target.checked)}
                                     />
-                                    {driverForm.touched.first_name && (
-                                        <p className="err">{driverForm.errors.first_name}</p>
-                                    )}
-                                    <input
-                                        type="text"
-                                        name="last_name"
-                                        placeholder="Last Name"
-                                        className="form-control"
-                                        value={driverForm.values.last_name}
-                                        onChange={driverForm.handleChange}
-                                    />
-                                    {driverForm.touched.last_name && (
-                                        <p className="err">{driverForm.errors.last_name}</p>
-                                    )}
-                                    {role === 'super_admin' && <>
-                                        <select
-                                            name="company_id"
-                                            className="form-control"
-                                            value={driverForm.values.company_id}
-                                            onChange={(e) => handlecountryChange(e)}
-                                        // onChange={driverForm.handleChange}
-                                        >
-                                            <option value="" hidden>
-                                                Company Name
-                                            </option>
-                                            {companyList.data?.data.users.map((user) => (
-                                                <option key={user._id} value={user._id}>
-                                                    {user.company_name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {driverForm.touched.company_id && (
-                                            <p className="err">{driverForm.errors.company_id}</p>
-                                        )}
-                                    </>}
-                                    <input
-                                        type="text"
-                                        name="email"
-                                        placeholder="Email"
-                                        className="form-control"
-                                        value={driverForm.values.email}
-                                        onChange={driverForm.handleChange}
-                                    />
-                                    {driverForm.touched.email && (
-                                        <p className="err">{driverForm.errors.email}</p>
-                                    )}
-
-                                    <div className="position-relative">
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            name="password"
-                                            placeholder="Password"
-                                            className="form-control"
-                                            value={driverForm.values.password}
-                                            onChange={driverForm.handleChange}
-                                        />
-                                        <span
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            style={{
-                                                position: "absolute",
-                                                right: "10px",
-                                                top: "50%",
-                                                transform: "translateY(-50%)",
-                                                cursor: "pointer",
-                                                userSelect: "none"
-                                            }}
-                                        >
-                                            {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-                                        </span>
-                                    </div>
-                                    {driverForm.touched.password && (
-                                        <p className="err">{driverForm.errors.password}</p>
-                                    )}
-
-                                    <PhoneInput
-                                        country={"za"} // Set default country
-                                        value={`${driverForm.values.mobile_no_country_code ?? ''}${driverForm.values.mobile_no ?? ''}`}
-                                        onChange={(phone, countryData) => {
-                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
-                                                ? phone.slice(countryData.dialCode.length).trim()
-                                                : phone;
-
-                                            driverForm.setFieldValue("mobile_no", withoutCountryCode);
-                                            driverForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
-                                        }}
-                                        inputClass="form-control"
-                                    />
-                                    {driverForm.touched.mobile_no && (
-                                        <p className="err">{driverForm.errors.mobile_no}</p>
-                                    )}
-
-                                    {/* <input
-                                        type="text"
-                                        name="mobile_no"
-                                        placeholder="Mobile No."
-                                        className="form-control"
-                                        value={driverForm.values.mobile_no}
-                                        onChange={driverForm.handleChange}
-                                    />
-                                    {driverForm.touched.mobile_no && (
-                                        <p className="err">{driverForm.errors.mobile_no}</p>
-                                    )} */}
-
-                                    <input
-                                        type="text"
-                                        name="id_no"
-                                        placeholder="ID No."
-                                        className="form-control"
-                                        value={driverForm.values.id_no}
-                                        onChange={driverForm.handleChange}
-                                    />
-                                    {driverForm.touched.id_no && (
-                                        <p className="err">{driverForm.errors.id_no}</p>
-                                    )}
-
-                                    <select
-                                        name="primary_e_hailing_company"
-                                        className="form-control"
-                                        value={driverForm.values.primary_e_hailing_company}
-                                        onChange={(e) => {
-                                            driverForm.setFieldValue("primary_e_hailing_company", e.target.value);
-                                        }}
-                                    >
-                                        <option value="" hidden>Primary E-hailing Company</option>
-                                        {eHailingOptions.map((option) => (
-                                            <option key={option.value} value={option.value}>
-                                                {option.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {/* <Select
-
-                                        name="primary_e_hailing_company"
-                                        options={eHailingOptions}
-                                        classNamePrefix="select"
-                                        placeholder="Primary E-hailing Company"
-                                        className="form-control add-company-services"
-                                        value={eHailingOptions.find(
-                                            (option) => option.value === driverForm.values.primary_e_hailing_company
-                                        )}
-                                        onChange={(selectedOption) => {
-                                            driverForm.setFieldValue("primary_e_hailing_company", selectedOption?.value || "");
-                                        }}
-                                        styles={{
-                                            valueContainer: (base) => ({
-                                                ...base,
-                                                flexWrap: 'wrap',
-                                                maxHeight: '50px',
-                                                overflowY: 'auto',
-                                            }),
-                                            multiValue: (base) => ({
-                                                ...base,
-                                                margin: '2px',
-                                            }),
-                                        }}
-                                    /> */}
-
-                                    {/* {driverForm.touched.primary_e_hailing_company && driverForm.errors.primary_e_hailing_company && (
-                                        <p className="err">{driverForm.errors.primary_e_hailing_company}</p>
-                                    )} */}
-                                    <label>Other eHailing platforms</label>
-                                    <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', flexflexWrap: 'wrap', paddingTop: '10px' }}>
-                                        {eHailingOptions.map((option) => (
-                                            <div key={option.value} style={{ display: "flex", alignItems: "center", marginBottom: "4px", flexDirection: 'row' }}>
-                                                <input
-                                                    type="checkbox"
-                                                    value={option.value}
-                                                    checked={driverForm.values.other_e_hailing_company?.includes(option.value)}
-                                                    onChange={(e) => {
-                                                        const selected = driverForm.values.other_e_hailing_company || [];
-                                                        const updated = e.target.checked
-                                                            ? [...selected, e.target.value]
-                                                            : selected.filter(id => id !== e.target.value);
-                                                        driverForm.setFieldValue("other_e_hailing_company", updated);
-                                                    }}
-                                                />
-                                                <span style={{ marginLeft: "8px" }}>{option.label}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                </div>
-
-                                <div className="col-md-6">
-                                    <div className="tab-heading">
-                                        <h3>Address</h3>
-                                    </div>
-
-
-                                    <input
-                                        type="text"
-                                        name="street"
-                                        placeholder="Street"
-                                        className="form-control"
-                                        value={driverForm.values.street}
-                                        onChange={driverForm.handleChange}
-                                    />
-                                    {driverForm.touched.street && (
-                                        <p className="err">{driverForm.errors.street}</p>
-                                    )}
-
-                                    <select
-                                        name="country"
-                                        className="form-control"
-                                        value={driverForm.values.country}
-                                        onChange={driverForm.handleChange}
-                                    >
-                                        <option value="" hidden> Country </option>
-                                        {countrylist.data?.data.data?.map((country) => (
-                                            <option key={country._id} value={country._id}>
-                                                {country.country_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {driverForm.touched.country && (
-                                        <p className="err">{driverForm.errors.country}</p>
-                                    )}
-
-                                    <select
-                                        name="province"
-                                        className="form-control"
-                                        value={driverForm.values.province}
-                                        disabled={!driverForm.values.country}
-                                        onChange={driverForm.handleChange}
-                                    >
-                                        <option value="" hidden>Province</option>
-                                        {provincelist.data?.data.data?.map((province) => (
-                                            <option key={province._id} value={province._id}>
-                                                {province.province_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {driverForm.touched.province && (
-                                        <p className="err">{driverForm.errors.province}</p>
-                                    )}
-
-                                    <input
-                                        type="text"
-                                        name="city"
-                                        placeholder="City"
-                                        className="form-control"
-                                        value={driverForm.values.city}
-                                        onChange={driverForm.handleChange}
-                                    />
-                                    {driverForm.touched.city && (
-                                        <p className="err">{driverForm.errors.city}</p>
-                                    )}
-
-                                    <input
-                                        type="text"
-                                        name="suburb"
-                                        placeholder="Suburb"
-                                        className="form-control"
-                                        value={driverForm.values.suburb}
-                                        onChange={driverForm.handleChange}
-                                    />
-                                    {driverForm.touched.suburb && (
-                                        <p className="err">{driverForm.errors.suburb}</p>
-                                    )}
-
-                                    <input
-                                        type="text"
-                                        name="postal_code"
-                                        placeholder="Postal Code"
-                                        className="form-control"
-                                        value={driverForm.values.postal_code}
-                                        onChange={driverForm.handleChange}
-                                    />
-                                    {driverForm.touched.postal_code && (
-                                        <p className="err">{driverForm.errors.postal_code}</p>
-                                    )}
-
-                                    <div className=" form-checkbox form-control">
+                                }
+                                label="Security"
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <label>Other eHailing platforms</label>
+                            <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', flexflexWrap: 'wrap', paddingTop: '10px' }}>
+                                {eHailingOptions.map((option) => (
+                                    <div key={option.value} style={{ display: "flex", alignItems: "center", marginBottom: "4px", flexDirection: 'row' }}>
                                         <input
                                             type="checkbox"
-                                            name="isArmed"
-                                            id="isArmed"
-                                            className="form-check-input"
-                                            checked={driverForm.values.isArmed}
-                                            onChange={(e) => driverForm.setFieldValue("isArmed", e.target.checked)}
+                                            value={option.value}
+                                            checked={driverForm.values.other_e_hailing_company?.includes(option.value)}
+                                            onChange={(e) => {
+                                                const selected = driverForm.values.other_e_hailing_company || [];
+                                                const updated = e.target.checked
+                                                    ? [...selected, e.target.value]
+                                                    : selected.filter(id => id !== e.target.value);
+                                                driverForm.setFieldValue("other_e_hailing_company", updated);
+                                            }}
                                         />
-                                        <label className="form-check-label" htmlFor="isArmed">
-                                            Security
-                                        </label>
+                                        <span style={{ marginLeft: "8px" }}>{option.label}</span>
                                     </div>
-
-
-                                    <div className="row">
-                                        <div className="col-md-6">
-                                            <label>Selfie Image</label>
-
-                                            {driverForm.values.selfieImage && (
-                                                <div className="form-control mt-2 img-preview-container">
-                                                    <img
-                                                        src={URL.createObjectURL(driverForm.values.selfieImage)}
-                                                        alt="Selfie Preview"
-                                                        className="img-preview"
-                                                        width="100"
-                                                    />
-                                                </div>
-                                            )}
-
-                                            <div className="custom-file-input">
-                                                <input type="file" id="selfieImage" accept="image/*"
-                                                    onChange={(event) => {
-                                                        const file = event.currentTarget.files[0];
-                                                        driverForm.setFieldValue("selfieImage", file);
-                                                    }} />
-                                                <label htmlFor="selfieImage">
-                                                    {driverForm.values.selfieImage ? driverForm.values.selfieImage.name : "Choose Selfie Image"}
-                                                </label>
-                                            </div>
-
-
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <label>Full Image</label>
-
-                                            {driverForm.values.fullImage && (
-                                                <div className="form-control img-preview-container mt-2">
-                                                    <img
-                                                        src={URL.createObjectURL(driverForm.values.fullImage)}
-                                                        alt="Full Image Preview"
-                                                        className="img-preview"
-                                                        width="100"
-                                                    />
-                                                </div>
-                                            )}
-
-                                            <div className="custom-file-input">
-                                                <input type="file" id="fullImage" accept="image/*"
-                                                    onChange={(event) => {
-                                                        const file = event.currentTarget.files[0];
-                                                        driverForm.setFieldValue("fullImage", file);
-                                                    }} />
-                                                <label htmlFor="fullImage">
-                                                    {driverForm.values.fullImage ? driverForm.values.fullImage.name : "Choose Full Image"}
-                                                </label>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
-                        </form>
-                    </div>
+                        </Grid>
+                        <Grid size={12}>
+                            <Grid container gap={4} sx={{ mt: 1 }}>
+                                <Grid size={{ xs: 12, sm: 2.5 }}>
+                                    <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>Selfie Image</label>
+                                    <Box
+                                        sx={{
+                                            border: '2px dashed #E0E3E7',
+                                            borderRadius: '12px',
+                                            minHeight: 180,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            position: 'relative',
+                                            background: '#fafbfc'
+                                        }}
+                                        component="label"
+                                    >
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            hidden
+                                            name="selfieImage"
+                                            onChange={e => driverForm.setFieldValue('selfieImage', e.currentTarget.files[0])}
+                                        />
+                                        <img src={GrayPlus} alt="gray plus" />
+                                        <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography>
+                                        {driverForm.values.selfieImage && (
+                                            <Typography sx={{ color: '#4B5563', mt: 1, fontSize: 12 }}>
+                                                {driverForm.values.selfieImage.name}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                    {driverForm.touched.selfieImage && driverForm.errors.selfieImage && (
+                                        <FormHelperText error>{driverForm.errors.selfieImage}</FormHelperText>
+                                    )}
+                                </Grid>
+                                <Grid size={{ xs: 12, sm: 2.5 }}>
+                                    <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>Full Image</label>
+                                    <Box
+                                        sx={{
+                                            border: '2px dashed #E0E3E7',
+                                            borderRadius: '12px',
+                                            minHeight: 180,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            position: 'relative',
+                                            background: '#fafbfc'
+                                        }}
+                                        component="label"
+                                    >
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            hidden
+                                            name="fullImage"
+                                            onChange={e => driverForm.setFieldValue('fullImage', e.currentTarget.files[0])}
+                                        />
+                                        <img src={GrayPlus} alt="gray plus" />
+                                        <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography>
+                                        {driverForm.values.fullImage && (
+                                            <Typography sx={{ color: '#4B5563', mt: 1, fontSize: 12 }}>
+                                                {driverForm.values.fullImage.name}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                    {driverForm.touched.fullImage && driverForm.errors.fullImage && (
+                                        <FormHelperText error>{driverForm.errors.fullImage}</FormHelperText>
+                                    )}
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Paper>
+                {/* Address Section */}
+                <Paper elevation={0} sx={{ p: 3, mt: 3, mb: 3, borderRadius: '10px' }}>
+                    <Grid container spacing={3}>
+
+                        <Grid size={12}>
+                            <Typography variant="h6" gutterBottom fontWeight={600}>
+                                Address
+                            </Typography>
+                        </Grid>
+
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <CustomSelect
+                                label="Country"
+                                name="country"
+                                value={driverForm.values.country}
+                                onChange={driverForm.handleChange}
+                                options={countrylist.data?.data.data?.map(country => ({
+                                    value: country._id,
+                                    label: country.country_name
+                                })) || []}
+                                error={driverForm.errors.country && driverForm.touched.country}
+                                helperText={driverForm.errors.country}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <CustomSelect
+                                label="Province"
+                                name="province"
+                                value={driverForm.values.province}
+                                onChange={driverForm.handleChange}
+                                options={provincelist.data?.data.data?.map(province => ({
+                                    value: province._id,
+                                    label: province.province_name
+                                })) || []}
+                                error={driverForm.errors.province && driverForm.touched.province}
+                                helperText={driverForm.touched.province ? driverForm.errors.province : ''}
+                                disabled={!driverForm.values.country}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth >
+                                <InputLabel shrink htmlFor="city" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    City
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="city"
+                                    name="city"
+                                    placeholder="City"
+                                    value={driverForm.values.city}
+                                    onChange={driverForm.handleChange}
+                                />
+                                {driverForm.touched.city && <div style={{ color: 'red', fontSize: 12 }}>{driverForm.errors.city}</div>}
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth >
+                                <InputLabel shrink htmlFor="suburb" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    Suburb
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="suburb"
+                                    name="suburb"
+                                    placeholder="Enter Suburb"
+                                    value={driverForm.values.suburb}
+                                    onChange={driverForm.handleChange}
+                                />
+                                {driverForm.touched.suburb && <div style={{ color: 'red', fontSize: 12 }}>{driverForm.errors.suburb}</div>}
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth >
+                                <InputLabel shrink htmlFor="street" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    Street
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="street"
+                                    name="street"
+                                    placeholder="Street"
+                                    value={driverForm.values.street}
+                                    onChange={driverForm.handleChange}
+                                />
+                                {driverForm.touched.street && <div style={{ color: 'red', fontSize: 12 }}>{driverForm.errors.street}</div>}
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth>
+                                <InputLabel shrink htmlFor="postal_code" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    Postal Code
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="postal_code"
+                                    name="postal_code"
+                                    placeholder="Enter Postal Code"
+                                    value={driverForm.values.postal_code}
+                                    onChange={driverForm.handleChange}
+                                />
+                                {driverForm.touched.postal_code && <div style={{ color: 'red', fontSize: 12 }}>{driverForm.errors.postal_code}</div>}
+                            </FormControl>
+                        </Grid>
+
+                        {/* Actions */}
+                        <Grid size={12} sx={{ mt: 1 }}>
+                            <Box display="flex" justifyContent="flex-end" gap={2}>
+                                <Button variant="outlined" sx={{ width: 130, height: 48, borderRadius: '10px', color: 'black', borderColor: '#E0E3E7' }} onClick={handleCancel}>
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    disabled={newdriver.isPending}
+                                    sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                >
+                                    {newdriver.isPending ? <Loader color="white" /> : "Save"}
+                                </Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </Paper>
+            </form>
+
+
+
+
+
+
+
+            {/* <div className="col-md-6">
+                <div className="tab-heading">
+                    <h3>Address</h3>
                 </div>
-                <div className="col-md-12 text-end">
-                    <div className="saveform">
-                        <button
-                            type="submit"
-                            onClick={driverForm.handleSubmit}
-                            className="btn btn-dark"
-                            disabled={newdriver.isPending}
-                        >
-                            {newdriver.isPending ? <Loader color="white" /> : "Save"}
-                        </button>
+
+
+                <input
+                    type="text"
+                    name="street"
+                    placeholder="Street"
+                    className="form-control"
+                    value={driverForm.values.street}
+                    onChange={driverForm.handleChange}
+                />
+                {driverForm.touched.street && (
+                    <p className="err">{driverForm.errors.street}</p>
+                )}
+
+                <select
+                    name="country"
+                    className="form-control"
+                    value={driverForm.values.country}
+                    onChange={driverForm.handleChange}
+                >
+                    <option value="" hidden> Country </option>
+                    {countrylist.data?.data.data?.map((country) => (
+                        <option key={country._id} value={country._id}>
+                            {country.country_name}
+                        </option>
+                    ))}
+                </select>
+                {driverForm.touched.country && (
+                    <p className="err">{driverForm.errors.country}</p>
+                )}
+
+                <select
+                    name="province"
+                    className="form-control"
+                    value={driverForm.values.province}
+                    disabled={!driverForm.values.country}
+                    onChange={driverForm.handleChange}
+                >
+                    <option value="" hidden>Province</option>
+                    {provincelist.data?.data.data?.map((province) => (
+                        <option key={province._id} value={province._id}>
+                            {province.province_name}
+                        </option>
+                    ))}
+                </select>
+                {driverForm.touched.province && (
+                    <p className="err">{driverForm.errors.province}</p>
+                )}
+
+                <input
+                    type="text"
+                    name="city"
+                    placeholder="City"
+                    className="form-control"
+                    value={driverForm.values.city}
+                    onChange={driverForm.handleChange}
+                />
+                {driverForm.touched.city && (
+                    <p className="err">{driverForm.errors.city}</p>
+                )}
+
+                <input
+                    type="text"
+                    name="suburb"
+                    placeholder="Suburb"
+                    className="form-control"
+                    value={driverForm.values.suburb}
+                    onChange={driverForm.handleChange}
+                />
+                {driverForm.touched.suburb && (
+                    <p className="err">{driverForm.errors.suburb}</p>
+                )}
+
+                <input
+                    type="text"
+                    name="postal_code"
+                    placeholder="Postal Code"
+                    className="form-control"
+                    value={driverForm.values.postal_code}
+                    onChange={driverForm.handleChange}
+                />
+                {driverForm.touched.postal_code && (
+                    <p className="err">{driverForm.errors.postal_code}</p>
+                )}
+
+                <div className=" form-checkbox form-control">
+                    <input
+                        type="checkbox"
+                        name="isArmed"
+                        id="isArmed"
+                        className="form-check-input"
+                        checked={driverForm.values.isArmed}
+                        onChange={(e) => driverForm.setFieldValue("isArmed", e.target.checked)}
+                    />
+                    <label className="form-check-label" htmlFor="isArmed">
+                        Security
+                    </label>
+                </div>
+
+
+                <div className="row">
+                    <div className="col-md-6">
+                        <label>Selfie Image</label>
+
+                        {driverForm.values.selfieImage && (
+                            <div className="form-control mt-2 img-preview-container">
+                                <img
+                                    src={URL.createObjectURL(driverForm.values.selfieImage)}
+                                    alt="Selfie Preview"
+                                    className="img-preview"
+                                    width="100"
+                                />
+                            </div>
+                        )}
+
+                        <div className="custom-file-input">
+                            <input type="file" id="selfieImage" accept="image/*"
+                                onChange={(event) => {
+                                    const file = event.currentTarget.files[0];
+                                    driverForm.setFieldValue("selfieImage", file);
+                                }} />
+                            <label htmlFor="selfieImage">
+                                {driverForm.values.selfieImage ? driverForm.values.selfieImage.name : "Choose Selfie Image"}
+                            </label>
+                        </div>
+
+
+                    </div>
+
+                    <div className="col-md-6">
+                        <label>Full Image</label>
+
+                        {driverForm.values.fullImage && (
+                            <div className="form-control img-preview-container mt-2">
+                                <img
+                                    src={URL.createObjectURL(driverForm.values.fullImage)}
+                                    alt="Full Image Preview"
+                                    className="img-preview"
+                                    width="100"
+                                />
+                            </div>
+                        )}
+
+                        <div className="custom-file-input">
+                            <input type="file" id="fullImage" accept="image/*"
+                                onChange={(event) => {
+                                    const file = event.currentTarget.files[0];
+                                    driverForm.setFieldValue("fullImage", file);
+                                }} />
+                            <label htmlFor="fullImage">
+                                {driverForm.values.fullImage ? driverForm.values.fullImage.name : "Choose Full Image"}
+                            </label>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
+                        </form >
+                    </div >
+                </div >
+    <div className="col-md-12 text-end">
+        <div className="saveform">
+            <button
+                type="submit"
+                onClick={driverForm.handleSubmit}
+                className="btn btn-dark"
+                disabled={newdriver.isPending}
+            >
+                {newdriver.isPending ? <Loader color="white" /> : "Save"}
+            </button>
+        </div>
+    </div>
+            </div > */}
+        </Box >
     );
 };
 
