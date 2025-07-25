@@ -663,7 +663,9 @@ table#example {
     margin-right: 6px;
     cursor: pointer;
 }
-
+.MuiButtonBase-root.MuiCheckbox-root.Mui-checked .MuiSvgIcon-root {
+    fill: #367BE01A;
+}
 .theme-table table tr td .tbl-gray:hover {
     opacity: 0.8;
 }
