@@ -29,7 +29,6 @@ import {
     Paper,
 } from "@mui/material";
 import GrayPlus from '../assets/images/GrayPlus.svg'
-import { AiOutlinePlus } from "react-icons/ai";
 import CustomSelect from "../common/CustomSelect";
 import { BootstrapInput } from "../common/BootstrapInput";
 
@@ -102,9 +101,9 @@ const AddUser = () => {
     return (
         <Box p={2}>
             <form onSubmit={UserForm.handleSubmit}>
+                {/* User Info Section */}
                 <Paper elevation={0} sx={{ p: 3, borderRadius: '10px' }}>
                     <Grid container spacing={3}>
-                        {/* User Info Section */}
                         <Grid size={12}>
                             <Typography variant="h6" gutterBottom fontWeight={600}>
                                 User Information

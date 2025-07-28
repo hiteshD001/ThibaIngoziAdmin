@@ -1,23 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-    Box,
-    Typography,
-    TextField,
-    Button,
-    IconButton,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Avatar,
-    Grid,
-    InputAdornment,
-    Stack,
-    Select, MenuItem,
+    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
 } from "@mui/material";
 import plus from '../assets/images/plus.svg'
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";

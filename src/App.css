@@ -4,6 +4,7 @@
     --Blue: #367BE0;
     --secondary-color: #6c757d;
     --light-gray: #E5E7EB;
+   --icon-gray:rgb(175, 179, 189);
     --font-gray:#4B5563;
     --heading-font: 'Poppins', sans-serif;
 }
@@ -473,6 +474,29 @@ header {
 /* canvas {
    background: white
 } */
+ .css-1dybbl5-MuiChip-label {
+     color: #27ae60;
+ }
+
+ .chip-ended .MuiChip-label {
+     color: #367BE0;
+     font-weight: 500;
+ }
+
+ .chip-started .MuiChip-label {
+     color: #166534;
+     font-weight: 500;
+ }
+
+ .chip-flagged .MuiChip-label {
+     color: #B26A00;
+     font-weight: 500;
+ }
+
+ .chip-default .MuiChip-label {
+     color: #4B5563;
+     font-weight: 500;
+ }
 
 .requests-chart {
     background: white;

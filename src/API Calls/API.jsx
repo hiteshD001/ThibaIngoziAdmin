@@ -459,15 +459,15 @@ export const useGetUser = (userId) => {
 
 // recent driver list
 
-export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
+export const useGetRecentSOS = () => {
     const queryFn = async () => {
         return await apiClient.get(
-            `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations?page=${page}&limit=${limit}`
+            `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`
         );
     };
 
     const res = useQuery({
-        queryKey: ["recentSOS", page, limit],
+        queryKey: ["recentSOS"],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
