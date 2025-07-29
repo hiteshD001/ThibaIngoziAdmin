@@ -8,7 +8,7 @@ import arrowLeft from "../assets/images/arrow-left.png";
 import ArmedSos from '../assets/images/ArmedSos.svg'
 // import settings from "../assets/images/settings.png";
 import profile from "../assets/images/profile.png";
-import Logout from "../assets/images/Logout.svg";
+import Logout from "../assets/images/logout.svg";
 import Company from "../assets/images/Company.svg";
 import trip from "../assets/images/trip.png"
 import { useState } from "react";
@@ -33,8 +33,8 @@ export const superadmin_menulist = [
         name: "Total Drivers",
         path: "/home/total-drivers",
         image: Driver,
-        add: "Add Drivers",
-        info: "Vehicle Information",
+        add: "Add Driver",
+        info: "Driver Information",
         company: "Company Information"
     },
     {
@@ -56,6 +56,7 @@ export const superadmin_menulist = [
         name: "Users",
         path: "/home/total-users",
         image: users,
+        add: "Add User",
         company: "User Information"
     },
     {
@@ -83,12 +84,6 @@ export const superadmin_menulist = [
     //     name: "Settings",
     //     path: "",
     //     image: settings
-    // },
-    // {
-    //     id: "profile",
-    //     name: "Profile",
-    //     path: "/home/profile",
-    //     image: profile
     // },
     {
         id: "report",
@@ -124,12 +119,19 @@ export const Companyadmin_menulist = () => {
 
         },
         {
-            id: "total-armed-sos",
+            id: "total-sos-amount",
             name: "Armed Sos Amount",
             path: "/home/total-sos-amount",
             image: ArmedSos,
-            company: "User Information"
+            company: "Sos Information"
         },
+        // {
+        //     id: "total-armed-sos",
+        //     name: "Armed Sos Amount",
+        //     path: "/home/total-sos-amount",
+        //     image: ArmedSos,
+        //     company: "User Information"
+        // },
         {
             id: "total-users",
             name: "Users",

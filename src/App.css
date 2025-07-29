@@ -474,9 +474,14 @@ header {
 /* canvas {
    background: white
 } */
+
+.MuiFormControlLabel-label.Mui-disabled{
+    color:black !important;
+}
  .css-1dybbl5-MuiChip-label {
      color: #27ae60;
  }
+
 
  .chip-ended .MuiChip-label {
      color: #367BE0;

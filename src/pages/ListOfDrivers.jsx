@@ -1,28 +1,9 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-    Box,
-    Typography,
-    TextField,
-    Button,
-    IconButton,
-    Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Avatar,
-    Grid,
-    InputAdornment,
-    Stack,
-    Select as MuiSelect,
-    MenuItem,
-    Checkbox,
-    FormControlLabel,
-    Divider,
-} from "@mui/material";
+import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup } from "@mui/material";
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import payIcon from '../assets/images/payIcon.svg';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import whiteplus from '../assets/images/whiteplus.svg';
@@ -31,9 +12,11 @@ import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
 import { useFormik } from "formik";
 import Select from "react-select";
+import checkedboxIcon from '../assets/images/checkboxIcon.svg'
+import uncheckedIcon from '../assets/images/UnChecked.svg'
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-
+import { components } from 'react-select';
 import {
     companyEditValidation,
     companyValidation,
@@ -159,7 +142,7 @@ const ListOfDrivers = () => {
             }));
             setServicesList(groupedOptions);
         }
-    }, [companyInfo.data?.data?.user]);
+    }, [companyInfo.data?.data?.user, edit]);
 
     const securityCompanyOptions =
         securityList?.data?.data?.company?.map((item) => ({
@@ -290,338 +273,412 @@ const ListOfDrivers = () => {
             nav("/home/total-drivers/add-driver");
         }
     };
-
+    const DropdownIndicator = (props) => {
+        return (
+            <components.DropdownIndicator {...props}>
+                {props.selectProps.menuIsOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+            </components.DropdownIndicator>
+        );
+    };
     return (
         <Box p={2}>
             {/* Company Info (when params.id is present) */}
             {params.id && (
-                <Paper
-                    elevation={3}
-                    sx={{ backgroundColor: "rgb(253, 253, 253)", p: 2, borderRadius: "10px", mb: 2 }}
-                >
-                    <Typography variant="h6" fontWeight={600} mb={2}>
-                        Company Information
-                    </Typography>
-
-                    <Grid container spacing={2}>
-                        {/* Company Name */}
-                        <Grid item xs={12} md={4}>
-                            <Typography variant="body2" color="text.secondary">
-                                Company
+                <Box sx={{}}>
+                    <Paper
+                        elevation={3}
+                        sx={{ backgroundColor: "rgb(253, 253, 253)", p: 3, borderRadius: "10px", mb: 2 }}
+                    >
+                        <Box sx={{ borderBottom: '1px solid var(--light-gray)', mb: 3 }}>
+                            <Typography variant="h6" fontWeight={550} mb={1}>
+                                Company Information
                             </Typography>
-                            {edit ? (
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    name="company_name"
-                                    placeholder="Company Name"
-                                    value={CompanyForm.values.company_name}
-                                    onChange={CompanyForm.handleChange}
-                                />
-                            ) : (
-                                <Typography>{companyInfo.data?.data.user.company_name}</Typography>
-                            )}
-                        </Grid>
-
-                        {/* Contact No */}
-                        <Grid item xs={12} md={4}>
-                            <Typography variant="body2" color="text.secondary">
-                                Contact No.
-                            </Typography>
-                            {edit ? (
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    name="mobile_no"
-                                    placeholder="Contact No."
-                                    value={CompanyForm.values.mobile_no}
-                                    onChange={CompanyForm.handleChange}
-                                />
-                            ) : (
-                                <Typography>{companyInfo.data?.data.user.mobile_no}</Typography>
-                            )}
-                        </Grid>
-
-                        {/* Contact Email */}
-                        <Grid item xs={12} md={4}>
-                            <Typography variant="body2" color="text.secondary">
-                                Contact Email
-                            </Typography>
-                            {edit ? (
-                                <TextField
-                                    fullWidth
-                                    size="small"
-                                    name="email"
-                                    placeholder="Contact Email"
-                                    value={CompanyForm.values.email}
-                                    onChange={CompanyForm.handleChange}
-                                />
-                            ) : (
-                                <Typography>{companyInfo.data?.data.user.email}</Typography>
-                            )}
-                        </Grid>
-
-                        {/* Google APIs Used */}
-                        <Grid item xs={12} md={4}>
-                            <Typography variant="body2" color="text.secondary">
-                                Total Used Google APIs
-                            </Typography>
-                            <Typography>{companyInfo.data?.data.totalGoogleMapApi}</Typography>
-                        </Grid>
-
-                        {/* Toggles */}
-                        <Grid item xs={12} md={8} sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={CompanyForm.values.isArmed}
-                                        onChange={(e) => CompanyForm.setFieldValue("isArmed", e.target.checked)}
-                                        disabled={!edit}
-                                    />
-                                }
-                                label="Security"
-                            />
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={CompanyForm.values.isPaymentToken}
-                                        onChange={(e) =>
-                                            CompanyForm.setFieldValue("isPaymentToken", e.target.checked)
-                                        }
-                                        disabled={!edit}
-                                    />
-                                }
-                                label="Sos payment"
-                            />
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={CompanyForm.values.isEnrollToken}
-                                        onChange={(e) =>
-                                            CompanyForm.setFieldValue("isEnrollToken", e.target.checked)
-                                        }
-                                        disabled={!edit}
-                                    />
-                                }
-                                label="Pay subscription"
-                            />
-                        </Grid>
-                    </Grid>
-
-                    {/* Company Services */}
-                    {edit ? (
-                        <Box mt={3}>
-                            <Typography variant="h6" fontWeight={600} mb={1}>
-                                Company Services
-                            </Typography>
-                            <Select
-                                isMulti
-                                name="services"
-                                options={GrpservicesList}
-                                classNamePrefix="select"
-                                placeholder="Select Services"
-                                className="form-control"
-                                value={GrpservicesList.flatMap((group) => group.options).filter((option) =>
-                                    CompanyForm.values.services?.includes(option.value)
-                                )}
-                                onChange={(selectedOptions) => {
-                                    const selectedValues = selectedOptions?.map((option) => option.value) || [];
-                                    CompanyForm.setFieldValue("services", selectedValues);
-                                }}
-                                menuPortalTarget={document.body}
-                                menuPosition="fixed"
-                                styles={{
-                                    control: (base) => ({
-                                        ...base,
-                                        border: "1px solid rgba(0,0,0,0.23)",
-                                        boxShadow: "none",
-                                        backgroundColor: "transparent",
-                                    }),
-                                    valueContainer: (base) => ({
-                                        ...base,
-                                        flexWrap: "wrap",
-                                        maxHeight: "50px",
-                                        overflowY: "auto",
-                                    }),
-                                    multiValue: (base) => ({
-                                        ...base,
-                                        margin: "2px",
-                                    }),
-                                    menu: (base) => ({
-                                        ...base,
-                                        zIndex: 9999,
-                                    }),
-                                }}
-                            />
                         </Box>
-                    ) : (
-                        servicesList.length > 0 && (
-                            <Box mt={3}>
-                                <Typography variant="h6" fontWeight={600} mb={1}>
+
+                        <Grid container spacing={2}>
+                            {/* Company Name */}
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
+                                    Company Name
+                                </Typography>
+                                {edit ? (
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        name="company_name"
+                                        placeholder="Company Name"
+                                        value={CompanyForm.values.company_name}
+                                        onChange={CompanyForm.handleChange}
+                                    />
+                                ) : (
+                                    <Typography >{companyInfo.data?.data.user.company_name}</Typography>
+                                )}
+                            </Grid>
+
+                            {/* Contact No */}
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
+                                    Contact Number
+                                </Typography>
+                                {edit ? (
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        name="mobile_no"
+                                        placeholder="Contact No."
+                                        value={CompanyForm.values.mobile_no}
+                                        onChange={CompanyForm.handleChange}
+                                    />
+                                ) : (
+                                    <Typography >{companyInfo.data?.data.user.mobile_no}</Typography>
+                                )}
+                            </Grid>
+
+                            {/* Contact Email */}
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
+                                    Contact Email
+                                </Typography>
+                                {edit ? (
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        name="email"
+                                        placeholder="Contact Email"
+                                        value={CompanyForm.values.email}
+                                        onChange={CompanyForm.handleChange}
+                                    />
+                                ) : (
+                                    <Typography>{companyInfo.data?.data.user.email}</Typography>
+                                )}
+                            </Grid>
+
+                            {/* Google APIs Used */}
+                            <Grid size={{ xs: 12, md: 4 }} sx={{ pt: 1 }}>
+                                <Typography variant="body1" color="text.secondary">
+                                    Total Google APIs Used
+                                </Typography>
+                                <Typography sx={{ pt: 1 }}>{companyInfo.data?.data.totalGoogleMapApi}</Typography>
+                            </Grid>
+
+                            {/* Toggles */}
+                            <Grid size={{ xs: 12, md: 8 }} sx={{ display: "flex", flexDirection: 'column', flexWrap: "wrap", pt: 1 }}>
+                                <Typography variant="body1" color="text.secondary">
+                                    Enabled Services
+                                </Typography>
+                                <Box>
+                                    <FormControlLabel
+                                        sx={{
+                                            '&.Mui-disabled': {
+                                                color: 'black !important',
+                                            },
+                                            '.MuiTypography-root': {
+                                                color: 'black',
+                                            }
+                                        }}
+                                        control={
+                                            <Checkbox
+                                                checked={CompanyForm.values.isArmed}
+                                                onChange={(e) => CompanyForm.setFieldValue("isArmed", e.target.checked)}
+                                                disabled={!edit}
+                                                icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
+                                                checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />}
+                                                sx={{
+                                                    '&.Mui-disabled': {
+                                                        color: 'black',
+                                                    }
+                                                }}
+                                            />
+                                        }
+                                        label="Security"
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={CompanyForm.values.isPaymentToken}
+                                                onChange={(e) =>
+                                                    CompanyForm.setFieldValue("isPaymentToken", e.target.checked)
+                                                }
+                                                icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
+                                                checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />}
+                                                disabled={!edit}
+                                            />
+                                        }
+                                        label="Sos payment"
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={CompanyForm.values.isEnrollToken}
+                                                onChange={(e) =>
+                                                    CompanyForm.setFieldValue("isEnrollToken", e.target.checked)
+                                                }
+                                                icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
+                                                checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />}
+                                                disabled={!edit}
+                                            />
+                                        }
+                                        label="Pay subscription"
+                                    />
+                                </Box>
+                            </Grid>
+                        </Grid>
+
+                        {/* Security Companies */}
+                        <Grid container>
+                            <Grid size={{ xs: 12, md: 5 }}>
+                                {edit ? (
+                                    <Box mt={3}>
+                                        <Typography variant="h6" fontWeight={550} mb={1}>
+                                            Security Companies
+                                        </Typography>
+                                        <Select
+                                            isMulti
+                                            name="securityCompany"
+                                            options={securityCompanyOptions}
+                                            isDisabled={CompanyForm.values.isArmed}
+                                            classNamePrefix="select"
+                                            components={{ DropdownIndicator }}
+                                            placeholder="Select Security Companies"
+                                            className="add-company-services"
+                                            value={securityCompanyOptions.filter((option) =>
+                                                CompanyForm.values.securityCompany.includes(option.value)
+                                            )}
+                                            onChange={(selectedOptions) => {
+                                                const selectedIds = selectedOptions?.map((option) => option.value) || [];
+                                                CompanyForm.setFieldValue("securityCompany", selectedIds);
+                                            }}
+                                            menuPortalTarget={document.body}
+                                            menuPosition="fixed"
+                                            styles={{
+                                                control: (base) => ({
+                                                    ...base,
+                                                    border: "1px solid rgba(0,0,0,0.23)",
+                                                    boxShadow: "none",
+                                                    backgroundColor: "transparent",
+                                                }),
+                                                valueContainer: (base) => ({
+                                                    ...base,
+                                                    cursor: 'pointer',
+                                                    flexWrap: "wrap",
+                                                    maxHeight: "42px",
+                                                    overflowY: "auto",
+                                                }),
+                                                multiValue: (base) => ({
+                                                    ...base,
+                                                    margin: '2px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid var(--icon-gray)',
+                                                }),
+                                                multiValueLabel: (base) => ({
+                                                    ...base,
+                                                    color: 'black',
+                                                    backgroundColor: 'white',
+                                                    borderBottomLeftRadius: '8px',
+                                                    borderTopLeftRadius: '8px',
+                                                    fontWeight: 500,
+                                                    fontSize: 13,
+                                                }),
+                                                multiValueRemove: (base) => ({
+                                                    ...base,
+                                                    color: 'black',
+                                                    backgroundColor: 'white',
+                                                    borderBottomRightRadius: '8px',
+                                                    borderTopRightRadius: '8px',
+                                                    backgroundColor: 'white',
+                                                    ':hover': {
+                                                        backgroundColor: 'white',
+                                                        color: 'black',
+                                                    },
+                                                }),
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    zIndex: 9999,
+                                                }),
+                                            }}
+                                        />
+                                    </Box>
+                                ) : (
+                                    CompanyForm.values.securityCompany.length > 0 && (
+                                        <Box mt={3}>
+                                            <Typography variant="h6" fontWeight={550} mb={1}>
+                                                Security Companies
+                                            </Typography>
+                                            {(CompanyForm.values.isArmed !== true) && (
+                                                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                                                    {securityCompanyOptions
+                                                        .filter((opt) => CompanyForm.values.securityCompany.includes(opt.value))
+                                                        .map((company, index) => (
+                                                            <Typography key={index} variant="body1">
+                                                                {company.label}
+                                                            </Typography>
+                                                        ))}
+                                                </Box>
+                                            )}
+                                        </Box>
+                                    )
+                                )}
+                            </Grid>
+                        </Grid>
+
+
+                        {/* Save / Edit */}
+                        <Box mt={3} textAlign="right">
+                            {edit ? (
+                                <Box sx={{ display: "flex", justifyContent: 'flex-end', gap: 2 }}>
+                                    <Button
+                                        variant="outlined"
+                                        sx={{ width: 130, height: 48, borderRadius: '10px', border: '1px solid var(--icon-gray)', backgroundColor: 'white', color: 'black' }}
+                                        onClick={() => {
+                                            setedit(false);
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                        onClick={() => CompanyForm.submitForm()}
+                                    >
+                                        Save
+                                    </Button>
+
+                                </Box>
+                            ) : (
+                                <Button variant="contained" sx={{ width: 120, height: 45, borderRadius: '10px', backgroundColor: 'var(--Blue)' }} onClick={() => setedit(true)}>
+                                    Edit
+                                </Button>
+                            )}
+                        </Box>
+                    </Paper>
+                    <Grid container gap={4} >
+                        {/* Company Services */}
+                        <Grid size={{ xs: 12, md: 7.6 }}>
+                            <Paper
+                                elevation={3}
+                                sx={{ backgroundColor: "rgb(253, 253, 253)", p: 3, borderRadius: "10px", mb: 2 }}
+                            >
+                                <Typography variant="h6" fontWeight={550} mb={1}>
                                     Company Services
                                 </Typography>
-                                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                                    {servicesList.map((group, index) => (
-                                        <Box key={index}>
-                                            {group.options.map((service, idx) => (
-                                                <Typography key={`${index}-${idx}`} variant="body2">
-                                                    {service.label}
-                                                </Typography>
-                                            ))}
+                                <Typography fontSize={'0.9rem'} color="text.secondary" fontWeight={500} mb={1}>
+                                    Enabled Emergency Services
+                                </Typography>
+
+                                <Box>
+                                    {GrpservicesList.map((group, groupIdx) => (
+                                        <Box key={group.label} mb={2}>
+                                            <FormGroup row>
+                                                {group.options.map((service, idx) => {
+                                                    const isChecked = CompanyForm.values.services?.includes(service.value);
+
+                                                    return (
+                                                        <FormControlLabel
+                                                            key={service.value}
+                                                            control={
+                                                                <Checkbox
+                                                                    checked={isChecked}
+                                                                    onChange={(e) => {
+                                                                        const current = CompanyForm.values.services || [];
+                                                                        const updated = e.target.checked
+                                                                            ? [...current, service.value]
+                                                                            : current.filter((v) => v !== service.value);
+
+                                                                        CompanyForm.setFieldValue("services", updated);
+                                                                    }}
+                                                                    disabled={!edit}
+                                                                    icon={<img src={uncheckedIcon} alt="unchecked" />}
+                                                                    checkedIcon={<img src={checkedboxIcon} alt="checked" />}
+                                                                />
+                                                            }
+                                                            label={service.label}
+                                                        />
+                                                    );
+                                                })}
+                                            </FormGroup>
                                         </Box>
                                     ))}
                                 </Box>
-                            </Box>
-                        )
-                    )}
-
-                    {/* Security Companies */}
-                    {edit ? (
-                        <Box mt={3}>
-                            <Typography variant="h6" fontWeight={600} mb={1}>
-                                Security Companies
-                            </Typography>
-                            <Select
-                                isMulti
-                                name="securityCompany"
-                                options={securityCompanyOptions}
-                                isDisabled={CompanyForm.values.isArmed}
-                                classNamePrefix="select"
-                                placeholder="Select Security Companies"
-                                className="form-control"
-                                value={securityCompanyOptions.filter((option) =>
-                                    CompanyForm.values.securityCompany.includes(option.value)
-                                )}
-                                onChange={(selectedOptions) => {
-                                    const selectedIds = selectedOptions?.map((option) => option.value) || [];
-                                    CompanyForm.setFieldValue("securityCompany", selectedIds);
-                                }}
-                                menuPortalTarget={document.body}
-                                menuPosition="fixed"
-                                styles={{
-                                    control: (base) => ({
-                                        ...base,
-                                        border: "1px solid rgba(0,0,0,0.23)",
-                                        boxShadow: "none",
-                                        backgroundColor: "transparent",
-                                    }),
-                                    valueContainer: (base) => ({
-                                        ...base,
-                                        flexWrap: "wrap",
-                                        maxHeight: "50px",
-                                        overflowY: "auto",
-                                    }),
-                                    multiValue: (base) => ({
-                                        ...base,
-                                        margin: "2px",
-                                    }),
-                                    menu: (base) => ({
-                                        ...base,
-                                        zIndex: 9999,
-                                    }),
-                                }}
-                            />
-                        </Box>
-                    ) : (
-                        CompanyForm.values.securityCompany.length > 0 && (
-                            <Box mt={3}>
-                                <Typography variant="h6" fontWeight={600} mb={1}>
-                                    Security Companies
-                                </Typography>
-                                {(CompanyForm.values.isArmed !== true) && (
-                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                                        {securityCompanyOptions
-                                            .filter((opt) => CompanyForm.values.securityCompany.includes(opt.value))
-                                            .map((company, index) => (
-                                                <Typography key={index} variant="body2">
-                                                    {company.label}
-                                                </Typography>
-                                            ))}
-                                    </Box>
-                                )}
-                            </Box>
-                        )
-                    )}
-
-                    {/* Payout Section */}
-                    <Box mt={3}>
-                        <Typography variant="h6" fontWeight={600} mb={1}>
-                            Company Payout
-                        </Typography>
-
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} md={6}>
-                                <Box
-                                    sx={{
-                                        p: 2,
-                                        borderRadius: 1,
-                                        bgcolor: "#fff",
-                                        border: "1px solid #eee",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                    }}
-                                >
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Total Company Amount:
-                                        </Typography>
-                                        <Typography>{companyInfo.data?.data.totalCompanyAmount}</Typography>
-                                    </Box>
-                                    <Button
-                                        disabled={edit}
-                                        variant="contained"
-                                        onClick={(event) => handlePopup(event, "payout", "company")}
-                                    >
-                                        Pay
-                                    </Button>
-                                </Box>
-                                {renderPopup()}
-                            </Grid>
-
-                            <Grid item xs={12} md={6}>
-                                <Box
-                                    sx={{
-                                        p: 2,
-                                        borderRadius: 1,
-                                        bgcolor: "#fff",
-                                        border: "1px solid #eee",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                    }}
-                                >
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">
-                                            Total Driver Amount:
-                                        </Typography>
-                                        <Typography>{companyInfo.data?.data.totalDriverAmount}</Typography>
-                                    </Box>
-                                    <Button
-                                        disabled={edit}
-                                        variant="contained"
-                                        onClick={(event) => handlePopup(event, "payout", "driver")}
-                                    >
-                                        Pay
-                                    </Button>
-                                </Box>
-                            </Grid>
+                            </Paper>
                         </Grid>
-                    </Box>
+                        {/* Payout Section */}
+                        <Grid size={{ xs: 12, md: 4 }} >
+                            <Paper
+                                elevation={3}
+                                sx={{ backgroundColor: "rgb(253, 253, 253)", px: 3, py: 4.8, borderRadius: "10px", mb: 2 }}
+                            >
 
-                    {/* Save / Edit */}
-                    <Box mt={3} textAlign="right">
-                        {edit ? (
-                            <Button variant="contained" color="primary" onClick={() => CompanyForm.submitForm()}>
-                                Save
-                            </Button>
-                        ) : (
-                            <Button variant="contained" color="primary" onClick={() => setedit(true)}>
-                                Edit
-                            </Button>
-                        )}
-                    </Box>
-                </Paper>
+                                <Box>
+                                    <Typography variant="h6" fontWeight={550} mb={1}>
+                                        Financial Overview
+                                    </Typography>
+
+                                    <Grid container spacing={2}>
+                                        <Grid size={12}>
+                                            <Box
+                                                sx={{
+                                                    p: 2,
+                                                    borderRadius: 1,
+                                                    bgcolor: "#f7f9fb",
+                                                    display: "flex",
+                                                    flexDirection: 'column',
+                                                    justifyContent: "space-between",
+                                                }}
+                                            >
+                                                <Box>
+                                                    <Typography variant="body2" fontWeight={550} color="text.secondary">
+                                                        Total Company Amount:
+                                                    </Typography>
+                                                    <Typography sx={{ py: 1 }} fontWeight={600} >{companyInfo.data?.data.totalCompanyAmount}</Typography>
+                                                </Box>
+                                                <Button
+                                                    disabled={edit}
+                                                    variant="contained"
+                                                    sx={{ gap: 1, backgroundColor: 'var(--Blue)' }}
+                                                    onClick={(event) => handlePopup(event, "payout", "company")}
+                                                >
+                                                    <img src={payIcon} alt="payIcon" />
+                                                    Pay Company
+                                                </Button>
+                                            </Box>
+                                            {renderPopup()}
+                                        </Grid>
+
+                                        <Grid size={12}>
+                                            <Box
+                                                sx={{
+                                                    p: 2,
+                                                    borderRadius: 1,
+                                                    bgcolor: "#f7f9fb",
+                                                    display: "flex",
+                                                    flexDirection: 'column',
+                                                    justifyContent: "space-between",
+                                                }}
+                                            >
+                                                <Box sx={{ pb: 1 }}>
+                                                    <Typography variant="body2" fontWeight={550} color="text.secondary">
+                                                        Total Driver Amount:
+                                                    </Typography>
+                                                    <Typography sx={{ py: 1 }} fontWeight={600}>{companyInfo.data?.data.totalDriverAmount}</Typography>
+                                                </Box>
+                                                <Button
+                                                    disabled={edit}
+                                                    variant="contained"
+                                                    sx={{ gap: 1, backgroundColor: 'var(--Blue)' }}
+                                                    onClick={(event) => handlePopup(event, "payout", "driver")}
+                                                >
+                                                    <img src={payIcon} alt="payIcon" />
+                                                    Pay Driver
+                                                </Button>
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                            </Paper>
+                        </Grid>
+                    </Grid>
+                </Box>
+
             )}
 
             {/* Analytics */}

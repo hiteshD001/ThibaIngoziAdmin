@@ -19,9 +19,8 @@ import {
     InputLabel,
     IconButton,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
-import dayjs from "dayjs";
+import CustomDateRangePicker from "./CustomDateRangePicker";
+import calender from '../assets/images/calender.svg';
 import exportdiv from '../assets/images/exportdiv.svg';
 import Loader from "./Loader";
 import div from '../assets/images/div.svg'
@@ -37,10 +36,15 @@ const Analytics = ({ id }) => {
     const [activeUser, setactiveUser] = useState(0);
     const notificationTypes = useGetNotificationType();
     const [selectedNotification, setSelectedNotification] = useState("");
-    const [customDate, setCustomDate] = useState(dayjs());
+    const [range, setRange] = useState([
+        {
+            startDate: new Date(),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
     const [category, setCategory] = useState('');
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
+
     const nav = useNavigate();
 
     const driverList = useGetUserList("driver list", "driver", id);
@@ -125,20 +129,23 @@ const Analytics = ({ id }) => {
 
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Box display="flex" justifyContent="flex-end" gap={2} flexWrap="wrap">
-                        <Button
-                            variant="outlined"
-                            startIcon={<img src={exportdiv} alt="export" />}
-                            size="small"
-                            onClick={() => setOpen(true)}
-                        >
-                            Export
-                        </Button>
-                        <DatePicker
-                            label="Start Date"
-                            value={startDate}
-                            onChange={(newValue) => setStartDate(newValue)}
-                            renderInput={(params) => <TextField {...params} size="small" />}
-                        />
+                        <Box display="flex" justifyContent="flex-end" gap={2} flexWrap="wrap">
+                            <CustomDateRangePicker
+                                value={range}
+                                onChange={setRange}
+                                icon={calender}
+                            />
+
+                            <Button
+                                sx={{ height: '40px', width: '140px', borderRadius: '8px' }}
+                                variant="outlined"
+                                startIcon={<img src={exportdiv} alt="export" />}
+                                size="small"
+                                onClick={() => setOpen(true)}
+                            >
+                                Export
+                            </Button>
+                        </Box>
                     </Box>
                 </Grid>
             </Grid>

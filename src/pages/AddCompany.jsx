@@ -6,6 +6,8 @@ import { useFormik } from "formik";
 import { companyValidation } from "../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType } from "../API Calls/API";
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import CreatableSelect from 'react-select/creatable';
@@ -137,7 +139,7 @@ const AddCompany = () => {
 	const DropdownIndicator = (props) => {
 		return (
 			<components.DropdownIndicator {...props}>
-				{props.selectProps.menuIsOpen ? <AiOutlineUp /> : <AiOutlineDown />}
+				{props.selectProps.menuIsOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
 			</components.DropdownIndicator>
 		);
 	};

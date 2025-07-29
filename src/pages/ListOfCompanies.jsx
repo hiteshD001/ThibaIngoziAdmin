@@ -3,16 +3,16 @@ import { useNavigate } from "react-router-dom";
 import {
   Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
 } from "@mui/material";
-import plus from '../assets/images/plus.svg'
+// import plus from '../assets/images/plus.svg'
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import whiteplus from '../assets/images/whiteplus.svg';
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
-import icon from "../assets/images/icon.png";
+// import icon from "../assets/images/icon.png";
 import search from '../assets/images/search.svg';
-import Prev from "../assets/images/left.png";
-import Next from "../assets/images/right.png";
+// import Prev from "../assets/images/left.png";
+// import Next from "../assets/images/right.png";
 import nouser from "../assets/images/NoUser.png";
 
 import { useGetUserList } from "../API Calls/API";
@@ -87,7 +87,7 @@ const ListOfCompanies = () => {
         ) : companyList.data?.data.users?.length > 0 ? (
           <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
             <TableContainer >
-              <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
+              <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
                 <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                   <TableRow >
                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Company</TableCell>

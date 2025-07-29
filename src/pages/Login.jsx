@@ -101,7 +101,7 @@ export const Login = () => {
                                     className="btn btn-primary d-block w-100"
                                     style={{ backgroundColor: '#367BE0' }}
                                 >
-                                    {loginfn.isPending ? <Loader color="white" /> : "Login In"}
+                                    {loginfn.isPending ? <Loader color="white" /> : "Log In"}
                                 </button>
 
 

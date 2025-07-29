@@ -141,7 +141,7 @@ const ListOfTrips = () => {
         ) : tripList.length > 0 ? (
           <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
             <TableContainer>
-              <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
+              <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
                 <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                   <TableRow>
                     <TableCell sx={{ color: '#4B5563' }}>Driver</TableCell>
