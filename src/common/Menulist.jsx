@@ -8,7 +8,7 @@ import arrowLeft from "../assets/images/arrow-left.png";
 import ArmedSos from '../assets/images/ArmedSos.svg'
 // import settings from "../assets/images/settings.png";
 import profile from "../assets/images/profile.png";
-import Logout from "../assets/images/logout.svg";
+import Logout from "../assets/images/Logout.svg";
 import Company from "../assets/images/Company.svg";
 import trip from "../assets/images/trip.png"
 import { useState } from "react";

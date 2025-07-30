@@ -19,7 +19,7 @@ const Navbar = ({ setActive, isActive }) => {
 
     const location = useLocation()
     const nav = useNavigate();
-    const { data } = useGetUser(userId)
+    const { data } = useGetUser(userId, { enabled: !!userId });
     const user = data?.data?.user
 
     useEffect(() => {
