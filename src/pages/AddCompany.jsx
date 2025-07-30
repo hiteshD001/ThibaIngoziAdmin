@@ -411,7 +411,6 @@ const AddCompany = () => {
 											backgroundColor: 'white',
 											borderBottomRightRadius: '8px',
 											borderTopRightRadius: '8px',
-											backgroundColor: 'white',
 											':hover': {
 												backgroundColor: 'white',
 												color: 'black',
@@ -494,7 +493,6 @@ const AddCompany = () => {
 											backgroundColor: 'white',
 											borderBottomRightRadius: '8px',
 											borderTopRightRadius: '8px',
-											backgroundColor: 'white',
 											':hover': {
 												backgroundColor: 'white',
 												color: 'black',
