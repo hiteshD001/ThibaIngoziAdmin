@@ -12,8 +12,8 @@ export const useGetUserList = (
     key,
     role,
     company_id,
-    page = 1,
-    limit = 10,
+    page,
+    limit,
     filter,
     notification_type
 ) => {

@@ -228,21 +228,21 @@ const VehicleInformation = () => {
                                     <select
                                         name="company_id"
                                         className="form-control"
-                                        value={driverform.values.company_id}
+                                        value={driverform.values.company_id ?? ""}
                                         onChange={(e) => {
                                             const selectedId = e.target.value;
                                             const selectedCompany = companyList.data?.data.users.find(
-                                                (user) => user._id === selectedId
+                                                (user) => user?._id == selectedId
                                             );
-
-                                            driverform.setFieldValue("company_id", selectedId);
+                                            driverform.setFieldValue("company_id", selectedCompany?._id || null);
                                             driverform.setFieldValue("company_name", selectedCompany?.company_name || "");
+
                                         }}
                                         disabled={!edit}
                                     >
                                         <option value="" hidden>Others</option>
                                         {companyList.data?.data.users.map((user) => (
-                                            <option key={user._id} value={user._id}>
+                                            <option key={user._id} value={user?._id}>
                                                 {user.company_name}
                                             </option>
                                         ))}
@@ -1132,6 +1132,9 @@ const setdriverformvalues = ({ ...props }) => {
                     (_, i) => data?.[`image_${i + 1}`] || null
                 ).filter(Boolean),
             };
+
+        } else if (key === 'company_id') {
+            newdata = { ...newdata, [key]: data?.company_id?._id ?? '' };
         } else {
             newdata = { ...newdata, [key]: data?.[key] ?? "" };
         }

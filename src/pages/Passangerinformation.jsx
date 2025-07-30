@@ -39,6 +39,8 @@ const PassangerInformation = () => {
         validationSchema: vehicleValidation
     })
 
+    // console.log('company_name', driverform.values.company_name)
+    // console.log('company_id', driverform.values.company_id?._id)
 
     const submithandler = (values) => {
         setEdit(false);
@@ -90,6 +92,7 @@ const PassangerInformation = () => {
             setdriverformvalues({ form: emergencyform, data: UserInfo.data?.data?.user })
         }
     }, [UserInfo.data])
+    console.log(driverform.values.company_id?._id)
 
     return (
         <div className="container-fluid">
@@ -167,21 +170,32 @@ const PassangerInformation = () => {
                                     <select
                                         name="company_id"
                                         className="form-control"
-                                        value={driverform.values.company_id}
+                                        value={driverform.values.company_id ?? ""}
                                         onChange={(e) => {
                                             const selectedId = e.target.value;
                                             const selectedCompany = companyList.data?.data.users.find(
-                                                (user) => user._id === selectedId
+                                                (user) => user?._id == selectedId
                                             );
+                                            // console.log(companyList.data?.data.users.find(
+                                            //     (user) => {
+                                            //         console.log(selectedId, user?._id)
 
-                                            driverform.setFieldValue("company_id", selectedId);
+
+                                            //     }
+                                            // ))
+                                            console.log(selectedCompany)
+
+
+
+                                            driverform.setFieldValue("company_id", selectedCompany?._id || null);
                                             driverform.setFieldValue("company_name", selectedCompany?.company_name || "");
+
                                         }}
                                         disabled={role !== "super_admin" || !edit}
                                     >
                                         <option value="" hidden>Others</option>
                                         {companyList.data?.data.users.map((user) => (
-                                            <option key={user._id} value={user._id}>
+                                            <option key={user._id} value={user?._id}>
                                                 {user.company_name}
                                             </option>
                                         ))}
@@ -560,7 +574,10 @@ const setdriverformvalues = ({ ...props }) => {
 
         if (key === 'images') {
             newdata = { ...newdata, [key]: Array.from({ length: 5 }, (_, i) => data?.[`image_${i + 1}`] || null).filter(Boolean) };
-        } else {
+        } else if (key === 'company_id') {
+            newdata = { ...newdata, [key]: data?.company_id?._id ?? '' };
+        }
+        else {
             newdata = { ...newdata, [key]: data?.[key] ?? '' };
         }
 
