@@ -64,49 +64,46 @@ const ListOfMeetingLinkTrips = () => {
           </Grid>
 
           <Grid size={{ xs: 12, md: 8 }} sx={{ display: "flex", justifyContent: "flex-end", gap: 2, flexDirection: { xs: "column", sm: "row" } }}>
-            <Grid size={{ xs: 12, md: 5 }}>
-              <TextField
-                variant="outlined"
-                placeholder="Search"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
-                fullWidth
-                sx={{
-                  width: "100%",
-                  height: "40px",
-                  borderRadius: "8px",
-                  '& .MuiInputBase-root': { height: '40px', fontSize: '14px' },
-                  '& .MuiOutlinedInput-input': { padding: '10px 14px' },
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <img src={search} alt="search icon" />
-                    </InputAdornment>
-                  ),
-                }}
+            <TextField
+              variant="outlined"
+              placeholder="Search"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              fullWidth
+              sx={{
+                width: "100%",
+                height: "40px",
+                borderRadius: "8px",
+                '& .MuiInputBase-root': { height: '40px', fontSize: '14px' },
+                '& .MuiOutlinedInput-input': { padding: '10px 14px' },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <img src={search} alt="search icon" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
+              <CustomDateRangePicker
+                value={range}
+                onChange={setRange}
+                icon={calender}
               />
-            </Grid>
-            <Grid size={{ xs: 12, md: 7 }}>
-              <Box display="flex" justifyContent="flex-end" gap={2} flexWrap="wrap">
-                <CustomDateRangePicker
-                  value={range}
-                  onChange={setRange}
-                  icon={calender}
-                />
 
-                <Button
-                  sx={{ height: '40px', width: '140px', borderRadius: '8px' }}
-                  variant="outlined"
-                  startIcon={<img src={exportdiv} alt="export" />}
-                  size="small"
-                  onClick={() => setOpen(true)}
-                >
-                  Export
-                </Button>
-              </Box>
-            </Grid>
+              <Button
+                sx={{ height: '40px', width: '140px', borderRadius: '8px' }}
+                variant="outlined"
+                startIcon={<img src={exportdiv} alt="export" />}
+                size="small"
+                onClick={() => setOpen(true)}
+              >
+                Export
+              </Button>
+            </Box>
           </Grid>
+
         </Grid>
 
         {trip.isFetching ? (

@@ -20,18 +20,18 @@ import {
     IconButton,
 } from "@mui/material";
 import filter from '../assets/images/filter.svg'
-import CustomDateRangePicker from "./CustomDateRangePicker";
+import CustomDateRangePicker from "../common/CustomDateRangePicker";
 import calender from '../assets/images/calender.svg';
 import exportdiv from '../assets/images/exportdiv.svg';
-import Loader from "./Loader";
+import Loader from "../common/Loader";
 import div from '../assets/images/div.svg'
 import div2 from '../assets/images/div2.svg'
 import div3 from '../assets/images/div3.svg'
 import { FaLocationDot } from "react-icons/fa6";
-import CustomChart from "./CustomChart";
+import CustomChart from "../common/CustomChart";
 import { useNavigate } from "react-router-dom";
 
-const Analytics = ({ id }) => {
+const Report = ({ id }) => {
     const [time, settime] = useState("today");
     const [timeTitle, settimeTitle] = useState("Today");
     const [activeUser, setactiveUser] = useState(0);
@@ -121,10 +121,10 @@ const Analytics = ({ id }) => {
             <Grid sx={{ backgroundColor: 'white', p: 3, mt: '-25px' }} container justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
                 <Grid size={{ xs: 12, md: 6 }}>
                     <Typography variant="h5" fontWeight={550}>
-                        Dashboard Overview
+                        Report Dashboard
                     </Typography>
                     <Typography variant="body1" mt={1} color="text.secondary">
-                        Welcome back, Mahene Benzane. Here's what's happening today.
+                        Monitor SOS activity, trends, and export data for analysis.
                     </Typography>
                 </Grid>
 
@@ -156,62 +156,42 @@ const Analytics = ({ id }) => {
                 </Grid>
             </Grid>
             <Box p={2}>
-                <div className="clearfix"></div>
-
-                {localStorage.getItem("role") === "super_admin" && !id ? (
-                    <div className="row px-2">
-                        <div className="col-md-4">
-                            <div className="dash-counter orange">
-                                <div>
-                                    <span>Total Companies</span>
-                                    <h3>{companyList.data?.data.totalUsers || 0}</h3>
-                                </div>
+                <Grid container spacing={3} mb={5}>
+                    <Grid size={{ xs: 12, md: 4 }} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 5, backgroundColor: '#E0F2FE', borderRadius: '16px', px: 3, py: 5 }}>
+                            <Box>
+                                <Typography variant="body1">Total Reports</Typography>
+                                <Typography variant="h5" fontWeight={600}>1342</Typography>
+                            </Box>
+                            <Box>
                                 <img src={div} alt="dash-counter" />
-                            </div>
-                        </div>
-                        <div className="col-md-4">
-                            <div className="dash-counter blue">
-                                <div>
-                                    <span>Active Users</span>
-                                    <h3>
-                                        {driverList.data?.data.totalActiveDrivers || 0}
-                                    </h3>
-                                </div>
-                                <img src={div2} alt="dash-counter" />
-                            </div>
-                        </div>
-                        <div className="col-md-4">
-                            <div className="dash-counter green">
-                                <div><span>Users Active {timeTitle}</span>
-                                    <h3>{activeUser}</h3></div>
-                                <img src={div3} alt="dash-counter" />
+                            </Box>
+                        </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 4 }} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 5, backgroundColor: '#DBEAFE', borderRadius: '16px', px: 3, py: 5 }}>
+                            <Box>
+                                <Typography variant="body1">Top Locations</Typography>
+                                <Typography variant="h5" fontWeight={600}>Cape Town (434)</Typography>
+                            </Box>
+                            <Box>
+                                <img src={div} alt="dash-counter" />
+                            </Box>
+                        </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 4 }} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 5, backgroundColor: '#FEE2E2', borderRadius: '16px', px: 3, py: 5 }}>
+                            <Box>
+                                <Typography variant="body1">Critical Incidents</Typography>
+                                <Typography variant="h5" fontWeight={600}>24</Typography>
+                            </Box>
+                            <Box>
+                                <img src={div} alt="dash-counter" />
+                            </Box>
+                        </Box>
+                    </Grid>
+                </Grid>
 
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="row">
-                        <div className="col-md-6">
-                            <div className="dash-counter blue">
-                                <span>Active Users</span>
-                                <h3>
-                                    {driverList.data?.data.totalActiveDrivers || 0}
-                                </h3>
-                            </div>
-                        </div>
-                        <div className="col-md-6">
-                            <div className="dash-counter green">
-                                <span>Users Active {timeTitle}</span>
-                                <h3>
-                                    {driverList.data?.data
-                                        .totalActiveDriversThisMonth || 0}
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                <div className="clearfix"></div>
 
                 {/* Notification Type Dropdown inside Hotspot Box */}
                 <div className="filter-date">
@@ -283,4 +263,4 @@ const Analytics = ({ id }) => {
     );
 };
 
-export default Analytics;
+export default Report;

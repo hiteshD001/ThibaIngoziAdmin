@@ -35,13 +35,13 @@ const ListOfCompanies = () => {
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
         <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-          <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+          <Grid size={{ xs: 12, md: 5 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
             <Typography variant="h6" fontWeight={590}>Onboarded Companies</Typography>
             <Typography variant="h6" fontWeight={550}>
               {companyList.isSuccess ? companyList.data?.data.totalUsers : 0}
             </Typography>
           </Grid>
-          <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+          <Grid size={{ xs: 12, md: 7 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
 
             <TextField
               variant="outlined"

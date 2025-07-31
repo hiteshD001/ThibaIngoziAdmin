@@ -16,7 +16,7 @@ import { useWebSocket } from "../API Calls/WebSocketContext";
 import nouser from "../assets/images/NoUser.png";
 import CustomPagination from "../common/CustomPagination";
 import { format } from "date-fns";
-
+import HotspotSection from "../common/HotspotSection";
 import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { SOSStatusUpdate } from "../common/ConfirmationPOPup";
@@ -26,7 +26,7 @@ import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
 
-const Home = () => {
+const Home = ({ isMapLoaded }) => {
     const [filter, setfilter] = useState("");
     const [statusUpdate, setStatusUpdate] = useState(false);
     const [status, setStatus] = useState('')
@@ -119,301 +119,305 @@ const Home = () => {
     // }, [activeUserList, activePage, activeLimit]);
 
     return (
-        <Box p={2}>
+        <Box>
             <Analytics />
-            <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
-                <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-                    <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                        <Typography variant="h6" fontWeight={590}>Active SOS Alerts</Typography>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-                        <TextField
-                            variant="outlined"
-                            placeholder="Search"
-                            value={filter}
-                            onChange={(e) => setfilter(e.target.value)}
-                            fullWidth
-                            sx={{
-                                width: '100%',
-                                height: '40px',
-                                borderRadius: '8px',
-                                '& .MuiInputBase-root': {
+            <Box p={2}>
+                {/* active sos */}
+                <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
+                    <Grid container justifyContent="space-between" alignItems="center" mb={2}>
+                        <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                            <Typography variant="h6" fontWeight={590}>Active SOS Alerts</Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+                            <TextField
+                                variant="outlined"
+                                placeholder="Search"
+                                value={filter}
+                                onChange={(e) => setfilter(e.target.value)}
+                                fullWidth
+                                sx={{
+                                    width: '100%',
                                     height: '40px',
-                                    fontSize: '14px',
-                                },
-                                '& .MuiOutlinedInput-input': {
-                                    padding: '10px 14px',
-                                },
-                            }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <img src={search} alt="search icon" />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                        <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
-                            <FormControl size="small" sx={{ maxWidth: 200 }}>
-                                <InputLabel>All Categories</InputLabel>
-                                <Select
-                                    value={selectedNotification}
-                                    onChange={handleNotificationChange}
-                                    label="All Categories"
+                                    borderRadius: '8px',
+                                    '& .MuiInputBase-root': {
+                                        height: '40px',
+                                        fontSize: '14px',
+                                    },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '10px 14px',
+                                    },
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <img src={search} alt="search icon" />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+                                <FormControl size="small" sx={{ maxWidth: 200 }}>
+                                    <InputLabel>All Categories</InputLabel>
+                                    <Select
+                                        value={selectedNotification}
+                                        onChange={handleNotificationChange}
+                                        label="All Categories"
+                                    >
+                                        <MenuItem value="">All Categories</MenuItem>
+                                        {notificationTypes.data?.data?.map((type) => (
+                                            <MenuItem key={type._id} value={type._id}>
+                                                {type.type}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+
+                                <Button
+                                    sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
+                                    onClick={() => nav("/home")}
                                 >
-                                    <MenuItem value="">All Categories</MenuItem>
-                                    {notificationTypes.data?.data?.map((type) => (
-                                        <MenuItem key={type._id} value={type._id}>
-                                            {type.type}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-
-                            <Button
-                                sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
-                                onClick={() => nav("/home")}
-                            >
-                                View All
-                            </Button>
-                        </Box>
-
-                    </Grid>
-                </Grid>
-                {isConnected && activeUserList?.length > 0 ? (
-                    <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
-                        <TableContainer >
-                            <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
-                                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
-                                    <TableRow >
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Driver</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company</TableCell>
-                                        <TableCell sx={{
-                                            backgroundColor: '#F9FAFB',
-                                            color: '#4B5563',
-                                        }}>Address</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Request reached</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Request Accept</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Type</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Time</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
-                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {activeUserList?.map((user) => (
-                                        <TableRow key={user._id}>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                <Stack direction="row" alignItems="center" gap={1}>
-                                                    <Avatar
-                                                        src={
-                                                            user?.user_id
-                                                                ?.selfieImage || user?.user_id.fullImage ||
-                                                            nouser
-                                                        }
-                                                        alt="User"
-                                                    />
-
-                                                    {user?.user_id?.username}
-                                                </Stack>
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                {user?.user_id?.company_name}
-                                            </TableCell>
-                                            <TableCell sx={{
-                                                color: '#4B5563',
-                                            }}>
-                                                {user?.address}
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                {user?.req_reach || "0"}
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                {user?.req_accept || "0"}
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                {user?.type?.type || "-"}
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                {moment(user?.createdAt).format('HH:mm:ss')}
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
-                                                {!user?.help_received &&
-                                                    <div className="select-container">
-                                                        <select
-                                                            name="help_received"
-                                                            className="my-custom-select"
-                                                            onChange={(e) => {
-                                                                setStatus(e.target.value);
-                                                                setStatusUpdate(true);
-                                                                setSelectedId(row._id);
-                                                            }}
-                                                        >
-                                                            <option value="" hidden> Select </option>
-                                                            <option value="help_received"> Help Received </option>
-                                                            <option value="cancel"> Cancel </option>
-                                                        </select>
-                                                    </div>
-                                                }
-                                            </TableCell>
-                                            <TableCell >
-                                                <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                    <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${user?._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`)}>
-                                                        <img src={ViewBtn} alt="view button" />
-                                                    </IconButton>
-                                                </Box>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-
-                        </TableContainer>
-                    </Box>
-                ) : (
-                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
-                        No data found
-                    </Typography>
-                )}
-            </Paper>
-            <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 2, padding: 2, borderRadius: '10px' }}>
-                <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-                    <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                        <Typography variant="h6" fontWeight={590}>Recently Closed SOS Alerts</Typography>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-                        <TextField
-                            variant="outlined"
-                            placeholder="Search"
-                            value={filter}
-                            onChange={(e) => setfilter(e.target.value)}
-                            fullWidth
-                            sx={{
-                                width: '100%',
-                                height: '40px',
-                                borderRadius: '8px',
-                                '& .MuiInputBase-root': {
-                                    height: '40px',
-                                    fontSize: '14px',
-                                },
-                                '& .MuiOutlinedInput-input': {
-                                    padding: '10px 14px',
-                                },
-                            }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <img src={search} alt="search icon" />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                        <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
-                            <FormControl size="small" sx={{ maxWidth: 200 }}>
-                                <InputLabel>All Categories</InputLabel>
-                                <Select
-                                    value={selectedNotification}
-                                    onChange={handleNotificationChange}
-                                    label="All Categories"
-                                >
-                                    <MenuItem value="">All Categories</MenuItem>
-                                    {notificationTypes.data?.data?.map((type) => (
-                                        <MenuItem key={type._id} value={type._id}>
-                                            {type.type}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                            <Button
-                                sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
-                                onClick={() => nav("/home")}
-
-                            >
-                                View All
-                            </Button>
-                        </Box>
-
-                    </Grid>
-                </Grid>
-                {
-                    isFetching ? (
-                        <Loader />) :
-                        recentSos?.data?.items?.length > 0 ? (
-                            <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
-                                <TableContainer >
-                                    <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
-                                        <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
-                                            <TableRow >
-                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>User</TableCell>
-                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company</TableCell>
-                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Last Active Status</TableCell>
-                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Start Time Stamp</TableCell>
-                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>End Time Stamp</TableCell>
-                                                <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Action</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {recentSos?.data?.items?.map((row) => (
-                                                <TableRow key={row?._id}>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        <Stack direction="row" alignItems="center" gap={1}>
-
-                                                            <Avatar
-                                                                src={
-                                                                    row?.user_id
-                                                                        ?.selfieImage ||
-                                                                    nouser
-                                                                }
-                                                                alt="User"
-                                                            />
-
-                                                            {row?.user_id?.username}
-                                                        </Stack>
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {row?.user_id?.company_name}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-
-                                                        {row?.address}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {moment(row?.updatedAt).format("HH:mm:ss - dd/MM/yyyy")}
-                                                    </TableCell>
-
-                                                    <TableCell >
-                                                        <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                            <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user_id?._id}`)}>
-                                                                <img src={ViewBtn} alt="view button" />
-                                                            </IconButton>
-                                                        </Box>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-
-                                </TableContainer>
-                                <CustomPagination
-                                    page={page}
-                                    setPage={setPage}
-                                    limit={limit}
-                                    setLimit={setLimit}
-                                    totalPages={recentSos?.data?.totalPages || 1}
-                                    totalItems={recentSos?.data?.totalItems || 0}
-                                />
+                                    View All
+                                </Button>
                             </Box>
-                        ) : (
-                            <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
-                                No data found
-                            </Typography>
-                        )}
-            </Paper>
 
+                        </Grid>
+                    </Grid>
 
+                    {isConnected && activeUserList?.length > 0 ? (
+                        <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                            <TableContainer >
+                                <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
+                                    <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                        <TableRow >
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Driver</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company</TableCell>
+                                            <TableCell sx={{
+                                                backgroundColor: '#F9FAFB',
+                                                color: '#4B5563',
+                                            }}>Address</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Request reached</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Request Accept</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Type</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Time</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
+                                            <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {activeUserList?.map((user) => (
+                                            <TableRow key={user._id}>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    <Stack direction="row" alignItems="center" gap={1}>
+                                                        <Avatar
+                                                            src={
+                                                                user?.user_id
+                                                                    ?.selfieImage ||
+                                                                nouser
+                                                            }
+                                                            alt="User"
+                                                        />
+
+                                                        {user?.user_id?.username}
+                                                    </Stack>
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {user?.user_id?.company_name}
+                                                </TableCell>
+                                                <TableCell sx={{
+                                                    color: '#4B5563',
+                                                }}>
+                                                    {user?.address}
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {user?.req_reach || "0"}
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {user?.req_accept || "0"}
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {user?.type?.type || "-"}
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {moment(user?.createdAt).format('HH:mm:ss')}
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
+                                                    {!user?.help_received &&
+                                                        <div className="select-container">
+                                                            <select
+                                                                name="help_received"
+                                                                className="my-custom-select"
+                                                                onChange={(e) => {
+                                                                    setStatus(e.target.value);
+                                                                    setStatusUpdate(true);
+                                                                    setSelectedId(row._id);
+                                                                }}
+                                                            >
+                                                                <option value="" hidden> Select </option>
+                                                                <option value="help_received"> Help Received </option>
+                                                                <option value="cancel"> Cancel </option>
+                                                            </select>
+                                                        </div>
+                                                    }
+                                                </TableCell>
+                                                <TableCell >
+                                                    <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                        <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${user?._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`)}>
+                                                            <img src={ViewBtn} alt="view button" />
+                                                        </IconButton>
+                                                    </Box>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+
+                            </TableContainer>
+                        </Box>
+                    ) : (
+                        <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                            No data found
+                        </Typography>
+                    )}
+                </Paper>
+                <HotspotSection isMapLoaded={isMapLoaded} />
+                {/* recently closed sos */}
+                <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 2, padding: 2, borderRadius: '10px' }}>
+                    <Grid container justifyContent="space-between" alignItems="center" mb={2}>
+                        <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                            <Typography variant="h6" fontWeight={590}>Recently Closed SOS Alerts</Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+                            <TextField
+                                variant="outlined"
+                                placeholder="Search"
+                                value={filter}
+                                onChange={(e) => setfilter(e.target.value)}
+                                fullWidth
+                                sx={{
+                                    width: '100%',
+                                    height: '40px',
+                                    borderRadius: '8px',
+                                    '& .MuiInputBase-root': {
+                                        height: '40px',
+                                        fontSize: '14px',
+                                    },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '10px 14px',
+                                    },
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <img src={search} alt="search icon" />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+                                <FormControl size="small" sx={{ maxWidth: 200 }}>
+                                    <InputLabel>All Categories</InputLabel>
+                                    <Select
+                                        value={selectedNotification}
+                                        onChange={handleNotificationChange}
+                                        label="All Categories"
+                                    >
+                                        <MenuItem value="">All Categories</MenuItem>
+                                        {notificationTypes.data?.data?.map((type) => (
+                                            <MenuItem key={type._id} value={type._id}>
+                                                {type.type}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <Button
+                                    sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
+                                    onClick={() => nav("/home")}
+
+                                >
+                                    View All
+                                </Button>
+                            </Box>
+
+                        </Grid>
+                    </Grid>
+                    {
+                        isFetching ? (
+                            <Loader />) :
+                            recentSos?.data?.items?.length > 0 ? (
+                                <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                                    <TableContainer >
+                                        <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
+                                            <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                                <TableRow >
+                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>User</TableCell>
+                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company</TableCell>
+                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Last Active Status</TableCell>
+                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Start Time Stamp</TableCell>
+                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>End Time Stamp</TableCell>
+                                                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Action</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {recentSos?.data?.items?.map((row) => (
+                                                    <TableRow key={row?._id}>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            <Stack direction="row" alignItems="center" gap={1}>
+
+                                                                <Avatar
+                                                                    src={
+                                                                        row?.user_id
+                                                                            ?.selfieImage ||
+                                                                        nouser
+                                                                    }
+                                                                    alt="User"
+                                                                />
+
+                                                                {row?.user_id?.username}
+                                                            </Stack>
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {row?.user_id?.company_name}
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+
+                                                            {row?.address}
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {moment(row?.updatedAt).format("HH:mm:ss - dd/MM/yyyy")}
+                                                        </TableCell>
+
+                                                        <TableCell >
+                                                            <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                                <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user_id?._id}`)}>
+                                                                    <img src={ViewBtn} alt="view button" />
+                                                                </IconButton>
+                                                            </Box>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+
+                                    </TableContainer>
+                                    <CustomPagination
+                                        page={page}
+                                        setPage={setPage}
+                                        limit={limit}
+                                        setLimit={setLimit}
+                                        totalPages={recentSos?.data?.totalPages || 1}
+                                        totalItems={recentSos?.data?.totalItems || 0}
+                                    />
+                                </Box>
+                            ) : (
+                                <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                    No data found
+                                </Typography>
+                            )}
+                </Paper>
+            </Box>
             {statusUpdate && (
                 <SOSStatusUpdate
                     handleCancel={handleCancel}

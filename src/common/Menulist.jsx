@@ -86,7 +86,7 @@ export const superadmin_menulist = [
     //     image: settings
     // },
     {
-        id: "report",
+        id: "reports",
         name: "Reports",
         path: "/home/reports",
         image: Report

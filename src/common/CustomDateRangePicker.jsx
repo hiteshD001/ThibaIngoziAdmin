@@ -16,6 +16,7 @@ import 'react-date-range/dist/theme/default.css';
 const CustomDateRangePicker = ({
     value,
     onChange,
+    borderColor = 'rgb(175, 179, 189)',
     buttonLabel = 'Select Date Range',
     icon,
     buttonSx = {},
@@ -44,8 +45,13 @@ const CustomDateRangePicker = ({
                             height: '40px',
                             width: '240px',
                             borderRadius: '8px',
+                            borderWidth: '1px',
                             justifyContent: 'space-between',
-                            border: '1px solid rgb(175, 179, 189)',
+                            borderColor: borderColor,
+                            borderStyle: 'solid',
+                            '&:hover': {
+                                borderColor: borderColor,
+                            },
                             ...buttonSx,
                         }}
                         endIcon={<ExpandMoreIcon />}
