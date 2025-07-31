@@ -19,7 +19,10 @@ import {
     InputLabel,
     IconButton,
 } from "@mui/material";
+import LocationIcon from '../assets/images/LocationIcon.svg'
 import filter from '../assets/images/filter.svg'
+import ReportIcon from '../assets/images/ReportsIcon.svg'
+import DangerIcon from '../assets/images/DangerIcon.svg'
 import CustomDateRangePicker from "../common/CustomDateRangePicker";
 import calender from '../assets/images/calender.svg';
 import exportdiv from '../assets/images/exportdiv.svg';
@@ -164,7 +167,7 @@ const Report = ({ id }) => {
                                 <Typography variant="h5" fontWeight={600}>1342</Typography>
                             </Box>
                             <Box>
-                                <img src={div} alt="dash-counter" />
+                                <img src={ReportIcon} alt="ReportIcon" />
                             </Box>
                         </Box>
                     </Grid>
@@ -175,7 +178,7 @@ const Report = ({ id }) => {
                                 <Typography variant="h5" fontWeight={600}>Cape Town (434)</Typography>
                             </Box>
                             <Box>
-                                <img src={div} alt="dash-counter" />
+                                <img src={LocationIcon} alt="LocationIcon" />
                             </Box>
                         </Box>
                     </Grid>
@@ -186,11 +189,22 @@ const Report = ({ id }) => {
                                 <Typography variant="h5" fontWeight={600}>24</Typography>
                             </Box>
                             <Box>
-                                <img src={div} alt="dash-counter" />
+                                <img src={DangerIcon} alt="DangerIcon" />
                             </Box>
                         </Box>
                     </Grid>
                 </Grid>
+                <Grid container spacing={3}>
+                    <Grid size={12}>
+                        {/* <CustomPie
+                            companyList={companyList}
+                            driverList={driverList}
+                            activeUser={activeUser}
+                            timeTitle={timeTitle}
+                        /> */}
+                    </Grid>
+                </Grid>
+
 
 
                 {/* Notification Type Dropdown inside Hotspot Box */}
