@@ -635,8 +635,8 @@ const ListOfDrivers = () => {
                                                                 <img
                                                                     className="profilepicture"
                                                                     src={
-                                                                        driver.selfieImage
-                                                                            ? driver.selfieImage
+                                                                        driver.profileImage
+                                                                            ? driver.profileImage
                                                                             : nouser
                                                                     }
                                                                 />
