@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import {
     useGetActiveSOS,
@@ -22,7 +22,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 const Home = () => {
 
-
+    const nav = useNavigate();
     const [statusUpdate, setStatusUpdate] = useState(false);
     const [status, setStatus] = useState('')
     const [activeUsers, setActiveUsers] = useState([])
@@ -137,9 +137,13 @@ const Home = () => {
                                         {activeUserList.map((row) => (
                                             <tr key={row._id}>
                                                 <td>
-                                                    <div
+                                                    <div  onClick={() =>
+                                                                    nav(
+                                                                        `/home/total-users/user-information/${row.user_id?._id}`
+                                                                    )
+                                                                }
                                                         className={
-                                                            !row.user_id?.username
+                                                            !row.user_id?.first_name && !row.user_id?.last_name
                                                                 ? "prof nodata"
                                                                 : "prof"
                                                         }
@@ -152,7 +156,7 @@ const Home = () => {
                                                                 nouser
                                                             }
                                                         />
-                                                        {row.user_id?.username}
+                                                        {row.user_id?.first_name}  {row.user_id?.last_name}
                                                     </div>
                                                 </td>
 
@@ -253,9 +257,13 @@ const Home = () => {
                                         {recentSos?.data?.items?.map((row) => (
                                             <tr key={row._id}>
                                                 <td>
-                                                    <div
+                                                    <div onClick={() =>
+                                                                    nav(
+                                                                        `/home/total-users/user-information/${row.user_id?._id}`
+                                                                    )
+                                                                }
                                                         className={
-                                                            !row.user_id?.username
+                                                            !row.user_id?.first_name && !row.user_id?.last_name
                                                                 ? "prof nodata"
                                                                 : "prof"
                                                         }
@@ -268,7 +276,7 @@ const Home = () => {
                                                                 nouser
                                                             }
                                                         />
-                                                        {row.user_id?.username}
+                                                        {row.user_id?.first_name}  {row.user_id?.last_name}
                                                     </div>
                                                 </td>
 
