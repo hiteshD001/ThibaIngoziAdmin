@@ -80,12 +80,12 @@ const Home = () => {
         setStatusUpdate(false);
         setStatus('')
     };
-    useEffect(() => {
-        if (activeUserList?.length > 0) {
-            refetch();
-            console.log('refetched')
-        }
-    }, [activeUserList?.length]);
+    // useEffect(() => {
+    //     // if (activeUserList?.length > 0) {
+    //     //     refetch();
+    //     //     console.log('refetched')
+    //     // }
+    // }, [activeUserList?.length]);
 
     // active user list pagination
     // const [activePage, setActivePage] = useState(1);
@@ -137,11 +137,7 @@ const Home = () => {
                                         {activeUserList.map((row) => (
                                             <tr key={row._id}>
                                                 <td>
-                                                    <div  onClick={() =>
-                                                                    nav(
-                                                                        `/home/total-users/user-information/${row.user_id?._id}`
-                                                                    )
-                                                                }
+                                                    <div
                                                         className={
                                                             !row.user_id?.first_name && !row.user_id?.last_name
                                                                 ? "prof nodata"
@@ -257,11 +253,7 @@ const Home = () => {
                                         {recentSos?.data?.items?.map((row) => (
                                             <tr key={row._id}>
                                                 <td>
-                                                    <div onClick={() =>
-                                                                    nav(
-                                                                        `/home/total-users/user-information/${row.user_id?._id}`
-                                                                    )
-                                                                }
+                                                    <div
                                                         className={
                                                             !row.user_id?.first_name && !row.user_id?.last_name
                                                                 ? "prof nodata"
