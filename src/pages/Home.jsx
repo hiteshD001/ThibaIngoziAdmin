@@ -424,13 +424,19 @@ const Home = () => {
                                                     {/* {format(row.updatedAt, "HH:mm:ss - dd/MM/yyyy")} */}
                                                 </td>
                                                 <td>
-
                                                     <Link
-                                                        to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
+                                                        to={`/home/total-drivers/driver-information/${row?.user_id?._id}`}
                                                         className="tbl-btn"
                                                     >
                                                         view
                                                     </Link>
+
+                                                    {/* <Link
+                                                        to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
+                                                        className="tbl-btn"
+                                                    >
+                                                        view
+                                                    </Link> */}
                                                 </td>
                                             </tr>
                                         ))}
