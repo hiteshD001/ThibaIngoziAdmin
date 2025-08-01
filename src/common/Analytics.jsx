@@ -33,7 +33,7 @@ const Analytics = ({ id }) => {
     };
 
     useEffect(() => {
-        if (notificationTypes.data?.data.length > 0 && !selectedNotification) {
+        if (notificationTypes?.data?.data?.length > 0 && !selectedNotification) {
             setSelectedNotification(notificationTypes.data?.data[0]?._id);
         }
     }, [notificationTypes]);
@@ -174,15 +174,14 @@ const Analytics = ({ id }) => {
                     <div className="hotspot">
                         <h1>Hotspot</h1>
                         <div className="location-list">
-                            {hotspot.isFetching ? (
+                            {hotspot?.isFetching ? (
                                 <Loader />
-                            ) : hotspot.data?.data.length === 0 ? (
+                            ) : hotspot?.data?.data?.length === 0 ? (
                                 <p>No data Found</p>
                             ) : (
-                                hotspot.data?.data
-                                    .sort((a, b) =>
-                                        a.timesCalled > b.timesCalled ? -1 : 1
-                                    )
+                                hotspot?.data?.data?.sort((a, b) =>
+                                    a.timesCalled > b.timesCalled ? -1 : 1
+                                )
                                     .map((d, index) => (
                                         <div className="location" key={index}>
                                             <span>{d.address || "N/A"}</span>

@@ -184,7 +184,7 @@ const Home = () => {
                             </button>
                         </div>
 
-                        {isConnected && activeUserList?.length > 0 ? (
+                        {activeUserList?.length > 0 ? (
                             <>
                                 <table
                                     id="example"
