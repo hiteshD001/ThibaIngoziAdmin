@@ -6,7 +6,10 @@ import search from "../assets/images/search.png";
 import Prev from "../assets/images/left.png";
 import Next from "../assets/images/right.png";
 import nouser from "../assets/images/NoUser.png";
-
+import apiClient from "../API Calls/APIClient";
+import * as XLSX from 'xlsx';
+import 'jspdf-autotable';
+import { toast } from "react-toastify";
 import { useGetUserList } from "../API Calls/API";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
@@ -15,10 +18,69 @@ const ListOfCompanies = () => {
   const nav = useNavigate();
   const [page, setpage] = useState(1);
   const [filter, setfilter] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
   const [confirmation, setconfirmation] = useState("");
 
   const companyList = useGetUserList("company list", "company", "", page, 10, filter)
+  const fetchAllUsers = async () => {
+    try {
+      const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+        params: {
+          role: "company",
+          page: 1,
+          limit: 10000,
+          filter,
+          company_id: "",
+        },
+      });
+      return response?.data?.users || [];
+    } catch (error) {
+      console.error("Error fetching all Company data for export:", error);
+      toast.error("Failed to fetch Company data.");
+      return [];
+    }
+  };
 
+  const handleExport = async () => {
+    setIsExporting(true);
+    const allUsers = await fetchAllUsers();
+    setIsExporting(false);
+
+    if (!allUsers || allUsers.length === 0) {
+      toast.warning("No Company data to export.");
+      return;
+    }
+
+    const fileName = "Companies_List";
+
+    // Prepare data for export
+    const exportData = allUsers.map(user => ({
+      "Company": user.company_name || '',
+      "userName": `${user.first_name || ''} ${user.last_name || ''}`,
+      "Contact Name": user.contact_name || '',
+      "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+      "Contact Email": user.email || ''
+    }));
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Set column widths dynamically
+    const columnWidths = Object.keys(exportData[0]).map((key) => ({
+      wch: Math.max(
+        key.length,
+        ...exportData.map((row) => String(row[key] || '').length)
+      ) + 2,
+    }));
+    worksheet['!cols'] = columnWidths;
+
+    // Create workbook and add the worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
+
+    // Trigger download
+    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+  };
   return (
     <div className="container-fluid">
       <div className="row">
@@ -42,6 +104,10 @@ const ListOfCompanies = () => {
                     <img src={icon} />
                   </span>
                 </div>
+                <button className="btn btn-primary" onClick={handleExport}
+                  disabled={isExporting}>
+                  {isExporting ? 'Exporting...' : '+ Export Sheet'}
+                </button>
                 <button
                   className="btn btn-primary"
                   onClick={() => nav("add-company")}
