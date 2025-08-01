@@ -80,12 +80,12 @@ const Home = () => {
         setStatusUpdate(false);
         setStatus('')
     };
-    // useEffect(() => {
-    //     // if (activeUserList?.length > 0) {
-    //     //     refetch();
-    //     //     console.log('refetched')
-    //     // }
-    // }, [activeUserList?.length]);
+    useEffect(() => {
+        if (activeUserList?.length > 0) {
+            refetch();
+            console.log('refetched')
+        }
+    }, [activeUserList?.length]);
 
     // active user list pagination
     // const [activePage, setActivePage] = useState(1);
@@ -306,8 +306,8 @@ const Home = () => {
                                                             : ""
                                                     }
                                                 >
-                                                    {moment(row?.updatedAt).format("HH:mm:ss - dd/MM/yyyy")}
-                                                    {/* {format(row.updatedAt, "HH:mm:ss - dd/MM/yyyy")} */}
+                                                    {/* {moment(row?.updatedAt).format("HH:mm:ss - dd/MM/yyyy")} */}
+                                                    {format(row.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </td>
                                                 <td>
                                                     <Link
