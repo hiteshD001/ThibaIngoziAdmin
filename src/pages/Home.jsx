@@ -10,7 +10,9 @@ import { useWebSocket } from "../API Calls/WebSocketContext";
 import nouser from "../assets/images/NoUser.png";
 import CustomPagination from "../common/CustomPagination";
 import { format } from "date-fns";
-
+import apiClient from "../API Calls/APIClient";
+import * as XLSX from 'xlsx';
+import 'jspdf-autotable';
 import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { SOSStatusUpdate } from "../common/ConfirmationPOPup";
@@ -27,6 +29,8 @@ const Home = () => {
     const [status, setStatus] = useState('')
     const [activeUsers, setActiveUsers] = useState([])
     const [selectedId, setSelectedId] = useState("");
+    const [isExportingActive, setIsExportingActive] = useState(false);
+    const [isExportingRecent, setIsExportingRecent] = useState(false);
     const { isConnected, activeUserList } = useWebSocket();
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
@@ -87,6 +91,70 @@ const Home = () => {
         }
     }, [activeUserList?.length]);
 
+    const handleExport = async (type) => {
+        if (type === "active") setIsExportingActive(true);
+        else setIsExportingRecent(true);
+        let dataToExport = [];
+
+        if (type === "active") {
+            dataToExport = activeUserList || [];
+        } else if (type === "recent") {
+            try {
+                const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/recent-sos-locations?page=1&limit=10000`);
+                dataToExport = response?.data?.items || [];
+            } catch (error) {
+                console.error("Error fetching recent SOS data:", error);
+                toast.error("Failed to fetch recent SOS data.");
+            }
+        }
+
+        if (type === "active") setIsExportingActive(false);
+        else setIsExportingRecent(false);
+
+        if (!dataToExport || dataToExport.length === 0) {
+            toast.warning(`No ${type === "active" ? "Active" : "Recent"} SOS data to export.`);
+            return;
+        }
+
+        const fileName = type === "active" ? "Active_SOS" : "Recent_SOS";
+        let exportData = [];
+
+        if (type === 'active') {
+            exportData = dataToExport.map(user => ({
+                "User": `${user?.user_id?.first_name || ''} ${user?.user_id?.last_name || ''}`,
+                "Company": user?.user_id?.company_name || '',
+                "Address": user?.address || '',
+                "Request Reached": user?.req_reach || 0,
+                "Request Accepted": user?.req_accept || 0,
+                "Type": user?.type?.type || '',
+                "Time": moment(user?.createdAt).format('HH:mm:ss') ?? '',
+                // "Status": user?.help_received ?? '',
+            }));
+        } else {
+            exportData = dataToExport.map(user => ({
+                "User": `${user?.user_id?.first_name || ''} ${user?.user_id?.last_name || ''}`,
+                "Company": user?.user_id?.company_name || '',
+                "Address": user?.address || '',
+                "Start Time": user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : '',
+                "End Time": user?.updatedAt ? moment(user.updatedAt).format("HH:mm:ss - dd/MM/yyyy") : '',
+            }));
+        }
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+        const columnWidths = Object.keys(exportData[0]).map(key => ({
+            wch: Math.max(
+                key.length,
+                ...exportData.map(row => String(row[key] || '').length)
+            ) + 2,
+        }));
+
+        worksheet['!cols'] = columnWidths;
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
+        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    };
     // active user list pagination
     // const [activePage, setActivePage] = useState(1);
     // const [activeLimit, setActiveLimit] = useState(10);
@@ -101,7 +169,6 @@ const Home = () => {
     //     const start = (activePage - 1) * activeLimit;
     //     return activeUserList?.slice(start, start + activeLimit) || [];
     // }, [activeUserList, activePage, activeLimit]);
-
     return (
         <div className="container-fluid">
             <Analytics />
@@ -111,6 +178,10 @@ const Home = () => {
                         <div className="tab-heading">
                             {" "}
                             <h3>Active SOS Alerts</h3>{" "}
+                            <button className="btn btn-primary" onClick={() => handleExport("active")}
+                                disabled={isExportingActive}>
+                                {isExportingActive ? 'Exporting...' : '+ Export Sheet'}
+                            </button>
                         </div>
 
                         {isConnected && activeUserList?.length > 0 ? (
@@ -139,20 +210,39 @@ const Home = () => {
                                                 <td>
                                                     <div
                                                         className={
-                                                            !row.user_id?.first_name && !row.user_id?.last_name
+                                                            !row.user_id?.first_name
                                                                 ? "prof nodata"
                                                                 : "prof"
                                                         }
                                                     >
-                                                        <img
-                                                            className="profilepicture"
-                                                            src={
-                                                                row.user_id
-                                                                    ?.selfieImage || row.user_id.fullImage ||
-                                                                nouser
-                                                            }
-                                                        />
-                                                        {row.user_id?.first_name}  {row.user_id?.last_name}
+                                                        {
+                                                            row.user_id?.role === "driver" ? (
+                                                                <Link to={`/home/total-drivers/driver-information/${row.user_id._id}`} className="link">
+                                                                    <img
+                                                                        className="profilepicture"
+                                                                        src={
+                                                                            row.user_id
+                                                                                ?.selfieImage ||
+                                                                            nouser
+                                                                        }
+                                                                    />
+                                                                    {row?.user_id?.first_name || ''} {row?.user_id?.last_name || ''}
+                                                                </Link>) : (
+                                                                <Link to={`/home/total-users/user-information/${row.user_id._id}`} className="link">
+                                                                    <img
+                                                                        className="profilepicture"
+                                                                        src={
+                                                                            row.user_id
+                                                                                ?.selfieImage ||
+                                                                            nouser
+                                                                        }
+                                                                    />
+                                                                    {row?.user_id?.first_name || ''} {row?.user_id?.last_name || ''}
+                                                                </Link>
+                                                            )
+
+                                                        }
+
                                                     </div>
                                                 </td>
 
@@ -228,6 +318,10 @@ const Home = () => {
                     <div className="theme-table">
                         <div className="tab-heading">
                             <h3>Recently Closed SOS Alerts</h3>
+                            <button className="btn btn-primary" onClick={() => handleExport("recent")}
+                                disabled={isExportingRecent}>
+                                {isExportingRecent ? 'Exporting...' : '+ Export Sheet'}
+                            </button>
                         </div>
 
                         {isFetching ? (
@@ -255,20 +349,40 @@ const Home = () => {
                                                 <td>
                                                     <div
                                                         className={
-                                                            !row.user_id?.first_name && !row.user_id?.last_name
+                                                            !row.user_id?.first_name
                                                                 ? "prof nodata"
                                                                 : "prof"
                                                         }
                                                     >
-                                                        <img
-                                                            className="profilepicture"
-                                                            src={
-                                                                row.user_id
-                                                                    ?.selfieImage ||
-                                                                nouser
-                                                            }
-                                                        />
-                                                        {row.user_id?.first_name}  {row.user_id?.last_name}
+
+                                                        {
+                                                            row.user_id?.role === "driver" ? (
+                                                                <Link to={`/home/total-drivers/driver-information/${row.user_id._id}`} className="link">
+                                                                    <img
+                                                                        className="profilepicture"
+                                                                        src={
+                                                                            row.user_id
+                                                                                ?.selfieImage ||
+                                                                            nouser
+                                                                        }
+                                                                    />
+                                                                    {row?.user_id?.first_name || ''} {row?.user_id?.last_name || ''}
+                                                                </Link>) : (
+                                                                <Link to={`/home/total-users/user-information/${row.user_id._id}`} className="link">
+                                                                    <img
+                                                                        className="profilepicture"
+                                                                        src={
+                                                                            row.user_id
+                                                                                ?.selfieImage ||
+                                                                            nouser
+                                                                        }
+                                                                    />
+                                                                    {row?.user_id?.first_name || ''} {row?.user_id?.last_name || ''}
+                                                                </Link>
+                                                            )
+
+                                                        }
+
                                                     </div>
                                                 </td>
 
@@ -310,8 +424,9 @@ const Home = () => {
                                                     {format(row.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </td>
                                                 <td>
+
                                                     <Link
-                                                        to={`total-drivers/driver-information/${row.user_id._id}`}
+                                                        to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
                                                         className="tbl-btn"
                                                     >
                                                         view
@@ -336,14 +451,17 @@ const Home = () => {
                     </div>
                 </div>
             </div>
-            {statusUpdate && (
-                <SOSStatusUpdate
-                    handleCancel={handleCancel}
-                    handleUpdate={handleUpdate}
-                />
-            )}
-        </div>
+            {
+                statusUpdate && (
+                    <SOSStatusUpdate
+                        handleCancel={handleCancel}
+                        handleUpdate={handleUpdate}
+                    />
+                )
+            }
+        </div >
     );
 };
 
 export default Home;
+

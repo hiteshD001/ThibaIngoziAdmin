@@ -5,6 +5,9 @@
     font-style: normal;
 }
 .link{
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
     text-decoration: none;
     color: #000000;
 }
@@ -499,6 +502,7 @@ canvas {
 
 .profilepicture {
     width: 30px;
+    height: 30px;
     border-radius: 50%;
     aspect-ratio: 1/1;
 }
@@ -524,7 +528,7 @@ table#example {
 .tab-heading .count {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
 }
 
 .tab-heading h3 {
@@ -616,9 +620,13 @@ table#example {
     justify-content: space-between;
     gap: 10px;
 }
+.tbl-filter .input-group{
+    width: 60%;
+}
 
 .tbl-filter .input-group span,
 .tbl-filter .input-group input {
+    /* width: 80%; */
     background: #f3f3f3;
     box-shadow: none !important;
     outline: none !important;
@@ -629,7 +637,7 @@ table#example {
     border: none;
     background: #2f80ed;
     color: #fff;
-    padding: 8px 10px;
+    padding: 8px 3px;
     border-radius: 8px;
     box-shadow: none !important;
     outline: none !important;

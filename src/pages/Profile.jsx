@@ -6,15 +6,18 @@ import {
   profileValidation_c,
   profileValidation_s,
 } from "../common/FormValidation";
-import { useEffect, useState } from "react";
+import Select from "react-select";
+import { useEffect, useState, useLayoutEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList } from "../API Calls/API";
+import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList, useGetServicesList } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 
 const Profile = () => {
+  const [servicesList, setServicesList] = useState({});
+  const [GrpservicesList, setGrpservicesList] = useState([]);
   const [role] = useState(localStorage.getItem("role"));
   const [edit, setedit] = useState(false);
   const client = useQueryClient();
@@ -38,9 +41,10 @@ const Profile = () => {
       setedit(false);
       const formData = new FormData();
 
-
-      Object.keys(values).forEach(key => {
-        if (key !== 'selfieImage' && key !== 'fullImage') {
+      Object.keys(values).forEach((key) => {
+        if (key === "services" && Array.isArray(values.services)) {
+          values.services.forEach((id) => formData.append("companyService[]", id));
+        } else if (key !== "selfieImage" && key !== "fullImage") {
           formData.append(key, values[key]);
         }
       });
@@ -55,13 +59,15 @@ const Profile = () => {
 
       mutate({ id: localStorage.getItem("userID"), data: formData });
     },
+
   });
 
   const countrylist = useGetCountryList();
   const provincelist = useGetProvinceList(profileForm.values.country);
 
   useEffect(() => {
-    console.log(userinfo.data?.data.user?.selfieImage)
+    console.log(profileForm.values)
+
     profileForm.setValues(
       role === "super_admin"
         ? {
@@ -79,9 +85,15 @@ const Profile = () => {
           mobile_no_country_code: userinfo.data?.data.user?.mobile_no_country_code || "",
         }
         : {
+          isArmed: userinfo.data?.data.user?.isArmed || false,
+          isPaymentToken: userinfo.data?.data.user?.isPaymentToken || false,
+          isEnrollToken: userinfo.data?.data.user?.isEnrollToken || false,
           selfieImage: userinfo.data?.data.user?.selfieImage || "",
           fullImage: userinfo.data?.data.user?.fullImage || "",
           contact_name: userinfo.data?.data.user?.contact_name || "",
+          services: userinfo?.data?.data.user?.services
+            ?.filter(s => s.serviceId?.isService)
+            .map(s => s.serviceId._id) || [],
           email: userinfo.data?.data.user?.email || "",
           street: userinfo.data?.data.user?.street || "",
           province: userinfo.data?.data.user?.province || "",
@@ -95,6 +107,26 @@ const Profile = () => {
         }
     );
   }, [userinfo.data]);
+
+
+  const serviceslist = useGetServicesList()
+  useLayoutEffect(() => {
+    if (Array.isArray(serviceslist)) {
+      const filteredServices = serviceslist.filter(service => service.isService);
+
+      const groupedOptions = [
+        {
+          label: "Services",
+          options: filteredServices.map((service) => ({
+            label: service.type,
+            value: service._id,
+          })),
+        }
+      ];
+
+      setGrpservicesList(groupedOptions ?? [])
+    }
+  }, [serviceslist])
 
   return (
     <div className="container-fluid">
@@ -282,10 +314,104 @@ const Profile = () => {
                   )}
                 </div>
                 {
-                  profileForm.values.role == 'super_admin' ? "" : (
-                    <div className="col-md-6"></div>
+                  profileForm.values.role == 'company' && (
+                    <>
+                      <div className="col-md-6">
+                        <Select
+                          isMulti
+                          name="services"
+                          options={GrpservicesList}
+                          classNamePrefix="select"
+                          placeholder="Select Services"
+                          isDisabled={!edit}
+                          className="edit-company-services"
+                          value={GrpservicesList
+                            .flatMap((group) => group.options)
+                            .filter((option) => profileForm.values.services?.includes(option.value))}
+                          onChange={(selectedOptions) => {
+                            const selectedValues = selectedOptions?.map((option) => option.value) || [];
+                            profileForm.setFieldValue("services", selectedValues);
+                          }}
+                          menuPortalTarget={document.body}
+                          menuPosition="fixed"
+                          styles={{
+                            control: (base, state) => ({
+                              ...base,
+                              border: 'none',
+                              boxShadow: 'none',
+                              height: '100%',
+                              backgroundColor: state.isDisabled ? '#e9ecef' : 'transparent',
+                              cursor: state.isDisabled ? 'not-allowed' : 'default',
+                            }),
+                            valueContainer: (base) => ({
+                              ...base,
+                              flexWrap: 'wrap',
+                              maxHeight: '50px',
+                              overflowY: 'auto',
+                            }),
+                            multiValue: (base, state) => ({
+                              ...base,
+                              margin: '2px',
+                              border: state.isDisabled ? '1px solid black' : 'none',
+                              backgroundColor: state.isDisabled ? 'transparent' : '#e9ecef'
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              zIndex: 9999,
+                            }),
+                          }}
+                        />
+                      </div>
+                      <div className="col-md-6" style={{ display: 'flex', flexDirection: 'row', gap: '15px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: '5px' }}>
+                          <input
+                            type="checkbox"
+                            name="isEnrollToken"
+                            id="isEnrollToken"
+                            disabled={!edit}
+                            className="form-check-input"
+                            checked={profileForm.values.isEnrollToken}
+                            onChange={(e) => profileForm.setFieldValue("isEnrollToken", e.target.checked)}
+                          />
+                          <label className="form-check-label" htmlFor="isEnrollToken">
+                            Pay subscription
+                          </label>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: '5px' }}>
+                          <input
+                            type="checkbox"
+                            name="isArmed"
+                            id="isArmed"
+                            disabled={!edit}
+                            className="form-check-input"
+                            checked={profileForm.values.isArmed}
+                            onChange={(e) => profileForm.setFieldValue("isArmed", e.target.checked)}
+                          />
+                          <label className="form-check-label" htmlFor="isArmed">
+                            Security
+                          </label>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'row', gap: '5px' }}>
+                          <input
+                            type="checkbox"
+                            name="isPaymentToken"
+                            disabled={!edit}
+                            id="isPaymentToken"
+                            className="form-check-input"
+                            checked={profileForm.values.isPaymentToken}
+                            onChange={(e) => profileForm.setFieldValue("isPaymentToken", e.target.checked)}
+                          />
+                          <label className="form-check-label" htmlFor="isPaymentToken">
+                            Is All Sos payment
+                          </label>
+                        </div>
+                      </div>
+                    </>
                   )
                 }
+
+
+
                 <div className="col-md-6">
                   <div className="row">
                     <div className="col-md-6">
@@ -418,6 +544,10 @@ const super_admin = {
   mobile_no_country_code: "",
 };
 const company = {
+  services: [],
+  isEnrollToken: false,
+  isArmed: false,
+  isPaymentToken: false,
   contact_name: "",
   email: "",
   street: "",
