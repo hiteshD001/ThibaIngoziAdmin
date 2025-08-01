@@ -148,7 +148,7 @@ const ListOfCompanies = () => {
                               >
                                 <img
                                   className="profilepicture"
-                                  src={data.profileImage || nouser}
+                                  src={data.selfieImage || nouser}
                                 />
                                 {data.contact_name}
                               </div>

@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import {
     useGetActiveSOS,
@@ -23,6 +23,8 @@ import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
 
 const Home = () => {
+
+    const nav = useNavigate();
     const [statusUpdate, setStatusUpdate] = useState(false);
     const [status, setStatus] = useState('')
     const [activeUsers, setActiveUsers] = useState([])
@@ -82,12 +84,12 @@ const Home = () => {
         setStatusUpdate(false);
         setStatus('')
     };
-    useEffect(() => {
-        if (activeUserList?.length > 0) {
-            refetch();
-            console.log('refetched')
-        }
-    }, [activeUserList?.length]);
+    // useEffect(() => {
+    //     // if (activeUserList?.length > 0) {
+    //     //     refetch();
+    //     //     console.log('refetched')
+    //     // }
+    // }, [activeUserList?.length]);
 
     const handleExport = async (type) => {
         if (type === "active") setIsExportingActive(true);

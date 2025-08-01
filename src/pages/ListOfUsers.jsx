@@ -165,8 +165,8 @@ const ListOfUsers = () => {
                                                                 <img
                                                                     className="profilepicture"
                                                                     src={
-                                                                        user.profileImage
-                                                                            ? user.profileImage
+                                                                        user.selfieImage
+                                                                            ? user.selfieImage
                                                                             : nouser
                                                                     }
                                                                 />
