@@ -29,6 +29,7 @@ import ListOfUsers from "./pages/ListOfUsers";
 import AddUser from "./pages/AddUser";
 import SosInformation from "./pages/SosInformation"
 import ArmedSosDetails from "./pages/SosInformation";
+import Notification from "./pages/Notification";
 import AddService from "./pages/AddService";
 import ListOfMeetingLinkTrips from "./pages/ListOfMeetingLinkTrip";
 import ChangePassword from "./pages/ChangePassword";
@@ -79,6 +80,10 @@ function App() {
                 {
                     path: 'reports',
                     element: <Report />
+                },
+                {
+                    path: 'notification',
+                    element: <Notification />
                 },
                 {
                     path: "change-password",

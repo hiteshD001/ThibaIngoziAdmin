@@ -95,7 +95,9 @@ const Navbar = ({ setActive, isActive }) => {
 
             {/* --- Profile Section --- */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, pr: 2 }}>
-                <img src={notificationIcon} alt="notification" style={{ cursor: 'pointer' }} />
+                <Box onClick={() => nav('/home/notification')}>
+                    <img src={notificationIcon} alt="notification" style={{ cursor: 'pointer' }} />
+                </Box>
 
                 <Divider orientation="vertical" flexItem sx={{ bgcolor: 'grey.300' }} />
 
