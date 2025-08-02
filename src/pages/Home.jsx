@@ -341,6 +341,7 @@ const Home = () => {
                                             <th>User</th>
                                             <th>Company</th>
                                             <th>Last Active Status</th>
+                                            <th>Type</th>
                                             <th>Start Time Stamp</th>
                                             <th>End Time Stamp</th>
                                             <th>&nbsp;</th>
@@ -406,7 +407,7 @@ const Home = () => {
                                                 >
                                                     {row.address}
                                                 </td>
-
+                                                <td>{row.type?.type || "-"}</td>
                                                 <td
                                                     className={
                                                         !row.createdAt
