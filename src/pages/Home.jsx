@@ -35,6 +35,8 @@ const Home = () => {
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(20);
+    const userId = localStorage.getItem("userID");
+    const role = localStorage.getItem("role");
     const { data: recentSos, isFetching, refetch } = useGetRecentSOS({ page, limit });
     const activeSOS = useGetActiveSOS();
     const onSuccess = () => {
@@ -155,6 +157,7 @@ const Home = () => {
         XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
         XLSX.writeFile(workbook, `${fileName}.xlsx`);
     };
+
     // active user list pagination
     // const [activePage, setActivePage] = useState(1);
     // const [activeLimit, setActiveLimit] = useState(10);
@@ -171,7 +174,7 @@ const Home = () => {
     // }, [activeUserList, activePage, activeLimit]);
     return (
         <div className="container-fluid">
-            <Analytics />
+            <Analytics id={role !== "super_admin" ? userId : null} />
             <div className="row">
                 <div className="col-md-12">
                     <div className="theme-table">

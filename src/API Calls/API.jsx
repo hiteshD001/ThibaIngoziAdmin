@@ -495,7 +495,7 @@ export const useGetActiveSOS = () => {
 
 // get chart data
 
-export const useGetChartData = (notificationType) => {
+export const useGetChartData = (company_id, notificationType) => {
     const [chartData, setChartData] = useState(new Array(12).fill(0));
 
     const queryFn = async () => {
@@ -503,20 +503,26 @@ export const useGetChartData = (notificationType) => {
         const startDate = `${currentYear}-01-01`;
         const endDate = `${currentYear}-12-31`;
 
+        const params = {
+            start_date: startDate,
+            end_date: endDate,
+            type: notificationType,
+        };
+
+        if (company_id) {
+            params.company_id = company_id;
+        }
+
         return await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/location/sos-month`,
             {
-                params: {
-                    start_date: startDate,
-                    end_date: endDate,
-                    type: notificationType,
-                },
+                params
             }
         );
     };
 
     const res = useQuery({
-        queryKey: ["chartData", notificationType], // Re-fetch when notificationType changes
+        queryKey: ["chartData", notificationType, company_id], // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
