@@ -23,7 +23,8 @@ const VehicleInformation = () => {
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const client = useQueryClient();
-    const userinfo = useGetUser(localStorage.getItem("userID"));
+    const CompanyId = localStorage.getItem("userID");
+
     const [payPopup, setPopup] = useState('')
 
 
@@ -81,6 +82,7 @@ const VehicleInformation = () => {
         }
 
     });
+
 
     const vehicleForm = useFormik({
         initialValues: {
@@ -809,7 +811,7 @@ const VehicleInformation = () => {
                                     />
                                 </div>
                                 {vehicleForm.values.images &&
-                                    vehicleForm.values.images.length > 0 && (
+                                    vehicleForm?.values?.images?.length > 0 && (
                                         <div className="col-md-12">
                                             <div className="vehiclpic">
                                                 <span className="fw-bold">
@@ -1023,6 +1025,7 @@ const VehicleInformation = () => {
                                 <button
                                     onClick={() => setedit(true)}
                                     className="btn btn-dark"
+                                    disabled={CompanyId !== driverform.values.company_id && role !== 'super_admin'}
                                 >
                                     Edit
                                 </button>

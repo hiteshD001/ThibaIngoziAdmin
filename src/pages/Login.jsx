@@ -35,6 +35,8 @@ export const Login = () => {
         toast.success("Logged In successfully.");
         localStorage.clear();
         localStorage.setItem("accessToken", res.data.accessToken);
+        localStorage.setItem('currentlat', res.data.user.current_lat)
+        localStorage.setItem('currentlong', res.data.user.current_long)
         localStorage.setItem("userID", res.data.user._id);
         localStorage.setItem("role", res.data.user.role);
         nav("/home");
@@ -81,7 +83,7 @@ export const Login = () => {
                                 {/* <div className="forgotpwd text-end">
                                     <a href="#">Forgot Password?</a>
                                 </div> */}
-                                
+
                                 <button disabled={loginfn.isPending} type="submit" className="btn btn-dark d-block">
                                     {loginfn.isPending ? <Loader color="white" /> : "Sign In"}
                                 </button>

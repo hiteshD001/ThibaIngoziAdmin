@@ -459,7 +459,7 @@ export const useGetUser = (userId) => {
 
 // recent driver list
 
-export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
+export const useGetRecentSOS = (page = 1, limit = 20) => {
     const queryFn = async () => {
         return await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations?page=${page}&limit=${limit}`
@@ -467,7 +467,7 @@ export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
     };
 
     const res = useQuery({
-        queryKey: [],
+        queryKey: ['recentSOS', page, limit],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -502,8 +502,9 @@ const formatDate = (date) => {
 
 // get chart data
 
-export const useGetChartData = (notificationType, time) => {
+export const useGetChartData = (company_id, time, notificationType) => {
     const [chartData, setChartData] = useState(new Array(12).fill(0));
+<<<<<<< HEAD
     const currentYear = new Date().getFullYear();
     let startDate = `${currentYear}-01-01`;
     let endDate = `${currentYear}-12-31`;
@@ -539,13 +540,15 @@ export const useGetChartData = (notificationType, time) => {
     //     startDate = `${currentYear}-01-01`;
     //     endDate = `${currentYear}-12-31`;
     // }
+=======
+>>>>>>> 5f0f650cd0a0e6f268b47a8f87195986d6e23dfd
     const queryFn = async () => {
         let params = {
             type: notificationType,
             time
         }
-        if (localStorage.getItem('role') == 'company') {
-            params.company_id =  localStorage.getItem('userID');
+        if (company_id) {
+            params.company_id = localStorage.getItem('userID');
         }
         return await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/location/sos-month`,
@@ -556,7 +559,7 @@ export const useGetChartData = (notificationType, time) => {
     };
 
     const res = useQuery({
-        queryKey: ["chartData", notificationType], // Re-fetch when notificationType changes
+        queryKey: ["chartData", notificationType, company_id], // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -810,11 +813,11 @@ export const useGetActiveSosData = () => {
     };
 
     const res = useQuery({
-            queryKey: ["activeSOS"],
-            queryFn: queryFn,
-            refetchInterval: 10000, // ⏱ Poll every 10 seconds
-            staleTime: 5000,
-            keepPreviousData: true,
+        queryKey: ["activeSOS"],
+        queryFn: queryFn,
+        refetchInterval: 10000, // ⏱ Poll every 10 seconds
+        staleTime: 5000,
+        keepPreviousData: true,
     });
 
     return res;
