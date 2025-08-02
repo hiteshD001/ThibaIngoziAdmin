@@ -13,19 +13,19 @@ import store from './Redux Store/Store.jsx';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css'
-import { WebSocketProvider } from './API Calls/WebSocketContext.jsx';
+// import { WebSocketProvider } from './API Calls/WebSocketContext.jsx';
 
 const client = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>
   <Provider store={store}>
-    <WebSocketProvider>
+    {/* <WebSocketProvider> */}
       <QueryClientProvider client={client}>
         <ToastContainer />
         <App />
       </QueryClientProvider>
-    </WebSocketProvider>
+    {/* </WebSocketProvider> */}
   </Provider>
   // </React.StrictMode>,
 )

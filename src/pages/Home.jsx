@@ -5,8 +5,9 @@ import {
     useGetRecentSOS,
     useGetUser,
     useUpdateLocationStatus,
+    useGetActiveSosData
 } from "../API Calls/API";
-import { useWebSocket } from "../API Calls/WebSocketContext";
+// import { useWebSocket } from "../API Calls/WebSocketContext";
 import nouser from "../assets/images/NoUser.png";
 import CustomPagination from "../common/CustomPagination";
 import { format } from "date-fns";
@@ -31,7 +32,7 @@ const Home = () => {
     const [selectedId, setSelectedId] = useState("");
     const [isExportingActive, setIsExportingActive] = useState(false);
     const [isExportingRecent, setIsExportingRecent] = useState(false);
-    const { isConnected, activeUserList } = useWebSocket();
+    const activeUserList = useGetActiveSosData();
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(20);
@@ -59,9 +60,9 @@ const Home = () => {
     };
 
     useEffect(() => {
-        setActiveUsers([])
+        // setActiveUsers([])
         setActiveUsers(prev => {
-            const combined = [...prev, ...activeUserList || [], ...activeSOS || []];
+            const combined = [...prev, ...activeSOS || []];
             return getUniqueById(combined);
         });
     }, [activeUserList, activeSOS]);
@@ -77,12 +78,14 @@ const Home = () => {
             id: selectedId,
             data: toUpdate,
         });
+        refetch();
         setStatusUpdate(false)
     };
     const handleCancel = () => {
         setSelectedId("");
         setStatusUpdate(false);
-        setStatus('')
+        setStatus('');
+        refetch()
     };
     useEffect(() => {
         if (activeUserList?.length > 0) {
@@ -184,7 +187,7 @@ const Home = () => {
                             </button>
                         </div>
 
-                        {isConnected && activeUserList?.length > 0 ? (
+                        {activeUserList?.length > 0 ? (
                             <>
                                 <table
                                     id="example"
@@ -338,6 +341,7 @@ const Home = () => {
                                             <th>User</th>
                                             <th>Company</th>
                                             <th>Last Active Status</th>
+                                            <th>Type</th>
                                             <th>Start Time Stamp</th>
                                             <th>End Time Stamp</th>
                                             <th>&nbsp;</th>
@@ -403,7 +407,7 @@ const Home = () => {
                                                 >
                                                     {row.address}
                                                 </td>
-
+                                                <td>{row.type?.type || "-"}</td>
                                                 <td
                                                     className={
                                                         !row.createdAt

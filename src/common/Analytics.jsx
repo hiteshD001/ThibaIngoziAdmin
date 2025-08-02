@@ -34,7 +34,7 @@ const Analytics = ({ id }) => {
 
     useEffect(() => {
         if (notificationTypes.data?.data.length > 0 && !selectedNotification) {
-            setSelectedNotification(notificationTypes.data?.data[0]?._id);
+            setSelectedNotification(notificationTypes.data?.data[23]?._id);
         }
     }, [notificationTypes]);
 

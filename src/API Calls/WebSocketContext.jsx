@@ -24,7 +24,7 @@ export const WebSocketProvider = ({ ...props }) => {
                     if (socket.readyState === WebSocket.OPEN) {
                         socket.send(JSON.stringify({ type: "ping" }));
                     }
-                }, 30000);
+                }, 10000);
             };
 
             socket.onclose = () => {
@@ -38,12 +38,16 @@ export const WebSocketProvider = ({ ...props }) => {
 
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                if (data.length === 0) {
+                if (data.length == 0) {
                     setActiveUserList([]);
                 } else if (data.type === "pong") {
-                    console.log("Pong received");
+                    // setActiveUserList(() => [...data]);
+                    // console.log("Pong received");
                 } else {
-                    setActiveUserList(() => [...data]);
+                    if(data.payload && data.payload.length > 0){
+                        setActiveUserList(() => [...data.payload]);
+                    }
+                    setActiveUserList([]);
                 }
             };
         };

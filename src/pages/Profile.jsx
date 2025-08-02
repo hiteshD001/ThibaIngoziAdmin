@@ -323,7 +323,7 @@ const Profile = () => {
                           options={GrpservicesList}
                           classNamePrefix="select"
                           placeholder="Select Services"
-                          isDisabled={!edit}
+                          isDisabled
                           className="edit-company-services"
                           value={GrpservicesList
                             .flatMap((group) => group.options)
@@ -368,7 +368,7 @@ const Profile = () => {
                             type="checkbox"
                             name="isEnrollToken"
                             id="isEnrollToken"
-                            disabled={!edit}
+                            disabled
                             className="form-check-input"
                             checked={profileForm.values.isEnrollToken}
                             onChange={(e) => profileForm.setFieldValue("isEnrollToken", e.target.checked)}
@@ -382,7 +382,7 @@ const Profile = () => {
                             type="checkbox"
                             name="isArmed"
                             id="isArmed"
-                            disabled={!edit}
+                            disabled
                             className="form-check-input"
                             checked={profileForm.values.isArmed}
                             onChange={(e) => profileForm.setFieldValue("isArmed", e.target.checked)}
@@ -395,7 +395,7 @@ const Profile = () => {
                           <input
                             type="checkbox"
                             name="isPaymentToken"
-                            disabled={!edit}
+                            disabled
                             id="isPaymentToken"
                             className="form-check-input"
                             checked={profileForm.values.isPaymentToken}

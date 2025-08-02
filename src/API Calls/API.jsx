@@ -467,7 +467,7 @@ export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
     };
 
     const res = useQuery({
-        queryKey: ["recentSOS", page, limit],
+        queryKey: [],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -761,6 +761,22 @@ export const useUpdateLocationStatus = (onSuccess, onError) => {
 
     return mutation;
 };
+
+export const useGetActiveSosData = () => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/active/sos/data`,
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["data"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res;
+}
 
 export const useGetLocationByLocationId = (locationId) => {
     const queryFn = async () => {
