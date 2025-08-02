@@ -495,7 +495,7 @@ export const useGetActiveSOS = () => {
 
 // get chart data
 
-export const useGetChartData = (company_id, notificationType) => {
+export const useGetChartData = (company_id, time, notificationType) => {
     const [chartData, setChartData] = useState(new Array(12).fill(0));
 
     const queryFn = async () => {
@@ -505,6 +505,7 @@ export const useGetChartData = (company_id, notificationType) => {
 
         const params = {
             start_date: startDate,
+            time,
             end_date: endDate,
             type: notificationType,
         };
@@ -522,22 +523,22 @@ export const useGetChartData = (company_id, notificationType) => {
     };
 
     const res = useQuery({
-        queryKey: ["chartData", notificationType, company_id], // Re-fetch when notificationType changes
+        queryKey: ["chartData", notificationType, company_id, time], // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
 
-    useEffect(() => {
-        if (res.data?.data) {
-            const newData = new Array(12).fill(0);
-            res.data.data.forEach((item) => {
-                newData[item.month - 1] = item.count;
-            });
-            setChartData(newData);
-        }
-    }, [res.data]);
+    // useEffect(() => {
+    //     if (res.data?.data) {
+    //         const newData = new Array(12).fill(0);
+    //         res.data.data.forEach((item) => {
+    //             newData[item.month - 1] = item.count;
+    //         });
+    //         setChartData(newData);
+    //     }
+    // }, [res.data]);
 
-    return chartData;
+    return res.data?.data;
 };
 
 // get hotspot

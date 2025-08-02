@@ -23,7 +23,7 @@ ChartJS.register(
 
 const CustomChart = ({ ...props }) => {
     const data = {
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        labels: props && props.data ? props.data.map(item => item.label) :["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         datasets: [
             {
                 label: "Month",
@@ -40,7 +40,7 @@ const CustomChart = ({ ...props }) => {
                 borderWidth: 4,
                 tension: 0.3,
                 // eslint-disable-next-line react/prop-types
-                data: props.data,
+                data: props && props.data ? props.data.map(item => item.count) : props.data,
             },
             // {
             //     label: "Year",
