@@ -493,23 +493,56 @@ export const useGetActiveSOS = () => {
     return res?.data?.data;
 };
 
+const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
 // get chart data
 
 export const useGetChartData = (notificationType, time) => {
     const [chartData, setChartData] = useState(new Array(12).fill(0));
-    console.log(time)
+    const currentYear = new Date().getFullYear();
+    let startDate = `${currentYear}-01-01`;
+    let endDate = `${currentYear}-12-31`;
+    // if(time == 'today'){
+    //     const month = String(new Date().getMonth() + 1).padStart(2, '0');
+    //     const day = String(new Date().getDate()).padStart(2, '0');
+    //     startDate = `${currentYear}-${month}-${day}`;
+    //     endDate = `${currentYear}-${month}-${day}`;
+    // }
+    // else if(time == 'yesterday') {
+    //     const month = String(new Date().getMonth() + 1).padStart(2, '0');
+    //     const day = String(new Date().getDate() - 1).padStart(2, '0');
+    //     startDate = `${currentYear}-${month}-${day}`;
+    //     endDate = `${currentYear}-${month}-${day}`;
+    // } else if( time == 'this_week') {
+    //     const dayOfWeek = new Date().getDay(); // 0 (Sun) to 6 (Sat)
+
+    //     // Start of the week (Sunday)
+    //     startDate = new Date();
+    //     startDate.setDate(new Date().getDate() - dayOfWeek);
+
+    //     // End of the week (Saturday)
+    //     endDate = new Date();
+    //     endDate.setDate(new Date().getDate() + (6 - dayOfWeek));
+    //     startDate = formatDate(startDate);
+    //     endDate = formatDate(endDate);
+    // } else if(time == 'this_month') {
+    //     const month = String(new Date().getMonth() + 1).padStart(2, '0');
+    //     const day = String(new Date().getDate()).padStart(2, '0');
+    //     startDate = `${currentYear}-${month}-01`;
+    //     endDate = `${currentYear}-${month}-${day}`;
+    // } else {
+    //     startDate = `${currentYear}-01-01`;
+    //     endDate = `${currentYear}-12-31`;
+    // }
     const queryFn = async () => {
-        const currentYear = new Date().getFullYear();
-        let startDate = `${currentYear}-01-01`;
-        let endDate = `${currentYear}-12-31`;
-        // if(time == 'today'){
-        //     startDate = new Date()  ;
-        //     endDate = new Date();
-        // }
         let params = {
-            start_date: startDate,
-            end_date: endDate,
-            type: notificationType
+            type: notificationType,
+            time
         }
         if (localStorage.getItem('role') == 'company') {
             params.company_id =  localStorage.getItem('userID');

@@ -22,6 +22,7 @@ ChartJS.register(
 );
 
 const CustomChart = ({ ...props }) => {
+    console.log('prop', props)
     const data = {
         labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         datasets: [
