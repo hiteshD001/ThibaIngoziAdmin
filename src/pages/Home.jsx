@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import {
-    useGetActiveSOS,
+    // useGetActiveSOS,
     useGetRecentSOS,
     useGetUser,
     useUpdateLocationStatus,
@@ -32,12 +32,13 @@ const Home = () => {
     const [selectedId, setSelectedId] = useState("");
     const [isExportingActive, setIsExportingActive] = useState(false);
     const [isExportingRecent, setIsExportingRecent] = useState(false);
-    const activeUserList = useGetActiveSosData();
+    let { data: activeData = [] } = useGetActiveSosData();
+    const activeUserList = activeData?.data?.data || [];
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(20);
     const { data: recentSos, isFetching, refetch } = useGetRecentSOS({ page, limit });
-    const activeSOS = useGetActiveSOS();
+    // const activeSOS = useGetActiveSOS();
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
         setStatusUpdate(false);
@@ -58,14 +59,6 @@ const Home = () => {
         });
         return [...map.values()];
     };
-
-    useEffect(() => {
-        // setActiveUsers([])
-        setActiveUsers(prev => {
-            const combined = [...prev, ...activeSOS || []];
-            return getUniqueById(combined);
-        });
-    }, [activeUserList, activeSOS]);
 
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
     const userinfo = useGetUser(localStorage.getItem("userID"));
@@ -88,10 +81,11 @@ const Home = () => {
         refetch()
     };
     useEffect(() => {
-        if (activeUserList?.length > 0) {
-            refetch();
-            console.log('refetched')
-        }
+        console.log('activ', activeUserList)
+        // if (activeUserList?.length > 0) {
+        //     refetch();
+        //     console.log('refetched')
+        // }
     }, [activeUserList?.length]);
 
     const handleExport = async (type) => {
@@ -220,7 +214,7 @@ const Home = () => {
                                                     >
                                                         {
                                                             row.user_id?.role === "driver" ? (
-                                                                <Link to={`/home/total-drivers/driver-information/${row.user_id._id}`} className="link">
+                                                                <Link to={`/home/total-drivers/driver-information/${row.user_id?._id}`} className="link">
                                                                     <img
                                                                         className="profilepicture"
                                                                         src={
@@ -231,7 +225,7 @@ const Home = () => {
                                                                     />
                                                                     {row?.user_id?.first_name || ''} {row?.user_id?.last_name || ''}
                                                                 </Link>) : (
-                                                                <Link to={`/home/total-users/user-information/${row.user_id._id}`} className="link">
+                                                                <Link to={`/home/total-users/user-information/${row.user_id?._id}`} className="link">
                                                                     <img
                                                                         className="profilepicture"
                                                                         src={

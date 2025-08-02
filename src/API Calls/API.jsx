@@ -495,22 +495,29 @@ export const useGetActiveSOS = () => {
 
 // get chart data
 
-export const useGetChartData = (notificationType) => {
+export const useGetChartData = (notificationType, time) => {
     const [chartData, setChartData] = useState(new Array(12).fill(0));
-
+    console.log(time)
     const queryFn = async () => {
         const currentYear = new Date().getFullYear();
-        const startDate = `${currentYear}-01-01`;
-        const endDate = `${currentYear}-12-31`;
-
+        let startDate = `${currentYear}-01-01`;
+        let endDate = `${currentYear}-12-31`;
+        // if(time == 'today'){
+        //     startDate = new Date()  ;
+        //     endDate = new Date();
+        // }
+        let params = {
+            start_date: startDate,
+            end_date: endDate,
+            type: notificationType
+        }
+        if (localStorage.getItem('role') == 'company') {
+            params.company_id =  localStorage.getItem('userID');
+        }
         return await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/location/sos-month`,
             {
-                params: {
-                    start_date: startDate,
-                    end_date: endDate,
-                    type: notificationType,
-                },
+                params,
             }
         );
     };
@@ -770,9 +777,11 @@ export const useGetActiveSosData = () => {
     };
 
     const res = useQuery({
-        queryKey: ["data"],
-        queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
+            queryKey: ["activeSOS"],
+            queryFn: queryFn,
+            refetchInterval: 10000, // ⏱ Poll every 10 seconds
+            staleTime: 5000,
+            keepPreviousData: true,
     });
 
     return res;
