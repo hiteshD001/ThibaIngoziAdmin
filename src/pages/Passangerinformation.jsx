@@ -14,6 +14,7 @@ import PhoneInput from "react-phone-input-2"
 const PassangerInformation = () => {
     const [edit, setEdit] = useState(false)
     const [role] = useState(localStorage.getItem("role"));
+    const CompanyId = localStorage.getItem("userID");
     const params = useParams();
     const client = useQueryClient()
 
@@ -92,7 +93,6 @@ const PassangerInformation = () => {
             setdriverformvalues({ form: emergencyform, data: UserInfo.data?.data?.user })
         }
     }, [UserInfo.data])
-    console.log(driverform.values.company_id?._id)
 
     return (
         <div className="container-fluid">
@@ -556,7 +556,7 @@ const PassangerInformation = () => {
                     <div className="saveform">
                         {edit ?
                             <button type="submit" onClick={() => submithandler(driverform.values)} className="btn btn-dark">Save</button> :
-                            <button onClick={() => setEdit(true)} className="btn btn-dark">Edit</button>}
+                            <button onClick={() => setEdit(true)} disabled={CompanyId !== driverform.values.company_id && role !== 'super_admin'} className="btn btn-dark">Edit</button>}
                     </div>
                 </div>
             </div>

@@ -512,7 +512,7 @@ export const useGetChartData = (notificationType, time) => {
             type: notificationType
         }
         if (localStorage.getItem('role') == 'company') {
-            params.company_id =  localStorage.getItem('userID');
+            params.company_id = localStorage.getItem('userID');
         }
         return await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/location/sos-month`,
@@ -523,7 +523,7 @@ export const useGetChartData = (notificationType, time) => {
     };
 
     const res = useQuery({
-        queryKey: ["chartData", notificationType], // Re-fetch when notificationType changes
+        queryKey: ["chartData", notificationType, company_id], // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -777,11 +777,11 @@ export const useGetActiveSosData = () => {
     };
 
     const res = useQuery({
-            queryKey: ["activeSOS"],
-            queryFn: queryFn,
-            refetchInterval: 10000, // ⏱ Poll every 10 seconds
-            staleTime: 5000,
-            keepPreviousData: true,
+        queryKey: ["activeSOS"],
+        queryFn: queryFn,
+        refetchInterval: 10000, // ⏱ Poll every 10 seconds
+        staleTime: 5000,
+        keepPreviousData: true,
     });
 
     return res;
