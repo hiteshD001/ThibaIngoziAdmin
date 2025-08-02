@@ -541,6 +541,24 @@ export const useGetChartData = (company_id, time, notificationType) => {
     return res.data?.data;
 };
 
+// get active sos 
+
+export const useGetActiveSosData = () => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/active/sos/data`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: [],
+        queryFn: queryFn,
+        refetchInterval: 1000,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res.data?.data?.data;
+}
 // get hotspot
 
 export const useGetHotspot = (type, company_id, notificationType) => {

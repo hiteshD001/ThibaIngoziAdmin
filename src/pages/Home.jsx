@@ -5,6 +5,7 @@ import {
     useGetRecentSOS,
     useGetUser,
     useUpdateLocationStatus,
+    useGetActiveSosData
 } from "../API Calls/API";
 import { useWebSocket } from "../API Calls/WebSocketContext";
 import nouser from "../assets/images/NoUser.png";
@@ -31,13 +32,23 @@ const Home = () => {
     const [selectedId, setSelectedId] = useState("");
     const [isExportingActive, setIsExportingActive] = useState(false);
     const [isExportingRecent, setIsExportingRecent] = useState(false);
-    const { isConnected, activeUserList } = useWebSocket();
+    // const { isConnected, activeUserList } = useWebSocket();
+    const activeCount = localStorage.getItem('activeSosCount');
+    const activedata = useGetActiveSosData();
+    const activeUserList = activedata;
+    console.log('act', activeUserList)
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(20);
     const userId = localStorage.getItem("userID");
     const role = localStorage.getItem("role");
-    const { data: recentSos, isFetching, refetch } = useGetRecentSOS({ page, limit });
+    const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS({ page, limit });
+    if(activeUserList){
+        localStorage.setItem('activeSosCount', activeUserList.length);
+        if(activeCount != activeUserList.length) {
+            refetchRecentSOS();
+        }
+    }
     const activeSOS = useGetActiveSOS();
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
@@ -61,12 +72,12 @@ const Home = () => {
     };
 
     useEffect(() => {
-        setActiveUsers([])
+        // useGetActiveSosData()
         setActiveUsers(prev => {
-            const combined = [...prev, ...activeUserList || [], ...activeSOS || []];
+            const combined = [...prev, ...activeSOS || []];
             return getUniqueById(combined);
         });
-    }, [activeUserList, activeSOS]);
+    }, [activeSOS]);
 
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
     const userinfo = useGetUser(localStorage.getItem("userID"));
@@ -88,7 +99,7 @@ const Home = () => {
     };
     useEffect(() => {
         if (activeUserList?.length > 0) {
-            refetch();
+            refetchRecentSOS();
             console.log('refetched')
         }
     }, [activeUserList?.length]);
