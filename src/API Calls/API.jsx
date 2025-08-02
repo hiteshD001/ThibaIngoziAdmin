@@ -459,7 +459,7 @@ export const useGetUser = (userId) => {
 
 // recent driver list
 
-export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
+export const useGetRecentSOS = (page = 1, limit = 20) => {
     const queryFn = async () => {
         return await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations?page=${page}&limit=${limit}`
@@ -467,7 +467,7 @@ export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
     };
 
     const res = useQuery({
-        queryKey: [],
+        queryKey: ['recentSOS', page, limit],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -495,9 +495,8 @@ export const useGetActiveSOS = () => {
 
 // get chart data
 
-export const useGetChartData = (notificationType, time) => {
+export const useGetChartData = (company_id, time, notificationType) => {
     const [chartData, setChartData] = useState(new Array(12).fill(0));
-    console.log(time)
     const queryFn = async () => {
         const currentYear = new Date().getFullYear();
         let startDate = `${currentYear}-01-01`;
@@ -511,7 +510,7 @@ export const useGetChartData = (notificationType, time) => {
             end_date: endDate,
             type: notificationType
         }
-        if (localStorage.getItem('role') == 'company') {
+        if (company_id) {
             params.company_id = localStorage.getItem('userID');
         }
         return await apiClient.get(

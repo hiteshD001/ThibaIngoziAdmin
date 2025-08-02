@@ -39,7 +39,7 @@ const Home = () => {
     const [limit, setLimit] = useState(20);
     const userId = localStorage.getItem("userID");
     const role = localStorage.getItem("role");
-    const { data: recentSos, isFetching, refetch } = useGetRecentSOS({ page, limit });
+    const { data: recentSos, isFetching, refetch } = useGetRecentSOS(page, limit);
     // const activeSOS = useGetActiveSOS();
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
