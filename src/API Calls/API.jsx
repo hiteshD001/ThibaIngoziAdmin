@@ -468,6 +468,7 @@ export const useGetRecentSOS = (page = 1, limit = 20) => {
 
     const res = useQuery({
         queryKey: ['recentSOS', page, limit],
+        refetchInterval: 10000,
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -503,45 +504,7 @@ const formatDate = (date) => {
 // get chart data
 
 export const useGetChartData = (company_id, time, notificationType) => {
-    const [chartData, setChartData] = useState(new Array(12).fill(0));
-<<<<<<< HEAD
-    const currentYear = new Date().getFullYear();
-    let startDate = `${currentYear}-01-01`;
-    let endDate = `${currentYear}-12-31`;
-    // if(time == 'today'){
-    //     const month = String(new Date().getMonth() + 1).padStart(2, '0');
-    //     const day = String(new Date().getDate()).padStart(2, '0');
-    //     startDate = `${currentYear}-${month}-${day}`;
-    //     endDate = `${currentYear}-${month}-${day}`;
-    // }
-    // else if(time == 'yesterday') {
-    //     const month = String(new Date().getMonth() + 1).padStart(2, '0');
-    //     const day = String(new Date().getDate() - 1).padStart(2, '0');
-    //     startDate = `${currentYear}-${month}-${day}`;
-    //     endDate = `${currentYear}-${month}-${day}`;
-    // } else if( time == 'this_week') {
-    //     const dayOfWeek = new Date().getDay(); // 0 (Sun) to 6 (Sat)
-
-    //     // Start of the week (Sunday)
-    //     startDate = new Date();
-    //     startDate.setDate(new Date().getDate() - dayOfWeek);
-
-    //     // End of the week (Saturday)
-    //     endDate = new Date();
-    //     endDate.setDate(new Date().getDate() + (6 - dayOfWeek));
-    //     startDate = formatDate(startDate);
-    //     endDate = formatDate(endDate);
-    // } else if(time == 'this_month') {
-    //     const month = String(new Date().getMonth() + 1).padStart(2, '0');
-    //     const day = String(new Date().getDate()).padStart(2, '0');
-    //     startDate = `${currentYear}-${month}-01`;
-    //     endDate = `${currentYear}-${month}-${day}`;
-    // } else {
-    //     startDate = `${currentYear}-01-01`;
-    //     endDate = `${currentYear}-12-31`;
-    // }
-=======
->>>>>>> 5f0f650cd0a0e6f268b47a8f87195986d6e23dfd
+    // const [chartData, setChartData] = useState(new Array(12).fill(0));
     const queryFn = async () => {
         let params = {
             type: notificationType,
@@ -559,22 +522,22 @@ export const useGetChartData = (company_id, time, notificationType) => {
     };
 
     const res = useQuery({
-        queryKey: ["chartData", notificationType, company_id], // Re-fetch when notificationType changes
+        queryKey: ["chartData", notificationType, company_id, time], // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
 
-    useEffect(() => {
-        if (res.data?.data) {
-            const newData = new Array(12).fill(0);
-            res.data.data.forEach((item) => {
-                newData[item.month - 1] = item.count;
-            });
-            setChartData(newData);
-        }
-    }, [res.data]);
+    // useEffect(() => {
+    //     // if (res.data?.data) {
+    //     //     const newData = new Array(12).fill(0);
+    //     //     res.data.data.forEach((item) => {
+    //     //         newData[item.month - 1] = item.count;
+    //     //     });
+    //     //     setChartData(newData);
+    //     // }
+    // }, [res.data.data]);
 
-    return chartData;
+    return res.data?.data;
 };
 
 // get hotspot

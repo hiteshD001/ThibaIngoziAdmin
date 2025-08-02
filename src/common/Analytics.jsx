@@ -22,7 +22,8 @@ const Analytics = ({ id }) => {
     const driverList = useGetUserList("driver list", "driver", id);
     const companyList = useGetUserList("company list", "company");
     const hotspot = useGetHotspot(time, id, selectedNotification);
-    const chartData = useGetChartData(selectedNotification, time);
+    const chartData = useGetChartData(id, time, selectedNotification);
+    // console.log(chartData)
     const handleTimeChange = (e) => {
         settime(e.target.value);
     };
