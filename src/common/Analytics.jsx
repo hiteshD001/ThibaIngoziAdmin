@@ -22,7 +22,7 @@ import {
 import filter from '../assets/images/filter.svg'
 import CustomDateRangePicker from "./CustomDateRangePicker";
 import calender from '../assets/images/calender.svg';
-import exportdiv from '../assets/images/exportdiv.svg';
+import CustomExportMenu from "./CustomExport";
 import Loader from "./Loader";
 import div from '../assets/images/div.svg'
 import div2 from '../assets/images/div2.svg'
@@ -30,6 +30,7 @@ import div3 from '../assets/images/div3.svg'
 import { FaLocationDot } from "react-icons/fa6";
 import CustomChart from "./CustomChart";
 import { useNavigate } from "react-router-dom";
+import CustomFilter from "../common/CustomFilter";
 
 const Analytics = ({ id }) => {
     const [time, settime] = useState("today");
@@ -115,11 +116,13 @@ const Analytics = ({ id }) => {
         setOpen(false);
     };
 
-
+    const handleFilterApply = (filters) => {
+        console.log('Filters applied:', filters);
+    };
     return (
         <Box>
             <Grid sx={{ backgroundColor: 'white', p: 3, mt: '-25px' }} container justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
-                <Grid size={{ xs: 12, md: 6 }}>
+                <Grid size={{ xs: 12, md: 5, lg: 6 }}>
                     <Typography variant="h5" fontWeight={550}>
                         Dashboard Overview
                     </Typography>
@@ -128,13 +131,10 @@ const Analytics = ({ id }) => {
                     </Typography>
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 6 }}>
+                <Grid size={{ xs: 12, md: 7, lg: 6 }}>
                     <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
                         <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
-                            <Button variant="outlined" sx={{ color: 'var(--font-gray)', border: '1px solid var(--light-gray)', gap: 1 }}>
-                                <img src={filter} alt="filter" />
-                                Filter
-                            </Button>
+                            <CustomFilter onApply={handleFilterApply} />
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
@@ -142,15 +142,7 @@ const Analytics = ({ id }) => {
                                 icon={calender}
                             />
 
-                            <Button
-                                sx={{ height: '40px', width: '140px', borderRadius: '8px', border: '1px solid var(--light-gray)', backgroundColor: '#F3F4F6' }}
-                                variant="outlined"
-                                startIcon={<img src={exportdiv} alt="export" />}
-                                size="small"
-                                onClick={() => setOpen(true)}
-                            >
-                                Export
-                            </Button>
+                            <CustomExportMenu />
                         </Box>
                     </Box>
                 </Grid>

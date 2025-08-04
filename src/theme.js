@@ -5,6 +5,13 @@ const theme = createTheme({
         fontFamily: '"Montserrat", "sans-serif"',
     },
     components: {
+        MuiButton: {
+            styleOverrides: {
+                root: {
+                    textTransform: 'none',
+                },
+            },
+        },
         MuiInputLabel: {
             styleOverrides: {
                 root: {
@@ -17,6 +24,39 @@ const theme = createTheme({
             styleOverrides: {
                 root: {
                     fontFamily: '"Montserrat", "sans-serif"',
+                },
+            },
+        },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'var(--icon-gray)',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'var(--icon-gray)',
+                    },
+                },
+                notchedOutline: {
+                    borderColor: 'var(--icon-gray)',
+                },
+            },
+        },
+        MuiSelect: {
+            styleOverrides: {
+                select: {
+                    '&:focus': {
+                        backgroundColor: 'transparent',
+                    },
+                },
+            },
+        },
+        MuiInputLabel: {
+            styleOverrides: {
+                root: {
+                    '&.Mui-focused': {
+                        color: '#000000', // black color on focus
+                    },
                 },
             },
         },
