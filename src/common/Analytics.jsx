@@ -15,12 +15,14 @@ const Analytics = ({ id }) => {
     const [timeTitle, settimeTitle] = useState("Today");
     const [activeUser, setactiveUser] = useState(0);
     const notificationTypes = useGetNotificationType();
-    const [selectedNotification, setSelectedNotification] = useState("");
+    const [selectedNotification, setSelectedNotification] = useState("all");
 
     const nav = useNavigate();
 
     const driverList = useGetUserList("driver list", "driver", id);
     const companyList = useGetUserList("company list", "company");
+
+
     const hotspot = useGetHotspot(time, id, selectedNotification);
     const chartData = useGetChartData(id, time, selectedNotification);
 
@@ -153,7 +155,7 @@ const Analytics = ({ id }) => {
                     value={selectedNotification}
                     onChange={handleNotificationChange}
                 >
-                    <option value="">Select Notification Type</option>
+                    <option value="all">All</option>
                     {notificationTypes.data?.data?.map((type, index) => (
                         <option key={index} value={type._id}>
                             {type.type}

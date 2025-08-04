@@ -507,9 +507,11 @@ export const useGetChartData = (company_id, time, notificationType) => {
             start_date: startDate,
             time,
             end_date: endDate,
-            type: notificationType,
         };
 
+        if (notificationType) {
+            params.type = notificationType === "all" ? "" : notificationType;
+        }
         if (company_id) {
             params.company_id = company_id;
         }
@@ -567,7 +569,7 @@ export const useGetHotspot = (type, company_id, notificationType) => {
         params.type = type;
     }
     if (notificationType) {
-        params.notificationType = notificationType;
+        params.notificationType = notificationType === "all" ? "" : notificationType;
     }
     if (company_id) {
         params.company_id = company_id;
