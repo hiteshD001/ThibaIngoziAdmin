@@ -33,6 +33,8 @@ import Notification from "./pages/Notification";
 import AddService from "./pages/AddService";
 import ListOfMeetingLinkTrips from "./pages/ListOfMeetingLinkTrip";
 import ChangePassword from "./pages/ChangePassword";
+import CompanyInformation from "./pages/CompanyInformation";
+import NotificationDetail from "./pages/NotificationDetail";
 
 import GoogleMaps from "./common/GoogleMaps";
 
@@ -86,6 +88,10 @@ function App() {
                     element: <Notification />
                 },
                 {
+                    path: 'notification/:id',
+                    element: <NotificationDetail />
+                },
+                {
                     path: "change-password",
                     element: <ChangePassword />
                 },
@@ -103,6 +109,10 @@ function App() {
                         {
                             path: "add-company",
                             element: <RouteGuard><AddCompany /></RouteGuard>
+                        },
+                        {
+                            path: "company-information/:id",
+                            element: <RouteGuard><CompanyInformation isMapLoaded={isLoaded} /></RouteGuard>
                         }
                     ]
                 },

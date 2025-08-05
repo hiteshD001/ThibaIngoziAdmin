@@ -65,9 +65,11 @@ const Navbar = ({ setActive, isActive }) => {
             {/* --- DYNAMIC BREADCRUMB / TITLE --- */}
             <div className="d-flex align-items-center breadcrumb">
                 {isSubMenu ? (
-                    <IconButton onClick={() => nav(-1)} className="me-2">
-                        <IoArrowBack size={24} />
-                    </IconButton>
+                    <>
+                        <IconButton onClick={() => nav(-1)} className="me-2">
+                            <IoArrowBack size={24} />
+                        </IconButton>
+                    </>
                 ) : (
                     <button className="btn d-lg-none me-3" onClick={() => setActive(true)}>
                         <IoIosMenu size={24} />

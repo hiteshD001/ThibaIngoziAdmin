@@ -17,6 +17,10 @@ import exportdiv from '../assets/images/exportdiv.svg';
 import Loader from "../common/Loader";
 import CustomFilter from "../common/CustomFilter";
 import CustomExportMenu from "../common/CustomExport";
+import { useNavigate } from "react-router-dom";
+
+
+
 
 
 const notificationsObj = {
@@ -81,6 +85,7 @@ const Notification = () => {
         if (filterType === 'all') return true;
         return incident.tag === filterType;
     });
+    const navigate = useNavigate();
     const [range, setRange] = useState([
         {
             startDate: new Date(),
@@ -283,7 +288,7 @@ const Notification = () => {
                                             variant="outlined"
                                             size="small"
                                             sx={{ mt: 2, borderRadius: '6px', border: 'none' }}
-                                            onClick={() => console.log("View", incident.id)}
+                                            onClick={() => navigate(`/home/notification/${incident.id}`)}
                                         >
                                             View
                                         </Button>

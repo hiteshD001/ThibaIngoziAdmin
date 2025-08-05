@@ -135,15 +135,15 @@ const ListOfCompanies = () => {
                           flexDirection: 'row',
                         }}>
                           <IconButton onClick={() =>
-                            nav(`/home/total-drivers/${user._id}`)
+                            nav(`/home/total-companies/company-information/${user?._id}`)
                           }>
                             <img src={ViewBtn} alt="view button" />
                           </IconButton>
-                          <IconButton onClick={() => setconfirmation(user._id)}>
+                          <IconButton onClick={() => setconfirmation(user?._id)}>
                             <img src={delBtn} alt="delete button" />
                           </IconButton>
-                          {confirmation === user._id && (
-                            <DeleteConfirm id={user._id} setconfirmation={setconfirmation} />
+                          {confirmation === user?._id && (
+                            <DeleteConfirm id={user?._id} setconfirmation={setconfirmation} />
                           )}
                         </Box>
 

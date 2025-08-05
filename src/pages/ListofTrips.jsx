@@ -86,10 +86,10 @@ const ListOfTrips = () => {
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "#fdfdfd", padding: 2, borderRadius: "10px" }}>
         <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-          <Grid size={{ xs: 12, md: 4 }} >
+          <Grid size={{ xs: 12, md: 3, lg: 4 }} >
             <Typography variant="h6" fontWeight={590}>List of Trips</Typography>
           </Grid>
-          <Grid size={{ xs: 12, md: 8 }} sx={{ display: "flex", justifyContent: "flex-end", gap: 2, flexDirection: { xs: "column", sm: "row" } }}>
+          <Grid size={{ xs: 12, md: 9, lg: 8 }} sx={{ display: "flex", justifyContent: "flex-end", gap: 2, flexDirection: { xs: "column", sm: "row" } }}>
 
             <TextField
               variant="outlined"

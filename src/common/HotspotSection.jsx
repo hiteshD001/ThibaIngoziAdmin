@@ -25,19 +25,12 @@ import HotspotMap from './HotspotMap';
 
 function HotspotSection({ isMapLoaded }) {
     const nav = useNavigate();
-
-    // State for selected notification type (assuming it's a string ID)
     const [selectedNotification, setSelectedNotification] = useState("");
+    const [time, setTime] = useState(new Date().toISOString());
+    const [id, setId] = useState("someUserId");
 
-    // State for time and id (assuming these are props or derived elsewhere, for now using placeholders)
-    // You might need to pass these as props to the HotspotSection component from its parent.
-    const [time, setTime] = useState(new Date().toISOString()); // Example: current time
-    const [id, setId] = useState("someUserId"); // Example: a user ID
-
-    // Fetch notification types
     const notificationTypes = useGetNotificationType();
 
-    // Fetch hotspot data based on time, id, and selected notification type
     const hotspot = useGetHotspot(time, id, selectedNotification);
 
     const handleNotificationChange = (event) => {

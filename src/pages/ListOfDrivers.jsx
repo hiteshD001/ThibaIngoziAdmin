@@ -550,9 +550,9 @@ const ListOfDrivers = () => {
                             )}
                         </Box>
                     </Paper>
-                    <Grid container gap={4} >
+                    <Grid container gap={{ xs: 0, lg: 4 }} >
                         {/* Company Services */}
-                        <Grid size={{ xs: 12, md: 7.6 }}>
+                        <Grid size={{ xs: 12, md: 12, lg: 7.5 }}>
                             <Paper
                                 elevation={3}
                                 sx={{ backgroundColor: "rgb(253, 253, 253)", p: 3, borderRadius: "10px", mb: 2 }}
@@ -601,7 +601,7 @@ const ListOfDrivers = () => {
                             </Paper>
                         </Grid>
                         {/* Payout Section */}
-                        <Grid size={{ xs: 12, md: 4 }} >
+                        <Grid size={{ xs: 12, md: 12, lg: 4 }} >
                             <Paper
                                 elevation={3}
                                 sx={{ backgroundColor: "rgb(253, 253, 253)", px: 3, py: 4.8, borderRadius: "10px", mb: 2 }}
@@ -613,7 +613,7 @@ const ListOfDrivers = () => {
                                     </Typography>
 
                                     <Grid container spacing={2}>
-                                        <Grid size={12}>
+                                        <Grid size={{ xs: 6, lg: 12 }}>
                                             <Box
                                                 sx={{
                                                     p: 2,
@@ -624,7 +624,7 @@ const ListOfDrivers = () => {
                                                     justifyContent: "space-between",
                                                 }}
                                             >
-                                                <Box>
+                                                <Box sx={{ pb: { xs: 1, lg: 0 } }}>
                                                     <Typography variant="body2" fontWeight={550} color="text.secondary">
                                                         Total Company Amount:
                                                     </Typography>
@@ -643,7 +643,7 @@ const ListOfDrivers = () => {
                                             {renderPopup()}
                                         </Grid>
 
-                                        <Grid size={12}>
+                                        <Grid size={{ xs: 6, lg: 12 }}>
                                             <Box
                                                 sx={{
                                                     p: 2,

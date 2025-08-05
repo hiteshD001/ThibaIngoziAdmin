@@ -26,7 +26,9 @@ export const superadmin_menulist = [
         name: "Total Companies",
         path: "/home/total-companies",
         image: Company,
-        add: "Add Company"
+        add: "Add Company",
+        // info: "Company Information",
+        company: "Company Information"
     },
     {
         id: "total-drivers",
