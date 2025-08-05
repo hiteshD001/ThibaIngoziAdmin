@@ -1100,7 +1100,7 @@ const VehicleInformation = () => {
                             <div className="tab-heading">
                                 <h3>Driver Payout</h3>
                             </div>
-                            <h4 className="payout-amount">Amount: ₹{driverform.data?.data.totalDriverAmount || 0}</h4>
+                            <h4 className="payout-amount">Amount: {driverform.data?.data.totalDriverAmount || 0}</h4>
                         </div>
                         <button
                             className="btn btn-primary"
