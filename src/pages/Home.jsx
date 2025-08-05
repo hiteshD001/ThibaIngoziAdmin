@@ -43,12 +43,14 @@ const Home = () => {
     const userId = localStorage.getItem("userID");
     const role = localStorage.getItem("role");
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS({ page, limit });
-    if(activeUserList){
-        localStorage.setItem('activeSosCount', activeUserList.length);
-        if(activeCount != activeUserList.length) {
-            refetchRecentSOS();
-        }
-    }
+
+    // if (activeUserList) {
+    //     localStorage.setItem('activeSosCount', activeUserList.length);
+    //     if (activeCount != activeUserList.length) {
+    //         refetchRecentSOS();
+
+    //     }
+    // }
     const activeSOS = useGetActiveSOS();
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
@@ -98,8 +100,10 @@ const Home = () => {
         setStatus('')
     };
     useEffect(() => {
-        if (activeUserList?.length > 0) {
+        if (activeUserList) {
             refetchRecentSOS();
+            queryClient.invalidateQueries(['chartData'], { exact: false });
+            queryClient.invalidateQueries(['hotspot'], { exact: false });
             console.log('refetched')
         }
     }, [activeUserList?.length]);
