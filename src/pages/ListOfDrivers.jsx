@@ -731,7 +731,7 @@ const ListOfDrivers = () => {
                         />
 
                         <Box display="flex" gap={1} sx={{ justifyContent: { xs: "space-between" } }}>
-                            <Button variant="outlined" startIcon={<img src={plus} alt="plus icon" />} sx={{ height: '40px', width: '160px', fontSize: '0.8rem', borderRadius: '8px' }} onClick={() => setpopup(true)}>
+                            <Button variant="outlined" startIcon={<img src={plus} alt="plus icon" />} sx={{ height: '40px', width: '160px', fontSize: '0.8rem', borderRadius: '8px', border: '1px solid var(--Blue)' }} onClick={() => setpopup(true)}>
                                 Import Sheet
                             </Button>
                             <Button variant="contained" onClick={handleAddDriver} sx={{ height: '40px', fontSize: '0.8rem', width: '150px', borderRadius: '8px' }}

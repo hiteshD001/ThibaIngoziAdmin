@@ -7,9 +7,14 @@ import {
     FormControl,
     InputLabel,
     Button,
-    Menu, Stack, IconButton
+    Menu, Stack, IconButton, FormGroup, FormControlLabel, Checkbox
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import checkboxIcon2 from '../assets/images/checkboxIcon2.svg'
+import csvIcon from '../assets/images/csvIcon.svg'
+import pdfIcon from '../assets/images/pdfIcon.svg'
+import excelIcon from '../assets/images/excelIcon.svg'
+import UncheckedIcon2 from '../assets/images/UncheckedIcon2.svg'
 import CustomDateRangePicker from '../common/CustomDateRangePicker';
 import calender from '../assets/images/calender.svg';
 import exportdiv from '../assets/images/exportdiv.svg';
@@ -77,19 +82,19 @@ const CustomExportMenu = () => {
                 <Stack spacing={2}>
                     <Box
                         sx={{
-                            display: 'flex', // Use flexbox to align title and icon
-                            justifyContent: 'space-between', // Push title to left, icon to right
-                            alignItems: 'center', // Vertically align them
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
                             borderBottom: '1px solid var(--light-gray)',
-                            pb: 1, // Add some padding-bottom for the border to appear below the text
-                            mb: 1, // Add margin-bottom to create space from the next element in the stack,
+                            pb: 1,
+                            mb: 1,
                             p: 1
                         }}
                     >
                         <Typography variant="h6" fontWeight="550" sx={{ px: 2 }}>
-                            Export SOS Report
+                            Export
                         </Typography>
-                        <IconButton onClick={handleClose} size="small"> {/* Add the close icon button */}
+                        <IconButton onClick={handleClose} size="small">
                             <CloseIcon />
                         </IconButton>
                     </Box>
@@ -108,6 +113,11 @@ const CustomExportMenu = () => {
                             <Select
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
+                                sx={{
+                                    '& fieldset': {
+                                        border: '1px solid var(--light-gray)',
+                                    },
+                                }}
                             >
                                 <MenuItem value="select">Select Location</MenuItem>
                                 <MenuItem value="North">North West</MenuItem>
@@ -121,6 +131,11 @@ const CustomExportMenu = () => {
                             <Select
                                 value={category}
                                 onChange={(e) => setCategory(e.target.value)}
+                                sx={{
+                                    '& fieldset': {
+                                        border: '1px solid var(--light-gray)',
+                                    },
+                                }}
                             >
                                 <MenuItem value="select">Select Category</MenuItem>
                                 <MenuItem value="Accident">Accident</MenuItem>
@@ -130,14 +145,111 @@ const CustomExportMenu = () => {
                         </FormControl>
 
                         <FormControl fullWidth size="small">
-                            <label style={{ marginBottom: 5 }}>Export Format</label>
-                            <Select
-                                value={format}
-                                onChange={(e) => setFormat(e.target.value)}
-                            >
-                                <MenuItem value="pdf">PDF</MenuItem>
-                                <MenuItem value="csv">CSV</MenuItem>
-                            </Select>
+                            <FormGroup>
+                                <label style={{ marginBottom: 5 }}>Export Format</label>
+
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: 1,
+                                        mt: 1,
+                                        // ml: 1.5
+                                    }}
+                                >
+                                    <FormControlLabel
+                                        sx={{
+                                            backgroundColor: "#F9FAFB",
+                                            border: '1px solid #E5E7EB',
+                                            borderRadius: "8px",
+                                            px: 2,
+                                            py: 1,
+                                            mr: 0,
+                                            ml: 0
+                                        }}
+                                        control={
+                                            <Checkbox
+                                                checked={format === "xlsx"}
+                                                onChange={() => setFormat("xlsx")}
+                                                icon={<img src={UncheckedIcon2} alt='uncheckedIcon' />}
+                                                checkedIcon={<img src={checkboxIcon2} alt='checkIcon' />}
+                                                sx={{
+                                                    '& .MuiSvgIcon-root': {
+                                                        borderRadius: '50%',
+                                                    },
+                                                }}
+                                            />
+                                        }
+                                        label={
+                                            <Box display="flex" alignItems="center" gap={1}>
+                                                <img src={excelIcon} alt="excel Icon" style={{ width: 20, height: 20 }} />
+                                                <Typography fontWeight={500}>Excel (.xlsx)</Typography>
+                                            </Box>
+                                        }
+                                    />
+                                    <FormControlLabel
+                                        sx={{
+                                            backgroundColor: "#F9FAFB",
+                                            border: '1px solid #E5E7EB',
+                                            borderRadius: "8px",
+                                            px: 2,
+                                            py: 1,
+                                            mr: 0,
+                                            ml: 0
+                                        }}
+                                        control={
+                                            <Checkbox
+                                                checked={format === "pdf"}
+                                                onChange={() => setFormat("pdf")}
+                                                icon={<img src={UncheckedIcon2} alt='uncheckedIcon' />}
+                                                checkedIcon={<img src={checkboxIcon2} alt='checkIcon' />}
+                                                sx={{
+                                                    '& .MuiSvgIcon-root': {
+                                                        borderRadius: '50%',
+                                                    },
+                                                }}
+                                            />
+                                        }
+                                        label={
+                                            <Box display="flex" alignItems="center" gap={1}>
+                                                <img src={pdfIcon} alt="pdf Icon" style={{ width: 20, height: 20 }} />
+                                                <Typography fontWeight={500}>PDF (.pdf)</Typography>
+                                            </Box>
+                                        }
+                                    />
+
+                                    <FormControlLabel
+                                        sx={{
+                                            backgroundColor: "#F9FAFB",
+                                            border: '1px solid #E5E7EB',
+                                            borderRadius: "8px",
+                                            px: 2,
+                                            py: 1,
+                                            mr: 0,
+                                            ml: 0
+                                        }}
+                                        control={
+                                            <Checkbox
+                                                checked={format === "csv"}
+                                                onChange={() => setFormat("csv")}
+                                                icon={<img src={UncheckedIcon2} alt='uncheckedIcon' />}
+                                                checkedIcon={<img src={checkboxIcon2} alt='checkIcon' />}
+                                                sx={{
+                                                    '& .MuiSvgIcon-root': {
+                                                        borderRadius: '50%',
+                                                    },
+                                                }}
+                                            />
+                                        }
+                                        label={
+                                            <Box display="flex" alignItems="center" gap={1}>
+                                                <img src={csvIcon} alt="CSV Icon" style={{ width: 20, height: 20 }} />
+                                                <Typography fontWeight={500}>CSV (.csv)</Typography>
+                                            </Box>
+                                        }
+                                    />
+                                </Box>
+                            </FormGroup>
                         </FormControl>
                         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: { xs: 'center', md: 'flex-end', gap: '10px' } }}>
                             <Button

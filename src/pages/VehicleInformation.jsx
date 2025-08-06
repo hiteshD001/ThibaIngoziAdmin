@@ -320,7 +320,7 @@ const VehicleInformation = () => {
                             ) : displayField("Last Name", driverform.values.last_name)}
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
-                            {role === "super_admin" && (
+                            {
                                 editInfo ? (
                                     <CustomSelect
                                         label="Company Name"
@@ -329,20 +329,21 @@ const VehicleInformation = () => {
                                         onChange={e => {
                                             const selectedId = e.target.value;
                                             const selectedCompany = companyList.data?.data.users.find(
-                                                (user) => user._id === selectedId
+                                                (user) => user?._id === selectedId
                                             );
-                                            driverform.setFieldValue("company_id", selectedId);
+                                            driverform.setFieldValue("company_id", selectedCompany?._id || null);
                                             driverform.setFieldValue("company_name", selectedCompany?.company_name || "");
                                         }}
                                         options={companyList?.data?.data?.users?.map(user => ({
-                                            value: user._id,
-                                            label: user.company_name
+                                            value: user?._id,
+                                            label: user?.company_name
                                         })) || []}
                                         error={driverform.errors.company_id}
+                                        disabled={role !== "super_admin" || !editInfo}
 
                                     />
                                 ) : displayField("Company Name", driverform.values.company_name)
-                            )}
+                            }
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
                             {editInfo ? (
@@ -1363,6 +1364,8 @@ const setdriverformvalues = ({ ...props }) => {
                     (_, i) => data?.[`image_${i + 1}`] || null
                 ).filter(Boolean),
             };
+        } else if (key === 'company_id') {
+            newdata = { ...newdata, [key]: data?.company_id?._id ?? '' };
         } else {
             newdata = { ...newdata, [key]: data?.[key] ?? "" };
         }

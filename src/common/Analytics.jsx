@@ -37,7 +37,7 @@ const Analytics = ({ id }) => {
     const [timeTitle, settimeTitle] = useState("Today");
     const [activeUser, setactiveUser] = useState(0);
     const notificationTypes = useGetNotificationType();
-    const [selectedNotification, setSelectedNotification] = useState("");
+    const [selectedNotification, setSelectedNotification] = useState("all");
     const [range, setRange] = useState([
         {
             startDate: new Date(),
@@ -52,7 +52,7 @@ const Analytics = ({ id }) => {
     const driverList = useGetUserList("driver list", "driver", id);
     const companyList = useGetUserList("company list", "company");
     const hotspot = useGetHotspot(time, id, selectedNotification);
-    const chartData = useGetChartData(selectedNotification);
+    const chartData = useGetChartData(id, time, selectedNotification);
 
     const handleTimeChange = (e) => {
         settime(e.target.value);
@@ -119,6 +119,7 @@ const Analytics = ({ id }) => {
     const handleFilterApply = (filters) => {
         console.log('Filters applied:', filters);
     };
+    const username = localStorage.getItem("userName")
     return (
         <Box>
             <Grid sx={{ backgroundColor: 'white', p: 3, mt: '-25px' }} container justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
@@ -127,7 +128,7 @@ const Analytics = ({ id }) => {
                         Dashboard Overview
                     </Typography>
                     <Typography variant="body1" mt={1} color="text.secondary">
-                        Welcome back, Mahene Benzane. Here's what's happening today.
+                        Welcome back, {username ?? 'User'}. Here's what's happening today.
                     </Typography>
                 </Grid>
 

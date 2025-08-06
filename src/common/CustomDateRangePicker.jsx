@@ -68,7 +68,49 @@ const CustomDateRangePicker = ({
                         placement="bottom-end"
                         sx={{ zIndex: 10, mt: 1 }}
                     >
-                        <Box sx={{ boxShadow: 3, borderRadius: 2, backgroundColor: 'white' }}>
+                        <Box sx={{ boxShadow: 3, borderRadius: 2, gap: 3, display: 'flex', flexDirection: 'row', backgroundColor: 'white', p: 2 }}>
+                            {/* Quick Select Options */}
+                            <Box display="flex" flexDirection={'column'} justifyContent={'space-between'} flexWrap="wrap" gap={1} mb={2}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                    {[
+                                        { label: "Last Week", days: 7 },
+                                        { label: "Last Month", days: 30 },
+                                        { label: "Last 3 Months", days: 90 },
+                                        { label: "Last 6 Months", days: 180 },
+                                        { label: "Last 12 Months", days: 365 },
+                                    ].map((option) => (
+                                        <Button
+                                            key={option.label}
+                                            // variant="outlined"
+                                            sx={{ color: 'black', justifyContent: 'flex-start' }}
+                                            size="small"
+                                            onClick={() => {
+                                                const end = new Date();
+                                                const start = new Date();
+                                                start.setDate(end.getDate() - option.days);
+                                                onChange([{ startDate: start, endDate: end, key: 'selection' }]);
+                                                setAnchorEl(null); // optional: auto-close
+                                            }}
+                                        >
+                                            {option.label}
+                                        </Button>
+                                    ))}
+                                </Box>
+                                <Button
+                                    variant="text"
+                                    size="small"
+                                    color="error"
+                                    onClick={() => {
+                                        const today = new Date();
+                                        onChange([{ startDate: today, endDate: today, key: 'selection' }]);
+                                        setAnchorEl(null);
+                                    }}
+                                >
+                                    Reset
+                                </Button>
+                            </Box>
+
+                            {/* Calendar Picker */}
                             <DateRange
                                 editableDateInputs
                                 onChange={(item) => onChange([item.selection])}
@@ -78,6 +120,7 @@ const CustomDateRangePicker = ({
                             />
                         </Box>
                     </Popper>
+
                 </Box>
             </ClickAwayListener>
         </Box>

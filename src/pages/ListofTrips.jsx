@@ -22,7 +22,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
 import search from "../assets/images/search.svg";
 import calender from '../assets/images/calender.svg';
-import exportdiv from '../assets/images/exportdiv.svg';
+import CustomExportMenu from "../common/CustomExport";
 import CustomDateRangePicker from '../common/CustomDateRangePicker';
 import ViewBtn from '../assets/images/ViewBtn.svg';
 import delBtn from '../assets/images/delBtn.svg';
@@ -120,16 +120,7 @@ const ListOfTrips = () => {
                 onChange={setRange}
                 icon={calender}
               />
-
-              <Button
-                sx={{ height: '40px', width: '140px', borderRadius: '8px' }}
-                variant="outlined"
-                startIcon={<img src={exportdiv} alt="export" />}
-                size="small"
-                onClick={() => setOpen(true)}
-              >
-                Export
-              </Button>
+              <CustomExportMenu />
             </Box>
           </Grid>
         </Grid>

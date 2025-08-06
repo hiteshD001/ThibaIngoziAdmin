@@ -9,6 +9,11 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import whiteplus from '../assets/images/whiteplus.svg';
 import plus from '../assets/images/plus.svg'
+import CompanyAnalytics from '../assets/images/CompanyAnalytics.svg'
+import CompanyAnalytics2 from '../assets/images/CompanyAnalytics2.svg'
+import CompanyAnalytics3 from '../assets/images/CompanyAnalytics3.svg'
+import CompanyAnalytics4 from '../assets/images/CompanyAnalytics4.svg'
+
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
 import { useFormik } from "formik";
@@ -36,7 +41,7 @@ import {
     useGetRecentSOS,
     useGetNotificationType
 } from "../API Calls/API";
-
+import CustomChart from "../common/CustomChart";
 import PayoutPopup from "../common/Popup";
 import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
@@ -584,7 +589,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                         )}
                     </Box>
                 </Paper>
-                <Grid container gap={{ xs: 0, lg: 4 }} >
+                <Grid container gap={{ xs: 0, lg: 4 }} sx={{ mb: 1 }}>
                     {/* Company Services */}
                     <Grid size={{ xs: 12, md: 12, lg: 7.5 }}>
                         <Paper
@@ -711,6 +716,56 @@ const CompanyInformation = ({ isMapLoaded }) => {
                     </Grid>
                 </Grid>
             </Box>
+
+            {/* chart */}
+            <Grid container gap={4}>
+                <Grid size={{ xs: 12, md: 7.5 }}>
+                    <Paper
+                        elevation={3}
+                        sx={{ backgroundColor: "rgb(253, 253, 253)", p: 2, mb: 3, borderRadius: "10px", minHeight: 400 }}
+                    >
+                        <CustomChart />
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper
+                        elevation={3}
+                        sx={{ backgroundColor: "rgb(253, 253, 253)", p: 2, mb: 3, borderRadius: "10px", minHeight: 400 }}
+                    >
+                        <Typography variant={'body1'} sx={{ mb: 4 }} fontWeight={550}>Real Time Activity</Typography>
+                        <Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+                                <img src={CompanyAnalytics} alt="dash-counter" />
+                                <Box sx={{ flexDirection: 'column', display: 'flex' }}>
+                                    <Typography variant="h6" fontWeight={500}>124</Typography>
+                                    <Typography>Total Active Users</Typography>
+                                </Box>
+                            </Box>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+                                <img src={CompanyAnalytics2} alt="dash-counter2" />
+                                <Box sx={{ flexDirection: 'column', display: 'flex' }}>
+                                    <Typography variant="h6" fontWeight={500}>47</Typography>
+                                    <Typography>User Actuve Today</Typography>
+                                </Box>
+                            </Box>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+                                <img src={CompanyAnalytics3} alt="dash-counter3" />
+                                <Box sx={{ flexDirection: 'column', display: 'flex' }}>
+                                    <Typography variant="h6" fontWeight={500}>88</Typography>
+                                    <Typography>Total Drivers</Typography>
+                                </Box>
+                            </Box>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+                                <img src={CompanyAnalytics4} alt="dash-counter4" />
+                                <Box sx={{ flexDirection: 'column', display: 'flex' }}>
+                                    <Typography variant="h6" fontWeight={500}>124</Typography>
+                                    <Typography>Total Active Drivers</Typography>
+                                </Box>
+                            </Box>
+                        </Box>
+                    </Paper>
+                </Grid>
+            </Grid>
             {/* Active sos List */}
 
             {/* Hotspot section */}

@@ -20,44 +20,39 @@ ChartJS.register(
     Tooltip,
     Legend
 );
+const resolvedData = [15, 22, 30, 18, 25, 25, 30, 28, 22, 28, 20, 26];
+const pendingData = [5, 8, 12, 10, 9, 6, 7, 10, 15, 12, 8, 9];
+
 
 const CustomChart = ({ ...props }) => {
     const data = {
         labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+
         datasets: [
             {
-                label: "Month",
-                borderColor: "#3B82F6",
-                pointBorderColor: "#3B82F6",
-                pointBackgroundColor: "#3B82F6",
-                pointHoverBackgroundColor: "#3B82F6",
-                pointHoverBorderColor: "#3B82F6",
-                pointBorderWidth: 1,
-                pointHoverRadius: 1,
-                pointHoverBorderWidth: 1,
-                pointRadius: 4,
+                label: "Resolved",
+                data: resolvedData,
+                borderColor: "#367BE0",
+                backgroundColor: "#367BE0",
+                pointBorderColor: "#367BE0",
+                pointBackgroundColor: "#367BE0",
                 fill: false,
-                borderWidth: 4,
+                borderWidth: 3,
                 tension: 0,
-                // eslint-disable-next-line react/prop-types
-                data: props.data,
+                pointRadius: 4,
             },
-            // {
-            //     label: "Year",
-            //     borderColor: "#1C1C1C",
-            //     pointBorderColor: "#1C1C1C",
-            //     pointBackgroundColor: "#1C1C1C",
-            //     pointHoverBackgroundColor: "#1C1C1C",
-            //     pointHoverBorderColor: "#1C1C1C",
-            //     pointBorderWidth: 1,
-            //     pointHoverRadius: 1,
-            //     pointHoverBorderWidth: 1,
-            //     pointRadius: 3,
-            //     fill: false,
-            //     borderWidth: 4,
-            //     tension: 0.3,
-            //     data: props.data2
-            // },
+            {
+                label: "Pending",
+                data: pendingData,
+                borderColor: "#F97316",
+                backgroundColor: "#F97316",
+                pointBorderColor: "#F97316",
+                pointBackgroundColor: "#F97316",
+                fill: false,
+                borderWidth: 3,
+                tension: 0,
+                pointRadius: 4,
+            }
         ],
     };
 

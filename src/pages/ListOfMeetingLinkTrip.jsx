@@ -21,6 +21,7 @@ import {
   Popper
 } from "@mui/material";
 import calender from '../assets/images/calender.svg';
+import CustomExportMenu from "../common/CustomExport";
 import exportdiv from '../assets/images/exportdiv.svg';
 import CustomDateRangePicker from '../common/CustomDateRangePicker';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -92,15 +93,7 @@ const ListOfMeetingLinkTrips = () => {
                 icon={calender}
               />
 
-              <Button
-                sx={{ height: '40px', width: '120px', borderRadius: '8px' }}
-                variant="outlined"
-                startIcon={<img src={exportdiv} alt="export" />}
-                size="small"
-                onClick={() => setOpen(true)}
-              >
-                Export
-              </Button>
+              <CustomExportMenu />
             </Box>
           </Grid>
 

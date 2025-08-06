@@ -63,13 +63,13 @@ const CustomPie = () => {
         >
 
             <Grid container alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
-                <Grid>
+                <Grid size={{ xs: 12, sm: 7 }}>
                     <Typography variant="h5" component="h2" fontWeight="medium">
                         Regional Distribution
                     </Typography>
                 </Grid>
-                <Grid>
-                    <FormControl sx={{ minWidth: 150 }} size="small">
+                <Grid size={{ xs: 12, md: 5 }} sx={{ mt: { xs: 2, sm: 0 } }}>
+                    <FormControl sx={{ width: '100%' }} size="small">
                         <InputLabel id="province-select-label">Province</InputLabel>
                         <Select
                             labelId="province-select-label"

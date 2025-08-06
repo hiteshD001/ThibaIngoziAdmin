@@ -195,7 +195,7 @@ const Report = ({ id }) => {
                         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: 5, backgroundColor: '#DBEAFE', borderRadius: '16px', px: 3, py: 5 }}>
                             <Box>
                                 <Typography variant="body1">Top Locations</Typography>
-                                <Typography variant="h5" fontWeight={600}>Cape Town (434)</Typography>
+                                <Typography variant="h5" fontWeight={600}>Cape Town</Typography>
                             </Box>
                             <Box>
                                 <img src={LocationIcon} alt="LocationIcon" />
@@ -227,13 +227,13 @@ const Report = ({ id }) => {
                             }}
                         >
                             <Grid container alignItems="center" justifyContent="space-between" sx={{ mb: 3 }}>
-                                <Grid size={7}>
+                                <Grid size={{ xs: 12, sm: 6 }}>
                                     <Typography variant="h6" component="h2" fontWeight="medium">
                                         SOS Requests Over Time
                                     </Typography>
                                 </Grid>
-                                <Grid size={5}>
-                                    <FormControl size="small" sx={{ maxWidth: 200 }}>
+                                <Grid size={{ xs: 12, sm: 6 }} sx={{ mt: { xs: 2, sm: 0 } }}>
+                                    <FormControl size="small" sx={{ width: '100%' }}>
                                         <InputLabel>All Categories</InputLabel>
                                         <Select
                                             value={selectedNotification}

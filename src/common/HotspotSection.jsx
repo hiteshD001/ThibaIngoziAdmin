@@ -79,7 +79,7 @@ function HotspotSection({ isMapLoaded }) {
                     <Box sx={{ maxHeight: 'calc(100vh - 390px)', overflowY: 'auto' }}>
                         {hotspot.isFetching ? (
                             <CustomLoader />
-                        ) : hotspot?.data?.data.length === 0 ? (
+                        ) : hotspot?.data?.data?.length === 0 ? (
                             <Typography sx={{ mt: 2 }}>No data Found</Typography>
                         ) : (
                             hotspot?.data?.data
