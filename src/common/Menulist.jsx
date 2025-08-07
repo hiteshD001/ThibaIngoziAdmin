@@ -7,6 +7,10 @@ import Trip from '../assets/images/Trip.svg'
 import arrowLeft from "../assets/images/arrow-left.png";
 import ArmedSos from '../assets/images/ArmedSos.svg'
 // import settings from "../assets/images/settings.png";
+import StolenCarIcon from '../assets/images/StolenCarIcon.svg'
+import MissingPersonIcon from '../assets/images/MissingPersonIcon.svg'
+import SuspectIcon from '../assets/images/SuspectIcon.svg'
+
 import profile from "../assets/images/profile.png";
 import Logout from "../assets/images/Logout.svg";
 import Company from "../assets/images/Company.svg";
@@ -92,6 +96,27 @@ export const superadmin_menulist = [
         name: "Reports",
         path: "/home/reports",
         image: Report
+    },
+    {
+        id: "total-missing-person",
+        name: "Missing Persons",
+        path: "/home/total-missing-person",
+        image: MissingPersonIcon,
+        company: "Missing Person Sighting Details"
+    },
+    {
+        id: "total-stolen-cars",
+        name: "Stolen Cars",
+        path: "/home/total-stolen-cars",
+        image: StolenCarIcon,
+        company: "Stolen Car Sighting Details"
+    },
+    {
+        id: "total-suspect",
+        name: "Suspect Sightings",
+        path: "/home/total-suspect",
+        image: SuspectIcon,
+        company: "Suspect Sighting Details"
     },
     {
         id: "logout",

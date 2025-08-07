@@ -11,12 +11,12 @@ import Wanted from '../assets/images/Wanted.svg'
 import CapturedSeen from '../assets/images/CapturedSeen.svg'
 import WantedSeen from '../assets/images/WantedSeen.svg'
 import filterIcon from '../assets/images/filter.svg'
-import CustomDateRangePicker from "../common/CustomDateRangePicker";
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
 import calender from '../assets/images/calender.svg';
 import exportdiv from '../assets/images/exportdiv.svg';
 import Loader from "../common/Loader";
-import CustomFilter from "../common/CustomFilter";
-import CustomExportMenu from "../common/CustomExport";
+import CustomFilter from "../common/Custom/CustomFilter";
+import CustomExportMenu from "../common/Custom/CustomExport";
 import { useNavigate } from "react-router-dom";
 
 

@@ -1,11 +1,16 @@
 import React from 'react';
 import {
-    Paper, Box, Typography, Chip, Button, Grid
+    Paper,
+    Box,
+    Typography,
+    Chip,
+    Grid,
+    Button
 } from '@mui/material';
-import WhiteTick from '../assets/images/WhiteTick.svg'
+import WhiteTick from '../../assets/images/WhiteTick.svg'
 import { AiOutlineEye, AiOutlineCheck } from "react-icons/ai";
 
-const NotificationDetail = () => {
+const StolenCarDetails = () => {
     // Mock data – replace with actual props or API data
     const suspectName = "John Doe";
     const caseNumber = "CASE-2023-0458";
@@ -26,7 +31,7 @@ const NotificationDetail = () => {
                 {/* Title */}
                 <Box pb={1} borderBottom="1px solid #e0e0e0">
                     <Typography variant='h6' fontWeight={550}>
-                        Suspect Sighting Details
+                        Stolen Car Sighting Details
                     </Typography>
                 </Box>
 
@@ -35,9 +40,8 @@ const NotificationDetail = () => {
                     <Typography variant="h5" fontWeight={600}>
                         {suspectName}
                     </Typography>
-
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
-                        <Typography>Case Number:</Typography>
+                        <Typography>Vehicle Registration Number:</Typography>
                         <Chip
                             label={caseNumber}
                             color="primary"
@@ -58,7 +62,7 @@ const NotificationDetail = () => {
                 {/* Subtitle */}
                 <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
                     <Typography variant='subtitle1' fontWeight={550}>
-                        Sighting Detail
+                        Incident Details
                     </Typography>
                 </Box>
 
@@ -150,6 +154,7 @@ const NotificationDetail = () => {
                         sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: '#259157' }}
                         onClick={() => nav("/home/total-companies/add-company")}
                         startIcon={<img src={WhiteTick} alt="white tick" />}
+
                     >
                         Mark as Captured
                     </Button>
@@ -168,4 +173,4 @@ const NotificationDetail = () => {
     );
 };
 
-export default NotificationDetail;
+export default StolenCarDetails;

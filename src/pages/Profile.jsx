@@ -7,7 +7,7 @@ import {
   profileValidation_s,
 } from "../common/FormValidation";
 import { BootstrapInput } from "../common/BootstrapInput";
-import CustomSelect from "../common/CustomSelect";
+import CustomSelect from "../common/Custom/CustomSelect";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList } from "../API Calls/API";

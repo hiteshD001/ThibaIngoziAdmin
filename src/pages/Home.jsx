@@ -14,7 +14,7 @@ import search from '../assets/images/search.svg';
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import { useWebSocket } from "../API Calls/WebSocketContext";
 import nouser from "../assets/images/NoUser.png";
-import CustomPagination from "../common/CustomPagination";
+import CustomPagination from "../common/Custom/CustomPagination";
 import { format } from "date-fns";
 import HotspotSection from "../common/HotspotSection";
 import Loader from "../common/Loader";

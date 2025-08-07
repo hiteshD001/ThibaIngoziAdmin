@@ -20,17 +20,17 @@ import {
     IconButton,
 } from "@mui/material";
 import filter from '../assets/images/filter.svg'
-import CustomDateRangePicker from "./CustomDateRangePicker";
+import CustomDateRangePicker from "./Custom/CustomDateRangePicker";
 import calender from '../assets/images/calender.svg';
-import CustomExportMenu from "./CustomExport";
+import CustomExportMenu from "./Custom/CustomExport";
 import Loader from "./Loader";
 import div from '../assets/images/div.svg'
 import div2 from '../assets/images/div2.svg'
 import div3 from '../assets/images/div3.svg'
 import { FaLocationDot } from "react-icons/fa6";
-import CustomChart from "./CustomChart";
+import CustomChart from "./Custom/CustomChart";
 import { useNavigate } from "react-router-dom";
-import CustomFilter from "../common/CustomFilter";
+import CustomFilter from "./Custom/CustomFilter";
 
 const Analytics = ({ id }) => {
     const [time, settime] = useState("today");

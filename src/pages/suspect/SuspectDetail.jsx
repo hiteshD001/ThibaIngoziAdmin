@@ -2,10 +2,10 @@ import React from 'react';
 import {
     Paper, Box, Typography, Chip, Button, Grid
 } from '@mui/material';
-import WhiteTick from '../assets/images/WhiteTick.svg'
+import WhiteTick from '../../assets/images/WhiteTick.svg'
 import { AiOutlineEye, AiOutlineCheck } from "react-icons/ai";
 
-const NotificationDetail = () => {
+const SuspectDetail = () => {
     // Mock data – replace with actual props or API data
     const suspectName = "John Doe";
     const caseNumber = "CASE-2023-0458";
@@ -168,4 +168,4 @@ const NotificationDetail = () => {
     );
 };
 
-export default NotificationDetail;
+export default SuspectDetail;

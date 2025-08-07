@@ -11,14 +11,14 @@ import nouser from "../assets/images/NoUser.png";
 import LocationIcon from '../assets/images/LocationIcon.svg'
 import ReportIcon from '../assets/images/ReportsIcon.svg'
 import DangerIcon from '../assets/images/DangerIcon.svg'
-import CustomDateRangePicker from "../common/CustomDateRangePicker";
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
 import calender from '../assets/images/calender.svg';
 import Loader from "../common/Loader";
-import CustomFilter from "../common/CustomFilter";
-import CustomChart from "../common/CustomChart";
-import CustomExportMenu from "../common/CustomExport";
+import CustomFilter from "../common/Custom/CustomFilter";
+import CustomChart from "../common/Custom/CustomChart";
+import CustomExportMenu from "../common/Custom/CustomExport";
 import { useNavigate } from "react-router-dom";
-import CustomPie from "../common/CustomPie";
+import CustomPie from "../common/Custom/CustomPie";
 
 const SosList = [
     {

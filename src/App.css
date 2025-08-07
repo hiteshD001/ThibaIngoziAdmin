@@ -2,6 +2,7 @@
 /* styles.css */
 :root {
     --Blue: #367BE0;
+    --orange:#F97316;
     --secondary-color: #6c757d;
     --light-gray: #E5E7EB;
    --icon-gray:rgb(175, 179, 189);
@@ -185,6 +186,8 @@ input[type="checkbox"] {
 }
 
 .sidebar {
+    overflow-y: auto;
+    overflow-x: hidden;
     width: 280px;
     background: #1C1C1C;
     height: 100vh;
@@ -196,6 +199,10 @@ input[type="checkbox"] {
     padding-inline: 25px;
     /* position: fixed; */
     z-index: 1050;
+
+    &::-webkit-scrollbar{
+        display:none;
+    }
 }
 .sidebar.show {
     transform: translateX(0);
