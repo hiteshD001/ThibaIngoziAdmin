@@ -315,7 +315,7 @@ const ListOfDrivers = () => {
                                 <div className="comapny-det">
                                     <div className="c-info">
                                         <span>Company</span>
-                                        {edit ? (
+                                        {edit && role !== "company" ? (
                                             <input
                                                 type="text"
                                                 name="company_name"
@@ -333,7 +333,7 @@ const ListOfDrivers = () => {
 
                                     <div className="c-info">
                                         <span>Contact No.</span>
-                                        {edit ? (
+                                        {edit && role !== "company" ? (
                                             <input
                                                 type="text"
                                                 name="mobile_no"
@@ -351,7 +351,7 @@ const ListOfDrivers = () => {
 
                                     <div className="c-info">
                                         <span>Contact Email</span>
-                                        {edit ? (
+                                        {edit && role !== "company" ? (
 
                                             <input
                                                 type="email"
@@ -444,73 +444,73 @@ const ListOfDrivers = () => {
                                     </div>
                                 </div>
                             </div>
-                            {
-                                edit ? (
+
+                            {edit && role !== "company" ? (
+                                <div className="company-info">
+                                    <div className="comapny-titles">Company Services</div>
+                                    <div className="comapny-det">
+                                        <Select
+                                            isMulti
+                                            name="services"
+
+                                            options={GrpservicesList}
+                                            classNamePrefix="select"
+                                            placeholder="Select Services"
+                                            className="form-control"
+                                            value={GrpservicesList
+                                                .flatMap((group) => group.options)
+                                                .filter((option) => CompanyForm.values.services?.includes(option.value))}
+                                            onChange={(selectedOptions) => {
+                                                const selectedValues = selectedOptions?.map((option) => option.value) || [];
+                                                CompanyForm.setFieldValue("services", selectedValues);
+                                            }}
+                                            menuPortalTarget={document.body}
+                                            menuPosition="fixed"
+                                            styles={{
+                                                control: (base) => ({
+                                                    ...base,
+                                                    border: 'none',
+                                                    boxShadow: 'none',
+                                                    backgroundColor: 'transparent',
+                                                }),
+                                                valueContainer: (base) => ({
+                                                    ...base,
+                                                    flexWrap: 'wrap',
+                                                    maxHeight: '50px',
+                                                    overflowY: 'auto',
+                                                }),
+                                                multiValue: (base) => ({
+                                                    ...base,
+                                                    margin: '2px',
+                                                }),
+                                                menu: (base) => ({
+                                                    ...base,
+                                                    zIndex: 9999, // ensure it's above modals and overflow parents
+                                                }),
+                                            }}
+                                        />
+
+                                    </div>
+                                </div>
+                            ) : (
+                                servicesList.length > 0 && (
                                     <div className="company-info">
                                         <div className="comapny-titles">Company Services</div>
-                                        <div className="comapny-det">
-                                            <Select
-                                                isMulti
-                                                name="services"
-
-                                                options={GrpservicesList}
-                                                classNamePrefix="select"
-                                                placeholder="Select Services"
-                                                className="form-control"
-                                                value={GrpservicesList
-                                                    .flatMap((group) => group.options)
-                                                    .filter((option) => CompanyForm.values.services?.includes(option.value))}
-                                                onChange={(selectedOptions) => {
-                                                    const selectedValues = selectedOptions?.map((option) => option.value) || [];
-                                                    CompanyForm.setFieldValue("services", selectedValues);
-                                                }}
-                                                menuPortalTarget={document.body}
-                                                menuPosition="fixed"
-                                                styles={{
-                                                    control: (base) => ({
-                                                        ...base,
-                                                        border: 'none',
-                                                        boxShadow: 'none',
-                                                        backgroundColor: 'transparent',
-                                                    }),
-                                                    valueContainer: (base) => ({
-                                                        ...base,
-                                                        flexWrap: 'wrap',
-                                                        maxHeight: '50px',
-                                                        overflowY: 'auto',
-                                                    }),
-                                                    multiValue: (base) => ({
-                                                        ...base,
-                                                        margin: '2px',
-                                                    }),
-                                                    menu: (base) => ({
-                                                        ...base,
-                                                        zIndex: 9999, // ensure it's above modals and overflow parents
-                                                    }),
-                                                }}
-                                            />
-
+                                        <div className="comapny-det comapny-det2">
+                                            {servicesList.map((group, index) => (
+                                                <div
+                                                    key={index}
+                                                    className={servicesList.length > index + 1 ? "c-ser" : "c-ser2"}
+                                                >
+                                                    {group.options.map((service, idx) => (
+                                                        <p key={`${index}-${idx}`}>{service.label}</p>
+                                                    ))}
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
-                                ) : (
-                                    servicesList.length > 0 && (
-                                        <div className="company-info">
-                                            <div className="comapny-titles">Company Services</div>
-                                            <div className="comapny-det comapny-det2">
-                                                {servicesList.map((group, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className={servicesList.length > index + 1 ? "c-ser" : "c-ser2"}
-                                                    >
-                                                        {group.options.map((service, idx) => (
-                                                            <p key={`${index}-${idx}`}>{service.label}</p>
-                                                        ))}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )
                                 )
+                            )
                             }
                             {
                                 edit ? (<div className="company-info">

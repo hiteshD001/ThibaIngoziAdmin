@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
-
+import { Box, Chip } from '@mui/material';
 const Profile = () => {
   const [servicesList, setServicesList] = useState({});
   const [GrpservicesList, setGrpservicesList] = useState([]);
@@ -316,52 +316,6 @@ const Profile = () => {
                 {
                   profileForm.values.role == 'company' && (
                     <>
-                      <div className="col-md-6">
-                        <Select
-                          isMulti
-                          name="services"
-                          options={GrpservicesList}
-                          classNamePrefix="select"
-                          placeholder="Select Services"
-                          isDisabled
-                          className="edit-company-services"
-                          value={GrpservicesList
-                            .flatMap((group) => group.options)
-                            .filter((option) => profileForm.values.services?.includes(option.value))}
-                          onChange={(selectedOptions) => {
-                            const selectedValues = selectedOptions?.map((option) => option.value) || [];
-                            profileForm.setFieldValue("services", selectedValues);
-                          }}
-                          menuPortalTarget={document.body}
-                          menuPosition="fixed"
-                          styles={{
-                            control: (base, state) => ({
-                              ...base,
-                              border: 'none',
-                              boxShadow: 'none',
-                              height: '100%',
-                              backgroundColor: state.isDisabled ? '#e9ecef' : 'transparent',
-                              cursor: state.isDisabled ? 'not-allowed' : 'default',
-                            }),
-                            valueContainer: (base) => ({
-                              ...base,
-                              flexWrap: 'wrap',
-                              maxHeight: '50px',
-                              overflowY: 'auto',
-                            }),
-                            multiValue: (base, state) => ({
-                              ...base,
-                              margin: '2px',
-                              border: state.isDisabled ? '1px solid black' : 'none',
-                              backgroundColor: state.isDisabled ? 'transparent' : '#e9ecef'
-                            }),
-                            menu: (base) => ({
-                              ...base,
-                              zIndex: 9999,
-                            }),
-                          }}
-                        />
-                      </div>
                       <div className="col-md-6" style={{ display: 'flex', flexDirection: 'row', gap: '15px' }}>
                         <div style={{ display: 'flex', flexDirection: 'row', gap: '5px' }}>
                           <input
@@ -405,6 +359,60 @@ const Profile = () => {
                             Is All Sos payment
                           </label>
                         </div>
+                      </div>
+                      <div className="col-md-6">
+                        {/* <Select
+                          isMulti
+                          name="services"
+                          options={GrpservicesList}
+                          classNamePrefix="select"
+                          placeholder="Select Services"
+                          // isDisabled
+                          className="edit-company-services"
+                          value={GrpservicesList
+                            .flatMap((group) => group.options)
+                            .filter((option) => profileForm.values.services?.includes(option.value))}
+                          onChange={(selectedOptions) => {
+                            const selectedValues = selectedOptions?.map((option) => option.value) || [];
+                            profileForm.setFieldValue("services", selectedValues);
+                          }}
+                          menuPortalTarget={document.body}
+                          menuPosition="fixed"
+                          styles={{
+                            control: (base, state) => ({
+                              ...base,
+                              border: 'none',
+                              boxShadow: 'none',
+                              height: '100%',
+                              backgroundColor: state.isDisabled ? '#e9ecef' : 'transparent',
+                              cursor: state.isDisabled ? 'not-allowed' : 'default',
+                            }),
+                            valueContainer: (base) => ({
+                              ...base,
+                              flexWrap: 'wrap',
+                              maxHeight: '50px',
+                              overflowY: 'auto',
+                            }),
+                            multiValue: (base, state) => ({
+                              ...base,
+                              margin: '2px',
+                              border: state.isDisabled ? '1px solid black' : 'none',
+                              backgroundColor: state.isDisabled ? 'transparent' : '#e9ecef'
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              zIndex: 9999,
+                            }),
+                          }}
+                        /> */}
+                        <Box display="flex" flexWrap="wrap" gap={1}>
+                          {GrpservicesList
+                            .flatMap(group => group.options)
+                            .filter(option => profileForm.values.services?.includes(option.value))
+                            .map(option => (
+                              <Chip key={option.value} label={option.label} />
+                            ))}
+                        </Box>
                       </div>
                     </>
                   )
