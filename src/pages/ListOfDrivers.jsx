@@ -387,7 +387,7 @@ const ListOfDrivers = () => {
                                                     e.target.checked
                                                 )
                                             }
-                                            disabled={!edit}
+                                            disabled={!edit && role == "company"}
                                         />
                                         <label
                                             htmlFor="isArmed"
@@ -410,7 +410,7 @@ const ListOfDrivers = () => {
                                                     e.target.checked
                                                 )
                                             }
-                                            disabled={!edit}
+                                            disabled={!edit && role == "company"}
                                         />
                                         <label
                                             htmlFor="isPaymentToken"
@@ -433,7 +433,7 @@ const ListOfDrivers = () => {
                                                     e.target.checked
                                                 )
                                             }
-                                            disabled={!edit}
+                                            disabled={!edit && role == "company"}
                                         />
                                         <label
                                             htmlFor="isEnrollToken"
