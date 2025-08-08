@@ -790,7 +790,7 @@ const ListOfDrivers = () => {
                                             <TableCell sx={{ color: "#4B5563" }}>
                                                 <Stack direction="row" alignItems="center" gap={1.5}>
                                                     <Avatar
-                                                        src={driver.profileImage || nouser}
+                                                        src={driver?.selfieImage || nouser}
                                                         alt="driver"
                                                         sx={{ width: 32, height: 32 }}
                                                     />
@@ -799,7 +799,7 @@ const ListOfDrivers = () => {
                                             </TableCell>
 
                                             <TableCell sx={{ color: "#4B5563" }}>
-                                                {driver.id_no || "-"}
+                                                {driver?.passport_no || "-"}
                                             </TableCell>
 
                                             <TableCell sx={{ color: "#4B5563" }}>

@@ -22,7 +22,6 @@ const MissingPersons = [
         "date": '02/05/25',
         "req_accept": '20',
         "req_reached": '30',
-        "date": '02/05/25',
         'reportedBy': 'Jane Cooper'
     },
     {

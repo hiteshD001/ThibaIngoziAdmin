@@ -670,7 +670,7 @@ const VehicleInformation = () => {
                                             variant="contained"
                                             sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                                             onClick={() => {
-                                                submithandler(driverform.values);
+                                                driverform.handleSubmit
                                                 setEditInfo(false);
                                             }}
                                         >
@@ -827,7 +827,7 @@ const VehicleInformation = () => {
                                             variant="contained"
                                             sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                                             onClick={() => {
-                                                submithandler(driverform.values);
+                                                driverform.handleSubmit
                                                 setEditAddress(false);
                                             }}
                                         >
@@ -941,6 +941,7 @@ const VehicleInformation = () => {
                                             sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                                             onClick={() => {
                                                 // Save logic for emergency contact (if needed, call submithandler or a separate handler)
+                                                driverform.handleSubmit
                                                 setEditEmergency(false);
                                             }}
                                         >

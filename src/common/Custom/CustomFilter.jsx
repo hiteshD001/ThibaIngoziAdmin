@@ -21,7 +21,7 @@ const CustomFilter = ({ onApply }) => {
         province: '',
         city: '',
         suburb: '',
-        policeStation: '',
+        // policeStation: '',
     });
 
     const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -127,7 +127,7 @@ const CustomFilter = ({ onApply }) => {
                     </FormControl>
 
                     {/* Police Station */}
-                    <FormControl fullWidth size="small">
+                    {/* <FormControl fullWidth size="small">
                         <InputLabel>Police Station</InputLabel>
                         <Select
                             name="policeStation"
@@ -138,7 +138,7 @@ const CustomFilter = ({ onApply }) => {
                             <MenuItem value="Option1">Option 1</MenuItem>
                             <MenuItem value="Option2">Option 2</MenuItem>
                         </Select>
-                    </FormControl>
+                    </FormControl> */}
 
                     {/* Apply Button */}
                     <Button variant="contained" onClick={handleApply}>

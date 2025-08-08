@@ -108,7 +108,7 @@ const ListOfCompanies = () => {
                       <TableCell sx={{ color: '#4B5563' }}>
                         <Stack direction="row" alignItems="center" gap={1}>
                           <Avatar
-                            src={user.profileImage || nouser}
+                            src={user?.selfieImage || nouser}
                             alt="User"
                           />
 

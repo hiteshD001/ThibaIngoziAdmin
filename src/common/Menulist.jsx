@@ -10,7 +10,7 @@ import ArmedSos from '../assets/images/ArmedSos.svg'
 import StolenCarIcon from '../assets/images/StolenCarIcon.svg'
 import MissingPersonIcon from '../assets/images/MissingPersonIcon.svg'
 import SuspectIcon from '../assets/images/SuspectIcon.svg'
-
+import changePasswordIcon from '../assets/images/changePasswordIcon.svg'
 import profile from "../assets/images/profile.png";
 import Logout from "../assets/images/Logout.svg";
 import Company from "../assets/images/Company.svg";
@@ -72,12 +72,7 @@ export const superadmin_menulist = [
         image: ArmedSos,
         company: "Sos Information"
     },
-    {
-        id: "change-password",
-        name: "Change Password",
-        path: "/home/change-password",
-        image: Dashboard,
-    },
+
 
     // {
     //     id: "hardware-management",
@@ -117,6 +112,12 @@ export const superadmin_menulist = [
         path: "/home/total-suspect",
         image: SuspectIcon,
         company: "Suspect Sighting Details"
+    },
+    {
+        id: "change-password",
+        name: "Change Password",
+        path: "/home/change-password",
+        image: changePasswordIcon,
     },
     {
         id: "logout",
