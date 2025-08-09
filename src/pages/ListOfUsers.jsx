@@ -8,12 +8,12 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import search from '../../assets/images/search.svg';
 import whiteplus from '../../assets/images/whiteplus.svg';
-import { useGetUserList } from "../../API Calls/API";
-import Loader from "../../common/Loader";
+import { useGetUserList } from "../API Calls/API";
+import Loader from "../common/Loader";
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import delBtn from '../../assets/images/delBtn.svg'
-import { DeleteConfirm } from "../../common/ConfirmationPOPup";
-import ImportSheet from "../../common/ImportSheet";
+import { DeleteConfirm } from "../common/ConfirmationPOPup";
+import ImportSheet from "../common/ImportSheet";
 import nouser from "../../assets/images/NoUser.png";
 
 const ListOfUsers = () => {

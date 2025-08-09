@@ -2,11 +2,11 @@ import logo3 from "../../assets/images/logo3.svg";
 
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
-import { loginValidation } from "../../common/FormValidation";
+import { loginValidation } from "../common/FormValidation";
 import { toast } from "react-toastify";
-import { toastOption } from "../../common/ToastOptions";
-import Loader from "../../common/Loader";
-import { useUserLogin } from "../../API Calls/API";
+import { toastOption } from "../common/ToastOptions";
+import Loader from "../common/Loader";
+import { useUserLogin } from "../API Calls/API";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState } from "react";
 

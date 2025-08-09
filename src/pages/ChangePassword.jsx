@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { useGetCompanyList, useChangePassword } from "../../API Calls/API";
+import { useGetCompanyList, useChangePassword } from "../API Calls/API";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
-import { toastOption } from "../../common/ToastOptions";
+import { toastOption } from "../common/ToastOptions";
 
 import { useFormik } from "formik";
-import { changePasswordValidation } from "../../common/FormValidation";
-import CustomSelect from "../../common/Custom/CustomSelect";
+import { changePasswordValidation } from "../common/FormValidation";
+import CustomSelect from "../common/Custom/CustomSelect";
 import "../../css/reset-password.css";
-import { BootstrapInput } from "../../common/BootstrapInput";
+import { BootstrapInput } from "../common/BootstrapInput";
 import { Box, Paper, Grid, FormControl, InputLabel, IconButton, Button } from "@mui/material";
 
 const ChangePassword = () => {

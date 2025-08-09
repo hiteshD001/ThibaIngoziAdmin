@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { useResetPassword } from "../../API Calls/API";
+import { useResetPassword } from "../API Calls/API";
 
 import { toast } from "react-toastify";
-import { toastOption } from "../../common/ToastOptions";
+import { toastOption } from "../common/ToastOptions";
 
 import { useFormik } from "formik";
-import { resetPasswordValidation } from "../../common/FormValidation";
+import { resetPasswordValidation } from "../common/FormValidation";
 
 import "../../css/reset-password.css";
 

@@ -10,9 +10,9 @@ import search from '../../assets/images/search.svg'
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import delBtn from '../../assets/images/delBtn.svg'
 import whiteplus from '../../assets/images/whiteplus.svg'
-import { useGetSoSAmountList } from "../../API Calls/API";
-import { DeleteSosAmount } from "../../common/ConfirmationPOPup";
-import Loader from "../../common/Loader";
+import { useGetSoSAmountList } from "../API Calls/API";
+import { DeleteSosAmount } from "../common/ConfirmationPOPup";
+import Loader from "../common/Loader";
 
 const ListOfSosAmount = () => {
     const nav = useNavigate();

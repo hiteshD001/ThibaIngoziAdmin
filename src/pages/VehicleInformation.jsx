@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
 
 import { useFormik } from "formik";
-import { vehicleValidation } from "../../common/FormValidation";
-import PayoutPopup from "../../common/Popup";
+import { vehicleValidation } from "../common/FormValidation";
+import PayoutPopup from "../common/Popup";
 import { useQueryClient } from "@tanstack/react-query";
 import {
     useGetCountryList,
@@ -12,8 +12,8 @@ import {
     useGetUserList,
     useUpdateUser,
     useGeteHailingList
-} from "../../API Calls/API";
-import CustomSelect from "../../common/Custom/CustomSelect";
+} from "../API Calls/API";
+import CustomSelect from "../common/Custom/CustomSelect";
 import GrayPlus from '../../assets/images/GrayPlus.svg'
 import checkedboxIcon from '../../assets/images/checkboxIcon.svg'
 import uncheckedIcon from '../../assets/images/UnChecked.svg'
@@ -23,9 +23,9 @@ import {
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { BootstrapInput } from "../../common/BootstrapInput";
+import { BootstrapInput } from "../common/BootstrapInput";
 import { toast } from "react-toastify";
-import { toastOption } from "../../common/ToastOptions";
+import { toastOption } from "../common/ToastOptions";
 import PhoneInput from "react-phone-input-2";
 
 const VehicleInformation = () => {

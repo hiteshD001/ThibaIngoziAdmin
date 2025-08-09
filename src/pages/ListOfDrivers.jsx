@@ -20,7 +20,7 @@ import { components } from 'react-select';
 import {
     companyEditValidation,
     companyValidation,
-} from "../../common/FormValidation";
+} from "../common/FormValidation";
 import {
     useGetUser,
     useGetUserList,
@@ -30,14 +30,14 @@ import {
     armedSosPayout,
     payoutUserUpdate,
     useGetSecurityList,
-} from "../../API Calls/API";
+} from "../API Calls/API";
 
-import PayoutPopup from "../../common/Popup";
-import Loader from "../../common/Loader";
-import Analytics from "../../common/Analytics";
-import { DeleteConfirm } from "../../common/ConfirmationPOPup";
-import ImportSheet from "../../common/ImportSheet";
-import { toastOption } from "../../common/ToastOptions";
+import PayoutPopup from "../common/Popup";
+import Loader from "../common/Loader";
+import Analytics from "../common/Analytics";
+import { DeleteConfirm } from "../common/ConfirmationPOPup";
+import ImportSheet from "../common/ImportSheet";
+import { toastOption } from "../common/ToastOptions";
 
 import search from "../../assets/images/search.svg";
 import nouser from "../../assets/images/NoUser.png";

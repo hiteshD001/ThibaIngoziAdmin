@@ -19,7 +19,7 @@ import div from '../assets/images/div.svg'
 import div2 from '../assets/images/div2.svg'
 import div3 from '../assets/images/div3.svg'
 import { FaLocationDot } from "react-icons/fa6";
-import CustomChart from "./Custom/CustomChart";
+import CustomChart from "./CustomChart";
 import { useNavigate } from "react-router-dom";
 import CustomFilter from "./Custom/CustomFilter";
 

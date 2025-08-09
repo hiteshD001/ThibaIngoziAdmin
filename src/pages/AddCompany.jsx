@@ -3,23 +3,23 @@ import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineDown, AiOutlineUp } from "react-icons/ai";
 import { useFormik } from "formik";
-import { companyValidation } from "../../common/FormValidation";
+import { companyValidation } from "../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType } from "../../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType } from "../API Calls/API";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { toast } from "react-toastify";
-import { toastOption } from "../../common/ToastOptions";
+import { toastOption } from "../common/ToastOptions";
 import CreatableSelect from 'react-select/creatable';
-import Loader from "../../common/Loader";
+import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 import '../../css/company.css'
 import checkedboxIcon from '../../assets/images/checkboxIcon.svg'
 import uncheckedIcon from '../../assets/images/UnChecked.svg'
 import { Box, Button, Typography, FormControlLabel, Checkbox, InputLabel, FormControl, FormHelperText, IconButton, Grid, Paper } from "@mui/material";
 import GrayPlus from '../../assets/images/GrayPlus.svg'
-import CustomSelect from "../../common/Custom/CustomSelect";
-import { BootstrapInput } from "../../common/BootstrapInput";
+import CustomSelect from "../common/Custom/CustomSelect";
+import { BootstrapInput } from "../common/BootstrapInput";
 import { components } from 'react-select';
 
 

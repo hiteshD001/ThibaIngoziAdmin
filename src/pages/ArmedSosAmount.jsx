@@ -1,11 +1,11 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useFormik } from "formik";
-import { SosAmount } from "../../common/FormValidation";
+import { SosAmount } from "../common/FormValidation";
 import Select from "react-select";
-import { useGetSoSAmount, useUpdateSosAmount, useGetServicesList } from "../../API Calls/API";
+import { useGetSoSAmount, useUpdateSosAmount, useGetServicesList } from "../API Calls/API";
 import { toast } from "react-toastify";
-import { toastOption } from "../../common/ToastOptions";
+import { toastOption } from "../common/ToastOptions";
 import { useQueryClient } from "@tanstack/react-query";
 import {
     Paper,
@@ -16,8 +16,8 @@ import {
     FormControl,
     InputLabel,
 } from "@mui/material";
-import { BootstrapInput } from "../../common/BootstrapInput";
-import Loader from "../../common/Loader";
+import { BootstrapInput } from "../common/BootstrapInput";
+import Loader from "../common/Loader";
 
 const ArmedSosAmount = () => {
     const { id } = useParams();

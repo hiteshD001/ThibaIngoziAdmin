@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useGetArmedSosDetails } from "../../API Calls/API"; // Adjust the import path
+import { useGetArmedSosDetails } from "../API Calls/API"; // Adjust the import path
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
 import Modal from "react-modal";

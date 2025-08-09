@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { toastOption } from "../../common/ToastOptions";
+import { toastOption } from "../common/ToastOptions";
 import { useFormik } from "formik";
-import { useCreateNotificationType } from "../../API Calls/API";
+import { useCreateNotificationType } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Yup from "yup";
-import Loader from "../../common/Loader";
-import { BootstrapInput } from "../../common/BootstrapInput";
+import Loader from "../common/Loader";
+import { BootstrapInput } from "../common/BootstrapInput";
 import {
     Paper,
     Typography,

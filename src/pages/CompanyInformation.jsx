@@ -41,7 +41,7 @@ import {
     useGetRecentSOS,
     useGetNotificationType
 } from "../../API Calls/API";
-import CustomChart from "../../common/Custom/CustomChart";
+import CustomChart from "../common/Custom/CustomChart";
 import PayoutPopup from "../../common/Popup";
 import Loader from "../../common/Loader";
 import Analytics from "../../common/Analytics";

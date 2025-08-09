@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { toastOption } from "../../common/ToastOptions";
+import { toastOption } from "../common/ToastOptions";
 import { useLayoutEffect, useState } from "react";
-import { SosAmount } from "../../common/FormValidation";
-import { useGetServicesList, useCreateSosAmount } from "../../API Calls/API";
+import { SosAmount } from "../common/FormValidation";
+import { useGetServicesList, useCreateSosAmount } from "../API Calls/API";
 import { useFormik } from "formik";
 import { useQueryClient } from "@tanstack/react-query";
-import Loader from "../../common/Loader";
-import { BootstrapInput } from "../../common/BootstrapInput";
+import Loader from "../common/Loader";
+import { BootstrapInput } from "../common/BootstrapInput";
 import {
     Paper,
     Typography,

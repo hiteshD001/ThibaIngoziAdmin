@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useFormik } from "formik"
-import { vehicleValidation } from "../../common/FormValidation"
+import { vehicleValidation } from "../common/FormValidation"
 import { useQueryClient } from "@tanstack/react-query"
-import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser } from "../../API Calls/API"
+import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API"
 import { toast } from "react-toastify"
-import { toastOption } from "../../common/ToastOptions"
+import { toastOption } from "../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
 import {
     Box, Button, Typography, InputLabel, FormControl, FormHelperText, Grid, Paper, Chip,
 } from "@mui/material";
-import { BootstrapInput } from "../../common/BootstrapInput";
-import CustomSelect from "../../common/Custom/CustomSelect";
+import { BootstrapInput } from "../common/BootstrapInput";
+import CustomSelect from "../common/Custom/CustomSelect";
 import GrayPlus from '../../assets/images/GrayPlus.svg'
 
 const PassangerInformation = () => {
