@@ -1,4 +1,5 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import {
     useGetActiveSOS,
@@ -108,6 +109,71 @@ const Home = ({ isMapLoaded }) => {
             queryClient.invalidateQueries(['hotspot'], { exact: false });
         }
     }, [activeUserList?.length]);
+
+    const handleExport = async (type) => {
+        if (type === "active") setIsExportingActive(true);
+        else setIsExportingRecent(true);
+        let dataToExport = [];
+
+        if (type === "active") {
+            dataToExport = activeUserList || [];
+        } else if (type === "recent") {
+            try {
+                const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/recent-sos-locations?page=1&limit=10000`);
+                dataToExport = response?.data?.items || [];
+            } catch (error) {
+                console.error("Error fetching recent SOS data:", error);
+                toast.error("Failed to fetch recent SOS data.");
+            }
+        }
+
+        if (type === "active") setIsExportingActive(false);
+        else setIsExportingRecent(false);
+
+        if (!dataToExport || dataToExport.length === 0) {
+            toast.warning(`No ${type === "active" ? "Active" : "Recent"} SOS data to export.`);
+            return;
+        }
+
+        const fileName = type === "active" ? "Active_SOS" : "Recent_SOS";
+        let exportData = [];
+
+        if (type === 'active') {
+            exportData = dataToExport.map(user => ({
+                "User": `${user?.user_id?.first_name || ''} ${user?.user_id?.last_name || ''}`,
+                "Company": user?.user_id?.company_name || '',
+                "Address": user?.address || '',
+                "Request Reached": user?.req_reach || 0,
+                "Request Accepted": user?.req_accept || 0,
+                "Type": user?.type?.type || '',
+                "Time": moment(user?.createdAt).format('HH:mm:ss') ?? '',
+                // "Status": user?.help_received ?? '',
+            }));
+        } else {
+            exportData = dataToExport.map(user => ({
+                "User": `${user?.user_id?.first_name || ''} ${user?.user_id?.last_name || ''}`,
+                "Company": user?.user_id?.company_name || '',
+                "Address": user?.address || '',
+                "Start Time": user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : '',
+                "End Time": user?.updatedAt ? moment(user.updatedAt).format("HH:mm:ss - dd/MM/yyyy") : '',
+            }));
+        }
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+        const columnWidths = Object.keys(exportData[0]).map(key => ({
+            wch: Math.max(
+                key.length,
+                ...exportData.map(row => String(row[key] || '').length)
+            ) + 2,
+        }));
+
+        worksheet['!cols'] = columnWidths;
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
+        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    };
 
     // active user list pagination
     // const [activePage, setActivePage] = useState(1);

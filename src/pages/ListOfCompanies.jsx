@@ -23,6 +23,7 @@ const ListOfCompanies = () => {
   const nav = useNavigate();
 
   const [filter, setfilter] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
   const [confirmation, setconfirmation] = useState("");
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -31,6 +32,65 @@ const ListOfCompanies = () => {
   const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, filter)
   const totalCompany = companyList.data?.data?.totalUsers || 0;
   const totalPages = Math.ceil(totalCompany / rowsPerPage);
+  const fetchAllUsers = async () => {
+    try {
+      const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+        params: {
+          role: "company",
+          page: 1,
+          limit: 10000,
+          filter,
+          company_id: "",
+        },
+      });
+      return response?.data?.users || [];
+    } catch (error) {
+      console.error("Error fetching all Company data for export:", error);
+      toast.error("Failed to fetch Company data.");
+      return [];
+    }
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    const allUsers = await fetchAllUsers();
+    setIsExporting(false);
+
+    if (!allUsers || allUsers.length === 0) {
+      toast.warning("No Company data to export.");
+      return;
+    }
+
+    const fileName = "Companies_List";
+
+    // Prepare data for export
+    const exportData = allUsers.map(user => ({
+      "Company": user.company_name || '',
+      "userName": `${user.first_name || ''} ${user.last_name || ''}`,
+      "Contact Name": user.contact_name || '',
+      "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+      "Contact Email": user.email || ''
+    }));
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Set column widths dynamically
+    const columnWidths = Object.keys(exportData[0]).map((key) => ({
+      wch: Math.max(
+        key.length,
+        ...exportData.map((row) => String(row[key] || '').length)
+      ) + 2,
+    }));
+    worksheet['!cols'] = columnWidths;
+
+    // Create workbook and add the worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
+
+    // Trigger download
+    XLSX.writeFile(workbook, `${fileName}.xlsx`);
+  };
   return (
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>

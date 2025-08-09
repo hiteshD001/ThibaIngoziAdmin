@@ -35,6 +35,8 @@ export const Login = () => {
         toast.success("Logged In successfully.");
         localStorage.clear();
         localStorage.setItem("accessToken", res.data.accessToken);
+        localStorage.setItem('currentlat', res.data.user.current_lat)
+        localStorage.setItem('currentlong', res.data.user.current_long)
         localStorage.setItem("userID", res.data.user._id);
         localStorage.setItem("userName", res.data.user.first_name + " " + res.data.user.last_name);
         localStorage.setItem("role", res.data.user.role);

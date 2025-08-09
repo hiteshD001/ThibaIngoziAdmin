@@ -11,12 +11,15 @@ import CustomSelect from "../common/Custom/CustomSelect";
 import { useEffect, useState, useLayoutEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList, useGetServicesList } from "../API Calls/API";
+import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList, useGetServicesList } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 import GrayPlus from '../assets/images/GrayPlus.svg'
 const Profile = () => {
+  const [servicesList, setServicesList] = useState({});
+  const [GrpservicesList, setGrpservicesList] = useState([]);
   const [servicesList, setServicesList] = useState({});
   const [GrpservicesList, setGrpservicesList] = useState([]);
   const [role] = useState(localStorage.getItem("role"));
@@ -61,6 +64,7 @@ const Profile = () => {
 
       mutate({ id: localStorage.getItem("userID"), data: formData });
     },
+
   });
 
   const countrylist = useGetCountryList();
@@ -89,9 +93,15 @@ const Profile = () => {
           isArmed: userinfo.data?.data.user?.isArmed || false,
           isPaymentToken: userinfo.data?.data.user?.isPaymentToken || false,
           isEnrollToken: userinfo.data?.data.user?.isEnrollToken || false,
+          isArmed: userinfo.data?.data.user?.isArmed || false,
+          isPaymentToken: userinfo.data?.data.user?.isPaymentToken || false,
+          isEnrollToken: userinfo.data?.data.user?.isEnrollToken || false,
           selfieImage: userinfo.data?.data.user?.selfieImage || "",
           fullImage: userinfo.data?.data.user?.fullImage || "",
           contact_name: userinfo.data?.data.user?.contact_name || "",
+          services: userinfo?.data?.data.user?.services
+            ?.filter(s => s.serviceId?.isService)
+            .map(s => s.serviceId._id) || [],
           services: userinfo?.data?.data.user?.services
             ?.filter(s => s.serviceId?.isService)
             .map(s => s.serviceId._id) || [],
@@ -597,6 +607,10 @@ const super_admin = {
   mobile_no_country_code: "",
 };
 const company = {
+  services: [],
+  isEnrollToken: false,
+  isArmed: false,
+  isPaymentToken: false,
   contact_name: "",
   email: "",
   street: "",

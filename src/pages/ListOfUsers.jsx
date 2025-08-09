@@ -25,6 +25,7 @@ const ListOfUsers = () => {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
+    const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;

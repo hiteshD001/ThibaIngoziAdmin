@@ -34,12 +34,14 @@ const VehicleInformation = () => {
     const [editEmergency, setEditEmergency] = useState(false);
     const [editVehicle, setEditVehicle] = useState(false);
     const [edit, setedit] = useState(false);
+    const [role] = useState(localStorage.getItem("role"));
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const client = useQueryClient();
-    const userinfo = useGetUser(localStorage.getItem("userID"));
+    const CompanyId = localStorage.getItem("userID");
+
     const [payPopup, setPopup] = useState('')
 
 
@@ -97,6 +99,7 @@ const VehicleInformation = () => {
         }
 
     });
+
 
     const vehicleForm = useFormik({
         initialValues: {
@@ -310,7 +313,9 @@ const VehicleInformation = () => {
                                                 (user) => user?._id === selectedId
                                             );
                                             driverform.setFieldValue("company_id", selectedCompany?._id || null);
+                                            driverform.setFieldValue("company_id", selectedCompany?._id || null);
                                             driverform.setFieldValue("company_name", selectedCompany?.company_name || "");
+
                                         }}
                                         options={companyList?.data?.data?.users?.map(user => ({
                                             value: user?._id,
@@ -1343,6 +1348,7 @@ const setdriverformvalues = ({ ...props }) => {
                     (_, i) => data?.[`image_${i + 1}`] || null
                 ).filter(Boolean),
             };
+
         } else if (key === 'company_id') {
             newdata = { ...newdata, [key]: data?.company_id?._id ?? '' };
         } else {

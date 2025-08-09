@@ -19,6 +19,7 @@ const PassangerInformation = () => {
     const [editAddress, setEditAddress] = useState(false);
     const [editEmergency, setEditEmergency] = useState(false);
     const [role] = useState(localStorage.getItem("role"));
+    const CompanyId = localStorage.getItem("userID");
     const params = useParams();
     const client = useQueryClient()
 
@@ -43,6 +44,9 @@ const PassangerInformation = () => {
         },
         validationSchema: vehicleValidation
     })
+
+    // console.log('company_name', driverform.values.company_name)
+    // console.log('company_id', driverform.values.company_id?._id)
 
     const submithandler = (values) => {
         const formData = new FormData();
@@ -158,6 +162,7 @@ const PassangerInformation = () => {
                                             );
                                             driverform.setFieldValue("company_id", selectedCompany?._id || null);
                                             driverform.setFieldValue("company_name", selectedCompany?.company_name || "");
+
                                         }}
                                         options={companyList?.data?.data?.users?.map(user => ({
                                             value: user._id,

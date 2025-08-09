@@ -42,7 +42,10 @@ const Analytics = ({ id }) => {
 
     const driverList = useGetUserList("driver list", "driver", id);
     const companyList = useGetUserList("company list", "company");
+
+
     const hotspot = useGetHotspot(time, id, selectedNotification);
+    const chartData = useGetChartData(id, time, selectedNotification);
     const chartData = useGetChartData(id, time, selectedNotification);
 
     const handleTimeChange = (e) => {
@@ -54,8 +57,8 @@ const Analytics = ({ id }) => {
     };
 
     useEffect(() => {
-        if (notificationTypes.data?.data.length > 0 && !selectedNotification) {
-            setSelectedNotification(notificationTypes.data?.data[0]?._id);
+        if (notificationTypes?.data?.data?.length > 0 && !selectedNotification) {
+            setSelectedNotification(notificationTypes.data?.data[23]?._id);
         }
     }, [notificationTypes]);
 

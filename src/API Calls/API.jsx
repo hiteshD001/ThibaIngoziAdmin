@@ -12,8 +12,8 @@ export const useGetUserList = (
     key,
     role,
     company_id,
-    page = 1,
-    limit = 10,
+    page,
+    limit,
     filter,
     notification_type
 ) => {
@@ -496,7 +496,7 @@ export const useGetActiveSOS = () => {
 
 // get chart data
 
-export const useGetChartData = (notificationType) => {
+export const useGetChartData = (company_id, time, notificationType) => {
     const [chartData, setChartData] = useState(new Array(12).fill(0));
 
     const queryFn = async () => {
@@ -504,33 +504,42 @@ export const useGetChartData = (notificationType) => {
         const startDate = `${currentYear}-01-01`;
         const endDate = `${currentYear}-12-31`;
 
+        const params = {
+            start_date: startDate,
+            time,
+            end_date: endDate,
+        };
+
+        if (notificationType) {
+            params.type = notificationType === "all" ? "" : notificationType;
+        }
+        if (company_id) {
+            params.company_id = company_id;
+        }
+
         return await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/location/sos-month`,
             {
-                params: {
-                    start_date: startDate,
-                    end_date: endDate,
-                    type: notificationType,
-                },
+                params
             }
         );
     };
 
     const res = useQuery({
-        queryKey: ["chartData", notificationType], // Re-fetch when notificationType changes
+        queryKey: ["chartData", notificationType, company_id, time], // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
 
-    useEffect(() => {
-        if (res.data?.data) {
-            const newData = new Array(12).fill(0);
-            res.data.data.forEach((item) => {
-                newData[item.month - 1] = item.count;
-            });
-            setChartData(newData);
-        }
-    }, [res.data]);
+    // useEffect(() => {
+    //     if (res.data?.data) {
+    //         const newData = new Array(12).fill(0);
+    //         res.data.data.forEach((item) => {
+    //             newData[item.month - 1] = item.count;
+    //         });
+    //         setChartData(newData);
+    //     }
+    // }, [res.data]);
 
     return chartData;
 };
@@ -548,7 +557,7 @@ export const useGetHotspot = (type, company_id, notificationType) => {
         params.type = type;
     }
     if (notificationType) {
-        params.notificationType = notificationType;
+        params.notificationType = notificationType === "all" ? "" : notificationType;
     }
     if (company_id) {
         params.company_id = company_id;

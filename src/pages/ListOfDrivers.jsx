@@ -38,6 +38,9 @@ import Analytics from "../common/Analytics";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
 import { toastOption } from "../common/ToastOptions";
+import * as XLSX from 'xlsx';
+import 'jspdf-autotable';
+import apiClient from "../API Calls/APIClient";
 
 import search from "../../assets/images/search.svg";
 import nouser from "../../assets/images/NoUser.png";
@@ -265,6 +268,68 @@ const ListOfDrivers = () => {
             CompanyForm.setFieldValue("securityCompany", []);
         }
     }, [CompanyForm.values.isArmed]);
+
+    const fetchAllDrivers = async () => {
+        try {
+            const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+                params: {
+                    role: "driver",
+                    page: 1,
+                    limit: 10000,
+                    filter,
+                    company_id: params.id,
+                },
+            });
+            return response?.data?.users || [];
+        } catch (error) {
+            console.error("Error fetching all driver data for export:", error);
+            toast.error("Failed to fetch driver data.");
+            return [];
+        }
+    };
+
+    const handleExport = async () => {
+        setIsExportingDrivers(true);
+        const allDrivers = await fetchAllDrivers();
+        console.log(allDrivers)
+        setIsExportingDrivers(false);
+
+        if (!allDrivers || allDrivers.length === 0) {
+            toast.warning("No driver data to export.");
+            return;
+        }
+
+        const fileName = "Drivers_List";
+
+        // Prepare data for export
+        const exportData = allDrivers.map(driver => ({
+            "Driver Name": `${driver.first_name || ''} ${driver.last_name || ''}`,
+            "Driver ID": driver.id_no || '',
+            "Company": driver.company_name || '',
+            "Contact No.": `${driver.mobile_no_country_code || ''}${driver.mobile_no || ''}`,
+            "Contact Email": driver.email || ''
+        }));
+
+        // Create worksheet
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+        // Set column widths dynamically
+        const columnWidths = Object.keys(exportData[0]).map((key) => ({
+            wch: Math.max(
+                key.length,
+                ...exportData.map((row) => String(row[key] || '').length)
+            ) + 2,
+        }));
+        worksheet['!cols'] = columnWidths;
+
+        // Create workbook and add the worksheet
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
+
+        // Trigger download
+        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    };
+
 
     const handleAddDriver = () => {
         if (role === "company" && params.id) {
