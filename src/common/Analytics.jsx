@@ -8,16 +8,7 @@ import {
 import {
     Grid,
     Typography,
-    Select,
-    Button,
     Box,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions, MenuItem,
-    FormControl,
-    InputLabel,
-    IconButton,
 } from "@mui/material";
 import filter from '../assets/images/filter.svg'
 import CustomDateRangePicker from "./Custom/CustomDateRangePicker";
@@ -235,41 +226,7 @@ const Analytics = ({ id }) => {
                             <CustomChart data={chartData} />
                         </div>
                     </div>
-                    {/* <div className="col-md-4">
-                    <div className="hotspot">
-                        <h1>Hotspot</h1>
-                        <div className="location-list">
-                            {hotspot.isFetching ? (
-                                <Loader />
-                            ) : hotspot.data?.data.length === 0 ? (
-                                <p>No data Found</p>
-                            ) : (
-                                hotspot.data?.data
-                                    .sort((a, b) =>
-                                        a.timesCalled > b.timesCalled ? -1 : 1
-                                    )
-                                    .map((d, index) => (
-                                        <div className="location" key={index}>
-                                            <span>{d.address || "N/A"}</span>
-                                            <span>{d.timesCalled || 0}</span>
-                                            <span>
-                                                <FaLocationDot
-                                                    className="viewlocation"
-                                                    onClick={() =>
-                                                        nav(
-                                                            `/home/hotspot/location?lat=${d.lat}&long=${d.long}`
-                                                        )
-                                                    }
-                                                />
-                                            </span>
-                                        </div>
-                                    ))
-                            )}
-                        </div>
-                    </div>
-                </div> */}
                 </div>
-                {/* <div className="clearfix"></div> */}
             </Box>
         </Box>
 

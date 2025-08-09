@@ -535,6 +535,11 @@ export const useGetChartData = (notificationType) => {
     return chartData;
 };
 
+// get active sos 
+
+export const useGetActiveSosData = () => {
+}
+
 // get hotspot
 
 export const useGetHotspot = (type, company_id, notificationType) => {
