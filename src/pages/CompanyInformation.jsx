@@ -3,32 +3,32 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, FormControl, InputLabel } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import HotspotSection from "../../common/HotspotSection";
-import payIcon from '../../assets/images/payIcon.svg';
+import HotspotSection from "../common/HotspotSection";
+import payIcon from '../assets/images/payIcon.svg';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import whiteplus from '../../assets/images/whiteplus.svg';
-import plus from '../../assets/images/plus.svg'
-import CompanyAnalytics from '../../assets/images/CompanyAnalytics.svg'
-import CompanyAnalytics2 from '../../assets/images/CompanyAnalytics2.svg'
-import CompanyAnalytics3 from '../../assets/images/CompanyAnalytics3.svg'
-import CompanyAnalytics4 from '../../assets/images/CompanyAnalytics4.svg'
+import whiteplus from '../assets/images/whiteplus.svg';
+import plus from '../assets/images/plus.svg'
+import CompanyAnalytics from '../assets/images/CompanyAnalytics.svg'
+import CompanyAnalytics2 from '../assets/images/CompanyAnalytics2.svg'
+import CompanyAnalytics3 from '../assets/images/CompanyAnalytics3.svg'
+import CompanyAnalytics4 from '../assets/images/CompanyAnalytics4.svg'
 
-import ViewBtn from '../../assets/images/ViewBtn.svg'
-import delBtn from '../../assets/images/delBtn.svg'
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
 import { useFormik } from "formik";
 import moment from "moment/moment";
 import { format } from "date-fns";
 import Select from "react-select";
-import checkedboxIcon from '../../assets/images/checkboxIcon.svg'
-import uncheckedIcon from '../../assets/images/UnChecked.svg'
+import checkedboxIcon from '../assets/images/checkboxIcon.svg'
+import uncheckedIcon from '../assets/images/UnChecked.svg'
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { components } from 'react-select';
 import {
     companyEditValidation,
     companyValidation,
-} from "../../common/FormValidation";
+} from "../common/FormValidation";
 import {
     useGetUser,
     useGetUserList,
@@ -40,17 +40,17 @@ import {
     useGetSecurityList,
     useGetRecentSOS,
     useGetNotificationType
-} from "../../API Calls/API";
-import CustomChart from "../common/Custom/CustomChart";
-import PayoutPopup from "../../common/Popup";
-import Loader from "../../common/Loader";
-import Analytics from "../../common/Analytics";
-import { DeleteConfirm } from "../../common/ConfirmationPOPup";
-import ImportSheet from "../../common/ImportSheet";
-import { toastOption } from "../../common/ToastOptions";
+} from "../API Calls/API";
+import CustomChart from "../common/CustomChart";
+import PayoutPopup from "../common/Popup";
+import Loader from "../common/Loader";
+import Analytics from "../common/Analytics";
+import { DeleteConfirm } from "../common/ConfirmationPOPup";
+import ImportSheet from "../common/ImportSheet";
+import { toastOption } from "../common/ToastOptions";
 
-import search from "../../assets/images/search.svg";
-import nouser from "../../assets/images/NoUser.png";
+import search from "../assets/images/search.svg";
+import nouser from "../assets/images/NoUser.png";
 
 const CompanyInformation = ({ isMapLoaded }) => {
     // useStates

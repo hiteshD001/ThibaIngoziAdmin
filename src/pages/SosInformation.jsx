@@ -6,7 +6,7 @@ import { Tooltip } from "react-tooltip";
 import Modal from "react-modal";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import "react-tooltip/dist/react-tooltip.css";
-import "../../css/ArmedSosDetails.css";
+import "../css/ArmedSosDetails.css";
 
 Modal.setAppElement("#root");
 

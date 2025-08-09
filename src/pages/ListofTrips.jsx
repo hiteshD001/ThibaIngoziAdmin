@@ -4,18 +4,18 @@ import {
 } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
-import search from "../../assets/images/search.svg";
-import calender from '../../assets/images/calender.svg';
+import search from "../assets/images/search.svg";
+import calender from '../assets/images/calender.svg';
 import CustomExportMenu from "../common/Custom/CustomExport";
 import CustomDateRangePicker from '../common/Custom/CustomDateRangePicker';
-import ViewBtn from '../../assets/images/ViewBtn.svg';
-import delBtn from '../../assets/images/delBtn.svg';
+import ViewBtn from '../assets/images/ViewBtn.svg';
+import delBtn from '../assets/images/delBtn.svg';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { useGetTripList } from "../API Calls/API";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
-import Listtrip from '../../assets/images/Listtrip.svg'
+import Listtrip from '../assets/images/Listtrip.svg'
 
 const ListOfTrips = () => {
   const nav = useNavigate();

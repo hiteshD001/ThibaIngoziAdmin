@@ -46,7 +46,6 @@ const Analytics = ({ id }) => {
 
     const hotspot = useGetHotspot(time, id, selectedNotification);
     const chartData = useGetChartData(id, time, selectedNotification);
-    const chartData = useGetChartData(id, time, selectedNotification);
 
     const handleTimeChange = (e) => {
         settime(e.target.value);

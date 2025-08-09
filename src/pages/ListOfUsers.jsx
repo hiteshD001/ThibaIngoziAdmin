@@ -3,18 +3,18 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
 } from "@mui/material";
-import plus from '../../assets/images/plus.svg'
+import plus from '../assets/images/plus.svg'
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import search from '../../assets/images/search.svg';
-import whiteplus from '../../assets/images/whiteplus.svg';
+import search from '../assets/images/search.svg';
+import whiteplus from '../assets/images/whiteplus.svg';
 import { useGetUserList } from "../API Calls/API";
 import Loader from "../common/Loader";
-import ViewBtn from '../../assets/images/ViewBtn.svg'
-import delBtn from '../../assets/images/delBtn.svg'
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
-import nouser from "../../assets/images/NoUser.png";
+import nouser from "../assets/images/NoUser.png";
 
 const ListOfUsers = () => {
     const [popup, setpopup] = useState(false);
@@ -30,6 +30,64 @@ const ListOfUsers = () => {
     let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;
 
+    const fetchAllUsers = async () => {
+        try {
+            const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+                params: {
+                    role: "passanger",
+                    page: 1,
+                    limit: 10000,
+                    filter,
+                    company_id: paramId,
+                },
+            });
+            return response?.data?.users || [];
+        } catch (error) {
+            console.error("Error fetching all User data for export:", error);
+            toast.error("Failed to fetch User data.");
+            return [];
+        }
+    };
+
+    const handleExport = async () => {
+        setIsExporting(true);
+        const allUsers = await fetchAllUsers();
+        setIsExporting(false);
+
+        if (!allUsers || allUsers.length === 0) {
+            toast.warning("No User data to export.");
+            return;
+        }
+
+        const fileName = "Users_List";
+
+        // Prepare data for export
+        const exportData = allUsers.map(user => ({
+            "userName": `${user.first_name || ''} ${user.last_name || ''}`,
+            "Company": user.company_name || '',
+            "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+            "Contact Email": user.email || ''
+        }));
+
+        // Create worksheet
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+        // Set column widths dynamically
+        const columnWidths = Object.keys(exportData[0]).map((key) => ({
+            wch: Math.max(
+                key.length,
+                ...exportData.map((row) => String(row[key] || '').length)
+            ) + 2,
+        }));
+        worksheet['!cols'] = columnWidths;
+
+        // Create workbook and add the worksheet
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
+
+        // Trigger download
+        XLSX.writeFile(workbook, `${fileName}.xlsx`);
+    };
     const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, filter);
     const totalUsers = UserList.data?.data?.totalUsers || 0;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);

@@ -8,7 +8,7 @@ import { toastOption } from "../common/ToastOptions";
 import { useFormik } from "formik";
 import { changePasswordValidation } from "../common/FormValidation";
 import CustomSelect from "../common/Custom/CustomSelect";
-import "../../css/reset-password.css";
+import "../css/reset-password.css";
 import { BootstrapInput } from "../common/BootstrapInput";
 import { Box, Paper, Grid, FormControl, InputLabel, IconButton, Button } from "@mui/material";
 

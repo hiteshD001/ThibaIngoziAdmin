@@ -2,41 +2,41 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Layout from "./common/Layout";
 import Report from "./pages/Report";
-import { Login } from "./pages/auth/Login";
-import ResetPassword from "./pages/auth/ResetPassword";
+import { Login } from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import RequestHardware from "./pages/RequestHardware";
-import PaymentSuceed from "./pages/payment/PaymentSuceed";
-import PaymentFailed from "./pages/payment/PaymentFailed";
-import PaymentExpired from "./pages/payment/PaymentExpired";
+import PaymentSuceed from "./pages/PaymentSuceed";
+import PaymentFailed from "./pages/PaymentFailed";
+import PaymentExpired from "./pages/PaymentExpired";
 import Home from "./pages/Home";
-import ListOfCompanies from "./pages/company/ListOfCompanies";
-import AddCompany from "./pages/company/AddCompany";
-import ListOfDrivers from "./pages/driver/ListOfDrivers";
-import AddDriver from "./pages/driver/AddDriver";
-import VehicleInformation from "./pages/driver/VehicleInformation";
+import ListOfCompanies from "./pages/ListOfCompanies";
+import AddCompany from "./pages/AddCompany";
+import ListOfDrivers from "./pages/ListOfDrivers";
+import AddDriver from "./pages/AddDriver";
+import VehicleInformation from "./pages/VehicleInformation";
 import HardwareManagement from "./pages/HardwareManagement";
 import Profile from "./pages/Profile";
-import AddSosAmount from "./pages/sos/AddSosAmount";
-import ArmedSosAmount from "./pages/sos/ArmedSosAmount";
-import ListOfSosAmount from "./pages/sos/ListOfSosAmount";
+import AddSosAmount from "./pages/AddSosAmount";
+import ArmedSosAmount from "./pages/ArmedSosAmount";
+import ListOfSosAmount from "./pages/ListOfSosAmount";
 import "react-phone-input-2/lib/style.css";
 import "./App.css";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { AuthGuard, LogGuard, RouteGuard } from "./common/Guard";
-import ListOfTrips from "./pages/trips/ListofTrips";
-import PassangerInformation from "./pages/user/Passangerinformation";
-import ListOfUsers from "./pages/user/ListOfUsers";
-import AddUser from "./pages/user/AddUser";
-import SosInformation from "./pages/sos/SosInformation"
-import ArmedSosDetails from "./pages/sos/SosInformation";
-import Notification from "./pages/Notification";
-import AddService from "./pages/sos/AddService";
-import ListOfMeetingLinkTrips from "./pages/trips/ListOfMeetingLinkTrip";
-import ChangePassword from "./pages/auth/ChangePassword";
+import ListOfTrips from "./pages/ListofTrips";
+import PassangerInformation from "./pages/Passangerinformation";
+import ListOfUsers from "./pages/ListOfUsers";
+import AddUser from "./pages/AddUser";
+import SosInformation from "./pages/SosInformation"
+import ArmedSosDetails from "./pages/SosInformation";
+import AddService from "./pages/AddService";
+import ListOfMeetingLinkTrips from "./pages/ListOfMeetingLinkTrip";
+import ChangePassword from "./pages/ChangePassword";
 import ListofMissingPerson from "./pages/MissingPerson/ListofMissingPerson";
 import MissingPersonDetails from "./pages/MissingPerson/MissingPersonDetails";
-import CompanyInformation from "./pages/company/CompanyInformation";
+import CompanyInformation from "./pages/CompanyInformation";
 import NotificationDetail from "./pages/NotificationDetail";
+import Notfication from './pages/Notification';
 import ListOfStolenCars from './pages/StolenCars/ListOfStolenCars';
 import StolenCarDetails from './pages/StolenCars/StolenCarDetails'
 import SuspectDetail from "./pages/suspect/SuspectDetail";
@@ -91,7 +91,7 @@ function App() {
                 },
                 {
                     path: 'notification',
-                    element: <Notification />
+                    element: < Notfication />
                 },
                 {
                     path: 'notification/:id',

@@ -8,7 +8,7 @@ import { toastOption } from "../common/ToastOptions";
 import { useFormik } from "formik";
 import { resetPasswordValidation } from "../common/FormValidation";
 
-import "../../css/reset-password.css";
+import "../css/reset-password.css";
 
 const ResetPassword = () => {
     const [showpass, setshowpass] = useState(false);

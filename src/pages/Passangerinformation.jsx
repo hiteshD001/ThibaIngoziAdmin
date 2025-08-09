@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { BootstrapInput } from "../common/BootstrapInput";
 import CustomSelect from "../common/Custom/CustomSelect";
-import GrayPlus from '../../assets/images/GrayPlus.svg'
+import GrayPlus from '../assets/images/GrayPlus.svg'
 
 const PassangerInformation = () => {
     const [editInfo, setEditInfo] = useState(false);

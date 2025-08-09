@@ -3,17 +3,17 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import payIcon from '../../assets/images/payIcon.svg';
+import payIcon from '../assets/images/payIcon.svg';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import whiteplus from '../../assets/images/whiteplus.svg';
-import plus from '../../assets/images/plus.svg'
-import ViewBtn from '../../assets/images/ViewBtn.svg'
-import delBtn from '../../assets/images/delBtn.svg'
+import whiteplus from '../assets/images/whiteplus.svg';
+import plus from '../assets/images/plus.svg'
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
 import { useFormik } from "formik";
 import Select from "react-select";
-import checkedboxIcon from '../../assets/images/checkboxIcon.svg'
-import uncheckedIcon from '../../assets/images/UnChecked.svg'
+import checkedboxIcon from '../assets/images/checkboxIcon.svg'
+import uncheckedIcon from '../assets/images/UnChecked.svg'
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { components } from 'react-select';
@@ -42,8 +42,8 @@ import * as XLSX from 'xlsx';
 import 'jspdf-autotable';
 import apiClient from "../API Calls/APIClient";
 
-import search from "../../assets/images/search.svg";
-import nouser from "../../assets/images/NoUser.png";
+import search from "../assets/images/search.svg";
+import nouser from "../assets/images/NoUser.png";
 
 const ListOfDrivers = () => {
     const [edit, setedit] = useState(false);

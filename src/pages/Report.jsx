@@ -15,7 +15,7 @@ import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
 import calender from '../assets/images/calender.svg';
 import Loader from "../common/Loader";
 import CustomFilter from "../common/Custom/CustomFilter";
-import CustomChart from "../common/Custom/CustomChart";
+import CustomChart from "../common/CustomChart";
 import CustomExportMenu from "../common/Custom/CustomExport";
 import { useNavigate } from "react-router-dom";
 import CustomPie from "../common/Custom/CustomPie";

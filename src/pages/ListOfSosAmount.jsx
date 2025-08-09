@@ -4,12 +4,12 @@ import {
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useState } from "react";
-import plus from '../../assets/images/plus.svg'
+import plus from '../assets/images/plus.svg'
 import { useNavigate } from "react-router-dom";
-import search from '../../assets/images/search.svg'
-import ViewBtn from '../../assets/images/ViewBtn.svg'
-import delBtn from '../../assets/images/delBtn.svg'
-import whiteplus from '../../assets/images/whiteplus.svg'
+import search from '../assets/images/search.svg'
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
+import whiteplus from '../assets/images/whiteplus.svg'
 import { useGetSoSAmountList } from "../API Calls/API";
 import { DeleteSosAmount } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";

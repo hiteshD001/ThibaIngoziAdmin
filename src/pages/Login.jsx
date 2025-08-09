@@ -1,4 +1,4 @@
-import logo3 from "../../assets/images/logo3.svg";
+import logo3 from "../assets/images/logo3.svg";
 
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";

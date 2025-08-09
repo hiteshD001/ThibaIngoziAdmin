@@ -2,20 +2,20 @@ import { useState, useRef } from "react";
 import {
   Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, Chip, MenuItem
 } from "@mui/material";
-import calender from '../../assets/images/calender.svg';
+import calender from '../assets/images/calender.svg';
 import CustomExportMenu from "../common/Custom/CustomExport";
 import CustomDateRangePicker from '../common/Custom/CustomDateRangePicker';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
-import ViewBtn from '../../assets/images/ViewBtn.svg'
-import delBtn from '../../assets/images/delBtn.svg'
-import search from "../../assets/images/search.svg";
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
+import search from "../assets/images/search.svg";
 import { useGetMeetingLinkTripList } from "../API Calls/API";
 import Loader from "../common/Loader";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
-import Listtrip from '../../assets/images/Listtrip.svg'
+import Listtrip from '../assets/images/Listtrip.svg'
 
 const ListOfMeetingLinkTrips = () => {
   const nav = useNavigate();

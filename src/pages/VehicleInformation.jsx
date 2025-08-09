@@ -14,10 +14,10 @@ import {
     useGeteHailingList
 } from "../API Calls/API";
 import CustomSelect from "../common/Custom/CustomSelect";
-import GrayPlus from '../../assets/images/GrayPlus.svg'
-import checkedboxIcon from '../../assets/images/checkboxIcon.svg'
-import uncheckedIcon from '../../assets/images/UnChecked.svg'
-import payIcon from '../../assets/images/payIcon.svg';
+import GrayPlus from '../assets/images/GrayPlus.svg'
+import checkedboxIcon from '../assets/images/checkboxIcon.svg'
+import uncheckedIcon from '../assets/images/UnChecked.svg'
+import payIcon from '../assets/images/payIcon.svg';
 import {
     TextField, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Typography, Grid, Alert, Paper, IconButton, Box, FormLabel, FormGroup, Button, FormHelperText, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
 } from "@mui/material";
@@ -37,7 +37,6 @@ const VehicleInformation = () => {
     const [role] = useState(localStorage.getItem("role"));
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
-    const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const client = useQueryClient();
     const CompanyId = localStorage.getItem("userID");

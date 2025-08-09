@@ -1,5 +1,5 @@
 // import { useEffect, useState } from "react";
-import "../../css/PaymentSuceed.css";
+import "../css/PaymentSuceed.css";
 
 const PaymentSuceed = () => {
   // const [loading, setLoading] = useState(true);

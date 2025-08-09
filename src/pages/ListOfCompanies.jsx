@@ -6,18 +6,18 @@ import {
 // import plus from '../assets/images/plus.svg'
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import whiteplus from '../../assets/images/whiteplus.svg';
-import ViewBtn from '../../assets/images/ViewBtn.svg'
-import delBtn from '../../assets/images/delBtn.svg'
+import whiteplus from '../assets/images/whiteplus.svg';
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
 // import icon from "../assets/images/icon.png";
-import search from '../../assets/images/search.svg';
+import search from '../assets/images/search.svg';
 // import Prev from "../assets/images/left.png";
 // import Next from "../assets/images/right.png";
-import nouser from "../../assets/images/NoUser.png";
+import nouser from "../assets/images/NoUser.png";
 
-import { useGetUserList } from "../../API Calls/API";
-import { DeleteConfirm } from "../../common/ConfirmationPOPup";
-import Loader from "../../common/Loader";
+import { useGetUserList } from "../API Calls/API";
+import { DeleteConfirm } from "../common/ConfirmationPOPup";
+import Loader from "../common/Loader";
 
 const ListOfCompanies = () => {
   const nav = useNavigate();

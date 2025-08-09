@@ -23,15 +23,15 @@ import {
     FormLabel,
 } from "@mui/material";
 import { useFormik } from "formik";
-import checkedboxIcon from '../../assets/images/checkboxIcon.svg'
-import uncheckedIcon from '../../assets/images/UnChecked.svg'
+import checkedboxIcon from '../assets/images/checkboxIcon.svg'
+import uncheckedIcon from '../assets/images/UnChecked.svg'
 import { BootstrapInput } from "../common/BootstrapInput";
 import { useGetCountryList, useGetProvinceList, useGetUserList, useRegister, useGeteHailingList } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 import CustomSelect from "../common/Custom/CustomSelect";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
-import GrayPlus from '../../assets/images/GrayPlus.svg'
+import GrayPlus from '../assets/images/GrayPlus.svg'
 const AddDriver = () => {
     const client = useQueryClient();
     const [role] = useState(localStorage.getItem("role"))

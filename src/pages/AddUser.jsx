@@ -17,7 +17,7 @@ import PhoneInput from "react-phone-input-2";
 import {
     Box, Button, Typography, InputLabel, FormControl, FormHelperText, IconButton, Grid, Paper,
 } from "@mui/material";
-import GrayPlus from '../../assets/images/GrayPlus.svg'
+import GrayPlus from '../assets/images/GrayPlus.svg'
 import CustomSelect from "../common/Custom/CustomSelect";
 import { BootstrapInput } from "../common/BootstrapInput";
 
