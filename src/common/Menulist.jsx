@@ -153,18 +153,18 @@ export const Companyadmin_menulist = () => {
             company: "Company Information"
 
         },
-        {
-            id: "total-armed-sos",
-            name: "Armed Sos Amount",
-            path: "/home/total-sos-amount",
-            image: drivers,
-            submenu: {
-                name: "List of Sos Amounts",
-                path: "/home/total-sos-amount",
-                image: arrowLeft
-            },
-            company: "User Information"
-        },
+        // {
+        //     id: "total-armed-sos",
+        //     name: "Armed Sos Amount",
+        //     path: "/home/total-sos-amount",
+        //     image: drivers,
+        //     submenu: {
+        //         name: "List of Sos Amounts",
+        //         path: "/home/total-sos-amount",
+        //         image: arrowLeft
+        //     },
+        //     company: "User Information"
+        // },
         {
             id: "total-users",
             name: "Users",
