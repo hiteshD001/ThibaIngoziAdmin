@@ -11,6 +11,10 @@ import { IoIosMenu } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
 const Navbar = ({ setActive, isActive }) => {
     const [role] = useState(localStorage.getItem("role"))
+    const [userName] = useState(localStorage.getItem('userName'))
+    const [selfieImage] = useState(localStorage.getItem('selfieImage'))
+    const [contact_name] = useState(localStorage.getItem('contact_name'))
+
     const [menulist] = useState(role === 'super_admin' ? superadmin_menulist : Companyadmin_menulist())
     const [pageTitle, setPageTitle] = useState("Dashboard");
     const [isSubMenu, setIsSubMenu] = useState(false);
@@ -19,8 +23,7 @@ const Navbar = ({ setActive, isActive }) => {
 
     const location = useLocation()
     const nav = useNavigate();
-    const { data } = useGetUser(userId, { enabled: !!userId });
-    const user = data?.data?.user
+
 
     useEffect(() => {
         const pathParts = location.pathname.split("/").filter(part => part);
@@ -108,20 +111,21 @@ const Navbar = ({ setActive, isActive }) => {
                     onClick={handleProfileClick} // Open menu on click
                 >
                     {
-                        role == 'super_admin' ? (
+                        role == 'company' ? (
                             <Typography variant="body1" component="span" sx={{ color: 'text.primary' }}>
-                                {user?.first_name} {user?.last_name}
+                                {contact_name}
                             </Typography>
                         ) : (
                             <Typography variant="body1" component="span" sx={{ color: 'text.primary' }}>
-                                {user?.contact_name}
+                                {userName}
                             </Typography>
                         )
                     }
 
+
                     <Avatar
-                        alt={user?.first_name}
-                        src={user?.selfieImage}
+                        alt={userName || contact_name}
+                        src={selfieImage}
                         // src={...} // Add a src for the user's profile photo if available
                         sx={{ width: 32, height: 32 }}
                     />

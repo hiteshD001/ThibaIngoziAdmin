@@ -14,94 +14,124 @@ import search from '../assets/images/search.svg';
 // import Prev from "../assets/images/left.png";
 // import Next from "../assets/images/right.png";
 import nouser from "../assets/images/NoUser.png";
-
+import jsPDF from 'jspdf';
+import { autoTable } from 'jspdf-autotable'
+import * as XLSX from 'xlsx';
+import { toast } from "react-toastify";
+import CustomExportMenu from '../common/Custom/CustomExport'
 import { useGetUserList } from "../API Calls/API";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
+import apiClient from '../API Calls/APIClient'
+import calender from '../assets/images/calender.svg';
+import { startOfYear } from "date-fns";
 
 const ListOfCompanies = () => {
   const nav = useNavigate();
+  const [range, setRange] = useState([
+    {
+      startDate: startOfYear(new Date()),
+      endDate: new Date(),
+      key: 'selection'
+    }
+  ]);
 
   const [filter, setfilter] = useState("");
-  const [isExporting, setIsExporting] = useState(false);
   const [confirmation, setconfirmation] = useState("");
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
-
-  const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, filter)
+  const startDate = range[0].startDate.toISOString();
+  const endDate = range[0].endDate.toISOString();
+  const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, filter, "", startDate, endDate)
   const totalCompany = companyList.data?.data?.totalUsers || 0;
   const totalPages = Math.ceil(totalCompany / rowsPerPage);
-  const fetchAllUsers = async () => {
+
+  const handleExport = async ({ startDate, endDate, format }) => {
     try {
-      const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+      const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
         params: {
           role: "company",
           page: 1,
           limit: 10000,
-          filter,
+          filter: "",
           company_id: "",
+          startDate,
+          endDate,
         },
       });
-      return response?.data?.users || [];
-    } catch (error) {
-      console.error("Error fetching all Company data for export:", error);
-      toast.error("Failed to fetch Company data.");
-      return [];
+
+      const allUsers = data?.users || [];
+      if (!allUsers.length) {
+        toast.warning("No company data found for this period.");
+        return;
+      }
+
+      const exportData = allUsers.map(user => ({
+        "Company": user.company_name || '',
+        "Contact Name": user.contact_name || '',
+        "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+        "Contact Email": user.email || ''
+      }));
+
+      if (format === "xlsx") {
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+          wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+        }));
+        worksheet['!cols'] = columnWidths;
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Companies");
+        XLSX.writeFile(workbook, "Companies_List.xlsx");
+      }
+      else if (format === "csv") {
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const csv = XLSX.utils.sheet_to_csv(worksheet);
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'company_list.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      else if (format === "pdf") {
+        const doc = new jsPDF();
+        doc.text('Company List', 14, 16);
+        autoTable(doc, {
+          head: [['Company', 'Contact Name', 'Contact No.', 'Contact Email']],
+          body: allUsers.map(user => [
+            user.company_name ?? 'NA',
+            user.contact_name ?? 'NA',
+            `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
+            user.email ?? 'NA'
+          ]),
+          startY: 20,
+          theme: 'striped',
+          headStyles: { fillColor: '#367BE0' },
+          margin: { top: 20 },
+          styles: { fontSize: 10 },
+        });
+        doc.save("Companies_List.pdf");
+      }
+
+    } catch (err) {
+      console.error("Error exporting data:", err);
+      toast.error("Export failed.");
     }
-  };
-
-  const handleExport = async () => {
-    setIsExporting(true);
-    const allUsers = await fetchAllUsers();
-    setIsExporting(false);
-
-    if (!allUsers || allUsers.length === 0) {
-      toast.warning("No Company data to export.");
-      return;
-    }
-
-    const fileName = "Companies_List";
-
-    // Prepare data for export
-    const exportData = allUsers.map(user => ({
-      "Company": user.company_name || '',
-      "userName": `${user.first_name || ''} ${user.last_name || ''}`,
-      "Contact Name": user.contact_name || '',
-      "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
-      "Contact Email": user.email || ''
-    }));
-
-    // Create worksheet
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-    // Set column widths dynamically
-    const columnWidths = Object.keys(exportData[0]).map((key) => ({
-      wch: Math.max(
-        key.length,
-        ...exportData.map((row) => String(row[key] || '').length)
-      ) + 2,
-    }));
-    worksheet['!cols'] = columnWidths;
-
-    // Create workbook and add the worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
-
-    // Trigger download
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
   };
   return (
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
         <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-          <Grid size={{ xs: 12, md: 5 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+          <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
             <Typography variant="h6" fontWeight={590}>Onboarded Companies</Typography>
             <Typography variant="h6" fontWeight={550}>
-              {companyList.isSuccess ? companyList.data?.data.totalUsers : 0}
+              {/* {companyList.isSuccess ? companyList.data?.data.totalUsers : 0} */}
             </Typography>
           </Grid>
-          <Grid size={{ xs: 12, md: 7 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+          <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
 
             <TextField
               variant="outlined"
@@ -130,6 +160,11 @@ const ListOfCompanies = () => {
               }}
             />
             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+              <CustomDateRangePicker
+                value={range}
+                onChange={setRange}
+                icon={calender}
+              />
               <Button
                 variant="contained"
                 sx={{ height: '40px', width: '170px', borderRadius: '8px', fontWeight: 400 }}
@@ -138,6 +173,7 @@ const ListOfCompanies = () => {
               >
                 Add Company
               </Button>
+              <CustomExportMenu onExport={handleExport} />
             </Box>
 
           </Grid>

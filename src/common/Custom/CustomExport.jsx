@@ -17,17 +17,18 @@ import excelIcon from '../../assets/images/excelIcon.svg'
 import UncheckedIcon2 from '../../assets/images/UncheckedIcon2.svg'
 import CustomDateRangePicker from './CustomDateRangePicker';
 import calender from '../../assets/images/calender.svg';
+import { startOfYear } from "date-fns";
 import exportdiv from '../../assets/images/exportdiv.svg';
 // import exportIcon from '../assets/images/exportIcon.svg';
 
 
-const CustomExportMenu = () => {
+const CustomExportMenu = ({ role, onExport }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
     const [range, setRange] = useState([
         {
-            startDate: new Date(),
+            startDate: startOfYear(new Date()),
             endDate: new Date(),
             key: 'selection'
         }
@@ -40,8 +41,10 @@ const CustomExportMenu = () => {
     const handleClose = () => setAnchorEl(null);
 
     const handleExport = () => {
-        if (onApply) onApply(filters);
-        handleClose();
+        const startDate = range[0].startDate.toISOString();
+        const endDate = range[0].endDate.toISOString();
+        onExport({ startDate, endDate, format });
+        setAnchorEl(null);
     };
 
     return (
@@ -100,7 +103,7 @@ const CustomExportMenu = () => {
                     </Box>
                     <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <Box>
-                            <Typography>Select Date Range</Typography>
+                            <Typography sx={{ mb: 1 }}>Select Date Range</Typography>
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
@@ -108,41 +111,46 @@ const CustomExportMenu = () => {
                                 icon={calender}
                             />
                         </Box>
-                        <FormControl fullWidth size="small" >
-                            <label style={{ marginBottom: 5 }}>Select Location Filters</label>
-                            <Select
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                sx={{
-                                    '& fieldset': {
-                                        border: '1px solid var(--light-gray)',
-                                    },
-                                }}
-                            >
-                                <MenuItem value="select">Select Location</MenuItem>
-                                <MenuItem value="North">North West</MenuItem>
-                                <MenuItem value="Western Cape">Western Cape</MenuItem>
-                                <MenuItem value="Free State">Free State</MenuItem>
-                            </Select>
-                        </FormControl>
+                        {
+                            role === 'dashboard' && (<FormControl fullWidth size="small" >
+                                <label style={{ marginBottom: 5 }}>Select Location Filters</label>
+                                <Select
+                                    value={location}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    sx={{
+                                        '& fieldset': {
+                                            border: '1px solid var(--light-gray)',
+                                        },
+                                    }}
+                                >
+                                    <MenuItem value="select">Select Location</MenuItem>
+                                    <MenuItem value="North">North West</MenuItem>
+                                    <MenuItem value="Western Cape">Western Cape</MenuItem>
+                                    <MenuItem value="Free State">Free State</MenuItem>
+                                </Select>
+                            </FormControl>)
+                        }
+                        {
+                            role === 'dashboard' && (
+                                <FormControl fullWidth size="small">
+                                    <label style={{ marginBottom: 5 }}>Category</label>
+                                    <Select
+                                        value={category}
+                                        onChange={(e) => setCategory(e.target.value)}
+                                        sx={{
+                                            '& fieldset': {
+                                                border: '1px solid var(--light-gray)',
+                                            },
+                                        }}
+                                    >
+                                        <MenuItem value="select">Select Category</MenuItem>
+                                        <MenuItem value="Accident">Accident</MenuItem>
+                                        <MenuItem value="Fire">Fire</MenuItem>
+                                        <MenuItem value="Medical">Medical</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            )}
 
-                        <FormControl fullWidth size="small">
-                            <label style={{ marginBottom: 5 }}>Category</label>
-                            <Select
-                                value={category}
-                                onChange={(e) => setCategory(e.target.value)}
-                                sx={{
-                                    '& fieldset': {
-                                        border: '1px solid var(--light-gray)',
-                                    },
-                                }}
-                            >
-                                <MenuItem value="select">Select Category</MenuItem>
-                                <MenuItem value="Accident">Accident</MenuItem>
-                                <MenuItem value="Fire">Fire</MenuItem>
-                                <MenuItem value="Medical">Medical</MenuItem>
-                            </Select>
-                        </FormControl>
 
                         <FormControl fullWidth size="small">
                             <FormGroup>

@@ -22,6 +22,7 @@ import { FaLocationDot } from "react-icons/fa6";
 import CustomChart from "./CustomChart";
 import { useNavigate } from "react-router-dom";
 import CustomFilter from "./Custom/CustomFilter";
+import { startOfYear } from "date-fns";
 
 const Analytics = ({ id }) => {
     const [time, settime] = useState("today");
@@ -31,7 +32,7 @@ const Analytics = ({ id }) => {
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [range, setRange] = useState([
         {
-            startDate: new Date(),
+            startDate: startOfYear(new Date()),
             endDate: new Date(),
             key: 'selection'
         }
@@ -113,6 +114,7 @@ const Analytics = ({ id }) => {
         console.log('Filters applied:', filters);
     };
     const username = localStorage.getItem("userName")
+    const contact_name = localStorage.getItem("contact_name")
     return (
         <Box>
             <Grid sx={{ backgroundColor: 'white', p: 3, mt: '-25px' }} container justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
@@ -121,7 +123,7 @@ const Analytics = ({ id }) => {
                         Dashboard Overview
                     </Typography>
                     <Typography variant="body1" mt={1} color="text.secondary">
-                        Welcome back, {username ?? 'User'}. Here's what's happening today.
+                        Welcome back, {username || contact_name}. Here's what's happening today.
                     </Typography>
                 </Grid>
 
@@ -136,7 +138,7 @@ const Analytics = ({ id }) => {
                                 icon={calender}
                             />
 
-                            <CustomExportMenu />
+                            <CustomExportMenu role={'dashboard'} />
                         </Box>
                     </Box>
                 </Grid>

@@ -21,6 +21,7 @@ import calender from '../../assets/images/calender.svg';
 import Loader from "../../common/Loader";
 import CustomFilter from "../../common/Custom/CustomFilter";
 import CustomChart from "../../common/Custom/CustomChart2";
+import { startOfYear } from "date-fns";
 import CustomExportMenu from "../../common/Custom/CustomExport";
 import CustomPie from "../../common/Custom/CustomPie";
 import SapsIcon1 from '../../assets/images/SapsIcon1.svg'
@@ -148,11 +149,12 @@ const ListOfSapsWanted = () => {
     const [selectedProvince, setSelectedProvince] = useState('all');
     const [range, setRange] = useState([
         {
-            startDate: new Date(),
+            startDate: startOfYear(new Date()),
             endDate: new Date(),
             key: 'selection'
         }
     ]);
+
     const handleFilterApply = (filters) => {
         console.log('Filters applied:', filters);
     };
@@ -187,7 +189,7 @@ const ListOfSapsWanted = () => {
                                 icon={calender}
                             />
 
-                            <CustomExportMenu />
+                            <CustomExportMenu role='dashboard' />
                         </Box>
                     </Box>
                 </Grid>

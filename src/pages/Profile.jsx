@@ -32,7 +32,7 @@ const Profile = () => {
   };
 
   const { mutate, isPending } = useUpdateUser(onSuccess, onError);
-  const userinfo = useGetUser(localStorage.getItem("userID"));
+  const userinfo = useGetUser(localStorage.getItem("userID"), role);
 
   const profileForm = useFormik({
     initialValues: role === "super_admin" ? super_admin : company,

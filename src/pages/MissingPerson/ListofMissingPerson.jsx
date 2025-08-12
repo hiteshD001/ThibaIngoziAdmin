@@ -14,6 +14,8 @@ import Loader from "../../common/Loader";
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import ImportSheet from "../../common/ImportSheet";
 import nouser from "../../assets/images/NoUser.png";
+import { startOfYear } from "date-fns";
+
 const MissingPersons = [
     {
         "_id": 1,
@@ -67,11 +69,12 @@ const ListofMissingPerson = () => {
     const nav = useNavigate();
     const [range, setRange] = useState([
         {
-            startDate: new Date(),
+            startDate: startOfYear(new Date()),
             endDate: new Date(),
             key: 'selection'
         }
     ]);
+
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");

@@ -12,6 +12,7 @@ import { DateRange } from 'react-date-range';
 import { format } from 'date-fns';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
+import { startOfYear } from "date-fns";
 
 const CustomDateRangePicker = ({
     value,
@@ -43,7 +44,7 @@ const CustomDateRangePicker = ({
                         variant="outlined"
                         sx={{
                             height: '40px',
-                            width: '240px',
+                            width: '230px',
                             borderRadius: '8px',
                             borderWidth: '1px',
                             justifyContent: 'space-between',
@@ -56,7 +57,7 @@ const CustomDateRangePicker = ({
                         }}
                         endIcon={<ExpandMoreIcon />}
                     >
-                        {icon && <img src={icon} alt="calendar" style={{ marginRight: 8 }} />}
+                        {icon && <img src={icon} alt="calendar" style={{ marginRight: 4 }} />}
                         <Typography variant="body2" sx={{ textTransform: 'none' }}>
                             {`${format(value[0].startDate, 'dd MMM yy')} - ${format(value[0].endDate, 'dd MMM yy')}`}
                         </Typography>
@@ -66,7 +67,7 @@ const CustomDateRangePicker = ({
                         open={popperOpen}
                         anchorEl={anchorEl}
                         placement="bottom-end"
-                        sx={{ zIndex: 10, mt: 1 }}
+                        sx={{ zIndex: 2000, mt: 1 }}
                     >
                         <Box sx={{ boxShadow: 3, borderRadius: 2, gap: 3, display: 'flex', flexDirection: 'row', backgroundColor: 'white', p: 2 }}>
                             {/* Quick Select Options */}
@@ -102,7 +103,8 @@ const CustomDateRangePicker = ({
                                     color="error"
                                     onClick={() => {
                                         const today = new Date();
-                                        onChange([{ startDate: today, endDate: today, key: 'selection' }]);
+                                        const start = startOfYear(today);
+                                        onChange([{ startDate: start, endDate: today, key: 'selection' }]);
                                         setAnchorEl(null);
                                     }}
                                 >

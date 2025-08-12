@@ -15,7 +15,9 @@ export const useGetUserList = (
     page,
     limit,
     filter,
-    notification_type
+    notification_type,
+    startDate,
+    endDate
 ) => {
     const nav = useNavigate();
 
@@ -28,6 +30,8 @@ export const useGetUserList = (
                 filter,
                 company_id,
                 notification_type,
+                startDate,
+                endDate
             },
         });
     };
@@ -41,6 +45,8 @@ export const useGetUserList = (
             limit,
             filter,
             notification_type,
+            startDate,
+            endDate,
         ],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
@@ -306,17 +312,19 @@ export const useDeleteSosAmount = (onSuccess, onError) => {
 }
 
 // trip
-export const useGetTripList = (key, page = 1, limit = 10, filter) => {
+export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, endDate) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userTrip`, {
-            params: { page, limit, filter },
+            params: {
+                page, limit, filter, startDate, endDate
+            },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter],
+        queryKey: [key, page, limit, filter, startDate, endDate],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         retry: false,
@@ -346,17 +354,17 @@ export const useDeleteUserTrip = (onSuccess, onError) => {
 };
 
 //meetingLink trip
-export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter) => {
+export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter, startDate, endDate) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userMeetingTrip`, {
-            params: { page, limit, filter },
+            params: { page, limit, filter, startDate, endDate },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter],
+        queryKey: [key, page, limit, filter, startDate, endDate],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         retry: false,

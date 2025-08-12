@@ -313,6 +313,13 @@ const CompanyInformation = ({ isMapLoaded }) => {
             nav("/home/total-drivers/add-driver");
         }
     };
+    const handleAddUser = () => {
+        if (role === "company" && params.id) {
+            nav("/home/total-users/add-user", { state: { companyId: params.id } });
+        } else {
+            nav("/home/total-users/add-user");
+        }
+    };
     const DropdownIndicator = (props) => {
         return (
             <components.DropdownIndicator {...props}>
@@ -1263,7 +1270,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             <Button variant="outlined" startIcon={<img src={plus} alt="plus icon" />} sx={{ height: '40px', width: '160px', fontSize: '0.8rem', borderRadius: '8px' }} onClick={() => setpopup(true)}>
                                 Import Sheet
                             </Button>
-                            <Button variant="contained" onClick={handleAddDriver} sx={{ height: '40px', fontSize: '0.8rem', width: '150px', borderRadius: '8px' }}
+                            <Button variant="contained" onClick={handleAddUser} sx={{ height: '40px', fontSize: '0.8rem', width: '150px', borderRadius: '8px' }}
                                 startIcon={<img src={whiteplus} alt='white plus' />}>
                                 Add User
                             </Button>

@@ -19,6 +19,8 @@ import CustomChart from "../common/CustomChart";
 import CustomExportMenu from "../common/Custom/CustomExport";
 import { useNavigate } from "react-router-dom";
 import CustomPie from "../common/Custom/CustomPie";
+import { startOfYear } from "date-fns";
+
 
 const provinces = [
     { value: 'all', label: 'All Provinces' },
@@ -89,7 +91,7 @@ const Report = ({ id }) => {
     const [selectedProvince, setSelectedProvince] = useState('all');
     const [range, setRange] = useState([
         {
-            startDate: new Date(),
+            startDate: startOfYear(new Date()),
             endDate: new Date(),
             key: 'selection'
         }
@@ -146,7 +148,7 @@ const Report = ({ id }) => {
                                 icon={calender}
                             />
 
-                            <CustomExportMenu />
+                            <CustomExportMenu role='dashboard' />
                         </Box>
                     </Box>
                 </Grid>

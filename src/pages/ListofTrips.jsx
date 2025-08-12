@@ -16,6 +16,12 @@ import { useGetTripList } from "../API Calls/API";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
 import Listtrip from '../assets/images/Listtrip.svg'
+import jsPDF from 'jspdf';
+import { autoTable } from 'jspdf-autotable'
+import * as XLSX from 'xlsx';
+import { toast } from "react-toastify";
+import { startOfYear } from "date-fns";
+import apiClient from "../API Calls/APIClient";
 
 const ListOfTrips = () => {
   const nav = useNavigate();
@@ -24,16 +30,17 @@ const ListOfTrips = () => {
   const [filter, setFilter] = useState("");
   const [range, setRange] = useState([
     {
-      startDate: new Date(),
+      startDate: startOfYear(new Date()),
       endDate: new Date(),
       key: 'selection'
     }
   ]);
   const [confirmation, setConfirmation] = useState("");
-
-  const trip = useGetTripList("Trip list", page, rowsPerPage, filter);
+  const startDate = range[0].startDate.toISOString();
+  const endDate = range[0].endDate.toISOString();
+  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate);
   const tripList = trip?.data?.data?.tripData || [];
-  const totalTrips = trip?.data?.data?.totalTrips || 0;
+  const totalTrips = trip?.data?.data?.totalTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
 
   const getChipStyle = (status) => {
@@ -65,7 +72,81 @@ const ListOfTrips = () => {
     }
   };
 
+  const handleExport = async ({ startDate, endDate, format: fileFormat }) => {
+    try {
+      const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/userTrip`, {
+        params: {
+          page: 1,
+          limit: 10000,
+          filter: "",
+          startDate,
+          endDate,
+        },
+      });
 
+      const allUsers = data?.tripData || [];
+      if (!allUsers.length) {
+        toast.warning("No trip data found for this period.");
+        return;
+      }
+
+      const exportData = allUsers.map(user => ({
+        "Driver": user.driver.first_name || '',
+        "Passanger": user.passenger.first_name || '',
+        "Started At": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
+        "Ended At": user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
+        "Ended By": user.ended_by || '',
+        "Status": user.trip_status || '',
+      }));
+
+      if (fileFormat === "xlsx") {
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+          wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+        }));
+        worksheet['!cols'] = columnWidths;
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Trips");
+        XLSX.writeFile(workbook, "Trip_List.xlsx");
+      }
+      else if (fileFormat === "csv") {
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const csv = XLSX.utils.sheet_to_csv(worksheet);
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'Trip_list.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      else if (fileFormat === "pdf") {
+        const doc = new jsPDF();
+        doc.text('Trip List', 14, 16);
+        autoTable(doc, {
+          head: [['Driver', 'Passanger', 'Started At', 'Ended At', 'Ended By', 'Status']],
+          body: allUsers.map(user => [
+            user.driver.first_name ?? 'NA',
+            user.passenger.first_name ?? 'NA',
+            format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") ?? 'NA',
+            user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
+            user.ended_by ?? 'NA',
+            user.trip_status ?? 'NA'
+          ]),
+          startY: 20,
+          theme: 'striped',
+          headStyles: { fillColor: '#367BE0' },
+          margin: { top: 20 },
+          styles: { fontSize: 10 },
+        });
+        doc.save("Trip_List.pdf");
+      }
+
+    } catch (err) {
+      console.error("Error exporting data:", err);
+      toast.error("Export failed.");
+    }
+  };
   return (
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "#fdfdfd", padding: 2, borderRadius: "10px" }}>
@@ -104,7 +185,7 @@ const ListOfTrips = () => {
                 onChange={setRange}
                 icon={calender}
               />
-              <CustomExportMenu />
+              <CustomExportMenu onExport={handleExport} />
             </Box>
           </Grid>
         </Grid>

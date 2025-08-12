@@ -12,10 +12,16 @@ import { format } from "date-fns";
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
 import search from "../assets/images/search.svg";
+import { startOfYear } from "date-fns";
 import { useGetMeetingLinkTripList } from "../API Calls/API";
 import Loader from "../common/Loader";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import Listtrip from '../assets/images/Listtrip.svg'
+import jsPDF from 'jspdf';
+import { autoTable } from 'jspdf-autotable'
+import * as XLSX from 'xlsx';
+import { toast } from "react-toastify";
+import apiClient from "../API Calls/APIClient";
 
 const ListOfMeetingLinkTrips = () => {
   const nav = useNavigate();
@@ -24,18 +30,94 @@ const ListOfMeetingLinkTrips = () => {
   const [filter, setFilter] = useState("");
   const [range, setRange] = useState([
     {
-      startDate: new Date(),
+      startDate: startOfYear(new Date()),
       endDate: new Date(),
       key: 'selection'
     }
   ]);
-
   const [confirmation, setConfirmation] = useState("");
-
-  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter);
+  const startDate = range[0].startDate.toISOString();
+  const endDate = range[0].endDate.toISOString();
+  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter, startDate, endDate);
   const tripList = trip?.data?.data?.tripData || [];
-  const totalTrips = trip?.data?.data?.totalTrips || 0;
+  const totalTrips = trip?.data?.data?.totalMeetingLinkTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
+
+  const handleExport = async ({ startDate, endDate, format: fileFormat }) => {
+    try {
+      const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/userMeetingTrip`, {
+        params: {
+          page: 1,
+          limit: 10000,
+          filter: "",
+          startDate,
+          endDate,
+        },
+      });
+
+      const allUsers = data?.tripData || [];
+      if (!allUsers.length) {
+        toast.warning("No Meeting Link Trip data found.");
+        return;
+      }
+
+      const exportData = allUsers.map(user => ({
+        "User1": user.user1.first_name || '',
+        "User2": user.user2.first_name || '',
+        "Started At": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
+        "Ended At": user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
+        // "Ended By": user.ended_by || '',
+        "Status": user.trip_status || '',
+      }));
+
+      if (fileFormat === "xlsx") {
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+          wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+        }));
+        worksheet['!cols'] = columnWidths;
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Meeting_Link_Trip_List");
+        XLSX.writeFile(workbook, "Meeting_Link_Trip_List.xlsx");
+      }
+      else if (fileFormat === "csv") {
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const csv = XLSX.utils.sheet_to_csv(worksheet);
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'Meeting_Link_Trip_List.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      else if (fileFormat === "pdf") {
+        const doc = new jsPDF();
+        doc.text('Meeting Link TripList', 14, 16);
+        autoTable(doc, {
+          head: [['User1', 'User2', 'Started At', 'Ended At', 'Status']],
+          body: allUsers.map(user => [
+            user.user1.first_name ?? 'NA',
+            user.user2.first_name ?? 'NA',
+            format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") ?? 'NA',
+            user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
+            // user.ended_by ?? 'NA',
+            user.trip_status ?? 'NA'
+          ]),
+          startY: 20,
+          theme: 'striped',
+          headStyles: { fillColor: '#367BE0' },
+          margin: { top: 20 },
+          styles: { fontSize: 10 },
+        });
+        doc.save("Meeting_Link_Trip_List.pdf");
+      }
+
+    } catch (err) {
+      console.error("Error exporting data:", err);
+      toast.error("Export failed.");
+    }
+  };
 
   return (
     <Box p={2}>
@@ -74,7 +156,7 @@ const ListOfMeetingLinkTrips = () => {
                 icon={calender}
               />
 
-              <CustomExportMenu />
+              <CustomExportMenu onExport={handleExport} />
             </Box>
           </Grid>
 

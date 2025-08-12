@@ -40,6 +40,10 @@ export const Login = () => {
         localStorage.setItem("userID", res.data.user._id);
         localStorage.setItem("userName", res.data.user.first_name + " " + res.data.user.last_name);
         localStorage.setItem("role", res.data.user.role);
+        localStorage.setItem("selfiImage", res.data.user.selfieImage);
+        localStorage.setItem("contact_name", res.data.user.contact_name);
+
+
         nav("/home");
     };
 
@@ -102,7 +106,7 @@ export const Login = () => {
                                     disabled={loginfn.isPending}
                                     type="submit"
                                     className="btn btn-primary d-block w-100"
-                                    style={{ backgroundColor: '#367BE0' }}
+                                    style={{ backgroundColor: '#367BE0', fontWeight: 700 }}
                                 >
                                     {loginfn.isPending ? <Loader color="white" /> : "Log In"}
                                 </button>

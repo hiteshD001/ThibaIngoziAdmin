@@ -14,7 +14,13 @@ import { useFormik } from "formik";
 import Select from "react-select";
 import checkedboxIcon from '../assets/images/checkboxIcon.svg'
 import uncheckedIcon from '../assets/images/UnChecked.svg'
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
+import calender from '../assets/images/calender.svg';
 import { useQueryClient } from "@tanstack/react-query";
+import jsPDF from 'jspdf';
+import { startOfYear } from "date-fns";
+import { autoTable } from 'jspdf-autotable'
+import * as XLSX from 'xlsx';
 import { toast } from "react-toastify";
 import { components } from 'react-select';
 import {
@@ -31,15 +37,13 @@ import {
     payoutUserUpdate,
     useGetSecurityList,
 } from "../API Calls/API";
-
+import CustomExportMenu from '../common/Custom/CustomExport'
 import PayoutPopup from "../common/Popup";
 import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
 import { toastOption } from "../common/ToastOptions";
-import * as XLSX from 'xlsx';
-import 'jspdf-autotable';
 import apiClient from "../API Calls/APIClient";
 
 import search from "../assets/images/search.svg";
@@ -61,6 +65,15 @@ const ListOfDrivers = () => {
     const [GrpservicesList, setGrpservicesList] = useState([]);
     const [payPopup, setPopup] = useState("");
     const [selectedPayoutType, setSelectedPayoutType] = useState("");
+    const [range, setRange] = useState([
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+    const startDate = range[0].startDate.toISOString();
+    const endDate = range[0].endDate.toISOString();
 
     const companyInfo = useGetUser(params.id);
     const driverList = useGetUserList(
@@ -69,7 +82,10 @@ const ListOfDrivers = () => {
         params.id,
         page,
         rowsPerPage,
-        filter
+        filter,
+        "",
+        startDate,
+        endDate
     );
     const getArmedSOS = useGetArmedSoS();
     const securityList = useGetSecurityList();
@@ -269,65 +285,81 @@ const ListOfDrivers = () => {
         }
     }, [CompanyForm.values.isArmed]);
 
-    const fetchAllDrivers = async () => {
+
+    const handleExport = async ({ startDate, endDate, format }) => {
         try {
-            const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
                 params: {
                     role: "driver",
                     page: 1,
                     limit: 10000,
-                    filter,
+                    filter: "",
                     company_id: params.id,
+                    startDate,
+                    endDate,
                 },
             });
-            return response?.data?.users || [];
-        } catch (error) {
-            console.error("Error fetching all driver data for export:", error);
-            toast.error("Failed to fetch driver data.");
-            return [];
+
+            const allUsers = data?.users || [];
+            if (!allUsers.length) {
+                toast.warning("No driver data found for this time period.");
+                return;
+            }
+            const exportData = allUsers.map(user => ({
+                "Driver": `${user.first_name || ''} ${user.last_name || ''}` || '',
+                "Driver ID": user.passport_no || '',
+                "Company": user.company_name || '',
+                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+                "Contact Email": user.email || ''
+            }));
+
+            if (format === "xlsx") {
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+                }));
+                worksheet['!cols'] = columnWidths;
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
+                XLSX.writeFile(workbook, "Drivers_List.xlsx");
+            }
+            else if (format === "csv") {
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const csv = XLSX.utils.sheet_to_csv(worksheet);
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'driver_list.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            else if (format === "pdf") {
+                const doc = new jsPDF();
+                doc.text('Driver List', 14, 16);
+                autoTable(doc, {
+                    head: [['Driver', 'Driver ID', 'Company', 'Contact No.', 'Contact Email']],
+                    body: allUsers.map(user => [
+                        `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
+                        user.passport_no ?? 'NA',
+                        user.company_name ?? 'NA',
+                        user?.email ?? 'NA',
+                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
+                        user.email ?? 'NA'
+                    ]),
+                    startY: 20,
+                    theme: 'striped',
+                    headStyles: { fillColor: '#367BE0' },
+                    margin: { top: 20 },
+                    styles: { fontSize: 10 },
+                });
+                doc.save("Drivers_List.pdf");
+            }
+
+        } catch (err) {
+            console.error("Error exporting data:", err);
+            toast.error("Export failed.");
         }
-    };
-
-    const handleExport = async () => {
-        setIsExportingDrivers(true);
-        const allDrivers = await fetchAllDrivers();
-        console.log(allDrivers)
-        setIsExportingDrivers(false);
-
-        if (!allDrivers || allDrivers.length === 0) {
-            toast.warning("No driver data to export.");
-            return;
-        }
-
-        const fileName = "Drivers_List";
-
-        // Prepare data for export
-        const exportData = allDrivers.map(driver => ({
-            "Driver Name": `${driver.first_name || ''} ${driver.last_name || ''}`,
-            "Driver ID": driver.id_no || '',
-            "Company": driver.company_name || '',
-            "Contact No.": `${driver.mobile_no_country_code || ''}${driver.mobile_no || ''}`,
-            "Contact Email": driver.email || ''
-        }));
-
-        // Create worksheet
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-        // Set column widths dynamically
-        const columnWidths = Object.keys(exportData[0]).map((key) => ({
-            wch: Math.max(
-                key.length,
-                ...exportData.map((row) => String(row[key] || '').length)
-            ) + 2,
-        }));
-        worksheet['!cols'] = columnWidths;
-
-        // Create workbook and add the worksheet
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
-
-        // Trigger download
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
     };
 
 
@@ -756,7 +788,7 @@ const ListOfDrivers = () => {
                 {/* Header */}
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                     <Grid
-                        size={{ xs: 12, md: 4 }}
+                        size={{ xs: 12, lg: 2.5 }}
                         sx={{ display: "flex", flexDirection: "row", gap: 2, mb: { xs: 1, md: 0 } }}
                     >
                         <Typography variant="h6" fontWeight={590}>
@@ -767,7 +799,7 @@ const ListOfDrivers = () => {
                         </Typography>
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+                    <Grid size={{ xs: 12, lg: 9.5 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
                         <TextField
                             variant="outlined"
                             placeholder="Search"
@@ -796,6 +828,11 @@ const ListOfDrivers = () => {
                         />
 
                         <Box display="flex" gap={1} sx={{ justifyContent: { xs: "space-between" } }}>
+                            <CustomDateRangePicker
+                                value={range}
+                                onChange={setRange}
+                                icon={calender}
+                            />
                             <Button variant="outlined" startIcon={<img src={plus} alt="plus icon" />} sx={{ height: '40px', width: '160px', fontSize: '0.8rem', borderRadius: '8px', border: '1px solid var(--Blue)' }} onClick={() => setpopup(true)}>
                                 Import Sheet
                             </Button>
@@ -804,6 +841,7 @@ const ListOfDrivers = () => {
                                 Add Driver
                             </Button>
 
+                            <CustomExportMenu onExport={handleExport} />
 
                         </Box>
                     </Grid>
@@ -860,6 +898,7 @@ const ListOfDrivers = () => {
                                                         sx={{ width: 32, height: 32 }}
                                                     />
                                                     {driver.first_name} {driver.last_name}
+
                                                 </Stack>
                                             </TableCell>
 

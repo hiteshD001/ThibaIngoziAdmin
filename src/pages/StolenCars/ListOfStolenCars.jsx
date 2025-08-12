@@ -13,6 +13,7 @@ import CustomFilter from "../../common/Custom/CustomFilter";
 import Loader from "../../common/Loader";
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import ImportSheet from "../../common/ImportSheet";
+import { startOfYear } from "date-fns";
 import nouser from "../../assets/images/NoUser.png";
 const StolenCars = [
     {
@@ -67,7 +68,7 @@ const ListOfStolenCars = () => {
     const nav = useNavigate();
     const [range, setRange] = useState([
         {
-            startDate: new Date(),
+            startDate: startOfYear(new Date()),
             endDate: new Date(),
             key: 'selection'
         }

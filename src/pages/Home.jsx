@@ -10,7 +10,9 @@ import {
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, FormControl, InputLabel
 } from "@mui/material";
-
+import { startOfYear } from "date-fns";
+import calender from '../assets/images/calender.svg';
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
 import search from '../assets/images/search.svg';
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import { useWebSocket } from "../API Calls/WebSocketContext";
@@ -41,6 +43,13 @@ const Home = ({ isMapLoaded }) => {
     const notificationTypes = useGetNotificationType();
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(20);
+    const [range, setRange] = useState([
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
     const nav = useNavigate();
     const userId = localStorage.getItem("userID");
     const role = localStorage.getItem("role");
@@ -198,10 +207,10 @@ const Home = ({ isMapLoaded }) => {
                 {/* active sos */}
                 <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-                        <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                        <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
                             <Typography variant="h6" fontWeight={590}>Active SOS Alerts</Typography>
                         </Grid>
-                        <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+                        <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
                             <TextField
                                 variant="outlined"
                                 placeholder="Search"
@@ -244,6 +253,11 @@ const Home = ({ isMapLoaded }) => {
                                         ))}
                                     </Select>
                                 </FormControl>
+                                <CustomDateRangePicker
+                                    value={range}
+                                    onChange={setRange}
+                                    icon={calender}
+                                />
 
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}

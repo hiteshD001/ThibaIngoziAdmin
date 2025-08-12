@@ -15,6 +15,16 @@ import delBtn from '../assets/images/delBtn.svg'
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
 import nouser from "../assets/images/NoUser.png";
+import CustomExportMenu from '../common/Custom/CustomExport'
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
+import calender from '../assets/images/calender.svg';
+import jsPDF from 'jspdf';
+import { autoTable } from 'jspdf-autotable'
+import * as XLSX from 'xlsx';
+import { toast } from "react-toastify";
+import apiClient from '../API Calls/APIClient'
+import { startOfYear } from "date-fns";
+
 
 const ListOfUsers = () => {
     const [popup, setpopup] = useState(false);
@@ -29,79 +39,104 @@ const ListOfUsers = () => {
     const [confirmation, setconfirmation] = useState("");
     let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;
+    const [range, setRange] = useState([
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+    const startDate = range[0].startDate.toISOString();
+    const endDate = range[0].endDate.toISOString();
 
-    const fetchAllUsers = async () => {
+    const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, filter, "", startDate, endDate);
+    const totalUsers = UserList.data?.data?.totalUsers || 0;
+    const totalPages = Math.ceil(totalUsers / rowsPerPage);
+
+    const handleExport = async ({ startDate, endDate, format }) => {
         try {
-            const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
                 params: {
                     role: "passanger",
                     page: 1,
                     limit: 10000,
-                    filter,
+                    filter: "",
                     company_id: paramId,
+                    startDate,
+                    endDate,
                 },
             });
-            return response?.data?.users || [];
-        } catch (error) {
-            console.error("Error fetching all User data for export:", error);
-            toast.error("Failed to fetch User data.");
-            return [];
+
+            const allUsers = data?.users || [];
+            if (!allUsers.length) {
+                toast.warning("No User data found for this period.");
+                return;
+            }
+
+            const exportData = allUsers.map(user => ({
+                "User": `${user.first_name || ''} ${user.last_name || ''}` || '',
+                "Company Name": user.company_name || '',
+                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+                "Contact Email": user.email || ''
+            }));
+
+            if (format === "xlsx") {
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+                }));
+                worksheet['!cols'] = columnWidths;
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+                XLSX.writeFile(workbook, "User_List.xlsx");
+            }
+            else if (format === "csv") {
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const csv = XLSX.utils.sheet_to_csv(worksheet);
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'user_list.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            else if (format === "pdf") {
+                const doc = new jsPDF();
+                doc.text('User List', 14, 16);
+                autoTable(doc, {
+                    head: [['User', 'Company Name', 'Contact No.', 'Contact Email']],
+                    body: allUsers.map(user => [
+                        `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
+                        user.company_name ?? 'NA',
+                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
+                        user.email ?? 'NA'
+                    ]),
+                    startY: 20,
+                    theme: 'striped',
+                    headStyles: { fillColor: '#367BE0' },
+                    margin: { top: 20 },
+                    styles: { fontSize: 10 },
+                });
+                doc.save("User_List.pdf");
+            }
+
+        } catch (err) {
+            console.error("Error exporting data:", err);
+            toast.error("Export failed.");
         }
     };
-
-    const handleExport = async () => {
-        setIsExporting(true);
-        const allUsers = await fetchAllUsers();
-        setIsExporting(false);
-
-        if (!allUsers || allUsers.length === 0) {
-            toast.warning("No User data to export.");
-            return;
-        }
-
-        const fileName = "Users_List";
-
-        // Prepare data for export
-        const exportData = allUsers.map(user => ({
-            "userName": `${user.first_name || ''} ${user.last_name || ''}`,
-            "Company": user.company_name || '',
-            "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
-            "Contact Email": user.email || ''
-        }));
-
-        // Create worksheet
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-        // Set column widths dynamically
-        const columnWidths = Object.keys(exportData[0]).map((key) => ({
-            wch: Math.max(
-                key.length,
-                ...exportData.map((row) => String(row[key] || '').length)
-            ) + 2,
-        }));
-        worksheet['!cols'] = columnWidths;
-
-        // Create workbook and add the worksheet
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
-
-        // Trigger download
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
-    };
-    const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, filter);
-    const totalUsers = UserList.data?.data?.totalUsers || 0;
-    const totalPages = Math.ceil(totalUsers / rowsPerPage);
     return (
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-                    <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                    <Grid size={{ xs: 12, lg: 2.5 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
                         <Typography variant="h6" fontWeight={590}>Total Users</Typography>
                         <Typography variant="h6" fontWeight={550}>
                             {UserList.isSuccess ? UserList.data?.data.totalUsers : 0}
                         </Typography>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+                    <Grid size={{ xs: 12, lg: 9.5 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
 
                         <TextField
                             variant="outlined"
@@ -130,6 +165,11 @@ const ListOfUsers = () => {
                             }}
                         />
                         <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+                            <CustomDateRangePicker
+                                value={range}
+                                onChange={setRange}
+                                icon={calender}
+                            />
                             <Button
                                 startIcon={<img src={plus} alt="plus icon" />}
                                 variant="outlined" size="small" sx={{ height: '40px', width: '150px', borderRadius: '8px' }}
@@ -146,6 +186,7 @@ const ListOfUsers = () => {
                             >
                                 Add User
                             </Button>
+                            <CustomExportMenu onExport={handleExport} />
                         </Box>
 
                     </Grid>
