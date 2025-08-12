@@ -10,7 +10,7 @@ import { changePasswordValidation } from "../common/FormValidation";
 import CustomSelect from "../common/Custom/CustomSelect";
 import "../css/reset-password.css";
 import { BootstrapInput } from "../common/BootstrapInput";
-import { Box, Paper, Grid, FormControl, InputLabel, IconButton, Button } from "@mui/material";
+import { Box, Paper, Grid, FormControl, InputLabel, IconButton, Button, Typography } from "@mui/material";
 
 const ChangePassword = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -55,9 +55,14 @@ const ChangePassword = () => {
                 sx={{ backgroundColor: "rgb(253, 253, 253)", p: 4, maxWidth: 500, borderRadius: "10px" }}
             >
                 <Grid container spacing={3}>
+                    <Grid size={12}>
+                        <Typography textAlign={'center'} variant="h6" fontWeight={550} color="initial">
+                            Change Password
+                        </Typography>
+                    </Grid>
                     <Grid size={{ xs: 12 }}>
                         <CustomSelect
-                            label="Company Name"
+                            label="Select Company"
                             name="company_id"
                             value={changePasswordForm.values.company_id}
                             onChange={changePasswordForm.handleChange}

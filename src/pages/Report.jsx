@@ -20,6 +20,15 @@ import CustomExportMenu from "../common/Custom/CustomExport";
 import { useNavigate } from "react-router-dom";
 import CustomPie from "../common/Custom/CustomPie";
 
+const provinces = [
+    { value: 'all', label: 'All Provinces' },
+    { value: 'cape_town', label: 'Cape Town' },
+    { value: 'mid_town', label: 'MidTown' },
+    { value: 'durban', label: 'Durban' },
+    { value: 'other', label: 'Other' },
+    { value: 'santurn', label: 'Santurn' },
+];
+
 const SosList = [
     {
         "responder": 'Mohammed Salem',
@@ -77,6 +86,7 @@ const Report = ({ id }) => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const notificationTypes = useGetNotificationType();
     const [selectedNotification, setSelectedNotification] = useState("");
+    const [selectedProvince, setSelectedProvince] = useState('all');
     const [range, setRange] = useState([
         {
             startDate: new Date(),
@@ -106,49 +116,12 @@ const Report = ({ id }) => {
         }
     }, [notificationTypes]);
 
-    useEffect(() => {
-        switch (time) {
-            case "today":
-                setactiveUser(
-                    driverList.data?.data.totalActiveDriversToday || 0
-                );
-                settimeTitle("Today");
-                break;
-            case "yesterday":
-                setactiveUser(
-                    driverList.data?.data.totalActiveDriversYesterday || 0
-                );
-                settimeTitle("Yesterday");
-                break;
-            case "this_week":
-                setactiveUser(
-                    driverList.data?.data.totalActiveDriversThisWeek || 0
-                );
-                settimeTitle("This Week");
-                break;
-            case "this_month":
-                setactiveUser(
-                    driverList.data?.data.totalActiveDriversThisMonth || 0
-                );
-                settimeTitle("This Month");
-                break;
-            case "this_year":
-                setactiveUser(
-                    driverList.data?.data.totalActiveDriversThisYear || 0
-                );
-                settimeTitle("This Year");
-                break;
-            default:
-                setactiveUser(0);
-                settimeTitle("Today");
-                break;
-        }
-    }, [driverList.data, time]);
-
-
-
     const handleFilterApply = (filters) => {
         console.log('Filters applied:', filters);
+    };
+    const handleProvinceChange = (event) => {
+        setSelectedProvince(event.target.value);
+        console.log("Selected Province:", event.target.value);
     };
     return (
         <Box>
@@ -256,12 +229,48 @@ const Report = ({ id }) => {
                         </Paper>
                     </Grid>
                     <Grid size={{ xs: 12, md: 6 }}>
-                        <CustomPie
-                            companyList={companyList}
-                            driverList={driverList}
-                            activeUser={activeUser}
-                            timeTitle={timeTitle}
-                        />
+                        <Paper
+                            elevation={3}
+                            sx={{
+                                p: 3,
+                                borderRadius: '12px',
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                            }}
+                        >
+
+                            <Grid container alignItems="center" justifyContent="space-between" sx={{ mb: 3, gap: 1 }}>
+                                <Grid size={{ xs: 12, sm: 7 }}>
+                                    <Typography variant="h6" component="h2" fontWeight="medium">
+                                        Incident Distribution by Location
+                                    </Typography>
+                                </Grid>
+                                <Grid size={{ xs: 12, md: 4.5 }} sx={{ mt: { xs: 2, sm: 0 } }}>
+                                    <FormControl sx={{ width: '100%' }} size="small">
+                                        <InputLabel id="province-select-label">Province</InputLabel>
+                                        <Select
+                                            labelId="province-select-label"
+                                            value={selectedProvince}
+                                            label="Province"
+                                            onChange={handleProvinceChange}
+                                        >
+                                            {provinces.map((province) => (
+                                                <MenuItem key={province.value} value={province.value}>
+                                                    {province.label}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+                            <CustomPie
+                                companyList={companyList}
+                                driverList={driverList}
+                                activeUser={activeUser}
+                                timeTitle={timeTitle}
+                            />
+                        </Paper>
                     </Grid>
                 </Grid>
                 <Grid container spacing={3}>

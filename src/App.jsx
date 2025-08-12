@@ -41,7 +41,7 @@ import ListOfStolenCars from './pages/StolenCars/ListOfStolenCars';
 import StolenCarDetails from './pages/StolenCars/StolenCarDetails'
 import SuspectDetail from "./pages/suspect/SuspectDetail";
 import ListOfSuspect from "./pages/suspect/ListOfSuspect";
-
+import ListOfSapsWanted from "./pages/Saps/ListOfSapsWanted";
 import GoogleMaps from "./common/GoogleMaps";
 
 // Define your map loader options once here
@@ -229,6 +229,15 @@ function App() {
                         {
                             path: 'person-information/:id',
                             element: <MissingPersonDetails />
+                        },
+                    ]
+                },
+                {
+                    path: "total-saps-wanted",
+                    children: [
+                        {
+                            path: "",
+                            element: <ListOfSapsWanted />
                         },
                     ]
                 },

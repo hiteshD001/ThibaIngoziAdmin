@@ -55,10 +55,10 @@ export const Login = () => {
                                 <img src={logo3} alt="logo" />
                             </div>
                             <h6 className="text-center  mb-4"
-                                style={{ color: "#4B5563" }}>Log in to stay safe and connected</h6>
+                                style={{ color: "#4B5563", fontWeight: 400 }}>Log in to stay safe and connected</h6>
                             <form onSubmit={loginForm.handleSubmit}>
                                 <div className="mb-0">
-                                    <label htmlFor="email" style={{ paddingLeft: '5px' }} className="form-label text-dark">
+                                    <label htmlFor="email" style={{ paddingLeft: '5px', fontWeight: 500 }} className="form-label text-dark">
                                         Email or Username
                                     </label>
                                     <input
@@ -68,7 +68,7 @@ export const Login = () => {
                                         value={loginForm.values.email}
                                         onChange={loginForm.handleChange}
                                         className="form-control placeholder-gray"
-                                        placeholder="Enter your email"
+                                        placeholder="Enter your email or username"
                                     />
 
                                     {loginForm.touched.email && (
@@ -77,7 +77,7 @@ export const Login = () => {
                                 </div>
 
                                 <div className="password-field">
-                                    <label htmlFor="password" style={{ paddingLeft: '5px' }} className="form-label text-dark">
+                                    <label htmlFor="password" style={{ paddingLeft: '5px', fontWeight: 500 }} className="form-label text-dark">
                                         Password
                                     </label>
                                     <input
@@ -86,7 +86,7 @@ export const Login = () => {
                                         value={loginForm.values.password}
                                         onChange={loginForm.handleChange}
                                         className="form-control placeholder-gray"
-                                        placeholder="Password"
+                                        placeholder="Enter your password"
                                     />
                                     <span onClick={togglePasswordVisibility} className="password-toggle-icon">
                                         {showPassword ? <FaEyeSlash /> : <FaEye />}

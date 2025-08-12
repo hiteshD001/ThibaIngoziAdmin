@@ -379,10 +379,7 @@ const Home = ({ isMapLoaded }) => {
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                         <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
                             <Typography variant="h6" fontWeight={590}>Recently Closed SOS Alerts</Typography>
-                            <button className="btn btn-primary" onClick={() => handleExport("recent")}
-                                disabled={isExportingRecent}>
-                                {isExportingRecent ? 'Exporting...' : '+ Export Sheet'}
-                            </button>
+
                         </Grid>
                         <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
                             <TextField

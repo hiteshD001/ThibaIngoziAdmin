@@ -6,6 +6,7 @@ import Report from '../assets/images/Report.svg'
 import Trip from '../assets/images/Trip.svg'
 import arrowLeft from "../assets/images/arrow-left.png";
 import ArmedSos from '../assets/images/ArmedSos.svg'
+import SapsWanted from '../assets/images/SapsWanted.svg'
 // import settings from "../assets/images/settings.png";
 import StolenCarIcon from '../assets/images/StolenCarIcon.svg'
 import MissingPersonIcon from '../assets/images/MissingPersonIcon.svg'
@@ -86,6 +87,13 @@ export const superadmin_menulist = [
     //     path: "",
     //     image: settings
     // },
+
+    {
+        id: "total-saps-wanted",
+        name: "SAPS Wanted",
+        path: "/home/total-saps-wanted",
+        image: SapsWanted
+    },
     {
         id: "reports",
         name: "Reports",
