@@ -596,13 +596,12 @@ export const useGetActiveSosData = (page = 1, limit = 10, startDate, endDate, se
 
 // get hotspot
 
-export const useGetHotspot = (type, company_id, notificationType) => {
+export const useGetHotspot = (startDate, endDate, company_id, notificationType) => {
     const params = {};
-    if (type) {
-        params.type = type;
-    }
+    params.startDate = startDate;
+    params.endDate = endDate
     if (notificationType) {
-        params.notificationType = notificationType === "all" ? "" : notificationType;
+        params.notificationType = notificationType === "all" ? " " : notificationType;
     }
     if (company_id) {
         params.company_id = company_id;
@@ -617,7 +616,7 @@ export const useGetHotspot = (type, company_id, notificationType) => {
     };
 
     const res = useQuery({
-        queryKey: ["hotspot", type, notificationType], // Add notificationType to the query key
+        queryKey: ["hotspot", startDate, endDate, company_id, notificationType], // Add notificationType to the query key
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         placeholderData: [],

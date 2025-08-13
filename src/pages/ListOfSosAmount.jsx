@@ -102,7 +102,7 @@ const ListOfSosAmount = () => {
                                             <TableCell sx={{ color: '#4B5563' }}>{data.driverSplitAmount ?? 0}</TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>{data.companySplitAmount ?? 0}</TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>{data.currency || "-"}</TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>{data.notificationTypeId?.type || "-"}</TableCell>
+                                            <TableCell sx={{ color: data?.notificationTypeId?.bgColor }}>{data.notificationTypeId?.type || "-"}</TableCell>
                                             <TableCell align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                 <IconButton onClick={() => nav(`/home/total-sos-amount/sos-amount/${data._id}`)}>
                                                     <img src={ViewBtn} alt="view button" />
@@ -185,9 +185,10 @@ const ListOfSosAmount = () => {
                     <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                         No data found
                     </Typography>
-                )}
-            </Paper>
-        </Box>
+                )
+                }
+            </Paper >
+        </Box >
     );
 };
 

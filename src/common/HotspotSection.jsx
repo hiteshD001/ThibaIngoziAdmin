@@ -27,9 +27,9 @@ import HotspotMap from './HotspotMap';
 
 function HotspotSection({ isMapLoaded }) {
     const nav = useNavigate();
-    const [selectedNotification, setSelectedNotification] = useState("");
+    const [selectedNotification, setSelectedNotification] = useState("all");
     const [time, setTime] = useState(new Date().toISOString());
-    const [id, setId] = useState("someUserId");
+    const [id, setId] = useState("");
     const [range, setRange] = useState([
         {
             startDate: startOfYear(new Date()),
@@ -42,7 +42,7 @@ function HotspotSection({ isMapLoaded }) {
 
     const notificationTypes = useGetNotificationType();
 
-    const hotspot = useGetHotspot(time, id, selectedNotification);
+    const hotspot = useGetHotspot(startDate, endDate, id, selectedNotification);
 
     const handleNotificationChange = (event) => {
         setSelectedNotification(event.target.value);
@@ -74,7 +74,7 @@ function HotspotSection({ isMapLoaded }) {
                                 onChange={handleNotificationChange}
                                 label="All Categories"
                             >
-                                <MenuItem value="">All Categories</MenuItem>
+                                <MenuItem value="all">All Categories</MenuItem>
                                 {notificationTypes.data?.data?.map((type) => (
                                     <MenuItem key={type._id} value={type._id}>
                                         {type.type}
@@ -100,10 +100,9 @@ function HotspotSection({ isMapLoaded }) {
                         ) : hotspot?.data?.data?.length === 0 ? (
                             <Typography sx={{ mt: 2 }}>No data Found</Typography>
                         ) : (
-                            hotspot?.data?.data
-                                .sort((a, b) =>
-                                    a.timesCalled > b.timesCalled ? -1 : 1
-                                )
+                            hotspot?.data?.data?.sort((a, b) =>
+                                a.timesCalled > b.timesCalled ? -1 : 1
+                            )
                                 .map((d, index) => (
                                     <Box
                                         key={index}
@@ -122,6 +121,7 @@ function HotspotSection({ isMapLoaded }) {
                                             padding: '1px',
                                             height: '35px',
                                             display: 'flex',
+                                            minWidth: '35px',
                                             justifyContent: 'center', alignItems: 'center', cursor: 'pointer', fontWeight: 'bold', backgroundColor: (d.timesCalled || 0) > 70 ? '#E5565A26' : '#F9731626',
                                         }} onClick={() =>
                                             nav(

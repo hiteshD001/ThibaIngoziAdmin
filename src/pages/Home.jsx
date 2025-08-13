@@ -9,6 +9,7 @@ import {
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, FormControl, InputLabel
 } from "@mui/material";
+import { useRef } from "react";
 import { startOfYear } from "date-fns";
 import calender from '../assets/images/calender.svg';
 import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
@@ -65,8 +66,8 @@ const Home = ({ isMapLoaded }) => {
     ]);
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
-    const startDateSos = range[0].startDate.toISOString();
-    const endDateSos = range[0].endDate.toISOString();
+    const startDateSos = rangeSos[0].startDate.toISOString();
+    const endDateSos = rangeSos[0].endDate.toISOString();
 
     const nav = useNavigate();
     const userId = localStorage.getItem("userID");
@@ -136,10 +137,15 @@ const Home = ({ isMapLoaded }) => {
         setStatus('')
     };
 
+    const prevLengthRef = useRef(activeUserList?.length);
+
     useEffect(() => {
-        refetchRecentSOS();
-        queryClient.invalidateQueries(['chartData'], { exact: false });
-        queryClient.invalidateQueries(['hotspot'], { exact: false });
+        if (activeUserList?.length !== prevLengthRef.current) {
+            prevLengthRef.current = activeUserList?.length;
+            refetchRecentSOS();
+            queryClient.invalidateQueries(['chartData'], { exact: false });
+            queryClient.invalidateQueries(['hotspot'], { exact: false });
+        }
     }, [activeUserList?.length]);
 
 
@@ -286,7 +292,7 @@ const Home = ({ isMapLoaded }) => {
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {user?.req_accept || "0"}
                                                 </TableCell>
-                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
                                                     {user?.type?.type || "-"}
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
@@ -479,7 +485,7 @@ const Home = ({ isMapLoaded }) => {
                                                         <TableCell sx={{ color: '#4B5563' }}>
                                                             {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
                                                         </TableCell>
-                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                        <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
                                                             {row?.type.type}
                                                         </TableCell>
                                                         <TableCell sx={{ color: '#4B5563' }}>
@@ -503,8 +509,8 @@ const Home = ({ isMapLoaded }) => {
                                         setPage={setRecentPage}
                                         limit={recentLimit}
                                         setLimit={setRecentLimit}
-                                        totalPages={recentSos?.data?.totalPages || 1}
-                                        totalItems={recentSos?.data?.totalItems || 0}
+                                        totalPages={recentSos?.data?.items?.totalPages || 1}
+                                        totalItems={recentSos?.data?.items?.totalItems || 0}
                                     />
                                 </Box>
                             ) : (
