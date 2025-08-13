@@ -418,11 +418,13 @@ const Home = ({ isMapLoaded }) => {
                                         <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
                                             <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                                                 <TableRow >
-                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>User</TableCell>
+                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>User Name</TableCell>
                                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company</TableCell>
                                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Last Active Status</TableCell>
                                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Start Time Stamp</TableCell>
                                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>End Time Stamp</TableCell>
+                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Type</TableCell>
+                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
                                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Action</TableCell>
                                                 </TableRow>
                                             </TableHead>
@@ -431,43 +433,43 @@ const Home = ({ isMapLoaded }) => {
                                                     <TableRow key={row?._id}>
                                                         <TableCell sx={{ color: '#4B5563' }}>
                                                             {
-                                                                row.user_id?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${row.user_id._id}`} className="link">
+                                                                row.user?.role === "driver" ? (
+                                                                    <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
 
                                                                             <Avatar
                                                                                 src={
-                                                                                    row?.user_id
+                                                                                    row?.user
                                                                                         ?.selfieImage ||
                                                                                     nouser
                                                                                 }
                                                                                 alt="User"
                                                                             />
 
-                                                                            {row?.user_id?.first_name || ''} {row?.user_id?.last_name || ''}
+                                                                            {row?.user?.first_name || ''} {row?.user?.last_name || ''}
                                                                         </Stack>
 
                                                                     </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${row.user_id._id}`} className="link">
+                                                                    <Link to={`/home/total-users/user-information/${row.user._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
 
                                                                             <Avatar
                                                                                 src={
-                                                                                    row?.user_id
+                                                                                    row?.user
                                                                                         ?.selfieImage ||
                                                                                     nouser
                                                                                 }
                                                                                 alt="User"
                                                                             />
 
-                                                                            {row?.user_id?.first_name || ''} {row?.user_id?.last_name || ''}
+                                                                            {row?.user?.first_name || ''} {row?.user?.last_name || ''}
                                                                         </Stack>
                                                                     </Link>
                                                                 )
                                                             }
                                                         </TableCell>
                                                         <TableCell sx={{ color: '#4B5563' }}>
-                                                            {row?.user_id?.company_name}
+                                                            {row?.user?.company_name}
                                                         </TableCell>
                                                         <TableCell sx={{ color: '#4B5563' }}>
 
@@ -479,10 +481,15 @@ const Home = ({ isMapLoaded }) => {
                                                         <TableCell sx={{ color: '#4B5563' }}>
                                                             {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
                                                         </TableCell>
-
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {row?.type.type}
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {row?.help_received}
+                                                        </TableCell>
                                                         <TableCell >
                                                             <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                                <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user_id?._id}`)}>
+                                                                <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user?._id}`)}>
                                                                     <img src={ViewBtn} alt="view button" />
                                                                 </IconButton>
                                                             </Box>
@@ -494,10 +501,10 @@ const Home = ({ isMapLoaded }) => {
 
                                     </TableContainer>
                                     <CustomPagination
-                                        page={page}
-                                        setPage={setPage}
-                                        limit={limit}
-                                        setLimit={setLimit}
+                                        page={recentPage}
+                                        setPage={setRecentPage}
+                                        limit={recentLimit}
+                                        setLimit={setRecentLimit}
                                         totalPages={recentSos?.data?.totalPages || 1}
                                         totalItems={recentSos?.data?.totalItems || 0}
                                     />
