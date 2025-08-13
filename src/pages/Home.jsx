@@ -137,11 +137,9 @@ const Home = ({ isMapLoaded }) => {
     };
 
     useEffect(() => {
-        if (activeUserList) {
-            refetchRecentSOS();
-            queryClient.invalidateQueries(['chartData'], { exact: false });
-            queryClient.invalidateQueries(['hotspot'], { exact: false });
-        }
+        refetchRecentSOS();
+        queryClient.invalidateQueries(['chartData'], { exact: false });
+        queryClient.invalidateQueries(['hotspot'], { exact: false });
     }, [activeUserList?.length]);
 
 
@@ -494,10 +492,10 @@ const Home = ({ isMapLoaded }) => {
 
                                     </TableContainer>
                                     <CustomPagination
-                                        page={page}
-                                        setPage={setPage}
-                                        limit={limit}
-                                        setLimit={setLimit}
+                                        page={recentPage}
+                                        setPage={setRecentPage}
+                                        limit={recentLimit}
+                                        setLimit={setRecentLimit}
                                         totalPages={recentSos?.data?.totalPages || 1}
                                         totalItems={recentSos?.data?.totalItems || 0}
                                     />

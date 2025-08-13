@@ -5,7 +5,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineDown, AiOutlineUp } from 
 import { useFormik } from "formik";
 import { companyValidation } from "../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType, useGetCityList } from "../API Calls/API";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { toast } from "react-toastify";
@@ -100,6 +100,7 @@ const AddCompany = () => {
 	const [servicesList, setServicesList] = useState([])
 	const newcompany = useRegister(onSuccess, onError)
 	const provincelist = useGetProvinceList(companyForm.values.country)
+	const cityList = useGetCityList(companyForm.values.province)
 	const countrylist = useGetCountryList()
 	const serviceslist = useGetServicesList()
 	const securityList = useGetSecurityList()
@@ -682,19 +683,19 @@ const AddCompany = () => {
 							/>
 						</Grid>
 						<Grid size={{ xs: 12, sm: 6 }}>
-							<FormControl variant="standard" fullWidth >
-								<InputLabel shrink htmlFor="city" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-									City
-								</InputLabel>
-								<BootstrapInput
-									id="city"
-									name="city"
-									placeholder="City"
-									value={companyForm.values.city}
-									onChange={companyForm.handleChange}
-								/>
-								{companyForm.touched.city && <div style={{ color: 'red', fontSize: 12 }}>{companyForm.errors.city}</div>}
-							</FormControl>
+							<CustomSelect
+								label="City"
+								name="city"
+								value={companyForm.values.city}
+								onChange={companyForm.handleChange}
+								options={cityList.data?.data.data?.map(city => ({
+									value: city._id,
+									label: city.city_name
+								})) || []}
+								error={companyForm.errors.city && companyForm.touched.city}
+								helperText={companyForm.touched.city ? companyForm.errors.city : ''}
+								disabled={!companyForm.values.country || !companyForm.values.province}
+							/>
 						</Grid>
 						<Grid size={{ xs: 12, sm: 6 }}>
 							<FormControl variant="standard" fullWidth >

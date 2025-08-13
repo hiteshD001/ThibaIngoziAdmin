@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import { useFormik } from "formik"
 import { vehicleValidation } from "../common/FormValidation"
 import { useQueryClient } from "@tanstack/react-query"
-import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API"
+import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser, useGetCityList } from "../API Calls/API"
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
@@ -82,6 +82,7 @@ const PassangerInformation = () => {
     const { mutate } = useUpdateUser(onSuccess, onError)
     const provincelist = useGetProvinceList(driverform.values.country)
     const countrylist = useGetCountryList()
+    const cityList = useGetCityList(driverform.values.province)
     const companyList = useGetUserList("company list", "company");
     useEffect(() => {
         const data = UserInfo.data?.data
@@ -444,21 +445,20 @@ const PassangerInformation = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: editAddress ? 6 : 4 }}>
                             {editAddress ? (
-                                <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="city" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        City
-                                    </InputLabel>
-                                    <BootstrapInput
-                                        id="city"
-                                        name="city"
-                                        placeholder="City"
-                                        value={driverform.values.city}
-                                        onChange={driverform.handleChange}
-                                        disabled={!editAddress}
-                                    />
-                                    {driverform.touched.city && <FormHelperText error>{driverform.errors.city}</FormHelperText>}
-                                </FormControl>
-                            ) : displayField("City", driverform.values.city)}
+                                <CustomSelect
+                                    label="City"
+                                    name="city"
+                                    value={driverform.values.city}
+                                    onChange={driverform.handleChange}
+                                    disabled={!editAddress}
+                                    options={cityList?.data?.data.data?.map(city => ({
+                                        value: city._id,
+                                        label: city.city_name
+                                    })) || []}
+                                    error={driverform.errors.city && driverform.touched.city}
+                                    helperText={driverform.touched.city ? driverform.errors.city : ''}
+                                />
+                            ) : displayField("City", cityList?.data?.data.data?.find(p => p._id === driverform.values.city)?.city_name)}
                         </Grid>
                         <Grid size={{ xs: 12, sm: editAddress ? 6 : 4 }}>
                             {editAddress ? (

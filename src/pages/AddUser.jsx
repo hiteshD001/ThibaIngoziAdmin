@@ -9,7 +9,8 @@ import {
     useGetCountryList,
     useGetProvinceList,
     useGetUserList,
-    useRegister
+    useRegister,
+    useGetCityList
 } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 import Loader from "../common/Loader";
@@ -64,6 +65,7 @@ const AddUser = () => {
     const companyList = useGetUserList("company list", "company");
     const countrylist = useGetCountryList();
     const provincelist = useGetProvinceList(UserForm?.values?.country);
+    const cityList = useGetCityList(UserForm?.values?.province)
 
     const handleCompanyChange = (e) => {
         const { name, value } = e.target;
@@ -369,19 +371,19 @@ const AddUser = () => {
                             />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                            <FormControl variant="standard" fullWidth >
-                                <InputLabel shrink htmlFor="city" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                    City
-                                </InputLabel>
-                                <BootstrapInput
-                                    id="city"
-                                    name="city"
-                                    placeholder="City"
-                                    value={UserForm.values.city}
-                                    onChange={UserForm.handleChange}
-                                />
-                                {UserForm.touched.city && <div style={{ color: 'red', fontSize: 12 }}>{UserForm.errors.city}</div>}
-                            </FormControl>
+                            <CustomSelect
+                                label="City"
+                                name="city"
+                                value={UserForm.values.city}
+                                onChange={UserForm.handleChange}
+                                options={cityList.data?.data.data?.map(city => ({
+                                    value: city._id,
+                                    label: city.city_name
+                                })) || []}
+                                error={UserForm.errors.city && UserForm.touched.city}
+                                helperText={UserForm.touched.city ? UserForm.errors.city : ''}
+                                disabled={!UserForm.values.country || !UserForm.values.province}
+                            />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <FormControl variant="standard" fullWidth >

@@ -26,7 +26,7 @@ import { useFormik } from "formik";
 import checkedboxIcon from '../assets/images/checkboxIcon.svg'
 import uncheckedIcon from '../assets/images/UnChecked.svg'
 import { BootstrapInput } from "../common/BootstrapInput";
-import { useGetCountryList, useGetProvinceList, useGetUserList, useRegister, useGeteHailingList } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetUserList, useRegister, useGeteHailingList, useGetCityList } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 import CustomSelect from "../common/Custom/CustomSelect";
 import Loader from "../common/Loader";
@@ -89,6 +89,7 @@ const AddDriver = () => {
     const newdriver = useRegister(onSuccess, onError)
     const companyList = useGetUserList("company list", "company")
     const provincelist = useGetProvinceList(driverForm.values.country)
+    const cityList = useGetCityList(driverForm.values.province)
     const countrylist = useGetCountryList()
     const eHailingList = useGeteHailingList()
 
@@ -469,19 +470,19 @@ const AddDriver = () => {
                             />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                            <FormControl variant="standard" fullWidth >
-                                <InputLabel shrink htmlFor="city" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                    City
-                                </InputLabel>
-                                <BootstrapInput
-                                    id="city"
-                                    name="city"
-                                    placeholder="City"
-                                    value={driverForm.values.city}
-                                    onChange={driverForm.handleChange}
-                                />
-                                {driverForm.touched.city && <div style={{ color: 'red', fontSize: 12 }}>{driverForm.errors.city}</div>}
-                            </FormControl>
+                            <CustomSelect
+                                label="City"
+                                name="city"
+                                value={driverForm.values.city}
+                                onChange={driverForm.handleChange}
+                                options={cityList.data?.data.data?.map(city => ({
+                                    value: city._id,
+                                    label: city.city_name
+                                })) || []}
+                                error={driverForm.errors.city && driverForm.touched.city}
+                                helperText={driverForm.touched.city ? driverForm.errors.city : ''}
+                                disabled={!driverForm.values.country || !driverForm.values.province}
+                            />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <FormControl variant="standard" fullWidth >

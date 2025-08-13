@@ -11,7 +11,8 @@ import {
     useGetUser,
     useGetUserList,
     useUpdateUser,
-    useGeteHailingList
+    useGeteHailingList,
+    useGetCityList
 } from "../API Calls/API";
 import CustomSelect from "../common/Custom/CustomSelect";
 import GrayPlus from '../assets/images/GrayPlus.svg'
@@ -137,6 +138,7 @@ const VehicleInformation = () => {
 
     const provincelist = useGetProvinceList(driverform.values.country);
     const countrylist = useGetCountryList();
+    const cityList = useGetCityList(driverform.values.province)
 
     useEffect(() => {
         const data = vehicleInfo.data?.data;
@@ -753,21 +755,20 @@ const VehicleInformation = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: editAddress ? 6 : 4 }}>
                             {editAddress ? (
-                                <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="city" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        City
-                                    </InputLabel>
-                                    <BootstrapInput
-                                        id="city"
-                                        name="city"
-                                        placeholder="City"
-                                        value={driverform.values.city}
-                                        onChange={driverform.handleChange}
-                                        disabled={!editAddress}
-                                    />
-                                    {driverform.touched.city && <FormHelperText error>{driverform.errors.city}</FormHelperText>}
-                                </FormControl>
-                            ) : displayField("City", driverform.values.city)}
+                                <CustomSelect
+                                    label="City"
+                                    name="city"
+                                    value={driverform.values.city}
+                                    onChange={driverform.handleChange}
+                                    disabled={!editAddress}
+                                    options={cityList?.data?.data.data?.map(city => ({
+                                        value: city._id,
+                                        label: city.city_name
+                                    })) || []}
+                                    error={driverform.errors.city && driverform.touched.city}
+                                    helperText={driverform.touched.city ? driverform.errors.city : ''}
+                                />
+                            ) : displayField("City", cityList?.data?.data.data?.find(p => p._id === driverform.values.city)?.city_name)}
                         </Grid>
                         <Grid size={{ xs: 12, sm: editAddress ? 6 : 4 }}>
                             {editAddress ? (

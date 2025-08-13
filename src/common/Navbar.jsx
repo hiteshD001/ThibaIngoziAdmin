@@ -112,11 +112,11 @@ const Navbar = ({ setActive, isActive }) => {
                 >
                     {
                         role == 'company' ? (
-                            <Typography variant="body1" component="span" sx={{ color: 'text.primary' }}>
+                            <Typography variant="body1" component="span" sx={{ color: '#0E0E0E', fontWeight: 550 }}>
                                 {contact_name}
                             </Typography>
                         ) : (
-                            <Typography variant="body1" component="span" sx={{ color: 'text.primary' }}>
+                            <Typography variant="body1" component="span" sx={{ color: '#0E0E0E', fontWeight: 550 }}>
                                 {userName}
                             </Typography>
                         )

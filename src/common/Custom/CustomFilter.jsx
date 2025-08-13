@@ -11,6 +11,7 @@ import {
 import {
     useGetCountryList,
     useGetProvinceList,
+    useGetCityList
 } from '../../API Calls/API';
 import filter from '../../assets/images/filter.svg';
 
@@ -43,6 +44,7 @@ const CustomFilter = ({ onApply }) => {
 
     const countryList = useGetCountryList();
     const provinceList = useGetProvinceList(filters.country);
+    const cityList = useGetCityList(filters.province)
 
     return (
         <>
@@ -99,7 +101,7 @@ const CustomFilter = ({ onApply }) => {
                     </FormControl>
 
                     {/* City */}
-                    <FormControl fullWidth size="small">
+                    <FormControl fullWidth size="small" disabled={!filters.country || !filters.province}>
                         <InputLabel>City</InputLabel>
                         <Select
                             name="city"
@@ -107,8 +109,11 @@ const CustomFilter = ({ onApply }) => {
                             onChange={handleChange}
                             label="City"
                         >
-                            <MenuItem value="Option1">Option 1</MenuItem>
-                            <MenuItem value="Option2">Option 2</MenuItem>
+                            {cityList?.data?.data?.data?.map((p) => (
+                                <MenuItem key={p._id} value={p._id}>
+                                    {p.city_name}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
 

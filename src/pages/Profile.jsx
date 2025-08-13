@@ -10,7 +10,7 @@ import { BootstrapInput } from "../common/BootstrapInput";
 import CustomSelect from "../common/Custom/CustomSelect";
 import { useEffect, useState, useLayoutEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList, useGetServicesList } from "../API Calls/API";
+import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList, useGetServicesList, useGetCityList } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
@@ -65,6 +65,7 @@ const Profile = () => {
   });
 
   const countrylist = useGetCountryList();
+  const cityList = useGetCityList(profileForm.values.province)
   const provincelist = useGetProvinceList(profileForm.values.country);
 
   useEffect(() => {
@@ -309,21 +310,19 @@ const Profile = () => {
             </Grid>
             <Grid size={{ xs: 12, sm: edit ? 6 : 4 }}>
               {edit ? (
-                <FormControl variant="standard" fullWidth >
-                  <InputLabel shrink htmlFor="city" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                    City
-                  </InputLabel>
-                  <BootstrapInput
-                    id="city"
-                    name="city"
-                    placeholder="City"
-                    value={profileForm.values.city}
-                    onChange={profileForm.handleChange}
-                    disabled={!edit}
-                  />
-                  {profileForm.touched.city && <FormHelperText error>{profileForm.errors.city}</FormHelperText>}
-                </FormControl>
-              ) : displayField("City", profileForm.values.city)}
+                <CustomSelect
+                  label="City"
+                  name="city"
+                  value={profileForm.values.city}
+                  onChange={profileForm.handleChange}
+                  options={cityList?.data?.data.data?.map(city => ({
+                    value: city._id,
+                    label: city.city_name
+                  })) || []}
+                  error={profileForm.errors.city && profileForm.touched.city}
+                  helperText={profileForm.touched.city ? profileForm.errors.city : ''}
+                />
+              ) : displayField("City", cityList?.data?.data.data?.find(p => p._id === profileForm.values.city)?.city_name)}
             </Grid>
             <Grid size={{ xs: 12, sm: edit ? 6 : 4 }}>
               {edit ? (
