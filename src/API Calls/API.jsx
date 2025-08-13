@@ -412,8 +412,26 @@ export const useGetProvinceList = (id) => {
     return res;
 };
 
-// get list of Country
+// get list of city
+export const useGetCityList = (id) => {
+    const queryFn = async (queryId) => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/city?province_id=${queryId}`
+        );
+    };
 
+    const res = useQuery({
+        queryKey: ["City List", id],
+        queryFn: () => queryFn(id),
+        staleTime: 15 * 60 * 1000,
+        enabled: Boolean(id),
+        retry: false,
+    });
+
+    return res;
+};
+
+// get list of Country
 export const useGetCountryList = () => {
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/country`);
@@ -467,15 +485,17 @@ export const useGetUser = (userId) => {
 
 // recent driver list
 
-export const useGetRecentSOS = (page = 1, limit = 20) => {
+export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, searchKey, type) => {
     const queryFn = async () => {
-        return await apiClient.get(
-            `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations?page=${page}&limit=${limit}`
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`, {
+            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit
+        }
         );
     };
 
     const res = useQuery({
-        queryKey: ["recentSOS", page, limit],
+        queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         keepPreviousData: true,
@@ -554,7 +574,24 @@ export const useGetChartData = (company_id, time, notificationType) => {
 
 // get active sos 
 
-export const useGetActiveSosData = () => {
+export const useGetActiveSosData = (page = 1, limit = 10, startDate, endDate, searchKey, type) => {
+
+    const queryFn = async () => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/location/active/sos/data`, {
+            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit
+        }
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type],
+        queryFn: queryFn,
+        refetchInterval: 1000,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res.data?.data?.data;
 }
 
 // get hotspot

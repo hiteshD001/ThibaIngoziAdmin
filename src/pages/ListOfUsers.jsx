@@ -170,6 +170,7 @@ const ListOfUsers = () => {
                                 onChange={setRange}
                                 icon={calender}
                             />
+                            <CustomExportMenu onExport={handleExport} />
                             <Button
                                 startIcon={<img src={plus} alt="plus icon" />}
                                 variant="outlined" size="small" sx={{ height: '40px', width: '150px', borderRadius: '8px' }}
@@ -186,7 +187,7 @@ const ListOfUsers = () => {
                             >
                                 Add User
                             </Button>
-                            <CustomExportMenu onExport={handleExport} />
+
                         </Box>
 
                     </Grid>

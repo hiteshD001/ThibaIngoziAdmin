@@ -1,7 +1,6 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
-    useGetActiveSOS,
+    // useGetActiveSOS,
     useGetRecentSOS,
     useGetUser,
     useGetActiveSosData,
@@ -29,20 +28,34 @@ import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
 
+
 const Home = ({ isMapLoaded }) => {
+    // filters
     const [filter, setfilter] = useState("");
+    const [recentFilter, setRecentFilter] = useState("");
     const [statusUpdate, setStatusUpdate] = useState(false);
     const [status, setStatus] = useState('')
-    const [activeUsers, setActiveUsers] = useState([])
+    // const [activeUsers, setActiveUsers] = useState([])
     const [selectedId, setSelectedId] = useState("");
-    const [selectedNotification, setSelectedNotification] = useState("");
-    const [isExportingActive, setIsExportingActive] = useState(false);
-    const [isExportingRecent, setIsExportingRecent] = useState(false);
-    const { isConnected, activeUserList } = useWebSocket();
+    const [selectedNotification, setSelectedNotification] = useState("all");
+    const [recentNotification, setRecentNotification] = useState("all")
+    // const { isConnected, activeUserList } = useWebSocket();
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
-    const [page, setPage] = useState(1);
-    const [limit, setLimit] = useState(20);
+    // Recent SOS pagination
+    const [recentPage, setRecentPage] = useState(1);
+    const [recentLimit, setRecentLimit] = useState(20);
+    // Active SOS pagination
+    const [activePage, setActivePage] = useState(1);
+    const [activeLimit, setActiveLimit] = useState(20);
+    // date picker 
+    const [rangeSos, setRangeSos] = useState([
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
     const [range, setRange] = useState([
         {
             startDate: startOfYear(new Date()),
@@ -50,16 +63,24 @@ const Home = ({ isMapLoaded }) => {
             key: 'selection'
         }
     ]);
+    const startDate = range[0].startDate.toISOString();
+    const endDate = range[0].endDate.toISOString();
+    const startDateSos = range[0].startDate.toISOString();
+    const endDateSos = range[0].endDate.toISOString();
+
     const nav = useNavigate();
     const userId = localStorage.getItem("userID");
     const role = localStorage.getItem("role");
-    const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS({ page, limit });
-    const activeSOS = useGetActiveSOS();
+
+    const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification);
+    const activeUserList = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification);
+    // const activeSOS = useGetActiveSOS();
+
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
         setStatusUpdate(false);
         setSelectedId("");
-        queryClient.refetchQueries(["activeSOS"]);
+        queryClient.refetchQueries(["activeSOS2"], { exact: false });
     };
     const onError = (error) => {
         toast.error(
@@ -67,30 +88,34 @@ const Home = ({ isMapLoaded }) => {
             toastOption
         );
     };
+
     const handleNotificationChange = (e) => {
         setSelectedNotification(e.target.value);
     };
-    useEffect(() => {
-        if (notificationTypes.data?.data.length > 0 && !selectedNotification) {
-            setSelectedNotification(notificationTypes.data?.data[0]?._id);
-        }
-    }, [notificationTypes]);
+    const handleRecentNotificationChange = (e) => {
+        setRecentNotification(e.target.value)
+    }
+    // useEffect(() => {
+    //     if (notificationTypes.data?.data.length > 0 && !selectedNotification) {
+    //         setSelectedNotification(notificationTypes.data?.data[0]?._id);
+    //     }
+    // }, [notificationTypes]);
 
-    const getUniqueById = (array) => {
-        const map = new Map();
-        array.forEach(item => {
-            map.set(item._id, item);
-        });
-        return [...map.values()];
-    };
 
-    useEffect(() => {
-        // useGetActiveSosData()
-        setActiveUsers(prev => {
-            const combined = [...prev, ...activeSOS || []];
-            return getUniqueById(combined);
-        });
-    }, [activeSOS]);
+    // const getUniqueById = (array) => {
+    //     const map = new Map();
+    //     array.forEach(item => {
+    //         map.set(item._id, item);
+    //     });
+    //     return [...map.values()];
+    // };
+
+    // useEffect(() => {
+    //     setActiveUsers(prev => {
+    //         const combined = [...prev, ...activeSOS || []];
+    //         return getUniqueById(combined);
+    //     });
+    // }, [activeSOS]);
 
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
     const userinfo = useGetUser(localStorage.getItem("userID"));
@@ -110,6 +135,7 @@ const Home = ({ isMapLoaded }) => {
         setStatusUpdate(false);
         setStatus('')
     };
+
     useEffect(() => {
         if (activeUserList) {
             refetchRecentSOS();
@@ -117,87 +143,6 @@ const Home = ({ isMapLoaded }) => {
             queryClient.invalidateQueries(['hotspot'], { exact: false });
         }
     }, [activeUserList?.length]);
-
-    const handleExport = async (type) => {
-        if (type === "active") setIsExportingActive(true);
-        else setIsExportingRecent(true);
-        let dataToExport = [];
-
-        if (type === "active") {
-            dataToExport = activeUserList || [];
-        } else if (type === "recent") {
-            try {
-                const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/location/recent-sos-locations?page=1&limit=10000`);
-                dataToExport = response?.data?.items || [];
-            } catch (error) {
-                console.error("Error fetching recent SOS data:", error);
-                toast.error("Failed to fetch recent SOS data.");
-            }
-        }
-
-        if (type === "active") setIsExportingActive(false);
-        else setIsExportingRecent(false);
-
-        if (!dataToExport || dataToExport.length === 0) {
-            toast.warning(`No ${type === "active" ? "Active" : "Recent"} SOS data to export.`);
-            return;
-        }
-
-        const fileName = type === "active" ? "Active_SOS" : "Recent_SOS";
-        let exportData = [];
-
-        if (type === 'active') {
-            exportData = dataToExport.map(user => ({
-                "User": `${user?.user_id?.first_name || ''} ${user?.user_id?.last_name || ''}`,
-                "Company": user?.user_id?.company_name || '',
-                "Address": user?.address || '',
-                "Request Reached": user?.req_reach || 0,
-                "Request Accepted": user?.req_accept || 0,
-                "Type": user?.type?.type || '',
-                "Time": moment(user?.createdAt).format('HH:mm:ss') ?? '',
-                // "Status": user?.help_received ?? '',
-            }));
-        } else {
-            exportData = dataToExport.map(user => ({
-                "User": `${user?.user_id?.first_name || ''} ${user?.user_id?.last_name || ''}`,
-                "Company": user?.user_id?.company_name || '',
-                "Address": user?.address || '',
-                "Start Time": user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : '',
-                "End Time": user?.updatedAt ? moment(user.updatedAt).format("HH:mm:ss - dd/MM/yyyy") : '',
-            }));
-        }
-
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-        const columnWidths = Object.keys(exportData[0]).map(key => ({
-            wch: Math.max(
-                key.length,
-                ...exportData.map(row => String(row[key] || '').length)
-            ) + 2,
-        }));
-
-        worksheet['!cols'] = columnWidths;
-
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
-    };
-
-    // active user list pagination
-    // const [activePage, setActivePage] = useState(1);
-    // const [activeLimit, setActiveLimit] = useState(10);
-    // useEffect(() => {
-    //     const maxPage = Math.max(
-    //         1,
-    //         Math.ceil((activeUserList?.length || 0) / activeLimit)
-    //     );
-    //     if (activePage > maxPage) setActivePage(maxPage);
-    // }, [activeUserList, activeLimit]);
-    // const paginatedActive = useMemo(() => {
-    //     const start = (activePage - 1) * activeLimit;
-    //     return activeUserList?.slice(start, start + activeLimit) || [];
-    // }, [activeUserList, activePage, activeLimit]);
-
 
 
     return (
@@ -238,6 +183,11 @@ const Home = ({ isMapLoaded }) => {
                                 }}
                             />
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+                                <CustomDateRangePicker
+                                    value={range}
+                                    onChange={setRange}
+                                    icon={calender}
+                                />
                                 <FormControl size="small" sx={{ maxWidth: 200 }}>
                                     <InputLabel>All Categories</InputLabel>
                                     <Select
@@ -245,7 +195,7 @@ const Home = ({ isMapLoaded }) => {
                                         onChange={handleNotificationChange}
                                         label="All Categories"
                                     >
-                                        <MenuItem value="">All Categories</MenuItem>
+                                        <MenuItem value="all">All Categories</MenuItem>
                                         {notificationTypes.data?.data?.map((type) => (
                                             <MenuItem key={type._id} value={type._id}>
                                                 {type.type}
@@ -253,11 +203,7 @@ const Home = ({ isMapLoaded }) => {
                                         ))}
                                     </Select>
                                 </FormControl>
-                                <CustomDateRangePicker
-                                    value={range}
-                                    onChange={setRange}
-                                    icon={calender}
-                                />
+
 
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
@@ -380,6 +326,14 @@ const Home = ({ isMapLoaded }) => {
                                 </Table>
 
                             </TableContainer>
+                            <CustomPagination
+                                page={activePage}
+                                setPage={setActivePage}
+                                limit={activeLimit}
+                                setLimit={setActiveLimit}
+                                totalPages={activeUserList?.data?.totalPages || 1}
+                                totalItems={activeUserList?.data?.totalItems || 0}
+                            />
                         </Box>
                     ) : (
                         <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
@@ -391,16 +345,16 @@ const Home = ({ isMapLoaded }) => {
                 {/* recently closed sos */}
                 <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 2, padding: 2, borderRadius: '10px' }}>
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-                        <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                        <Grid size={{ xs: 12, lg: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
                             <Typography variant="h6" fontWeight={590}>Recently Closed SOS Alerts</Typography>
 
                         </Grid>
-                        <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+                        <Grid size={{ xs: 12, lg: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
                             <TextField
                                 variant="outlined"
                                 placeholder="Search"
-                                value={filter}
-                                onChange={(e) => setfilter(e.target.value)}
+                                value={recentFilter}
+                                onChange={(e) => setRecentFilter(e.target.value)}
                                 fullWidth
                                 sx={{
                                     width: '100%',
@@ -423,14 +377,20 @@ const Home = ({ isMapLoaded }) => {
                                 }}
                             />
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+                                <CustomDateRangePicker
+                                    value={rangeSos}
+                                    onChange={setRangeSos}
+                                    icon={calender}
+                                />
                                 <FormControl size="small" sx={{ maxWidth: 200 }}>
                                     <InputLabel>All Categories</InputLabel>
+
                                     <Select
-                                        value={selectedNotification}
-                                        onChange={handleNotificationChange}
+                                        value={recentNotification}
+                                        onChange={handleRecentNotificationChange}
                                         label="All Categories"
                                     >
-                                        <MenuItem value="">All Categories</MenuItem>
+                                        <MenuItem value="all">All Categories</MenuItem>
                                         {notificationTypes.data?.data?.map((type) => (
                                             <MenuItem key={type._id} value={type._id}>
                                                 {type.type}

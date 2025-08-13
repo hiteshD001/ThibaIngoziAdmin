@@ -186,6 +186,10 @@ const ListOfTrips = () => {
                 icon={calender}
               />
               <CustomExportMenu onExport={handleExport} />
+              <Button variant="contained" sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
+                startIcon={<img src={ViewBtn} alt="View" />}>
+                View Archeived
+              </Button>
             </Box>
           </Grid>
         </Grid>

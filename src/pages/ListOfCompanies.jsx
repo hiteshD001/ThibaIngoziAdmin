@@ -165,6 +165,7 @@ const ListOfCompanies = () => {
                 onChange={setRange}
                 icon={calender}
               />
+              <CustomExportMenu onExport={handleExport} />
               <Button
                 variant="contained"
                 sx={{ height: '40px', width: '170px', borderRadius: '8px', fontWeight: 400 }}
@@ -173,7 +174,7 @@ const ListOfCompanies = () => {
               >
                 Add Company
               </Button>
-              <CustomExportMenu onExport={handleExport} />
+
             </Box>
 
           </Grid>

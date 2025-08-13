@@ -19,7 +19,9 @@ import { useGetHotspot, useGetNotificationType } from '../API Calls/API';
 
 // Import your Loader component
 import Loader from './Loader'; // Assuming you have a Loader component
-
+import { startOfYear } from "date-fns";
+import calender from '../assets/images/calender.svg';
+import CustomDateRangePicker from "./Custom/CustomDateRangePicker";
 // Import the Hotspot Map component
 import HotspotMap from './HotspotMap';
 
@@ -28,6 +30,15 @@ function HotspotSection({ isMapLoaded }) {
     const [selectedNotification, setSelectedNotification] = useState("");
     const [time, setTime] = useState(new Date().toISOString());
     const [id, setId] = useState("someUserId");
+    const [range, setRange] = useState([
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+    const startDate = range[0].startDate.toISOString();
+    const endDate = range[0].endDate.toISOString();
 
     const notificationTypes = useGetNotificationType();
 
@@ -50,21 +61,28 @@ function HotspotSection({ isMapLoaded }) {
                 {/* Top Left Heading */}
                 <Grid size={12} justifyContent="space-between" alignItems="center" sx={{ display: 'flex', flexDirection: 'row', p: 1 }}>
                     <Typography variant="h6" fontWeight={590}>  SOS Hotspot Map</Typography>
-                    <FormControl size="small" sx={{ minWidth: '170px' }}>
-                        <InputLabel>All Categories</InputLabel>
-                        <Select
-                            value={selectedNotification}
-                            onChange={handleNotificationChange}
-                            label="All Categories"
-                        >
-                            <MenuItem value="">All Categories</MenuItem>
-                            {notificationTypes.data?.data?.map((type) => (
-                                <MenuItem key={type._id} value={type._id}>
-                                    {type.type}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+                        <CustomDateRangePicker
+                            value={range}
+                            onChange={setRange}
+                            icon={calender}
+                        />
+                        <FormControl size="small" sx={{ minWidth: '170px' }}>
+                            <InputLabel>All Categories</InputLabel>
+                            <Select
+                                value={selectedNotification}
+                                onChange={handleNotificationChange}
+                                label="All Categories"
+                            >
+                                <MenuItem value="">All Categories</MenuItem>
+                                {notificationTypes.data?.data?.map((type) => (
+                                    <MenuItem key={type._id} value={type._id}>
+                                        {type.type}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
                 </Grid>
                 {/* Google Map (md:8) */}
                 <Grid size={{ xs: 12, md: 8, borderRadius: '16px' }}>
