@@ -92,7 +92,10 @@ export const superadmin_menulist = [
         id: "total-saps-wanted",
         name: "SAPS Wanted",
         path: "/home/total-saps-wanted",
-        image: SapsWanted
+        image: SapsWanted,
+        add: "Add Saps Member",
+        info: "Suspect Information",
+        // company: "Suspect Information"
     },
     {
         id: "reports",

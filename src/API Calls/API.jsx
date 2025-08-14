@@ -601,7 +601,7 @@ export const useGetHotspot = (startDate, endDate, company_id, notificationType) 
     params.startDate = startDate;
     params.endDate = endDate
     if (notificationType) {
-        params.notificationType = notificationType === "all" ? " " : notificationType;
+        params.notificationType = notificationType === "all" ? "" : notificationType;
     }
     if (company_id) {
         params.company_id = company_id;

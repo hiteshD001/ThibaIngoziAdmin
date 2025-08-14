@@ -3,6 +3,7 @@ import { useGetChartData, useGetUserList, useGetNotificationType } from "../../A
 import {
     Grid, Typography, Select, Box, TextField, InputAdornment, MenuItem, FormControl, InputLabel, IconButton, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Stack, Avatar, Chip, Paper, Button, Menu
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import plus from '../../assets/images/plus.svg'
 import whiteplus from '../../assets/images/whiteplus.svg';
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -154,6 +155,7 @@ const ListOfSapsWanted = () => {
             key: 'selection'
         }
     ]);
+    const nav = useNavigate()
 
     const handleFilterApply = (filters) => {
         console.log('Filters applied:', filters);
@@ -451,7 +453,7 @@ const ListOfSapsWanted = () => {
                                     <Button
                                         variant="contained"
                                         sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
-                                        onClick={() => nav("/home/total-saps-wanted")}
+                                        onClick={() => nav("/home/total-saps-wanted/add-wanted")}
                                         startIcon={<img src={whiteplus} alt='white plus' />}
                                     >
                                         Add
@@ -592,7 +594,7 @@ const ListOfSapsWanted = () => {
                                                         <MenuItem
                                                             onClick={() => {
                                                                 handleCloseMenu();
-                                                                onView();
+                                                                nav(`/home/total-saps-wanted/wanted-information&${user._id}`)
                                                             }}
                                                         >
                                                             <img src={OutlinedView} alt="view button" /> &nbsp; View
@@ -736,7 +738,7 @@ const ListOfSapsWanted = () => {
                                     <Button
                                         variant="contained"
                                         sx={{ height: '40px', width: '200px', borderRadius: '8px' }}
-                                        onClick={() => nav("/home/total-users/add-user")}
+                                        onClick={() => nav("/home/total-saps-wanted/add-saps-member")}
                                         startIcon={<img src={whiteplus} alt='white plus' />}
                                     >
                                         Add Saps Member

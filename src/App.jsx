@@ -1,5 +1,4 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-
 import Layout from "./common/Layout";
 import Report from "./pages/Report";
 import { Login } from "./pages/Login";
@@ -43,6 +42,9 @@ import SuspectDetail from "./pages/suspect/SuspectDetail";
 import ListOfSuspect from "./pages/suspect/ListOfSuspect";
 import ListOfSapsWanted from "./pages/Saps/ListOfSapsWanted";
 import GoogleMaps from "./common/GoogleMaps";
+import WantedInformation from "./pages/Saps/WantedInformation";
+import AddSapsMember from "./pages/Saps/AddSapsMember";
+import AddSapsWanted from "./pages/Saps/AddSapsWanted"
 
 // Define your map loader options once here
 const mapLoaderOptions = {
@@ -239,6 +241,18 @@ function App() {
                             path: "",
                             element: <ListOfSapsWanted />
                         },
+                        {
+                            path: 'add-wanted',
+                            element: <AddSapsWanted />
+                        },
+                        {
+                            path: "wanted-inforamtion/:id",
+                            element: <WantedInformation />
+                        },
+                        {
+                            path: 'add-saps-member',
+                            element: <AddSapsMember />
+                        }
                     ]
                 },
                 {
