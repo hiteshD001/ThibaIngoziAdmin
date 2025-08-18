@@ -591,7 +591,7 @@ export const useGetActiveSosData = (page = 1, limit = 10, startDate, endDate, se
         staleTime: 15 * 60 * 1000,
     });
 
-    return res.data?.data?.data;
+    return res;
 }
 
 // get hotspot

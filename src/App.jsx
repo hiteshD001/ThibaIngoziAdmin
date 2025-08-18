@@ -12,6 +12,7 @@ import ListOfCompanies from "./pages/ListOfCompanies";
 import AddCompany from "./pages/AddCompany";
 import ListOfDrivers from "./pages/ListOfDrivers";
 import AddDriver from "./pages/AddDriver";
+import FlaggedReport from "./pages/FlaggedReport";
 import VehicleInformation from "./pages/VehicleInformation";
 import HardwareManagement from "./pages/HardwareManagement";
 import Profile from "./pages/Profile";
@@ -45,6 +46,9 @@ import GoogleMaps from "./common/GoogleMaps";
 import WantedInformation from "./pages/Saps/WantedInformation";
 import AddSapsMember from "./pages/Saps/AddSapsMember";
 import AddSapsWanted from "./pages/Saps/AddSapsWanted"
+import ListOfCrimeReports from "./pages/crimeReports/ListOfCrimeReports";
+import CrimeReport from "./pages/crimeReports/CrimeReport";
+import ForwardToPolice from "./pages/crimeReports/ForwardToPolice";
 
 // Define your map loader options once here
 const mapLoaderOptions = {
@@ -279,6 +283,31 @@ function App() {
                             path: 'suspect-information/:id',
                             element: <SuspectDetail />
                         },
+                    ]
+                },
+                {
+                    path: "flagged-report",
+                    children: [
+                        {
+                            path: "",
+                            element: <FlaggedReport />
+                        },
+                    ]
+                },
+                {
+                    path: "crime-reports",
+                    children: [
+                        {
+                            path: "",
+                            element: <ListOfCrimeReports />
+                        },
+                        {
+                            path: "crime-report/:id",
+                            element: <CrimeReport />
+                        }, {
+                            path: 'forward-to-police',
+                            element: <ForwardToPolice />
+                        }
                     ]
                 },
                 {

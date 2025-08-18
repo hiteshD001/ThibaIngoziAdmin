@@ -4,10 +4,12 @@ import users from '../assets/images/users.svg'
 import MeetingLink from '../assets/images/MeetingLink.svg'
 import Report from '../assets/images/Report.svg'
 import Trip from '../assets/images/Trip.svg'
+import Crime from '../assets/images/crime.svg'
 import arrowLeft from "../assets/images/arrow-left.png";
 import ArmedSos from '../assets/images/ArmedSos.svg'
 import SapsWanted from '../assets/images/SapsWanted.svg'
 // import settings from "../assets/images/settings.png";
+import Flagged from '../assets/images/Flagged.svg'
 import StolenCarIcon from '../assets/images/StolenCarIcon.svg'
 import MissingPersonIcon from '../assets/images/MissingPersonIcon.svg'
 import SuspectIcon from '../assets/images/SuspectIcon.svg'
@@ -118,11 +120,27 @@ export const superadmin_menulist = [
         company: "Stolen Car Sighting Details"
     },
     {
+        id: "crime-reports",
+        name: "Crime Reports",
+        path: "/home/crime-reports",
+        image: Crime,
+        company: "Crime Report",
+        add: "Forward To Police Unit",
+
+
+    },
+    {
         id: "total-suspect",
         name: "Suspect Sightings",
         path: "/home/total-suspect",
         image: SuspectIcon,
         company: "Suspect Sighting Details"
+    },
+    {
+        id: "flagged-report",
+        name: "Flagged Report",
+        path: "/home/flagged-report",
+        image: Flagged,
     },
     {
         id: "change-password",

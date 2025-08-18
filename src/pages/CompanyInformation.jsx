@@ -199,6 +199,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                     options: filteredServices.map((service) => ({
                         label: service.type,
                         value: service._id,
+                        color: service.bgColor,
+                        icon: service.icon
                     })),
                 },
             ];
@@ -636,7 +638,34 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                                                 checkedIcon={<img src={checkedboxIcon} alt="checked" />}
                                                             />
                                                         }
-                                                        label={service.label}
+                                                        label={
+                                                            <Box display="flex" alignItems="center" gap={1}>
+                                                                {/* Circle background around icon */}
+                                                                <Box
+                                                                    sx={{
+                                                                        width: 32,
+                                                                        height: 32,
+                                                                        borderRadius: "50%",
+                                                                        backgroundColor: `${service.color}33`, // 33 = ~20% opacity in hex
+                                                                        display: "flex",
+                                                                        alignItems: "center",
+                                                                        justifyContent: "center",
+                                                                    }}
+                                                                >
+                                                                    <img
+                                                                        src={service.icon}
+                                                                        alt={service.label}
+                                                                        style={{ width: 15, height: 15 }}
+                                                                    />
+                                                                </Box>
+
+                                                                {/* Colored text */}
+                                                                <span style={{ color: service.color, fontWeight: 500 }}>
+                                                                    {service.label}
+                                                                </span>
+                                                            </Box>
+
+                                                        }
                                                     />
                                                 );
                                             })}
@@ -865,18 +894,18 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
                                                             <Avatar
                                                                 src={
-                                                                    row?.user_id
+                                                                    row?.user
                                                                         ?.selfieImage ||
                                                                     nouser
                                                                 }
                                                                 alt="User"
                                                             />
 
-                                                            {row?.user_id?.username}
+                                                            {row?.user?.first_name || ''} {row?.user?.last_name || ''}
                                                         </Stack>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {row?.user_id?.company_name}
+                                                        {row?.user?.company_name}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
 
@@ -891,7 +920,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                            <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user_id?._id}`)}>
+                                                            <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user?._id}`)}>
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>
                                                         </Box>
