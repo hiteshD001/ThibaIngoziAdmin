@@ -1,12 +1,10 @@
 import React from 'react';
 import {
-    Paper,
-    Box,
-    Typography,
-    Chip,
-    Grid,
-    Button
+    Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, Button
 } from '@mui/material';
+import nouser from "../../assets/images/NoUser.png";
+import ViewBtn from '../../assets/images/ViewBtn.svg'
+
 import WhiteTick from '../../assets/images/WhiteTick.svg'
 import { AiOutlineEye, AiOutlineCheck } from "react-icons/ai";
 
@@ -17,7 +15,17 @@ const MissingPersonDetails = () => {
     const description = "The suspect was seen wearing a black hoodie and jeans, fleeing the scene on foot.";
     const location = "Downtown Street, Sector 12";
     const dateTime = "August 5, 2025 at 10:45 AM";
-
+    const MissingPersons = [
+        {
+            "_id": 1,
+            "name": 'Mohammad Salem',
+            "location": 'Sandton, Johannesburg Gauteng,2196',
+            "date": '02/05/25',
+            "req_accept": '20',
+            "req_reached": '30',
+            'reportedBy': 'Jane Cooper'
+        },
+    ]
     return (
         <Box px={2} sx={{ display: 'flex', gap: 3, flexDirection: 'column' }}>
             <Paper
@@ -124,14 +132,14 @@ const MissingPersonDetails = () => {
                     </Grid>
                 </Box>
                 <Box sx={{ mt: 4, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', gap: 2 }}>
-                    <Button
+                    {/* <Button
                         variant="outlined"
                         sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, color: 'black', border: '1px solid var(--light-gray)' }}
                         onClick={() => nav("/home/total-companies/add-company")}
                         startIcon={<AiOutlineEye />}
                     >
                         Go to Case Details
-                    </Button>
+                    </Button> */}
                     <Button
                         variant="contained"
                         sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: '#259157' }}
@@ -139,7 +147,7 @@ const MissingPersonDetails = () => {
                         startIcon={<img src={WhiteTick} alt="white tick" />}
 
                     >
-                        Mark as Captured
+                        Mark as Found
                     </Button>
                     <Button
                         variant="contained"
@@ -151,6 +159,85 @@ const MissingPersonDetails = () => {
                         Mark as Reviewed
                     </Button>
                 </Box>
+            </Paper>
+            <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
+                <Typography variant="h6" fontWeight={590}>Missing Person SOS Details</Typography>
+                {MissingPersons.length < 0 ? (
+                    <Loader />
+                ) : MissingPersons.length > 0 ? (
+                    <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                        <TableContainer >
+                            <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', } }}>
+                                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                    <TableRow >
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Name</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Last Seen Location</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Date</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>Request Reached</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>Request Accepted</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Reported by</TableCell>
+                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Action</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {MissingPersons.map((user) => (
+                                        <TableRow key={user._id}>
+                                            <TableCell sx={{ color: '#4B5563' }}>
+                                                <Stack direction="row" alignItems="center" gap={1}>
+                                                    <Avatar
+                                                        src={user.profileImage || nouser}
+                                                        alt="User"
+                                                    />
+
+                                                    {/* {user.first_name} {user.last_name} */}
+                                                    {user.name}
+                                                </Stack>
+                                            </TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>
+
+                                                {user.location || "-"}
+
+                                            </TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>
+
+                                                {user.date}
+
+                                            </TableCell>
+                                            <TableCell sx={{ color: 'var(--orange)', textAlign: 'center' }}>
+
+                                                {user.req_reached || "-"}
+
+                                            </TableCell>
+                                            <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
+
+                                                {user.req_accept || "-"}
+
+                                            </TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>
+
+                                                {user.reportedBy || "-"}
+
+                                            </TableCell>
+
+                                            <TableCell >
+                                                <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                    <IconButton onClick={() => nav(`/home/total-missing-person/person-information/${user._id}`)}>
+                                                        <img src={ViewBtn} alt="view button" />
+                                                    </IconButton>
+                                                </Box>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+
+                        </TableContainer>
+                    </Box>
+                ) : (
+                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                        No data found
+                    </Typography>
+                )}
             </Paper>
         </Box>
     );

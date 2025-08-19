@@ -197,8 +197,8 @@ const Home = ({ isMapLoaded }) => {
                             />
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
                                 <CustomDateRangePicker
-                                    value={range}
-                                    onChange={setRange}
+                                    value={rangeSos}
+                                    onChange={setRangeSos}
                                     icon={calender}
                                 />
                                 <FormControl size="small" sx={{ maxWidth: 200 }}>
@@ -444,8 +444,8 @@ const Home = ({ isMapLoaded }) => {
                             />
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
                                 <CustomDateRangePicker
-                                    value={rangeSos}
-                                    onChange={setRangeSos}
+                                    value={range}
+                                    onChange={setRange}
                                     icon={calender}
                                 />
                                 <FormControl size="small" sx={{ maxWidth: 200 }}>

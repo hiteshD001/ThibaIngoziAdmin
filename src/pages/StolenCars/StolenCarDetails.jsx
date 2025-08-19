@@ -1,14 +1,9 @@
 import React from 'react';
 import {
-    Paper,
-    Box,
-    Typography,
-    Chip,
-    Grid,
-    Button
-} from '@mui/material';
+    Box, Typography, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, Stack, Button, Chip
+} from "@mui/material";
+import ViewBtn from '../../assets/images/ViewBtn.svg'
 import WhiteTick from '../../assets/images/WhiteTick.svg'
-import { AiOutlineEye, AiOutlineCheck } from "react-icons/ai";
 
 const StolenCarDetails = () => {
     // Mock data – replace with actual props or API data
@@ -17,7 +12,17 @@ const StolenCarDetails = () => {
     const description = "The suspect was seen wearing a black hoodie and jeans, fleeing the scene on foot.";
     const location = "Downtown Street, Sector 12";
     const dateTime = "August 5, 2025 at 10:45 AM";
-
+    const StolenCars = [
+        {
+            "_id": 1,
+            "name": 'Mohammad Salem',
+            "location": 'Sandton, Johannesburg Gauteng,2196',
+            "date": '02/05/25',
+            "req_accept": '20',
+            "req_reached": '30',
+            'reportedBy': 'Jane Cooper'
+        },
+    ]
     return (
         <Box px={2} sx={{ display: 'flex', gap: 3, flexDirection: 'column' }}>
             <Paper
@@ -141,14 +146,14 @@ const StolenCarDetails = () => {
                     </Grid>
                 </Box>
                 <Box sx={{ mt: 4, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', gap: 2 }}>
-                    <Button
+                    {/* <Button
                         variant="outlined"
                         sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, color: 'black', border: '1px solid var(--light-gray)' }}
                         onClick={() => nav("/home/total-companies/add-company")}
                         startIcon={<AiOutlineEye />}
                     >
                         Go to Case Details
-                    </Button>
+                    </Button> */}
                     <Button
                         variant="contained"
                         sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: '#259157' }}
@@ -156,7 +161,7 @@ const StolenCarDetails = () => {
                         startIcon={<img src={WhiteTick} alt="white tick" />}
 
                     >
-                        Mark as Captured
+                        Mark as Found
                     </Button>
                     <Button
                         variant="contained"
@@ -168,6 +173,88 @@ const StolenCarDetails = () => {
                         Mark as Reviewed
                     </Button>
                 </Box>
+            </Paper>
+            <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
+                <Typography variant="h6" fontWeight={590}>Stolen Cars</Typography>
+                {StolenCars.length < 0 ? (
+                    <Loader />
+                ) : StolenCars.length > 0 ? (
+                    <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                        <TableContainer >
+                            <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', } }}>
+                                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                    <TableRow >
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Images</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Last Seen Location</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Date</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>Request Reached</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>Request Accepted</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Reported by</TableCell>
+                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {StolenCars.map((user) => (
+                                        <TableRow key={user._id}>
+                                            <TableCell sx={{ color: '#4B5563' }}>
+                                                <Stack direction="row" alignItems="center" gap={1}>
+                                                    {[1, 2].map((item) => (
+                                                        <Grid size={{ xs: 6, sm: 3 }} key={item}>
+                                                            <Box
+                                                                component="img"
+                                                                src={`https://blocks.astratic.com/img/general-img-landscape.png`}
+                                                                alt={`Placeholder ${item}`}
+                                                                sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
+                                                            />
+                                                        </Grid>
+                                                    ))}
+                                                </Stack>
+                                            </TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>
+
+                                                {user.location || "-"}
+
+                                            </TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>
+
+                                                {user.date}
+
+                                            </TableCell>
+                                            <TableCell sx={{ color: 'var(--orange)', textAlign: 'center' }}>
+
+                                                {user.req_reached || "-"}
+
+                                            </TableCell>
+                                            <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
+
+                                                {user.req_accept || "-"}
+
+                                            </TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>
+
+                                                {user.reportedBy || "-"}
+
+                                            </TableCell>
+
+                                            <TableCell >
+                                                <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                    <IconButton onClick={() => nav(`/home/total-stolen-cars/stolen-car/${user._id}`)}>
+                                                        <img src={ViewBtn} alt="view button" />
+                                                    </IconButton>
+                                                </Box>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+
+                        </TableContainer>
+                    </Box>
+                ) : (
+                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                        No data found
+                    </Typography>
+                )}
             </Paper>
         </Box>
     );

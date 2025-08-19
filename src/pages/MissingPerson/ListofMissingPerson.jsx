@@ -148,7 +148,7 @@ const ListofMissingPerson = () => {
                             <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', } }}>
                                 <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                                     <TableRow >
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>User</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Name</TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Last Seen Location</TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Date</TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>Request Reached</TableCell>

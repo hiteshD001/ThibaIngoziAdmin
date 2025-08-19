@@ -229,16 +229,18 @@ const ListOfMeetingLinkTrips = () => {
                             sx={{
                               backgroundColor:
                                 data.trip_status === 'ended' ? '#367BE01A' :
-                                  data.trip_status === 'started' ? '#DCFCE7' :
-                                    data.trip_status === 'flagged' ? '#FFF4E5' :
+                                  data.trip_status === 'started' ? '#E5565A33' :
+                                    data.trip_status === 'linked' ? '#DCFCE7' :
                                       '#F3F4F6',
+                              '& .MuiChip-label': {
+                                textTransform: 'capitalize',
+                                fontWeight: 500,
+                                color: data.trip_status === 'ended' ? '#367BE0' :
+                                  data.trip_status === 'started' ? '#E5565A' :
+                                    data.trip_status === 'linked' ? '#166534' :
+                                      'black',
+                              }
                             }}
-                            className={
-                              data.trip_status === 'ended' ? 'chip-ended' :
-                                data.trip_status === 'started' ? 'chip-started' :
-                                  data.trip_status === 'flagged' ? 'chip-flagged' :
-                                    'chip-default'
-                            }
                           />
                         </TableCell>
                         {/* <TableCell>

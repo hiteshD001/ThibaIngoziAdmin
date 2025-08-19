@@ -239,17 +239,20 @@ const ListOfTrips = () => {
                             sx={{
                               backgroundColor:
                                 data.trip_status === 'ended' ? '#367BE01A' :
-                                  data.trip_status === 'started' ? '#DCFCE7' :
-                                    data.trip_status === 'flagged' ? '#FFF4E5' :
+                                  data.trip_status === 'flagged' ? '#F59E0B1A' :
+                                    data.trip_status === 'started' ? '#DCFCE7' :
                                       '#F3F4F6',
+                              '& .MuiChip-label': {
+                                textTransform: 'capitalize',
+                                fontWeight: 500,
+                                color: data.trip_status === 'ended' ? '#367BE0' :
+                                  data.trip_status === 'flagged' ? '#F59E0B' :
+                                    data.trip_status === 'started' ? '#166534' :
+                                      'black',
+                              }
                             }}
-                            className={
-                              data.trip_status === 'ended' ? 'chip-ended' :
-                                data.trip_status === 'started' ? 'chip-started' :
-                                  data.trip_status === 'flagged' ? 'chip-flagged' :
-                                    'chip-default'
-                            }
                           />
+
 
                         </TableCell>
                         <TableCell>

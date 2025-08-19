@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
+    Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem,
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -14,7 +14,6 @@ import Loader from "../../common/Loader";
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import ImportSheet from "../../common/ImportSheet";
 import { startOfYear } from "date-fns";
-import nouser from "../../assets/images/NoUser.png";
 const StolenCars = [
     {
         "_id": 1,
