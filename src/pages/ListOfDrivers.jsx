@@ -23,6 +23,8 @@ import { autoTable } from 'jspdf-autotable'
 import * as XLSX from 'xlsx';
 import { toast } from "react-toastify";
 import { components } from 'react-select';
+import driverPaidicon from '../assets/images/driverPaidicon.svg'
+import driverPayoutIcon from '../assets/images/driverPayoutIcon.svg'
 import {
     companyEditValidation,
     companyValidation,
@@ -922,7 +924,7 @@ const ListOfDrivers = () => {
                                             <TableCell>
                                                 <Box
                                                     align="center"
-                                                    sx={{ display: "flex", flexDirection: "row", gap: 1 }}
+                                                    sx={{ display: "flex", flexDirection: "row", gap: 0 }}
                                                 >
                                                     <IconButton onClick={() =>
                                                         nav(`/home/total-drivers/driver-information/${driver._id}`)
@@ -931,6 +933,11 @@ const ListOfDrivers = () => {
                                                     </IconButton>
                                                     <IconButton onClick={() => setconfirmation(driver._id)}>
                                                         <img src={delBtn} alt="delete button" />
+                                                    </IconButton>
+                                                    <IconButton onClick={() =>
+                                                        nav(`/home/total-drivers`)
+                                                    }>
+                                                        <img src={driverPayoutIcon} alt="view button" />
                                                     </IconButton>
                                                     {confirmation === driver._id && (
                                                         <DeleteConfirm

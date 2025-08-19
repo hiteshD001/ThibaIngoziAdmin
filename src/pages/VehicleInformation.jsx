@@ -12,8 +12,17 @@ import {
     useGetUserList,
     useUpdateUser,
     useGeteHailingList,
-    useGetCityList
+    useGetCityList,
+    useUpdateVehicle,
+    useGetVehicleTypeList
 } from "../API Calls/API";
+import vehicleIcon from '../assets/images/vehicleIcon.svg'
+import vehicleIcon2 from '../assets/images/vehicleIcon2.svg'
+import vehicleIcon3 from '../assets/images/vehicleIcon3.svg'
+import vehicleIcon4 from '../assets/images/vehicleIcon4.svg'
+import vehicleIcon5 from '../assets/images/vehicleIcon5.svg'
+import vehicleIcon6 from '../assets/images/vehicleIcon6.svg'
+import camera from '../assets/images/camera.svg'
 import CustomSelect from "../common/Custom/CustomSelect";
 import GrayPlus from '../assets/images/GrayPlus.svg'
 import checkedboxIcon from '../assets/images/checkboxIcon.svg'
@@ -34,7 +43,6 @@ const VehicleInformation = () => {
     const [editAddress, setEditAddress] = useState(false);
     const [editEmergency, setEditEmergency] = useState(false);
     const [editVehicle, setEditVehicle] = useState(false);
-    const [edit, setedit] = useState(false);
     const [role] = useState(localStorage.getItem("role"));
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
@@ -72,7 +80,6 @@ const VehicleInformation = () => {
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
-            setedit(false);
             const formData = new FormData();
 
             Object.keys(values).forEach((key) => {
@@ -103,11 +110,28 @@ const VehicleInformation = () => {
 
     const vehicleForm = useFormik({
         initialValues: {
+            vehicle_id: "",
             vehicle_name: "",
             type: "",
             reg_no: "",
+            license_number: '',
             images: [],
         },
+        onSubmit: (values) => {
+            const formData = new FormData();
+            Object.keys(values).forEach((key) => {
+                if (key === 'images') {
+                    values[key].forEach(file => {
+                        if (file instanceof File) {
+                            formData.append('images', file);
+                        }
+                    });
+                } else {
+                    formData.append(key, values[key]);
+                }
+            });
+            mutateVehicle({ id: values.vehicle_id, data: formData });
+        }
     });
 
     const emergencyform = useFormik({
@@ -119,6 +143,13 @@ const VehicleInformation = () => {
             emergency_contact_2_country_code: "",
             emergency_contact_1_country_code: "",
         },
+        onSubmit: (values) => {
+            const formData = new FormData();
+            Object.keys(values).forEach((key) => {
+                formData.append(key, values[key]);
+            });
+            mutate({ id: params.id, data: formData });
+        }
     });
 
     const vehicleInfo = useGetUser(params.id);
@@ -135,10 +166,13 @@ const VehicleInformation = () => {
     };
 
     const { mutate } = useUpdateUser(onSuccess, onError);
+    const { mutate: mutateVehicle } = useUpdateVehicle(onSuccess, onError)
 
     const provincelist = useGetProvinceList(driverform.values.country);
     const countrylist = useGetCountryList();
     const cityList = useGetCityList(driverform.values.province)
+    const vehicleTypeList = useGetVehicleTypeList()
+
 
     useEffect(() => {
         const data = vehicleInfo.data?.data;
@@ -160,9 +194,11 @@ const VehicleInformation = () => {
 
             if (vehicleData) {
                 vehicleForm.setValues({
+                    vehicle_id: vehicleData._id || "",
                     vehicle_name: vehicleData.vehicle_name || "",
                     type: vehicleData.type || "",
                     reg_no: vehicleData.reg_no || "",
+                    license_number: vehicleData.license_number || "",
                     images: [
                         vehicleData.image_front_side,
                         vehicleData.image_back_side,
@@ -197,9 +233,11 @@ const VehicleInformation = () => {
         const vehicleData = data.vehicle?.[0];
         if (vehicleData) {
             vehicleForm.setValues({
+                vehicle_id: vehicleData._id || "",
                 vehicle_name: vehicleData.vehicle_name || "",
                 type: vehicleData.type || "",
                 reg_no: vehicleData.reg_no || "",
+                license_number: vehicleData.license_number || "",
                 images: [
                     vehicleData.image_front_side,
                     vehicleData.image_back_side,
@@ -243,7 +281,6 @@ const VehicleInformation = () => {
     const selectedCompanyLabel = eHailingOptions.find(
         option => option.value === driverform.values.primary_e_hailing_company
     )?.label || '-';
-
 
 
     const displayField = (label, value) => (
@@ -676,7 +713,7 @@ const VehicleInformation = () => {
                                             variant="contained"
                                             sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                                             onClick={() => {
-                                                driverform.handleSubmit
+                                                driverform.handleSubmit()
                                                 setEditInfo(false);
                                             }}
                                         >
@@ -832,7 +869,7 @@ const VehicleInformation = () => {
                                             variant="contained"
                                             sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                                             onClick={() => {
-                                                driverform.handleSubmit
+                                                driverform.handleSubmit()
                                                 setEditAddress(false);
                                             }}
                                         >
@@ -891,19 +928,54 @@ const VehicleInformation = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             {editEmergency ? (
-                                <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="emergency_contact_1_contact" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        Emergency Contact 1 Contact
-                                    </InputLabel>
-                                    <BootstrapInput
-                                        id="emergency_contact_1_contact"
-                                        name="emergency_contact_1_contact"
-                                        placeholder="Contact No."
-                                        value={emergencyform.values.emergency_contact_1_contact}
-                                        onChange={emergencyform.handleChange}
+                                <FormControl variant="standard" fullWidth>
+                                    <label style={{ marginBottom: 5 }}>Contact Number 1</label>
+                                    <PhoneInput
+                                        country={"za"}
+                                        value={`${emergencyform.values.emergency_contact_1_country_code ?? ''}${emergencyform.values.emergency_contact_1_contact ?? ''}`}
+                                        onChange={(phone, countryData) => {
+                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
+                                                ? phone.slice(countryData.dialCode.length).trim()
+                                                : phone;
+
+                                            emergencyform.setFieldValue("emergency_contact_1_contact", withoutCountryCode);
+                                            emergencyform.setFieldValue("emergency_contact_1_country_code", `+${countryData.dialCode}`);
+                                        }}
+                                        inputStyle={{
+                                            width: '100%',
+                                            height: '46px',
+                                            borderRadius: '6px',
+                                            border: '1px solid #E0E3E7',
+                                            fontSize: '16px',
+                                            paddingLeft: '48px',
+                                            background: '#fff',
+                                            outline: 'none',
+                                            boxShadow: 'none',
+                                            borderColor: '#E0E3E7',
+                                        }}
+                                        buttonStyle={{
+                                            borderRadius: '6px 0 0 6px',
+                                            border: '1px solid #E0E3E7',
+                                            background: '#fff'
+                                        }}
+                                        containerStyle={{
+                                            height: '46px',
+                                            width: '100%',
+                                            marginBottom: '8px'
+                                        }}
+                                        specialLabel=""
+                                        inputProps={{
+                                            name: 'mobile_no',
+                                            required: true,
+                                            autoFocus: false
+                                        }}
                                     />
+                                    {/* {driverform.touched.mobile_no && driverform.errors.mobile_no && (
+                                        <FormHelperText error>{driverform.errors.mobile_no}</FormHelperText>
+                                    )} */}
                                 </FormControl>
-                            ) : displayField("Contact Number", emergencyform.values.emergency_contact_1_contact)}
+                            ) : displayField("Contact Number 1", `${emergencyform.values.emergency_contact_1_country_code ?? ''} ${emergencyform.values.emergency_contact_1_contact ?? ''}`)}
+
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             {editEmergency ? (
@@ -923,19 +995,53 @@ const VehicleInformation = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             {editEmergency ? (
-                                <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="emergency_contact_2_contact" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        Emergency Contact 2 Contact
-                                    </InputLabel>
-                                    <BootstrapInput
-                                        id="emergency_contact_2_contact"
-                                        name="emergency_contact_2_contact"
-                                        placeholder="Contact No."
-                                        value={emergencyform.values.emergency_contact_2_contact}
-                                        onChange={emergencyform.handleChange}
+                                <FormControl variant="standard" fullWidth>
+                                    <label style={{ marginBottom: 5 }}>Contact Number 2</label>
+                                    <PhoneInput
+                                        country={"za"}
+                                        value={`${emergencyform.values.emergency_contact_2_country_code ?? ''}${emergencyform.values.emergency_contact_2_contact ?? ''}`}
+                                        onChange={(phone, countryData) => {
+                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
+                                                ? phone.slice(countryData.dialCode.length).trim()
+                                                : phone;
+
+                                            emergencyform.setFieldValue("emergency_contact_2_contact", withoutCountryCode);
+                                            emergencyform.setFieldValue("emergency_contact_2_country_code", `+${countryData.dialCode}`);
+                                        }}
+                                        inputStyle={{
+                                            width: '100%',
+                                            height: '46px',
+                                            borderRadius: '6px',
+                                            border: '1px solid #E0E3E7',
+                                            fontSize: '16px',
+                                            paddingLeft: '48px',
+                                            background: '#fff',
+                                            outline: 'none',
+                                            boxShadow: 'none',
+                                            borderColor: '#E0E3E7',
+                                        }}
+                                        buttonStyle={{
+                                            borderRadius: '6px 0 0 6px',
+                                            border: '1px solid #E0E3E7',
+                                            background: '#fff'
+                                        }}
+                                        containerStyle={{
+                                            height: '46px',
+                                            width: '100%',
+                                            marginBottom: '8px'
+                                        }}
+                                        specialLabel=""
+                                        inputProps={{
+                                            name: 'mobile_no',
+                                            required: true,
+                                            autoFocus: false
+                                        }}
                                     />
+                                    {/* {driverform.touched.mobile_no && driverform.errors.mobile_no && (
+                                        <FormHelperText error>{driverform.errors.mobile_no}</FormHelperText>
+                                    )} */}
                                 </FormControl>
-                            ) : displayField("Contact Number 2", emergencyform.values.emergency_contact_2_contact)}
+                            ) : displayField("Contact Number 2", `${emergencyform.values.emergency_contact_2_country_code ?? ''} ${emergencyform.values.emergency_contact_2_contact ?? ''}`)}
                         </Grid>
                         <Grid size={12}>
                             <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
@@ -945,8 +1051,7 @@ const VehicleInformation = () => {
                                             variant="contained"
                                             sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                                             onClick={() => {
-                                                // Save logic for emergency contact (if needed, call submithandler or a separate handler)
-                                                driverform.handleSubmit
+                                                emergencyform.handleSubmit()
                                                 setEditEmergency(false);
                                             }}
                                         >
@@ -1020,33 +1125,20 @@ const VehicleInformation = () => {
 
                         <Grid size={{ xs: 12, sm: editVehicle ? 6 : 4 }}>
                             {editVehicle ? (
-                                <FormControl variant="standard" fullWidth>
-                                    <InputLabel
-                                        shrink
-                                        htmlFor="type"
-                                        sx={{
-                                            fontSize: '1.3rem',
-                                            color: 'rgba(0, 0, 0, 0.8)',
-                                            '&.Mui-focused': { color: 'black' },
-                                        }}
-                                    >
-                                        Vehicle Type
-                                    </InputLabel>
-                                    <BootstrapInput
-                                        id="type"
-                                        name="type"
-                                        placeholder="Vehicle Type"
-                                        value={vehicleForm.values.type}
-                                        onChange={vehicleForm.handleChange}
-                                        disabled={!editVehicle}
-                                    />
-                                    {vehicleForm.touched?.type && (
-                                        <FormHelperText error>{vehicleForm.errors?.type}</FormHelperText>
-                                    )}
-                                </FormControl>
-                            ) : (
-                                displayField("Vehicle Type", vehicleForm.values.type)
-                            )}
+                                <CustomSelect
+                                    label="Vehicle Type"
+                                    name="type"
+                                    value={vehicleForm.values.type}
+                                    onChange={vehicleForm.handleChange}
+                                    disabled={!editVehicle}
+                                    options={vehicleTypeList?.data?.data?.map(vehicle => ({
+                                        value: vehicle._id,
+                                        label: vehicle.vehicleTypeName
+                                    })) || []}
+                                    error={vehicleForm.errors.type && vehicleForm.touched.type}
+                                    helperText={vehicleForm.touched.type ? vehicleForm.errors.type : ''}
+                                />
+                            ) : displayField("Vehicle Type", vehicleTypeList?.data?.data?.find(p => p._id === vehicleForm.values.type)?.vehicleTypeName)}
                         </Grid>
 
                         <Grid size={{ xs: 12, sm: editVehicle ? 6 : 4 }}>
@@ -1079,44 +1171,79 @@ const VehicleInformation = () => {
                                 displayField("Vehicle Registration No.", vehicleForm.values.reg_no)
                             )}
                         </Grid>
-                        {vehicleForm?.values?.images && vehicleForm?.values?.images?.length > 0 && (
+                        <Grid size={{ xs: 12, sm: editVehicle ? 6 : 4 }}>
+                            {editVehicle ? (
+                                <FormControl variant="standard" fullWidth>
+                                    <InputLabel
+                                        shrink
+                                        htmlFor="license_number"
+                                        sx={{
+                                            fontSize: '1.3rem',
+                                            color: 'rgba(0, 0, 0, 0.8)',
+                                            '&.Mui-focused': { color: 'black' },
+                                        }}
+                                    >
+                                        Driving License Number
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="license_number"
+                                        name="license_number"
+                                        placeholder="Driving License Number"
+                                        value={vehicleForm.values.license_number}
+                                        onChange={vehicleForm.handleChange}
+                                    />
+                                    {vehicleForm.touched?.license_number && (
+                                        <FormHelperText error>{vehicleForm.errors?.license_number}</FormHelperText>
+                                    )}
+                                </FormControl>
+                            ) : (
+                                displayField("Driving License Number", vehicleForm.values.license_number)
+                            )}
+                        </Grid>
+                        {(vehicleForm?.values?.images?.length > 0 || editVehicle) && (
                             <Grid size={12}>
-                                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                                    Vehicle Images
+                                <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>
+                                    Add Car Images
                                 </Typography>
                                 <Grid container pt={2} spacing={2}>
                                     {[
-                                        { label: "Front Side" },
-                                        { label: "Back Side" },
-                                        { label: "Left Side" },
-                                        { label: "Right Side" },
-                                        { label: "Car Number Plate" },
-                                        { label: "License DISC Image" },
-                                    ].map((item, index) =>
-                                        vehicleForm.values.images[index] ? (
-                                            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
-                                                <Typography
-                                                    variant="subtitle2"
-                                                    color="textSecondary"
-                                                    align="center"
-                                                    gutterBottom
-                                                >
-                                                    {item.label}
-                                                </Typography>
-                                                <Box
-                                                    sx={{
-                                                        border: '1px solid #ddd',
-                                                        borderRadius: 2,
-                                                        p: 2,
-                                                        bgcolor: '#f5f5f5',
-                                                        minHeight: 250,
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                    }}
-                                                >
+                                        { label: "Front Side", img: vehicleIcon },
+                                        { label: "Back Side", img: vehicleIcon2 },
+                                        { label: "Left Side", img: vehicleIcon3 },
+                                        { label: "Right Side", img: vehicleIcon4 },
+                                        { label: "Car Number Plate", img: vehicleIcon5 },
+                                        { label: "License DISC Image", img: vehicleIcon6 },
+                                    ].map((item, index) => (
+                                        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }} key={index}>
+                                            <Typography
+                                                variant="subtitle2"
+                                                color="textSecondary"
+                                                align="center"
+                                                gutterBottom
+                                            >
+                                                {item.label}
+                                            </Typography>
+
+                                            <Box
+                                                sx={{
+                                                    border: '1px solid #E5E7EB',
+                                                    borderRadius: '12px',
+                                                    p: 2,
+                                                    minHeight: 250,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    cursor: editVehicle ? 'pointer' : 'default',
+                                                    position: 'relative',
+                                                }}
+                                            >
+                                                {vehicleForm.values.images[index] ? (
                                                     <img
-                                                        src={vehicleForm.values.images[index]}
+                                                        src={
+                                                            vehicleForm.values.images[index] instanceof File
+                                                                ? URL.createObjectURL(vehicleForm.values.images[index])
+                                                                : vehicleForm.values.images[index]
+                                                        }
                                                         alt={item.label}
                                                         style={{
                                                             maxHeight: 200,
@@ -1124,18 +1251,118 @@ const VehicleInformation = () => {
                                                             borderRadius: 4,
                                                         }}
                                                     />
-                                                </Box>
-                                            </Grid>
-                                        ) : null
-                                    )}
+                                                ) : (
+                                                    <Box textAlign="center">
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
+                                                                gap: 1,
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                            }}
+                                                        >
+                                                            <img src={item.img} alt="vehicle image" height={50} width={50} />
+                                                            <Box
+                                                                sx={{
+                                                                    p: 1,
+                                                                    display: 'flex',
+                                                                    flexDirection: 'row',
+                                                                    gap: 1,
+                                                                    justifyContent: 'center',
+                                                                    alignItems: 'center',
+                                                                    backgroundColor: '#367BE0',
+                                                                    borderRadius: '8px',
+                                                                }}
+                                                            >
+                                                                <img src={camera} alt="camera" />
+                                                                <Typography sx={{ color: 'white' }} variant="body2">
+                                                                    Upload
+                                                                </Typography>
+                                                            </Box>
+                                                        </Box>
+                                                    </Box>
+                                                )}
+
+                                                {/* File input overlay only if edit mode is on */}
+                                                {editVehicle && (
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        style={{
+                                                            opacity: 0,
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            cursor: 'pointer',
+                                                        }}
+                                                        onChange={(e) => {
+                                                            const file = e.target.files[0];
+                                                            if (file) {
+                                                                const updatedImages = [...vehicleForm.values.images];
+                                                                updatedImages[index] = file;
+                                                                vehicleForm.setFieldValue("images", updatedImages);
+                                                            }
+                                                        }}
+                                                    />
+                                                )}
+                                            </Box>
+                                        </Grid>
+                                    ))}
                                 </Grid>
                             </Grid>
                         )}
 
 
+                        <Grid size={12}>
+                            <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+                                {editVehicle ? (
+                                    <>
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => {
+                                                // Save logic for emergency contact (if needed, call submithandler or a separate handler)
+                                                vehicleForm.handleSubmit()
+                                                setEditVehicle(false);
+                                            }}
+                                        >
+                                            Save
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px' }}
+                                            onClick={() => {
+                                                resetDriverForm();
+                                                setEditVehicle(false);
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Button
+                                        variant="contained"
+                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                        onClick={() => {
+                                            if (!vehicleForm.values.vehicle_id) {
+                                                toast.error("No vehicle found.");
+                                                return;
+                                            }
+                                            setEditVehicle(true);
+                                        }}
+                                    >
+                                        Edit
+                                    </Button>
+                                )}
+                            </Box>
+                        </Grid>
+
                     </Grid>
                 </form>
-            </Paper>
+            </Paper >
 
             {/* armed sos table */}
             <Paper elevation={0} sx={{ p: 3, borderRadius: '10px', mb: 3 }}>
@@ -1262,7 +1489,7 @@ const VehicleInformation = () => {
                         <Grid>
                             <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
                                 <Typography variant="body2">
-                                    {currentPage} / {5}
+                                    {currentPage} / {1}
                                 </Typography>
                                 <IconButton
                                     disabled={currentPage === 1}
@@ -1273,7 +1500,7 @@ const VehicleInformation = () => {
                                     }} />
                                 </IconButton>
                                 <IconButton
-                                    disabled={currentPage === 5}
+                                    disabled={currentPage === 1}
                                     onClick={() => setCurrentPage((prev) => prev + 1)}
                                 >
                                     <NavigateNextIcon fontSize="small" />

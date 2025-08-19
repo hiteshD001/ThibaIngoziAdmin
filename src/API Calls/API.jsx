@@ -202,6 +202,44 @@ export const useGetArmedSoS = () => {
     return res;
 };
 
+// vehicle update id
+export const useUpdateVehicle = (onSucess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/vehicle/${id}`,
+            data
+        );
+    };
+
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+
+    return res;
+}
+// vehicle type
+export const useGetVehicleTypeList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/vehicleType`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ['vehicleType'],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+}
+
 // armed sos amount
 
 export const useCreateSosAmount = (onSuccess, onError) => {
