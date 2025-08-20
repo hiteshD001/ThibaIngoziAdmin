@@ -493,6 +493,7 @@ export const useGetActiveSOS = () => {
     return res?.data?.data;
 };
 
+
 // get chart data
 
 export const useGetChartData = (company_id, time, notificationType) => {
@@ -561,6 +562,40 @@ export const useGetActiveSosData = () => {
 
     return res.data?.data?.data;
 }
+// get active armed sos 
+
+export const useGetActiveArmedData = () => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/active/armed/data`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ['armedSos'],
+        queryFn: queryFn,
+        refetchInterval: 1000,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res.data;
+}
+// get recent armed sos
+export const useGetRecentArmedSOS = (page = 1, limit = 20) => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/recentClose/armed/data?page=${page}&limit=${limit}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["recentArmedSos", page, limit],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res;
+};
 // get hotspot
 
 export const useGetHotspot = (type, company_id, notificationType) => {

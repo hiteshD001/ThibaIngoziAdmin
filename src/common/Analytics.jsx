@@ -156,11 +156,13 @@ const Analytics = ({ id }) => {
                     onChange={handleNotificationChange}
                 >
                     <option value="all">All</option>
-                    {notificationTypes.data?.data?.map((type, index) => (
-                        <option key={index} value={type._id}>
-                            {type.type}
-                        </option>
-                    ))}
+                    {
+                        notificationTypes?.data?.data && Array.isArray(notificationTypes?.data?.data) && notificationTypes.data.data.map((type, index) => (
+                            <option key={index} value={type._id}>
+                                {type.type}
+                            </option>
+                        ))
+                    }
                 </select>
             </div>
             <div className="row">
@@ -181,7 +183,8 @@ const Analytics = ({ id }) => {
                             ) : hotspot?.data?.data?.length === 0 ? (
                                 <p>No data Found</p>
                             ) : (
-                                hotspot?.data?.data?.sort((a, b) =>
+                                hotspot?.data?.data && Array.isArray(hotspot.data.data) &&
+                                hotspot.data.data.sort((a, b) =>
                                     a.timesCalled > b.timesCalled ? -1 : 1
                                 )
                                     .map((d, index) => (
