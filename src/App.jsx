@@ -49,7 +49,8 @@ import AddSapsWanted from "./pages/Saps/AddSapsWanted"
 import ListOfCrimeReports from "./pages/crimeReports/ListOfCrimeReports";
 import CrimeReport from "./pages/crimeReports/CrimeReport";
 import ForwardToPolice from "./pages/crimeReports/ForwardToPolice";
-
+import WorkInProgress from "./common/WorkInProgress";
+import Confirmation from "./pages/crimeReports/Confirmation";
 // Define your map loader options once here
 const mapLoaderOptions = {
     id: 'google-map-script-main',
@@ -307,6 +308,9 @@ function App() {
                         }, {
                             path: 'forward-to-police',
                             element: <ForwardToPolice />
+                        }, {
+                            path: 'confirmation',
+                            element: <Confirmation />
                         }
                     ]
                 },
@@ -318,6 +322,10 @@ function App() {
                     path: "profile",
                     element: <Profile />
                 },
+                {
+                    path: 'work-in-progress',
+                    element: <WorkInProgress />
+                }
             ]
         },
         {
@@ -328,6 +336,7 @@ function App() {
             path: "/request-hardware",
             element: <RequestHardware />
         },
+
 
 
     ])

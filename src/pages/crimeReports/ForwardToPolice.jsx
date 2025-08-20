@@ -195,7 +195,10 @@ const ForwardToPolice = () => {
                     <Button
                         type="submit"
                         variant="contained"
-                        onClick={SapsForm.handleSubmit}
+                        onClick={() => {
+                            SapsForm.handleSubmit
+                            nav('/home/crime-reports/confirmation')
+                        }}
                         // startIcon={<img src={plane} alt='publish' />}
                         // disabled={newcompany.isPending}
                         sx={{ width: 220, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}

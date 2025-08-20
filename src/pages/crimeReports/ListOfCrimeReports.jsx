@@ -204,6 +204,17 @@ const ListOfCrimeReports = () => {
                                 '& .MuiOutlinedInput-input': {
                                     padding: '10px 14px',
                                 },
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'var(--light-gray)',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'var(--light-gray)',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'var(--light-gray)',
+                                    },
+                                },
                             }}
                             InputProps={{
                                 startAdornment: (
@@ -216,6 +227,7 @@ const ListOfCrimeReports = () => {
                         <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
                             <CustomFilter />
                             <CustomDateRangePicker
+                                borderColor={'var(--light-gray)'}
                                 value={range}
                                 onChange={setRange}
                                 icon={calender}

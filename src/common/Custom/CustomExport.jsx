@@ -52,7 +52,7 @@ const CustomExportMenu = ({ role, onExport }) => {
             <Button
                 sx={{
                     height: '40px',
-                    width: '140px',
+                    width: '110px',
                     borderRadius: '8px',
                     border: '1px solid var(--light-gray)',
                     backgroundColor: '#F3F4F6'

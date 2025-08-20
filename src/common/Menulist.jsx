@@ -19,6 +19,7 @@ import Logout from "../assets/images/Logout.svg";
 import Company from "../assets/images/Company.svg";
 import trip from "../assets/images/trip.png"
 import { useState } from "react";
+import WorkInProgress from './WorkInProgress';
 
 export const superadmin_menulist = [
     {
@@ -121,7 +122,7 @@ export const superadmin_menulist = [
     },
     {
         id: "crime-reports",
-        name: "Crime Reports",
+        name: "Crime Reporting",
         path: "/home/crime-reports",
         image: Crime,
         company: "Crime Report",
