@@ -41,12 +41,11 @@ const Home = () => {
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(20);
-    const [recentArmedPage, setRecentArmedPage] = useState(1)
-    const [recentArmedLimit, setRecentArmedLimit] = useState(20)
+
     const userId = localStorage.getItem("userID");
     const role = localStorage.getItem("role");
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS({ page, limit });
-    const { data: recentArmed } = useGetRecentArmedSOS(recentArmedPage, recentArmedLimit)
+    const { data: recentArmed } = useGetRecentArmedSOS()
 
     // if (activeUserList) {
     //     localStorage.setItem('activeSosCount', activeUserList.length);
@@ -583,7 +582,8 @@ const Home = () => {
                                                 <td>{row?.armedLocationId?.req_reach}</td>
 
                                                 <td>{row?.armedLocationId?.req_accept}</td>
-                                                <td>{row?.armedLocationId?.type?.type || "-"}</td>
+                                                {/* <td>{row?.armedLocationId?.type?.type || "-"}</td> */}
+                                                <td>Armed SOS</td>
                                                 <td>{moment(row?.armedLocationId?.createdAt).format('HH:mm:ss')}</td>
                                                 <td>
                                                     {!row?.armedSosstatus && <select
@@ -685,7 +685,7 @@ const Home = () => {
                                                                     />
                                                                     {row?.armedUserId?.first_name || ''} {row?.armedUserId?.last_name || ''}
                                                                 </Link>) : (
-                                                                <Link to={`/home/total-users/user-information/${row.armedUserId._id}`} className="link">
+                                                                <Link to={`/home/total-users/user-information/${row.armedUserId?._id}`} className="link">
                                                                     <img
                                                                         className="profilepicture"
                                                                         src={
@@ -720,7 +720,8 @@ const Home = () => {
                                                 >
                                                     {row?.armedLocationId?.address}
                                                 </td>
-                                                <td>{row?.armedLocationId?.type?.type || "-"}</td>
+                                                {/* <td>{row?.armedLocationId?.type?.type || "-"}</td> */}
+                                                <td>Armed SOS</td>
                                                 <td
                                                     className={
                                                         !row.createdAt
@@ -759,14 +760,14 @@ const Home = () => {
                                         ))}
                                     </tbody>
                                 </table>
-                                <CustomPagination
+                                {/* <CustomPagination
                                     page={recentArmedPage}
                                     setPage={setRecentArmedPage}
                                     limit={recentArmedLimit}
                                     setLimit={setRecentArmedLimit}
                                     totalPages={recentArmed?.data?.totalPages || 1}
                                     totalItems={recentArmed?.data?.totalItems || 0}
-                                />
+                                /> */}
                             </>
                         ) : (
                             <p className="no-data-found">No Recent SOS</p>
