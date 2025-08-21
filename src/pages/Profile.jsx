@@ -11,12 +11,16 @@ import { useEffect, useState, useLayoutEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList, useGetServicesList } from "../API Calls/API";
 import { toast } from "react-toastify";
+import SingleImagePreview from "../common/SingleImagePreview";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 import { Box, Chip } from '@mui/material';
 const Profile = () => {
   const [servicesList, setServicesList] = useState({});
+  const [previewImage, setPreviewImage] = useState(null);
+  const [isSingle, setIsSingle] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [GrpservicesList, setGrpservicesList] = useState([]);
   const [role] = useState(localStorage.getItem("role"));
   const [edit, setedit] = useState(false);
@@ -128,6 +132,32 @@ const Profile = () => {
     }
   }, [serviceslist])
 
+  const openPreview = (index) => {
+    if (index === 0) {
+      // Selfie
+      const image =
+        profileForm.values.selfieImage instanceof File
+          ? { label: "Selfie Image", src: URL.createObjectURL(profileForm.values.selfieImage) }
+          : { label: "Selfie Image", src: userinfo?.data?.data?.user?.selfieImage };
+
+      setPreviewImage(image);
+      setIsSingle(true);
+      setShowPreview(true);
+      return;
+    }
+    if (index === 1) {
+      // Full
+      const image =
+        profileForm.values.fullImage instanceof File
+          ? { label: "Full Image", src: URL.createObjectURL(profileForm.values.fullImage) }
+          : { label: "Full Image", src: userinfo?.data?.data?.user?.fullImage };
+
+      setPreviewImage(image);
+      setIsSingle(true);
+      setShowPreview(true);
+      return;
+    }
+  };
   return (
     <div className="container-fluid">
       <div className="row">
@@ -418,15 +448,15 @@ const Profile = () => {
                   )
                 }
 
-
-
                 <div className="col-md-6">
                   <div className="row">
                     <div className="col-md-6">
                       <label>Selfie Image</label>
 
                       {profileForm.values.selfieImage instanceof File ? (
-                        <div className="form-control mt-2 img-preview-container">
+                        <div className="form-control mt-2 img-preview-container"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => openPreview(0)}>
                           <img
                             src={URL.createObjectURL(profileForm.values.selfieImage)}
                             alt="Selfie Preview"
@@ -437,7 +467,9 @@ const Profile = () => {
                         </div>
                       ) : (
                         userinfo.data?.data.user?.selfieImage && (
-                          <div className="form-control mt-2 img-preview-container">
+                          <div className="form-control mt-2 img-preview-container"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => openPreview(0)}>
                             <img
                               src={userinfo.data?.data.user?.selfieImage}
                               alt="Selfie Image"
@@ -468,7 +500,9 @@ const Profile = () => {
                       <label>Full Image</label>
 
                       {profileForm.values.fullImage instanceof File ? (
-                        <div className="form-control mt-2 img-preview-container">
+                        <div className="form-control mt-2 img-preview-container"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => openPreview(1)}>
                           <img
                             src={URL.createObjectURL(profileForm.values.fullImage)}
                             alt="full Image"
@@ -479,7 +513,9 @@ const Profile = () => {
                         </div>
                       ) : (
                         userinfo.data?.data.user?.fullImage && (
-                          <div className="form-control mt-2 img-preview-container">
+                          <div className="form-control mt-2 img-preview-container"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => openPreview(1)}>
                             <img
                               src={userinfo.data?.data.user?.fullImage}
                               alt="full Image"
@@ -531,6 +567,14 @@ const Profile = () => {
           </div>
         </div>
       </div>
+      <SingleImagePreview
+        show={showPreview}
+        onClose={() => {
+          setShowPreview(false);
+          setPreviewImage(null);
+        }}
+        image={previewImage}
+      />
     </div>
   );
 };

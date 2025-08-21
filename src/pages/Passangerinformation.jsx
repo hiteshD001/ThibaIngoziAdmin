@@ -6,13 +6,16 @@ import { vehicleValidation } from "../common/FormValidation"
 
 import { useQueryClient } from "@tanstack/react-query"
 import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API"
-
+import SingleImagePreview from "../common/SingleImagePreview"
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
 
 const PassangerInformation = () => {
     const [edit, setEdit] = useState(false)
+    const [previewImage, setPreviewImage] = useState(null);
+    const [isSingle, setIsSingle] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
     const [role] = useState(localStorage.getItem("role"));
     const CompanyId = localStorage.getItem("userID");
     const params = useParams();
@@ -94,6 +97,32 @@ const PassangerInformation = () => {
         }
     }, [UserInfo.data])
 
+    const openPreview = (index) => {
+        if (index === 0) {
+            // Selfie
+            const image =
+                driverform.values.selfieImage instanceof File
+                    ? { label: "Selfie Image", src: URL.createObjectURL(driverform.values.selfieImage) }
+                    : { label: "Selfie Image", src: UserInfo.data?.data.user?.selfieImage };
+
+            setPreviewImage(image);
+            setIsSingle(true);
+            setShowPreview(true);
+            return;
+        }
+        if (index === 1) {
+            // Full
+            const image =
+                driverform.values.fullImage instanceof File
+                    ? { label: "Full Image", src: URL.createObjectURL(driverform.values.fullImage) }
+                    : { label: "Full Image", src: UserInfo.data?.data.user?.fullImage };
+
+            setPreviewImage(image);
+            setIsSingle(true);
+            setShowPreview(true);
+            return;
+        }
+    };
     return (
         <div className="container-fluid">
             <div className="row">
@@ -243,7 +272,9 @@ const PassangerInformation = () => {
                                                     <label>Selfie Image</label>
 
                                                     {driverform.values.selfieImage instanceof File ? (
-                                                        <div className="form-control mt-2 img-preview-container">
+                                                        <div className="form-control mt-2 img-preview-container"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openPreview(0)}>
                                                             <img
                                                                 src={URL.createObjectURL(driverform.values.selfieImage)}
                                                                 alt="Selfie Preview"
@@ -254,7 +285,9 @@ const PassangerInformation = () => {
                                                         </div>
                                                     ) : (
                                                         UserInfo.data?.data.user?.selfieImage && (
-                                                            <div className="form-control mt-2 img-preview-container">
+                                                            <div className="form-control mt-2 img-preview-container"
+                                                                style={{ cursor: "pointer" }}
+                                                                onClick={() => openPreview(0)}>
                                                                 <img
                                                                     src={UserInfo.data?.data.user?.selfieImage}
                                                                     alt="Selfie Image"
@@ -291,7 +324,9 @@ const PassangerInformation = () => {
                                                     <label>Full Image</label>
 
                                                     {driverform.values.fullImage instanceof File ? (
-                                                        <div className="form-control mt-2 img-preview-container">
+                                                        <div className="form-control mt-2 img-preview-container"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openPreview(1)}>
                                                             <img
                                                                 src={URL.createObjectURL(driverform.values.fullImage)}
                                                                 alt="full Image"
@@ -302,7 +337,9 @@ const PassangerInformation = () => {
                                                         </div>
                                                     ) : (
                                                         UserInfo.data?.data.user?.fullImage && (
-                                                            <div className="form-control mt-2 img-preview-container">
+                                                            <div className="form-control mt-2 img-preview-container"
+                                                                style={{ cursor: "pointer" }}
+                                                                onClick={() => openPreview(1)}>
                                                                 <img
                                                                     src={UserInfo.data?.data.user?.fullImage}
                                                                     alt="full Image"
@@ -560,6 +597,14 @@ const PassangerInformation = () => {
                     </div>
                 </div>
             </div>
+            <SingleImagePreview
+                show={showPreview}
+                onClose={() => {
+                    setShowPreview(false);
+                    setPreviewImage(null);
+                }}
+                image={previewImage}
+            />
         </div>
     )
 }

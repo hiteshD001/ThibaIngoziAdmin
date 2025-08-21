@@ -13,13 +13,18 @@ import {
     useUpdateUser,
     useGeteHailingList
 } from "../API Calls/API";
-
+import SingleImagePreview from "../common/SingleImagePreview";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
+import ImagePreviewModal from "../common/ImagePreviewModal";
 import PhoneInput from "react-phone-input-2";
 
 const VehicleInformation = () => {
     const [edit, setedit] = useState(false);
+    const [previewImage, setPreviewImage] = useState(null);
+    const [showPreview, setShowPreview] = useState(false);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [isSingle, setIsSingle] = useState(false);
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const client = useQueryClient();
@@ -185,6 +190,51 @@ const VehicleInformation = () => {
         label: item.name,
         value: item._id,
     })) || [];
+
+
+    const imageList = [
+        { label: "Front Side", src: vehicleForm.values.images[0] },
+        { label: "Back Side", src: vehicleForm.values.images[1] },
+        { label: "Left Side", src: vehicleForm.values.images[2] },
+        { label: "Right Side", src: vehicleForm.values.images[3] },
+        { label: "Car Number Plate", src: vehicleForm.values.images[4] },
+        { label: "License DISC Image", src: vehicleForm.values.images[5] },
+    ].filter(img => img.src);
+
+    const openPreview = (index) => {
+        if (index === 6) {
+            // Selfie
+            const image =
+                driverform.values.selfieImage instanceof File
+                    ? { label: "Selfie Image", src: URL.createObjectURL(driverform.values.selfieImage) }
+                    : { label: "Selfie Image", src: vehicleInfo.data?.data.user?.selfieImage };
+
+            setPreviewImage(image);
+            setIsSingle(true);
+            setShowPreview(true);
+            return;
+        }
+        if (index === 7) {
+            // Full
+            const image =
+                driverform.values.fullImage instanceof File
+                    ? { label: "Full Image", src: URL.createObjectURL(driverform.values.fullImage) }
+                    : { label: "Full Image", src: vehicleInfo.data?.data.user?.fullImage };
+
+            setPreviewImage(image);
+            setIsSingle(true);
+            setShowPreview(true);
+            return;
+        }
+
+        // Vehicle Images
+        setCurrentIndex(index);
+        setIsSingle(false);
+        setShowPreview(true);
+    };
+
+    const nextImage = () => setCurrentIndex((i) => (i + 1) % imageList.length);
+    const prevImage = () => setCurrentIndex((i) => (i - 1 + imageList.length) % imageList.length);
     return (
         <div className="container-fluid">
             <div className="row">
@@ -504,7 +554,9 @@ const VehicleInformation = () => {
 
                                                     {driverform.values
                                                         .selfieImage instanceof File ? (
-                                                        <div className="form-control mt-2 img-preview-container">
+                                                        <div className="form-control mt-2 img-preview-container"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openPreview(6)}>
                                                             <img
                                                                 src={URL.createObjectURL(
                                                                     driverform.values
@@ -523,7 +575,9 @@ const VehicleInformation = () => {
                                                     ) : (
                                                         vehicleInfo.data?.data.user
                                                             ?.selfieImage && (
-                                                            <div className="form-control mt-2 img-preview-container">
+                                                            <div className="form-control mt-2 img-preview-container"
+                                                                style={{ cursor: "pointer" }}
+                                                                onClick={() => openPreview(6)}>
                                                                 <img
                                                                     src={
                                                                         vehicleInfo.data
@@ -568,7 +622,9 @@ const VehicleInformation = () => {
 
                                                     {driverform.values
                                                         .fullImage instanceof File ? (
-                                                        <div className="form-control mt-2 img-preview-container">
+                                                        <div className="form-control mt-2 img-preview-container"
+                                                            style={{ cursor: "pointer" }}
+                                                            onClick={() => openPreview(7)}>
                                                             <img
                                                                 src={URL.createObjectURL(
                                                                     driverform.values
@@ -587,7 +643,9 @@ const VehicleInformation = () => {
                                                     ) : (
                                                         vehicleInfo.data?.data.user
                                                             ?.fullImage && (
-                                                            <div className="form-control mt-2 img-preview-container">
+                                                            <div className="form-control mt-2 img-preview-container"
+                                                                style={{ cursor: "pointer" }}
+                                                                onClick={() => openPreview(7)}>
                                                                 <img
                                                                     src={
                                                                         vehicleInfo.data
@@ -851,7 +909,9 @@ const VehicleInformation = () => {
                                                                                 "250px",
                                                                             backgroundColor:
                                                                                 "#f5f5f5",
+                                                                            cursor: "pointer"
                                                                         }}
+                                                                        onClick={() => openPreview(index)}
                                                                     >
                                                                         <img
                                                                             src={
@@ -1116,6 +1176,26 @@ const VehicleInformation = () => {
 
 
             </div>
+            {isSingle ? (
+                <SingleImagePreview
+                    show={showPreview}
+                    onClose={() => {
+                        setShowPreview(false);
+                        setPreviewImage(null);
+                    }}
+                    image={previewImage}
+                />
+            ) : (
+                <ImagePreviewModal
+                    images={imageList}
+                    currentIndex={currentIndex}
+                    show={showPreview}
+                    onClose={() => setShowPreview(false)}
+                    onNext={nextImage}
+                    onPrev={prevImage}
+                />
+            )}
+
         </div >
     );
 };
