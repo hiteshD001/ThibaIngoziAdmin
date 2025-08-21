@@ -94,11 +94,14 @@ function App() {
                 },
                 {
                     path: 'reports',
-                    element: <Report />
+                    // element: <Report />,
+                    element: <WorkInProgress />
                 },
                 {
                     path: 'notification',
-                    element: < Notfication />
+                    // element: < Notfication />
+                    element: <WorkInProgress />
+
                 },
                 {
                     path: 'notification/:id',
@@ -231,7 +234,9 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <ListofMissingPerson />
+                            // element: <ListofMissingPerson />
+                            element: <WorkInProgress />
+
                         },
                         {
                             path: 'person-information/:id',
@@ -244,7 +249,9 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <ListOfSapsWanted />
+                            // element: <ListOfSapsWanted />
+                            element: <WorkInProgress />
+
                         },
                         {
                             path: 'add-wanted',
@@ -265,7 +272,9 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <ListOfStolenCars />
+                            // element: <ListOfStolenCars />
+                            element: <WorkInProgress />
+
                         },
                         {
                             path: 'stolen-car/:id',
@@ -278,7 +287,9 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <ListOfSuspect />
+                            // element: <ListOfSuspect />
+                            element: <WorkInProgress />
+
                         },
                         {
                             path: 'suspect-information/:id',
@@ -291,7 +302,9 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <FlaggedReport />
+                            // element: <FlaggedReport />
+                            element: <WorkInProgress />
+
                         },
                     ]
                 },
@@ -300,7 +313,9 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <ListOfCrimeReports />
+                            // element: <ListOfCrimeReports />
+                            element: <WorkInProgress />
+
                         },
                         {
                             path: "crime-report/:id",
