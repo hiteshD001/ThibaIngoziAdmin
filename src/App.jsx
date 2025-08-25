@@ -21,7 +21,7 @@ import ArmedSosAmount from "./pages/ArmedSosAmount";
 import ListOfSosAmount from "./pages/ListOfSosAmount";
 import "react-phone-input-2/lib/style.css";
 import "./App.css";
-import { AuthGuard, LogGuard, RouteGuard } from "./common/Guard";
+import { AuthGuard, LogGuard, RouteGuard, SalesGuard } from "./common/Guard";
 import GoogleMaps from "./common/GoogleMaps";
 import ListOfTrips from "./pages/ListofTrips";
 import PassangerInformation from "./pages/Passangerinformation";
@@ -32,6 +32,7 @@ import ArmedSosDetails from "./pages/SosInformation";
 import AddService from "./pages/AddService";
 import ListOfMeetingLinkTrips from "./pages/ListOfMeetingLinkTrip";
 import ChangePassword from "./pages/ChangePassword";
+import SalesAgentHome from "./pages/SalesAgentHome";
 function App() {
     return (
         <>
@@ -56,6 +57,16 @@ const router = createBrowserRouter([
     {
         path: "/payment-expired",
         element: <PaymentExpired />
+    },
+    {
+        path: '/sales-home',
+        element: <AuthGuard><Layout /></AuthGuard>,
+        children: [
+            {
+                path: "",
+                element: <SalesGuard><SalesAgentHome /></SalesGuard>
+            }
+        ]
     },
     {
         path: "/home",

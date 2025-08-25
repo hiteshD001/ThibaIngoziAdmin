@@ -128,6 +128,20 @@ export const superadmin_menulist = [
     },
 ]
 
+export const salesAgent_menulist = [
+    {
+        id: "sales-home",
+        name: "Home",
+        path: "/sales-home",
+        image: home
+    },
+    {
+        id: "logout",
+        name: "Logout",
+        image: logout
+    },
+]
+
 export const Companyadmin_menulist = () => {
     const [id] = useState(localStorage.getItem("userID"))
 

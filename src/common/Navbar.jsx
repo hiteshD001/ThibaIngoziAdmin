@@ -2,11 +2,19 @@
 // import search from "../assets/images/search.png"
 // import icon from "../assets/images/icon.png"
 import { useEffect, useState } from "react";
-import { Companyadmin_menulist, superadmin_menulist } from "./Menulist";
+import { Companyadmin_menulist, superadmin_menulist, salesAgent_menulist } from "./Menulist";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-    const [menulist] = useState(localStorage.getItem("role") === 'super_admin' ? superadmin_menulist : Companyadmin_menulist())
+    const [menulist] = useState(() => {
+        const role = localStorage.getItem("role");
+
+        if (role === 'super_admin') return superadmin_menulist;
+        if (role === 'company_admin') return Companyadmin_menulist();
+        if (role === 'sales_agent') return salesAgent_menulist;
+
+        return []; // default empty menu if role doesn't match
+    });
     const [currentMenu, setCurrentMenu] = useState("Home")
 
     const location = useLocation()

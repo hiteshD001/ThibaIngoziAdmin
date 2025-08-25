@@ -1,5 +1,11 @@
 import log_1 from "../assets/images/logo-1.png";
-
+import {
+    FormControl,
+    FormLabel,
+    RadioGroup,
+    FormControlLabel,
+    Radio
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { loginValidation } from "../common/FormValidation";
@@ -20,12 +26,21 @@ export const Login = () => {
 
     const loginForm = useFormik({
         initialValues: {
-            email: '',
-            password: '',
-            fcm_token: "fcm_token"
+            email: "",
+            password: "",
+            fcm_token: "fcm_token",
+            role: "sales_agent",
         },
         validationSchema: loginValidation,
-        onSubmit: (values) => loginfn.mutate(values),
+        onSubmit: (values) => {
+            let payload = { ...values };
+
+            // ❌ remove role if not sales_agent
+            if (values.role !== "sales_agent") {
+                delete payload.role;
+            }
+            loginfn.mutate(payload);
+        },
     });
 
     const onError = (error) => {
@@ -55,6 +70,26 @@ export const Login = () => {
                             </div>
                             <h1 className="text-center">Sign In</h1>
                             <form onSubmit={loginForm.handleSubmit}>
+                                <FormControl component="fieldset" className="my-3">
+                                    <FormLabel component="legend">Select Role</FormLabel>
+                                    <RadioGroup
+                                        row
+                                        name="role"
+                                        value={loginForm.values.role}
+                                        onChange={loginForm.handleChange}
+                                    >
+                                        <FormControlLabel
+                                            value="sales_agent"
+                                            control={<Radio />}
+                                            label="Sales Agent"
+                                        />
+                                        <FormControlLabel
+                                            value="super_admin"
+                                            control={<Radio />}
+                                            label="Super Admin / Company Admin"
+                                        />
+                                    </RadioGroup>
+                                </FormControl>
                                 <input
                                     type="text"
                                     name="email"
@@ -83,6 +118,8 @@ export const Login = () => {
                                 {/* <div className="forgotpwd text-end">
                                     <a href="#">Forgot Password?</a>
                                 </div> */}
+
+
 
                                 <button disabled={loginfn.isPending} type="submit" className="btn btn-dark d-block">
                                     {loginfn.isPending ? <Loader color="white" /> : "Sign In"}
