@@ -1,5 +1,15 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&display=swap");
 
+
+:root {
+    --Blue: #367BE0;
+    --orange: #F97316;
+    --secondary-color: #6c757d;
+    --light-gray: #E5E7EB;
+    --icon-gray: rgb(175, 179, 189);
+    --font-gray: #4B5563;
+    --heading-font: 'Poppins', sans-serif;
+}
 * {
     font-family: "Inter", sans-serif;
     font-style: normal;

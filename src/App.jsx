@@ -1,7 +1,9 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Layout from "./common/Layout";
-
+import ListOfSalesAgent from "./pages/SalesAgent/ListOfSalesAgent";
+import AddAgent from "./pages/SalesAgent/AddAgent";
+import AgentInformation from "./pages/SalesAgent/AgentInformation";
 import { Login } from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
 import RequestHardware from "./pages/RequestHardware";
@@ -191,6 +193,23 @@ const router = createBrowserRouter([
                     {
                         path: "sos-amount/:id",
                         element: <ArmedSosAmount />
+                    },
+                ]
+            },
+            {
+                path: "total-sales-agent",
+                children: [
+                    {
+                        path: "",
+                        element: <ListOfSalesAgent />
+                    },
+                    {
+                        path: "add-agent",
+                        element: <AddAgent />
+                    },
+                    {
+                        path: "agent-information/:id",
+                        element: <AgentInformation />
                     },
                 ]
             },

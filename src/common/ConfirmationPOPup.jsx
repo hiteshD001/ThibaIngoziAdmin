@@ -57,6 +57,46 @@ export const DeleteConfirm = ({ ...p }) => {
   );
 };
 
+// export const DeleteAgent = ({ ...p }) => {
+//   const client = useQueryClient();
+
+//   const onSuccess = () => {
+//     toast.success("Delete Sales Agent Successfully.");
+//     client.invalidateQueries("salesAgent");
+//   }
+//   const onError = (error) => {
+//     toast.error(error.response.data.message || "Something went Wrong", toastOption)
+//   }
+//   const deleteAgent = useDeleteAgent(onSuccess, onError)
+//   return (
+//     <div className="popup-overlay">
+//       <div className="popup-content">
+//         <p>Are you sure you want to delete this sales agent?</p>
+//         <div className="popup-buttons">
+//           <button
+//             disabled={deleteAgent.isPending}
+//             style={{
+//               opacity: deleteAgent.isPending ? 0.5 : 1,
+//               cursor: deleteAgent.isPending ? "not-allowed" : "",
+//             }}
+//             className="popup-button confirm"
+//             onClick={() => deleteAgent.mutate(p.id)}
+//           >
+//             Confirm
+//           </button>
+//           <button
+//             className="popup-button"
+//             onClick={() => p.setconfirmation("")}
+//           >
+//             cancel
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+
 export const DeleteSosAmount = ({ ...p }) => {
   const client = useQueryClient();
 

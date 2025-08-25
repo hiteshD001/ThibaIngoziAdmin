@@ -92,17 +92,27 @@ export const superadmin_menulist = [
         company: "Sos Information"
     },
     {
+        id: "total-sales-agent",
+        name: "Sales Agent",
+        path: "/home/total-sales-agent",
+        image: drivers,
+        submenu: {
+            name: "List of Sales Agent",
+            path: "/home/total-sales-agent",
+            image: arrowLeft
+        },
+        add: "Add Sales Agent",
+        info: "Sales Agent Information"
+        // company: "",
+    },
+    {
         id: "change-password",
         name: "Change Password",
         path: "/home/change-password",
         image: home,
-        company: "Company Change Password",
-        submenu: {
-            name: "Change Password",
-            path: "/home/change-password",
-            image: arrowLeft
-        },
+        info: "Company Change Password",
     },
+
     // {
     //     id: "hardware-management",
     //     name: "Hardware Management",

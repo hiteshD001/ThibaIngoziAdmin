@@ -1,0 +1,256 @@
+import { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { useGetSalesAgent, useShareAgent } from "../../API Calls/API";
+import Prev from "../../assets/images/left.png";
+import Next from "../../assets/images/right.png";
+import nouser from "../../assets/images/NoUser.png";
+import search from "../../assets/images/search.png";
+import icon from "../../assets/images/icon.png";
+import apiClient from "../../API Calls/APIClient";
+import * as XLSX from 'xlsx';
+import 'jspdf-autotable';
+import { toast } from "react-toastify";
+import Loader from "../../common/Loader";
+
+
+const ListOfSalesAgent = () => {
+    const [popup, setpopup] = useState(false)
+    const nav = useNavigate();
+    const [role] = useState(localStorage.getItem("role"));
+    const params = useParams();
+    const [page, setpage] = useState(1);
+    const [filter, setfilter] = useState("");
+    const [isExporting, setIsExporting] = useState(false);
+    const [confirmation, setconfirmation] = useState("");
+
+    const UserList = useGetSalesAgent(page, 10, filter)
+    const agentList = UserList?.data?.data?.data?.influencersData
+
+    const { mutate: shareAgent, isPending } = useShareAgent(
+        (data) => {
+            toast.success('Shared successfully')
+            console.log("✅ Shared successfully:", data);
+        },
+        (error) => {
+            toast.error("Error Sharing")
+            console.error("❌ Error sharing:", error);
+        }
+    );
+    const fetchAllUsers = async () => {
+        try {
+            const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer`, {
+                params: {
+                    page: 1,
+                    limit: 10000,
+                    filter,
+                },
+            });
+            return response?.data?.data?.influencersData || [];
+        } catch (error) {
+            console.error("Error fetching all Sales agent for export:", error);
+            toast.error("Failed to fetch Sales data.");
+            return [];
+        }
+    };
+
+    const handleExport = async () => {
+        setIsExporting(true);
+        try {
+            const allUsers = await fetchAllUsers();
+            setIsExporting(false);
+
+            if (!allUsers || allUsers.length === 0) {
+                toast.warning("No Sales Agent data to export.");
+                return;
+            }
+
+            // ✅ Dynamic file name with timestamp
+            const fileName = `Sales_Agent_List_${new Date().toISOString().slice(0, 10)}`;
+
+            // ✅ Prepare data for export
+            const exportData = allUsers.map((user, index) => ({
+                "Sr. No.": index + 1,
+                "User Name": `${user.first_name || ''} ${user.last_name || ''}`,
+                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+                "Email": user.email || '',
+                "Enroll Amount Deduction": user.enrollAmountDeduction || 'N/A',
+                "Referral Code": user.referralCode || 'N/A',
+            }));
+
+            // ✅ Create worksheet
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+            // ✅ Set dynamic column widths
+            const columnWidths = Object.keys(exportData[0]).map((key) => ({
+                wch: Math.max(
+                    key.length,
+                    ...exportData.map((row) => String(row[key] || '').length)
+                ) + 2,
+            }));
+            worksheet['!cols'] = columnWidths;
+
+            // ✅ Create workbook and add the worksheet
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "SalesAgents");
+
+            // ✅ Export to Excel
+            XLSX.writeFile(workbook, `${fileName}.xlsx`);
+            toast.success("Export successful!");
+        } catch (error) {
+            setIsExporting(false);
+            console.error("❌ Error exporting data:", error);
+            toast.error("Failed to export data.");
+        }
+    };
+
+    return (
+        <div className="container-fluid">
+            <div className="row">
+                <div className="col-md-12">
+                    <div className="theme-table">
+                        <div className="tab-heading">
+                            <div className="count">
+                                <h3>Total Sales Agent</h3>
+                                <p>{UserList.isSuccess && UserList?.data?.data?.data?.totalCount || 0}</p>
+                            </div>
+                            <div className="tbl-filter">
+                                <div className="input-group">
+                                    <span className="input-group-text">
+                                        <img src={search} />
+                                    </span>
+                                    <input
+                                        type="text"
+                                        value={filter}
+                                        onChange={(e) => setfilter(e.target.value)}
+                                        className="form-control"
+                                        placeholder="Search"
+                                    />
+                                    <span className="input-group-text">
+                                        <img src={icon} />
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => nav("/home/total-sales-agent/add-agent")}
+                                    className="btn btn-primary"
+                                >
+                                    + Add Agent
+                                </button>
+                                <button className="btn btn-primary" onClick={handleExport}
+                                    disabled={isExporting}>
+                                    {isExporting ? 'Exporting...' : '+ Export Sheet'}
+                                </button>
+                            </div>
+                        </div>
+                        {UserList.isFetching ? (
+                            <Loader />
+                        ) : (
+                            <>
+                                {agentList ? (
+                                    <>
+                                        <table
+                                            id="example"
+                                            className="table table-striped nowrap"
+                                            style={{ width: "100%" }}
+                                        >
+                                            <thead>
+                                                <tr>
+
+                                                    <th>User</th>
+                                                    <th>Contact No.</th>
+                                                    <th>Email</th>
+                                                    <th>Enroll Amount Deduction</th>
+                                                    <th>&nbsp;</th>
+                                                    <th>&nbsp;</th>
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {UserList?.data && agentList?.map((user) => (
+                                                    <tr key={user._id}>
+                                                        <td>
+                                                            <div
+                                                                className={
+                                                                    (!user.first_name && !user.last_name) ? "prof nodata" : "prof"
+                                                                }
+                                                            >
+                                                                <img
+                                                                    className="profilepicture"
+                                                                    src={
+                                                                        user.selfieImage
+                                                                            ? user.selfieImage
+                                                                            : nouser
+                                                                    }
+                                                                />
+                                                                {user.first_name} {user.last_name}
+                                                            </div>
+                                                        </td>
+
+                                                        <td className={!user?.mobile_no ? "nodata" : ""}>
+                                                            {`${user?.mobile_no_country_code ?? ''}${user?.mobile_no ?? ''}`}
+                                                        </td>
+                                                        <td className={!user.email ? "nodata" : ""}>
+                                                            {user.email}
+                                                        </td>
+                                                        <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
+                                                            {user.enrollAmountDeduction}
+                                                        </td>
+                                                        {/* <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
+                                                            {user.enrollAmountDeduction}
+                                                        </td> */}
+                                                        <td style={{ display: 'flex', justifyContent: 'center', flexDirection: 'row', gap: '10px' }}>
+
+                                                            <span
+                                                                onClick={() =>
+                                                                    nav(
+                                                                        `/home/total-sales-agent/agent-information/${user._id}`
+                                                                    )
+                                                                }
+                                                                className="tbl-btn"
+                                                            >
+                                                                view
+                                                            </span>
+                                                            <span
+                                                                onClick={() => shareAgent({ id: user?._id, email: user?.email })}
+                                                                className="tbl-gray ml-2 cursor-pointer"
+                                                            >
+                                                                {isPending ? "Sharing..." : "Share"}
+                                                            </span>
+                                                        </td>
+
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                        <div className="pagiation">
+                                            <div className="pagiation-left">
+                                                <button
+                                                    disabled={page === 1}
+                                                    onClick={() => setpage((p) => p - 1)}
+                                                >
+                                                    <img src={Prev} /> Prev
+                                                </button>
+                                            </div>
+                                            <div className="pagiation-right">
+                                                <button
+                                                    disabled={page === UserList?.data?.data?.data?.totalPages}
+                                                    onClick={() => setpage((p) => p + 1)}
+                                                >
+                                                    Next <img src={Next} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className="no-data-found">No data found</p>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default ListOfSalesAgent;

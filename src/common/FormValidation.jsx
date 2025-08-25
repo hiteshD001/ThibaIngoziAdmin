@@ -58,6 +58,18 @@ export const profileValidation_s = yup.object({
     postal_code: Number,
     country: String
 })
+export const sales_agent_e = yup.object({
+    first_name: Username,
+    last_name: Username,
+    email: Email,
+    mobile_no: MobileNumber,
+    // referralCode: String,
+    enrollAmountDeduction: Number,
+    // accountNumber: String,
+    // customerCode: String,
+    // accountType: String,
+    // accountHolderName: String,
+})
 
 export const profileValidation_c = yup.object({
     contact_name: Username,

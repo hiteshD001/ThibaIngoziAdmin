@@ -96,6 +96,7 @@ export const useGetCompanyList = (
     }
     return res;
 };
+
 // get security service list
 export const useGetSecurityList = () => {
     const queryFn = async () => {
@@ -111,7 +112,7 @@ export const useGetSecurityList = () => {
 
     return res;
 };
-// get eHailing lisy
+// get eHailing list
 export const useGeteHailingList = () => {
     const queryFn = async () => {
         return await apiClient.get(
@@ -197,7 +198,6 @@ export const useGetArmedSoS = () => {
 };
 
 // armed sos amount
-
 export const useCreateSosAmount = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
@@ -405,7 +405,6 @@ export const useGetProvinceList = (id) => {
 };
 
 // get list of Country
-
 export const useGetCountryList = () => {
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/country`);
@@ -422,7 +421,6 @@ export const useGetCountryList = () => {
 };
 
 // get list of Services
-
 export const useGetServicesList = () => {
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/notificationType`);
@@ -439,7 +437,6 @@ export const useGetServicesList = () => {
 };
 
 // get single user
-
 export const useGetUser = (userId) => {
     const queryFn = async () => {
         return await apiClient.get(
@@ -457,8 +454,91 @@ export const useGetUser = (userId) => {
     return res;
 };
 
-// recent driver list
+// get all sales agent
+export const useGetSalesAgent = (page = 1, limit = 10, filter,) => {
+    const navigate = useNavigate();
+    const res = useQuery({
+        queryKey: ['salesAgent', page, limit, filter,],
+        queryFn: async () =>
+            apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer`, {
+                params: { page, limit, filter, }
+            }),
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+        onError: (error) => {
+            if (error.response?.status === 401) {
+                localStorage.clear();
+                navigate("/");
+            }
+        },
+    });
+    return res;
+};
+// add sales agent
+export const useCreateSalesAgent = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/influencer`,
+            data
+        );
+    };
 
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+// get sales agent by id 
+export const useGetAgent = (id) => {
+    const navigate = useNavigate();
+    const res = useQuery({
+        queryKey: ['agent', id],
+        queryFn: async () =>
+            apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer/byId/${id}`),
+        staleTime: Infinity,
+        enabled: id !== undefined,
+        onError: (error) => {
+            if (error.response?.status === 401) {
+                localStorage.clear();
+                navigate("/");
+            }
+        },
+    });
+    return res;
+};
+// update sales agent by id
+export const useUpdateSalesAgent = (onSucess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/influencer/updateById/${id}`,
+            data
+        );
+    };
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+    return res;
+};
+// sales agent details share 
+export const useShareAgent = (onSuccess, onError) => {
+    return useMutation({
+        mutationFn: async ({ id, email }) => {
+            const { data } = await apiClient.post(
+                `${import.meta.env.VITE_BASEURL}/influencer/share/details/${id}`, { email }
+            );
+            return data;
+        },
+        onSuccess,
+        onError,
+    });
+};
+// recent driver list
 export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
     const queryFn = async () => {
         return await apiClient.get(
@@ -476,7 +556,6 @@ export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
 };
 
 // active driver list
-
 export const useGetActiveSOS = () => {
     const queryFn = async () => {
         return await apiClient.get(
@@ -495,7 +574,6 @@ export const useGetActiveSOS = () => {
 
 
 // get chart data
-
 export const useGetChartData = (company_id, time, notificationType) => {
     const [chartData, setChartData] = useState(new Array(12).fill(0));
 
@@ -545,7 +623,6 @@ export const useGetChartData = (company_id, time, notificationType) => {
 };
 
 // get active sos 
-
 export const useGetActiveSosData = () => {
     const queryFn = async () => {
         return await apiClient.get(
@@ -563,7 +640,6 @@ export const useGetActiveSosData = () => {
     return res.data?.data?.data;
 }
 // get active armed sos 
-
 export const useGetActiveArmedData = () => {
     const queryFn = async () => {
         return await apiClient.get(
@@ -597,7 +673,6 @@ export const useGetRecentArmedSOS = (page = 1, limit = 20) => {
     return res;
 };
 // get hotspot
-
 export const useGetHotspot = (type, company_id, notificationType) => {
     const params = {};
     if (type) {
@@ -630,7 +705,6 @@ export const useGetHotspot = (type, company_id, notificationType) => {
 
 
 // notifications
-
 export const useCreateNotificationType = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
@@ -664,7 +738,6 @@ export const useGetNotificationType = () => {
 };
 
 // get all orders
-
 export const useGetAllOrders = (page = 0, limit = 100) => {
     // const token = localStorage.getItem("accessToken");
 
@@ -687,7 +760,6 @@ export const useGetAllOrders = (page = 0, limit = 100) => {
 };
 
 // update order
-
 export const useUpdateStatus = (onSucess, onError) => {
     // const token = localStorage.getItem("accessToken");
 
@@ -711,7 +783,6 @@ export const useUpdateStatus = (onSucess, onError) => {
 };
 
 // reset password
-
 export const useResetPassword = (onSuccess, onError) => {
     const mutationFn = async ({ password, token }) => {
         const response = await apiClient.post(
@@ -731,7 +802,6 @@ export const useResetPassword = (onSuccess, onError) => {
 };
 
 // delete user
-
 export const useDeleteUser = (onSuccess, onError) => {
     const mutationFn = async (id) => {
         return await apiClient.delete(
@@ -749,7 +819,6 @@ export const useDeleteUser = (onSuccess, onError) => {
 };
 
 // login user
-
 export const useUserLogin = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
@@ -768,7 +837,6 @@ export const useUserLogin = (onSuccess, onError) => {
 };
 
 // register user
-
 export const useRegister = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
@@ -787,7 +855,6 @@ export const useRegister = (onSuccess, onError) => {
 };
 
 // update user
-
 export const useUpdateUser = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
         return await apiClient.put(
@@ -806,7 +873,6 @@ export const useUpdateUser = (onSuccess, onError) => {
 };
 
 // update Location Status
-
 export const useUpdateLocationStatus = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
         return await apiClient.put(
@@ -853,6 +919,7 @@ export const useGetLocationByLocationId = (locationId) => {
         isLoading: res.isLoading,
     };
 };
+
 // driver import 
 export const useFileUpload = (onSuccess, onError) => {
     const mutationFn = async (data) => {
@@ -883,9 +950,7 @@ export const useUserFileUpload = (onSuccess, onError) => {
     return mutation;
 }
 
-
 // payout api
-
 export const armedSosPayout = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(

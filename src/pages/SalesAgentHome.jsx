@@ -1,31 +1,22 @@
-import { useEffect, useState, useLayoutEffect } from "react";
-import { Grid, Paper, Typography, Box } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Grid, Paper, Typography, Box, FormControl, InputLabel, Button, FormHelperText } from "@mui/material";
 import { useFormik } from "formik";
-import {
-    profileValidation_c,
-    profileValidation_s,
-} from "../common/FormValidation";
-import Select from "react-select";
-
+import { sales_agent_e } from "../common/FormValidation";
+import { BootstrapInput } from '../common/BootstrapInput'
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList, useGetServicesList } from "../API Calls/API";
+import { QRCodeCanvas } from "qrcode.react";
+import { useGetAgent, useUpdateSalesAgent } from "../API Calls/API";
 import { toast } from "react-toastify";
-import SingleImagePreview from "../common/SingleImagePreview";
 import { toastOption } from "../common/ToastOptions";
-import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 
 const SalesAgentHome = () => {
-    const role = localStorage.getItem("role");
+    // const role = localStorage.getItem("role");
     const [time, setTime] = useState("today");
     const [timeTitle, setTimeTitle] = useState("Today");
-    const [previewImage, setPreviewImage] = useState(null);
-    const [isSingle, setIsSingle] = useState(false);
-    const [showPreview, setShowPreview] = useState(false);
+
     const client = useQueryClient();
     const [edit, setedit] = useState(false);
-
-
 
     useEffect(() => {
         switch (time) {
@@ -54,57 +45,51 @@ const SalesAgentHome = () => {
     };
     const onSuccess = () => {
         toast.success("Profile Update Successfully.");
-        client.invalidateQueries("userinfo");
+        client.invalidateQueries("agent", { exact: 'false' });
     };
     const onError = (error) => {
         toast.error(error.response.data.message || "Something went Wrong", toastOption);
     };
-    const { mutate, isPending } = useUpdateUser(onSuccess, onError);
-    const userinfo = useGetUser(localStorage.getItem("userID"));
+    const { mutate } = useUpdateSalesAgent(onSuccess, onError)
+
+    const userinfo = useGetAgent(localStorage.getItem("userID"));
+
     const profileForm = useFormik({
         initialValues: sales_agent,
-        validationSchema: profileValidation_s,
+        validationSchema: sales_agent_e,
         onSubmit: (values) => {
             setedit(false);
-            const formData = new FormData();
-            Object.keys(values).forEach((key) => {
-                if (key !== "selfieImage" && key !== "fullImage") {
-                    formData.append(key, values[key]);
-                }
+            mutate({
+                id: localStorage.getItem("userID"),
+                data: values,
             });
-            if (values.selfieImage && values.selfieImage instanceof File) {
-                formData.append("selfieImage", values.selfieImage);
-            }
-            if (values.fullImage && values.fullImage instanceof File) {
-                formData.append("fullImage", values.fullImage);
-            }
-            mutate({ id: localStorage.getItem("userID"), data: formData });
         },
 
     });
-
-    const countrylist = useGetCountryList();
-    const provincelist = useGetProvinceList(profileForm.values.country);
-
+    const handleCancel = () => {
+        const data = userinfo?.data?.data?.data;
+        if (data) {
+            profileForm.resetForm({ values: data });
+        }
+        setedit(false);
+    };
     useEffect(() => {
-        console.log(profileForm.values)
-        profileForm.setValues({
-            first_name: userinfo.data?.data.user?.first_name || "",
-            last_name: userinfo.data?.data.user?.last_name || "",
-            email: userinfo.data?.data.user?.email || "",
-            street: userinfo.data?.data.user?.street || "",
-            province: userinfo.data?.data.user?.province || "",
-            city: userinfo.data?.data.user?.city || "",
-            suburb: userinfo.data?.data.user?.suburb || "",
-            postal_code: userinfo.data?.data.user?.postal_code || "",
-            country: userinfo.data?.data.user?.country || "",
-            role: userinfo.data?.data.user?.role || "",
-            mobile_no: userinfo.data?.data.user?.mobile_no || "",
-            mobile_no_country_code: userinfo.data?.data.user?.mobile_no_country_code || "",
-        });
-    }, [userinfo.data]);
+        const data = userinfo?.data?.data
+        if (data) {
+            setAgentformvalues({ form: profileForm, data: userinfo?.data?.data?.data })
+        }
+    }, [userinfo?.data])
 
 
+
+    const displayField = (label, value) => (
+        <Box mb={3}>
+            <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>{label}</Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ ml: 0.5 }}>
+                {value || "-"}
+            </Typography>
+        </Box>
+    );
     return (
         <>
             <Grid container>
@@ -127,7 +112,7 @@ const SalesAgentHome = () => {
             <Grid container spacing={3} px={2}>
 
                 {/* Total Companies */}
-                <Grid size={{ xs: 12, md: 6 }}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Paper
                         elevation={3}
                         sx={{
@@ -138,7 +123,25 @@ const SalesAgentHome = () => {
                         }}
                     >
                         <Typography variant="subtitle1" color="text.secondary">
-                            Total Commission
+                            Total Commission Earned
+                        </Typography>
+                        <Typography variant="h4" fontWeight="bold">
+                            20
+                        </Typography>
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            // textAlign: "center",
+                            bgcolor: "#e3f5ff",
+                        }}
+                    >
+                        <Typography variant="subtitle1" color="text.secondary">
+                            Total Commission Unpaid
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
                             20
@@ -147,9 +150,8 @@ const SalesAgentHome = () => {
                 </Grid>
 
 
-
                 {/* Users Active (time filter) */}
-                <Grid size={{ xs: 12, md: 6 }}>
+                <Grid size={{ xs: 12, md: 4 }}>
                     <Paper
                         elevation={3}
                         sx={{
@@ -168,61 +170,92 @@ const SalesAgentHome = () => {
                     </Paper>
                 </Grid>
             </Grid>
-            <div className="container-fluid mt-4">
-                <div className="row">
-                    <div className="col-md-12">
-                        <div className="theme-table">
-                            <div className="tab-heading">
-                                <h3>Profile</h3>
-                            </div>
-                            <form>
-                                <div className="row">
-                                    <div className="col-md-6">
-                                        <input
-                                            type="text"
+            <Box p={2}>
+                <Box elevation={0} sx={{ p: 3, borderRadius: '16px', mb: 3, backgroundColor: '#f7f9fb' }}>
+                    <form>
+                        <Grid container spacing={edit ? 3 : 1}>
+                            <Grid size={12}>
+                                <Typography variant="h6" gutterBottom fontWeight={600}>
+                                    Profile Information
+                                </Typography>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth >
+                                        <InputLabel shrink htmlFor="first_name" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                            First Name
+                                        </InputLabel>
+                                        <BootstrapInput
+                                            id="first_name"
                                             name="first_name"
                                             placeholder="First Name"
-                                            className="form-control"
                                             value={profileForm.values.first_name}
                                             onChange={profileForm.handleChange}
-                                            disabled={!edit}
                                         />
-                                        {profileForm.touched.first_name && (
-                                            <p className="err">{profileForm.errors.first_name}</p>
-                                        )}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <input
-                                            type="text"
+                                        {profileForm.touched.first_name && <FormHelperText error>{profileForm.errors.first_name}</FormHelperText>}
+                                    </FormControl>
+                                ) : displayField("First Name", profileForm.values.first_name)}
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth >
+                                        <InputLabel shrink htmlFor="last_name" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                            Last Name
+                                        </InputLabel>
+                                        <BootstrapInput
+                                            id="last_name"
                                             name="last_name"
                                             placeholder="Last Name"
-                                            className="form-control"
                                             value={profileForm.values.last_name}
                                             onChange={profileForm.handleChange}
-                                            disabled={!edit}
+
                                         />
-                                        {profileForm.touched.last_name && (
-                                            <p className="err">{profileForm.errors.last_name}</p>
-                                        )}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <input
-                                            type="text"
+                                        {profileForm.touched.last_name && <FormHelperText error>{profileForm.errors.last_name}</FormHelperText>}
+                                    </FormControl>
+                                ) : displayField("Last Name", profileForm.values.last_name)}
+                            </Grid>
+                            {/* <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth >
+                                        <InputLabel shrink htmlFor="password" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                            Password
+                                        </InputLabel>
+                                        <BootstrapInput
+                                            id="password"
+                                            name="password"
+                                            placeholder="Password"
+                                            value={profileForm.values.password}
+                                            onChange={profileForm.handleChange}
+
+                                        />
+                                        {profileForm.touched.password && <FormHelperText error>{profileForm.errors.password}</FormHelperText>}
+                                    </FormControl>
+                                ) : displayField("Password", profileForm.values.password)}
+                            </Grid> */}
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth>
+                                        <InputLabel shrink htmlFor="email" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                            Email
+                                        </InputLabel>
+                                        <BootstrapInput
+                                            id="email"
                                             name="email"
                                             placeholder="Email"
-                                            className="form-control"
                                             value={profileForm.values.email}
                                             onChange={profileForm.handleChange}
-                                            disabled={!edit}
+
                                         />
-                                        {profileForm.touched.email && (
-                                            <p className="err">{profileForm.errors.email}</p>
-                                        )}
-                                    </div>
-                                    <div className="col-md-6">
+                                        {profileForm.touched.email && <FormHelperText error>{profileForm.errors.email}</FormHelperText>}
+                                    </FormControl>
+                                ) : displayField("Email", profileForm.values.email)}
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth>
+                                        <label>Phone Number</label>
                                         <PhoneInput
                                             country={"za"}
-                                            disabled={!edit}
                                             value={`${profileForm.values.mobile_no_country_code ?? ''}${profileForm.values.mobile_no ?? ''}`}
                                             onChange={(phone, countryData) => {
                                                 const withoutCountryCode = phone.startsWith(countryData.dialCode)
@@ -232,235 +265,196 @@ const SalesAgentHome = () => {
                                                 profileForm.setFieldValue("mobile_no", withoutCountryCode);
                                                 profileForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
                                             }}
-                                            inputClass="form-control"
+                                            inputStyle={{
+                                                width: '100%',
+                                                height: '46px',
+                                                borderRadius: '6px',
+                                                border: '1px solid #E0E3E7',
+                                                fontSize: '16px',
+                                                paddingLeft: '48px',
+                                                background: '#fff',
+                                                outline: 'none',
+                                                boxShadow: 'none',
+                                                borderColor: '#E0E3E7',
+                                            }}
+                                            buttonStyle={{
+                                                borderRadius: '6px 0 0 6px',
+                                                border: '1px solid #E0E3E7',
+                                                background: '#fff'
+                                            }}
+                                            containerStyle={{
+                                                height: '46px',
+                                                width: '100%',
+                                                marginBottom: '8px'
+                                            }}
+                                            specialLabel=""
+                                            inputProps={{
+                                                name: 'mobile_no',
+                                                required: true,
+                                                autoFocus: false
+                                            }}
                                         />
-                                        {profileForm.touched.mobile_no && (
-                                            <p className="err">{profileForm.errors.mobile_no}</p>
+                                        {profileForm.touched.mobile_no && profileForm.errors.mobile_no && (
+                                            <FormHelperText error>{profileForm.errors.mobile_no}</FormHelperText>
                                         )}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <input
-                                            type="text"
-                                            name="street"
-                                            placeholder="Street"
-                                            className="form-control"
-                                            value={profileForm.values.street}
+                                    </FormControl>
+                                ) : displayField("Phone Number", `${profileForm.values.mobile_no_country_code ?? ''}${profileForm.values.mobile_no ?? ''}`)}
+                            </Grid>
+
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth >
+                                        <InputLabel shrink htmlFor="enrollAmountDeduction" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                            Enroll Amount Deduction
+                                        </InputLabel>
+                                        <BootstrapInput
+                                            id="enrollAmountDeduction"
+                                            name="enrollAmountDeduction"
+                                            placeholder="Enter Enroll Amount Deduction"
+                                            value={profileForm.values.enrollAmountDeduction}
                                             onChange={profileForm.handleChange}
-                                            disabled={!edit}
                                         />
-                                        {profileForm.touched.street && (
-                                            <p className="err">{profileForm.errors.street}</p>
-                                        )}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <select
-                                            name="country"
-                                            className="form-control"
-                                            value={profileForm.values.country}
+                                        {profileForm.touched.enrollAmountDeduction && <FormHelperText error>{profileForm.errors.enrollAmountDeduction}</FormHelperText>}
+                                    </FormControl>
+                                ) : displayField("Enroll Amount Deduction", profileForm.values.enrollAmountDeduction)}
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth >
+                                        <InputLabel shrink htmlFor="accountNumber" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                            Account Number
+                                        </InputLabel>
+                                        <BootstrapInput
+                                            id="accountNumber"
+                                            name="accountNumber"
+                                            placeholder="Enter Account Number"
+                                            value={profileForm.values.accountNumber}
                                             onChange={profileForm.handleChange}
-                                            disabled={!edit}
+                                        />
+                                        {profileForm.touched.accountNumber && <FormHelperText error>{profileForm.errors.accountNumber}</FormHelperText>}
+                                    </FormControl>
+                                ) : displayField("Account Number", profileForm.values.accountNumber)}
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth >
+                                        <InputLabel shrink htmlFor="customerCode" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                            Customer Code
+                                        </InputLabel>
+                                        <BootstrapInput
+                                            id="customerCode"
+                                            name="customerCode"
+                                            placeholder="Enter Customer Code"
+                                            value={profileForm.values.customerCode}
+                                            onChange={profileForm.handleChange}
+                                        />
+                                        {profileForm.touched.customerCode && <FormHelperText error>{profileForm.errors.customerCode}</FormHelperText>}
+                                    </FormControl>
+                                ) : displayField("Customer Code", profileForm.values.customerCode)}
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth >
+                                        <InputLabel shrink htmlFor="accountType" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                            Account Type
+                                        </InputLabel>
+                                        <BootstrapInput
+                                            id="accountType"
+                                            name="accountType"
+                                            placeholder="Enter Account Type"
+                                            value={profileForm.values.accountType}
+                                            onChange={profileForm.handleChange}
+                                        />
+                                        {profileForm.touched.accountType && <FormHelperText error>{profileForm.errors.accountType}</FormHelperText>}
+                                    </FormControl>
+                                ) : displayField("Account Type", profileForm.values.accountType)}
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth >
+                                        <InputLabel shrink htmlFor="accountHolderName" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                            Account Holder Name
+                                        </InputLabel>
+                                        <BootstrapInput
+                                            id="accountHolderName"
+                                            name="accountHolderName"
+                                            placeholder="Enter Account Holder Name"
+                                            value={profileForm.values.accountHolderName}
+                                            onChange={profileForm.handleChange}
+                                        />
+                                        {profileForm.touched.accountHolderName && <FormHelperText error>{profileForm.errors.accountHolderName}</FormHelperText>}
+                                    </FormControl>
+                                ) : displayField("Account Holder Name", profileForm.values.accountHolderName)}
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                {edit ? (
+                                    <FormControl variant="standard" fullWidth >
+                                        <InputLabel shrink htmlFor="bankId" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                            Bank ID
+                                        </InputLabel>
+                                        <BootstrapInput
+                                            id="bankId"
+                                            name="bankId"
+                                            placeholder="Enter Bank ID"
+                                            value={profileForm.values.bankId}
+                                            onChange={profileForm.handleChange}
+                                        />
+                                        {profileForm.touched.bankId && <FormHelperText error>{profileForm.errors.bankId}</FormHelperText>}
+                                    </FormControl>
+                                ) : displayField("Bank ID", profileForm.values.bankId)}
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                                <Box display="flex" flexDirection="column" gap={1}>
+                                    {/* QR Code */}
+                                    {profileForm.values.referralCode && (
+                                        <>
+                                            <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>Referral Code</Typography>
+                                            <QRCodeCanvas
+                                                value={`https://api.thibaingozi.com/api/referralCode?refferal_code=${profileForm.values.referralCode}`}
+                                                size={128}
+                                                bgColor="#ffffff"
+                                                fgColor="#000000"
+                                                level="H"
+                                            /></>
+                                    )}
+                                </Box>
+                            </Grid>
+                            <Grid size={12}>
+                                <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+                                    {edit ? (
+                                        <>
+                                            <Button
+                                                variant="contained"
+                                                sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                                onClick={() => {
+                                                    profileForm.handleSubmit()
+                                                }}
+                                            >
+                                                Save
+                                            </Button>
+                                            <Button
+                                                variant="outlined"
+                                                sx={{ width: 130, height: 48, borderRadius: '10px', border: '1px solid black', color: 'black' }}
+                                                onClick={handleCancel}
+                                            >
+                                                Cancel
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setedit(true)}
                                         >
-                                            <option value="" hidden>Country</option>
-                                            {countrylist.data?.data.data?.map((country) => (
-                                                <option key={country._id} value={country._id}>
-                                                    {country.country_name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {profileForm.touched.country && (
-                                            <p className="err">{profileForm.errors.country}</p>
-                                        )}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <select
-                                            name="province"
-                                            className="form-control"
-                                            value={profileForm.values.province}
-                                            disabled={!profileForm.values.country || !edit}
-                                            onChange={profileForm.handleChange}
-                                        >
-                                            <option value="" hidden>Province</option>
-                                            {provincelist.data?.data.data?.map((province) => (
-                                                <option key={province._id} value={province._id}>
-                                                    {province.province_name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {profileForm.touched.province && (
-                                            <p className="err">{profileForm.errors.province}</p>
-                                        )}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <input
-                                            type="text"
-                                            name="city"
-                                            placeholder="City"
-                                            className="form-control"
-                                            value={profileForm.values.city}
-                                            onChange={profileForm.handleChange}
-                                            disabled={!edit}
-                                        />
-                                        {profileForm.touched.city && (
-                                            <p className="err">{profileForm.errors.city}</p>
-                                        )}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <input
-                                            type="text"
-                                            name="suburb"
-                                            placeholder="Suburb"
-                                            className="form-control"
-                                            value={profileForm.values.suburb}
-                                            onChange={profileForm.handleChange}
-                                            disabled={!edit}
-                                        />
-                                        {profileForm.touched.suburb && (
-                                            <p className="err">{profileForm.errors.suburb}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="col-md-6">
-                                        <input
-                                            type="text"
-                                            name="postal_code"
-                                            placeholder="Postal Code"
-                                            className="form-control"
-                                            value={profileForm.values.postal_code}
-                                            onChange={profileForm.handleChange}
-                                            disabled={!edit}
-                                        />
-                                        {profileForm.touched.postal_code && (
-                                            <p className="err">{profileForm.errors.postal_code}</p>
-                                        )}
-                                    </div>
-                                    <div className="col-md-6">
-                                        <div className="row">
-                                            <div className="col-md-6">
-                                                <label>Selfie Image</label>
-
-                                                {profileForm.values.selfieImage instanceof File ? (
-                                                    <div className="form-control mt-2 img-preview-container"
-                                                        style={{ cursor: "pointer" }}
-                                                        onClick={() => openPreview(0)}>
-                                                        <img
-                                                            src={URL.createObjectURL(profileForm.values.selfieImage)}
-                                                            alt="Selfie Preview"
-                                                            className="img-preview"
-                                                            width="100"
-                                                            onLoad={(e) => URL.revokeObjectURL(e.target.src)}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    userinfo.data?.data.user?.selfieImage && (
-                                                        <div className="form-control mt-2 img-preview-container"
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={() => openPreview(0)}>
-                                                            <img
-                                                                src={userinfo.data?.data.user?.selfieImage}
-                                                                alt="Selfie Image"
-                                                                className="img-preview"
-                                                                width="100"
-                                                            />
-                                                        </div>
-                                                    )
-                                                )}
-
-                                                <div className="custom-file-input">
-                                                    <input
-                                                        type="file"
-                                                        id="selfieImage"
-                                                        accept="image/*"
-                                                        disabled={!edit}
-                                                        onChange={(event) => {
-                                                            const file = event.currentTarget.files[0];
-                                                            profileForm.setFieldValue("selfieImage", file);
-                                                        }}
-                                                    />
-                                                    <label htmlFor="selfieImage">
-                                                        Choose Selfie Image
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div className="col-md-6">
-                                                <label>Full Image</label>
-
-                                                {profileForm.values.fullImage instanceof File ? (
-                                                    <div className="form-control mt-2 img-preview-container"
-                                                        style={{ cursor: "pointer" }}
-                                                        onClick={() => openPreview(1)}>
-                                                        <img
-                                                            src={URL.createObjectURL(profileForm.values.fullImage)}
-                                                            alt="full Image"
-                                                            className="img-preview"
-                                                            width="100"
-                                                            onLoad={(e) => URL.revokeObjectURL(e.target.src)}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    userinfo.data?.data.user?.fullImage && (
-                                                        <div className="form-control mt-2 img-preview-container"
-                                                            style={{ cursor: "pointer" }}
-                                                            onClick={() => openPreview(1)}>
-                                                            <img
-                                                                src={userinfo.data?.data.user?.fullImage}
-                                                                alt="full Image"
-                                                                className="img-preview"
-                                                                width="100"
-                                                            />
-                                                        </div>
-                                                    )
-                                                )}
-
-                                                <div className="custom-file-input">
-                                                    <input
-                                                        type="file"
-                                                        id="fullImage"
-                                                        accept="image/*"
-                                                        disabled={!edit}
-                                                        onChange={(event) => {
-                                                            const file = event.currentTarget.files[0];
-
-                                                            profileForm.setFieldValue("fullImage", file);
-                                                        }}
-                                                    />
-                                                    <label htmlFor="fullImage">
-                                                        Choose Full Image
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div className="col-md-12 text-end">
-                        <div className="saveform">
-                            {edit ? (
-                                <button
-                                    onClick={profileForm.handleSubmit}
-                                    type="submit"
-                                    className="btn btn-dark"
-                                >
-                                    {isPending ? <Loader color="white" /> : "Save"}
-                                </button>
-                            ) : (
-                                <button onClick={() => setedit(true)} className="btn btn-dark">
-                                    Edit
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-                <SingleImagePreview
-                    show={showPreview}
-                    onClose={() => {
-                        setShowPreview(false);
-                        setPreviewImage(null);
-                    }}
-                    image={previewImage}
-                />
-            </div>
+                                            Edit
+                                        </Button>
+                                    )}
+                                </Box>
+                            </Grid>
+                        </Grid>
+                    </form>
+                </Box>
+            </Box>
         </>
 
     );
@@ -469,16 +463,37 @@ const SalesAgentHome = () => {
 export default SalesAgentHome;
 
 const sales_agent = {
+    referralCode: "",
+    enrollAmountDeduction: "",
+    password: "",
+    accountNumber: "",
+    customerCode: "",
+    accountType: "",
+    accountHolderName: "",
     first_name: "",
     last_name: "",
+    bankId: "",
     email: "",
-    street: "",
-    province: "",
-    city: "",
-    suburb: "",
-    postal_code: "",
-    country: "",
-    role: "",
+    // role: "",
     mobile_no: "",
     mobile_no_country_code: "",
 };
+const setAgentformvalues = ({ ...props }) => {
+    const { form, data } = props;
+    let newdata = {};
+
+    Object.keys(form.values).forEach((key) => {
+
+        if (key === 'images') {
+            newdata = { ...newdata, [key]: Array.from({ length: 5 }, (_, i) => data?.[`image_${i + 1}`] || null).filter(Boolean) };
+        } else if (key === 'company_id') {
+            newdata = { ...newdata, [key]: data?.company_id?._id ?? '' };
+        }
+        else {
+            newdata = { ...newdata, [key]: data?.[key] ?? '' };
+        }
+
+    });
+
+    form.setValues(newdata)
+}
