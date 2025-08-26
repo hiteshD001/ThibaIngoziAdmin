@@ -81,7 +81,6 @@ const SalesAgentHome = () => {
     }, [userinfo?.data])
 
 
-
     const displayField = (label, value) => (
         <Box mb={3}>
             <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>{label}</Typography>
@@ -126,7 +125,7 @@ const SalesAgentHome = () => {
                             Total Commission Earned
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            20
+                            {userinfo?.data?.data?.data?.totalCommission}
                         </Typography>
                     </Paper>
                 </Grid>
@@ -144,7 +143,7 @@ const SalesAgentHome = () => {
                             Total Commission Unpaid
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            20
+                            {userinfo?.data?.data?.data?.totalUnPaid}
                         </Typography>
                     </Paper>
                 </Grid>
