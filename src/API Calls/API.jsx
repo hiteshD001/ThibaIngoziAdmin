@@ -466,10 +466,7 @@ export const useGetSalesAgent = (page = 1, limit = 10, filter,) => {
         staleTime: 15 * 60 * 1000,
         retry: false,
         onError: (error) => {
-            if (error.response?.status === 401) {
-                localStorage.clear();
-                navigate("/");
-            }
+            console.log(error)
         },
     });
     return res;
@@ -494,7 +491,6 @@ export const useCreateSalesAgent = (onSuccess, onError) => {
 
 // get sales agent by id 
 export const useGetAgent = (id) => {
-    const navigate = useNavigate();
     const res = useQuery({
         queryKey: ['agent', id],
         queryFn: async () =>
@@ -502,10 +498,7 @@ export const useGetAgent = (id) => {
         staleTime: Infinity,
         enabled: id !== undefined,
         onError: (error) => {
-            if (error.response?.status === 401) {
-                localStorage.clear();
-                navigate("/");
-            }
+            console.log(error)
         },
     });
     return res;
