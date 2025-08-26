@@ -62,7 +62,7 @@ const ListOfSalesAgent = () => {
             return [];
         }
     };
-  
+
     const handleExport = async () => {
         setIsExporting(true);
         try {
@@ -124,7 +124,7 @@ const ListOfSalesAgent = () => {
                                 <p>{UserList.isSuccess && UserList?.data?.data?.data?.totalCount || 0}</p>
                             </div>
                             <div className="tbl-filter">
-                                <div className="input-group">
+                                <div className="input-group" style={{ width: '40%' }}>
                                     <span className="input-group-text">
                                         <img src={search} />
                                     </span>

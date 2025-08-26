@@ -5,7 +5,7 @@ import { Grid, Typography, Box, FormControl, InputLabel, Button, FormHelperText 
 import { useFormik } from "formik"
 import { sales_agent_e } from "../../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query"
-import { useGetAgent, useUpdateSalesAgent, useGetBanksList} from "../../API Calls/API"
+import { useGetAgent, useUpdateSalesAgent, useGetBanksList } from "../../API Calls/API"
 import { toast } from "react-toastify"
 import { QRCodeCanvas } from "qrcode.react";
 import { toastOption } from "../../common/ToastOptions"
@@ -310,37 +310,42 @@ const AgentInformation = () => {
                         <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                             {edit ? (
                                 <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="bankId" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        Bank ID
-                                    </InputLabel>
+                                    <label style={{ marginBottom: 0 }}>Bank ID</label>
                                     <Select
-                                    name="bankId"
-                                    options={banksList}
-                                    placeholder="Select Bank"
-                                    classNamePrefix="select"
-                                    className="form-control"
-                                    value={banksList
-                                        .flatMap((group) => group.options)
-                                        .find((option) => option.value == agentForm?.values?.bankId)}
-                                    onChange={(selectedOption) => {
-                                        agentForm.setFieldValue("bankId", selectedOption?.value || "");
-                                    }}
-                                    styles={{
-                                        option: (base, state) => ({
-                                            ...base,
-                                            backgroundColor: state.isSelected
-                                                ? "white"
-                                                : state.isFocused
-                                                    ? "#e6e6e6"
-                                                    : "white",
-                                            color: "black",
-                                        }),
-                                        valueContainer: (base) => ({
-                                            ...base,
-                                            maxHeight: "50px",
-                                            overflowY: "auto",
-                                        }),
-                                    }}
+                                        name="bankId"
+                                        options={banksList}
+                                        placeholder="Select Bank"
+                                        classNamePrefix="select"
+                                        // className="form-control"
+                                        value={banksList
+                                            .flatMap((group) => group.options)
+                                            .find((option) => option.value == agentForm?.values?.bankId)}
+                                        onChange={(selectedOption) => {
+                                            agentForm.setFieldValue("bankId", selectedOption?.value || "");
+                                        }}
+                                        styles={{
+                                            control: (base, state) => ({
+                                                ...base,
+                                                minHeight: "45px",   // 👈 decrease container height
+                                                height: "45px",
+                                            }),
+                                            option: (base, state) => ({
+                                                ...base,
+                                                backgroundColor: state.isSelected
+                                                    ? "white"
+                                                    : state.isFocused
+                                                        ? "#e6e6e6"
+                                                        : "white",
+                                                color: "black",
+                                            }),
+                                            valueContainer: (base) => ({
+                                                ...base,
+                                                padding: "0 10px",   // 👈 tighter padding
+                                                height: "45px",
+                                                maxHeight: "38px",
+                                                overflowY: "auto",
+                                            }),
+                                        }}
                                     />
                                     {agentForm.touched.bankId && <FormHelperText error>{agentForm.errors.bankId}</FormHelperText>}
                                 </FormControl>
