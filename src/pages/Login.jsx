@@ -53,8 +53,12 @@ export const Login = () => {
         localStorage.setItem('currentlat', res.data.user.current_lat)
         localStorage.setItem('currentlong', res.data.user.current_long)
         localStorage.setItem("userID", res.data.user._id);
-        localStorage.setItem("role", res.data.user.role);
-        nav("/home");
+        res.data.user.role ? localStorage.setItem("role", res.data.user.role) : localStorage.setItem('role', 'sales_agent');
+        if(res.data.user.role){
+            nav("/home");
+        } else {
+           nav('/sales-home') 
+        }
     };
 
     const loginfn = useUserLogin(onSuccess, onError);
