@@ -436,6 +436,21 @@ export const useGetServicesList = () => {
     return res?.data?.data;
 };
 
+export const useGetBanksList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/bank`);
+    };
+
+    const res = useQuery({
+        queryKey: ["Services List"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    return res?.data?.data;
+};
+
 // get single user
 export const useGetUser = (userId) => {
     const queryFn = async () => {
@@ -455,13 +470,13 @@ export const useGetUser = (userId) => {
 };
 
 // get all sales agent
-export const useGetSalesAgent = (page = 1, limit = 10, filter,) => {
+export const useGetSalesAgent = (page = 1, limit = 10, filter, startDate, endDate) => {
     const navigate = useNavigate();
     const res = useQuery({
-        queryKey: ['salesAgent', page, limit, filter,],
+        queryKey: ['salesAgent', page, limit, filter, startDate, endDate],
         queryFn: async () =>
             apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer`, {
-                params: { page, limit, filter, }
+                params: { page, limit, filter, startDate, endDate}
             }),
         staleTime: 15 * 60 * 1000,
         retry: false,

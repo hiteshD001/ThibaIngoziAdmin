@@ -1,23 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useLayoutEffect } from "react";
+import Select from "react-select";
 import { Grid, Paper, Typography, Box, FormControl, InputLabel, Button, FormHelperText } from "@mui/material";
 import { useFormik } from "formik";
 import { sales_agent_e } from "../common/FormValidation";
 import { BootstrapInput } from '../common/BootstrapInput'
 import { useQueryClient } from "@tanstack/react-query";
 import { QRCodeCanvas } from "qrcode.react";
-import { useGetAgent, useUpdateSalesAgent } from "../API Calls/API";
+import { useGetAgent, useUpdateSalesAgent,useGetBanksList } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import PhoneInput from "react-phone-input-2";
+// import { useFormik } from "formik";
 
 const SalesAgentHome = () => {
-    // const role = localStorage.getItem("role");
+    const role = localStorage.getItem("role");
     const [time, setTime] = useState("today");
     const [timeTitle, setTimeTitle] = useState("Today");
-
+    const [banksList, setbanksList] = useState([])
     const client = useQueryClient();
     const [edit, setedit] = useState(false);
-
+    const bankslist = useGetBanksList()
     useEffect(() => {
         switch (time) {
             case "today":
@@ -80,7 +82,24 @@ const SalesAgentHome = () => {
         }
     }, [userinfo?.data])
 
+    useLayoutEffect(() => {
+        if (Array.isArray(bankslist)) {
+            const filteredServices = bankslist.filter(service => service);
 
+            const groupedOptions = [
+                {
+                    label: "Banks",
+                    options: filteredServices.map((service) => ({
+                        label: service.bank_name,
+                        value: service._id,
+                    })),
+                }
+            ];
+
+            setbanksList(groupedOptions);
+            debugger
+        }
+    }, [bankslist]);
     const displayField = (label, value) => (
         <Box mb={3}>
             <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>{label}</Typography>
@@ -91,7 +110,7 @@ const SalesAgentHome = () => {
     );
     return (
         <>
-            <Grid container>
+            {/* <Grid container>
                 <Grid size={12}>
                     <Box className='filter-date'>
                         <select
@@ -107,7 +126,7 @@ const SalesAgentHome = () => {
                         </select>
                     </Box>
                 </Grid>
-            </Grid>
+            </Grid> */}
             <Grid container spacing={3} px={2}>
 
                 {/* Total Companies */}
@@ -164,7 +183,7 @@ const SalesAgentHome = () => {
                             Total Users
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            34
+                            {userinfo?.data?.data?.data?.user_id.length}
                         </Typography>
                     </Paper>
                 </Grid>
@@ -312,6 +331,7 @@ const SalesAgentHome = () => {
                                             placeholder="Enter Enroll Amount Deduction"
                                             value={profileForm.values.enrollAmountDeduction}
                                             onChange={profileForm.handleChange}
+                                            disabled={role == 'sales_agent'}
                                         />
                                         {profileForm.touched.enrollAmountDeduction && <FormHelperText error>{profileForm.errors.enrollAmountDeduction}</FormHelperText>}
                                     </FormControl>
@@ -388,18 +408,39 @@ const SalesAgentHome = () => {
                             <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                                 {edit ? (
                                     <FormControl variant="standard" fullWidth >
-                                        <InputLabel shrink htmlFor="bankId" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                            Bank ID
-                                        </InputLabel>
-                                        <BootstrapInput
-                                            id="bankId"
-                                            name="bankId"
-                                            placeholder="Enter Bank ID"
-                                            value={profileForm.values.bankId}
-                                            onChange={profileForm.handleChange}
-                                        />
-                                        {profileForm.touched.bankId && <FormHelperText error>{profileForm.errors.bankId}</FormHelperText>}
-                                    </FormControl>
+                                    <InputLabel shrink htmlFor="bankName" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' }, marginBottom: '5%' }}>
+                                        Bank Name
+                                    </InputLabel>
+                                    <Select
+                                    name="bankId"
+                                    options={banksList}
+                                    placeholder="Select Bank"
+                                    classNamePrefix="select"
+                                    className="form-control"
+                                    value={banksList
+                                        .flatMap((group) => group.options)
+                                        .find((option) => option.value == profileForm?.values?.bankId)}
+                                    onChange={(selectedOption) => {
+                                        profileForm.setFieldValue("bankId", selectedOption?.value || "");
+                                    }}
+                                    styles={{
+                                        option: (base, state) => ({
+                                            ...base,
+                                            backgroundColor: state.isSelected
+                                                ? "white"
+                                                : state.isFocused
+                                                    ? "#e6e6e6"
+                                                    : "white",
+                                            color: "black",
+                                        }),
+                                        valueContainer: (base) => ({
+                                            ...base,
+                                            maxHeight: "50px",
+                                            overflowY: "auto",
+                                        }),
+                                    }}
+                                />
+                                </FormControl>
                                 ) : displayField("Bank ID", profileForm.values.bankId)}
                             </Grid>
                             <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>

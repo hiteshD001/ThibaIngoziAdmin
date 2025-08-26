@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useLayoutEffect } from "react"
+import Select from "react-select";
 import { useParams } from "react-router-dom"
 import { Grid, Typography, Box, FormControl, InputLabel, Button, FormHelperText } from "@mui/material";
 import { useFormik } from "formik"
 import { sales_agent_e } from "../../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query"
-import { useGetAgent, useUpdateSalesAgent, } from "../../API Calls/API"
+import { useGetAgent, useUpdateSalesAgent, useGetBanksList} from "../../API Calls/API"
 import { toast } from "react-toastify"
 import { QRCodeCanvas } from "qrcode.react";
 import { toastOption } from "../../common/ToastOptions"
@@ -13,9 +14,10 @@ import { BootstrapInput } from "../../common/BootstrapInput";
 const AgentInformation = () => {
     const [edit, setEdit] = useState(false)
     const [role] = useState(localStorage.getItem("role"));
+    const [banksList, setbanksList] = useState([])
     const params = useParams();
     const client = useQueryClient()
-
+    const bankslist = useGetBanksList()
     const agentForm = useFormik({
         initialValues: {
             referralCode: "",
@@ -64,6 +66,23 @@ const AgentInformation = () => {
             setAgentformvalues({ form: agentForm, data: UserInfo.data?.data?.data })
         }
     }, [UserInfo.data])
+    useLayoutEffect(() => {
+        if (Array.isArray(bankslist)) {
+            const filteredServices = bankslist.filter(service => service);
+
+            const groupedOptions = [
+                {
+                    label: "Banks",
+                    options: filteredServices.map((service) => ({
+                        label: service.bank_name,
+                        value: service._id,
+                    })),
+                }
+            ];
+
+            setbanksList(groupedOptions);
+        }
+    }, [bankslist]);
     const displayField = (label, value) => (
         <Box mb={3}>
             <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>{label}</Typography>
@@ -294,12 +313,34 @@ const AgentInformation = () => {
                                     <InputLabel shrink htmlFor="bankId" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
                                         Bank ID
                                     </InputLabel>
-                                    <BootstrapInput
-                                        id="bankId"
-                                        name="bankId"
-                                        placeholder="Enter Bank ID"
-                                        value={agentForm.values.bankId}
-                                        onChange={agentForm.handleChange}
+                                    <Select
+                                    name="bankId"
+                                    options={banksList}
+                                    placeholder="Select Bank"
+                                    classNamePrefix="select"
+                                    className="form-control"
+                                    value={banksList
+                                        .flatMap((group) => group.options)
+                                        .find((option) => option.value == agentForm?.values?.bankId)}
+                                    onChange={(selectedOption) => {
+                                        agentForm.setFieldValue("bankId", selectedOption?.value || "");
+                                    }}
+                                    styles={{
+                                        option: (base, state) => ({
+                                            ...base,
+                                            backgroundColor: state.isSelected
+                                                ? "white"
+                                                : state.isFocused
+                                                    ? "#e6e6e6"
+                                                    : "white",
+                                            color: "black",
+                                        }),
+                                        valueContainer: (base) => ({
+                                            ...base,
+                                            maxHeight: "50px",
+                                            overflowY: "auto",
+                                        }),
+                                    }}
                                     />
                                     {agentForm.touched.bankId && <FormHelperText error>{agentForm.errors.bankId}</FormHelperText>}
                                 </FormControl>

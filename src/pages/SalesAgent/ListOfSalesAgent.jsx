@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
+import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
 import { useGetSalesAgent, useShareAgent } from "../../API Calls/API";
 import Prev from "../../assets/images/left.png";
 import Next from "../../assets/images/right.png";
@@ -12,7 +12,8 @@ import * as XLSX from 'xlsx';
 import 'jspdf-autotable';
 import { toast } from "react-toastify";
 import Loader from "../../common/Loader";
-
+import { startOfYear } from "date-fns";
+import calender from '../../assets/images/calender.svg';
 
 const ListOfSalesAgent = () => {
     const [popup, setpopup] = useState(false)
@@ -23,8 +24,16 @@ const ListOfSalesAgent = () => {
     const [filter, setfilter] = useState("");
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
-
-    const UserList = useGetSalesAgent(page, 10, filter)
+    const [range, setRange] = useState([
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+    const startDate = range[0].startDate.toISOString();
+    const endDate = range[0].endDate.toISOString();
+    const UserList = useGetSalesAgent(page, 10, filter, startDate, endDate)
     const agentList = UserList?.data?.data?.data?.influencersData
 
     const { mutate: shareAgent, isPending } = useShareAgent(
@@ -53,7 +62,7 @@ const ListOfSalesAgent = () => {
             return [];
         }
     };
-
+  
     const handleExport = async () => {
         setIsExporting(true);
         try {
@@ -129,7 +138,13 @@ const ListOfSalesAgent = () => {
                                     <span className="input-group-text">
                                         <img src={icon} />
                                     </span>
+
                                 </div>
+                                <CustomDateRangePicker
+                                    value={range}
+                                    onChange={setRange}
+                                    icon={calender}
+                                />
                                 <button
                                     onClick={() => nav("/home/total-sales-agent/add-agent")}
                                     className="btn btn-primary"
