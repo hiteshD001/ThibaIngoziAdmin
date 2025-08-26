@@ -11,7 +11,8 @@ import {
     useGetUser,
     useGetUserList,
     useUpdateUser,
-    useGeteHailingList
+    useGeteHailingList,
+    useGetBanksList
 } from "../API Calls/API";
 import SingleImagePreview from "../common/SingleImagePreview";
 import { toast } from "react-toastify";
@@ -232,7 +233,7 @@ const VehicleInformation = () => {
         setIsSingle(false);
         setShowPreview(true);
     };
-
+    const bankList = useGetBanksList();
     const nextImage = () => setCurrentIndex((i) => (i + 1) % imageList.length);
     const prevImage = () => setCurrentIndex((i) => (i - 1 + imageList.length) % imageList.length);
     return (
@@ -1067,6 +1068,80 @@ const VehicleInformation = () => {
                                         }}
                                         inputClass="form-control"
                                     />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="theme-table">
+                        <div className="tab-heading">
+                            <h3>Bank Details</h3>
+                        </div>
+                        <form>
+                        <div className="row mt-4">
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="accountNumber"
+                                        placeholder="Account Number"
+                                        className="form-control"
+                                        value={driverform.values.accountNumber}
+                                        onChange={driverform.handleChange}
+                                    />
+                                    {driverform.touched.accountNumber && (
+                                        <p className="err">{driverform.errors.accountNumber}</p>
+                                    )}
+                                    <input
+                                        type="text"
+                                        name="customerCode"
+                                        placeholder="Customer Code"
+                                        className="form-control"
+                                        value={driverform.values.customerCode}
+                                        onChange={driverform.handleChange}
+                                    />
+                                    {driverform.touched.customerCode && (
+                                        <p className="err">{driverform.errors.customerCode}</p>
+                                    )}
+                                    <input
+                                        type="text"
+                                        name="accountType"
+                                        placeholder="Account Type"
+                                        className="form-control"
+                                        value={driverform.values.accountType}
+                                        onChange={driverform.handleChange}
+                                    />
+                                    {driverform.touched.accountType && (
+                                        <p className="err">{driverform.errors.accountType}</p>
+                                    )}
+                                </div>
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="accountHolderName"
+                                        placeholder="Account Holder Name"
+                                        className="form-control"
+                                        value={driverform.values.accountHolderName}
+                                        onChange={driverform.handleChange}
+                                    />
+                                    {driverform.touched.accountHolderName && (
+                                        <p className="err">{driverform.errors.accountHolderName}</p>
+                                    )}
+                                    <select
+                                        name="bankId"
+                                        className="form-control"
+                                        value={driverform.values.bankId}
+                                        onChange={driverform.handleChange}
+                                    >
+                                        <option value="" hidden>Bank</option>
+                                        {bankList?.map((bank) => (
+                                            <option key={bank._id} value={bank._id}>
+                                                {bank.bank_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {driverform.touched.bankId && (
+                                        <p className="err">{driverform.errors.bankId}</p>
+                                    )}
                                 </div>
                             </div>
                         </form>

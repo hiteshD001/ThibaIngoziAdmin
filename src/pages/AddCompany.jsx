@@ -7,7 +7,7 @@ import { companyValidation } from "../common/FormValidation";
 
 import { useQueryClient } from "@tanstack/react-query";
 
-import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType, useGetBanksList } from "../API Calls/API";
 
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
@@ -120,6 +120,7 @@ const AddCompany = () => {
 			setServicesList(groupedOptions);
 		}
 	}, [serviceslist]);
+	const bankList = useGetBanksList();
 
 	useEffect(() => {
 		if (companyForm.values.isArmed === true || companyForm.values.isArmed === "true") {
@@ -565,6 +566,72 @@ const AddCompany = () => {
 									</div>
 								</div>
 							</div>
+							<div className="row mt-4">
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="accountNumber"
+                                        placeholder="Account Number"
+                                        className="form-control"
+                                        value={companyForm.values.accountNumber}
+                                        onChange={companyForm.handleChange}
+                                    />
+                                    {companyForm.touched.accountNumber && (
+                                        <p className="err">{companyForm.errors.accountNumber}</p>
+                                    )}
+                                    <input
+                                        type="text"
+                                        name="customerCode"
+                                        placeholder="Customer Code"
+                                        className="form-control"
+                                        value={companyForm.values.customerCode}
+                                        onChange={companyForm.handleChange}
+                                    />
+                                    {companyForm.touched.customerCode && (
+                                        <p className="err">{companyForm.errors.customerCode}</p>
+                                    )}
+                                    <input
+                                        type="text"
+                                        name="accountType"
+                                        placeholder="Account Type"
+                                        className="form-control"
+                                        value={companyForm.values.accountType}
+                                        onChange={companyForm.handleChange}
+                                    />
+                                    {companyForm.touched.accountType && (
+                                        <p className="err">{companyForm.errors.accountType}</p>
+                                    )}
+                                </div>
+                                <div className="col-md-6">
+                                    <input
+                                        type="text"
+                                        name="accountHolderName"
+                                        placeholder="Account Holder Name"
+                                        className="form-control"
+                                        value={companyForm.values.accountHolderName}
+                                        onChange={companyForm.handleChange}
+                                    />
+                                    {companyForm.touched.accountHolderName && (
+                                        <p className="err">{companyForm.errors.accountHolderName}</p>
+                                    )}
+                                    <select
+                                        name="bankId"
+                                        className="form-control"
+                                        value={companyForm.values.bankId}
+                                        onChange={companyForm.handleChange}
+                                    >
+                                        <option value="" hidden>Bank</option>
+                                        {bankList?.map((bank) => (
+                                            <option key={bank._id} value={bank._id}>
+                                                {bank.bank_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {companyForm.touched.bankId && (
+                                        <p className="err">{companyForm.errors.bankId}</p>
+                                    )}
+                                </div>
+                            </div>
 						</form>
 					</div>
 				</div>
