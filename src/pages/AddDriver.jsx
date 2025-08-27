@@ -504,7 +504,7 @@ const AddDriver = () => {
                                     <select
                                         name="bankId"
                                         className="form-control"
-                                        value={driverForm.values.bankId._id}
+                                        value={driverForm.values.bankId}
                                         onChange={driverForm.handleChange}
                                     >
                                         <option value="" hidden>Bank</option>

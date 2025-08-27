@@ -140,7 +140,7 @@ const VehicleInformation = () => {
             const user = data.user;
             // driverform.values.bankId = 
             data.user.bankId = data.user.bankId ? data.user.bankId._id: null;
-            data.user.account_holder_name = data.user.accountHolderName;
+            // data.user.account_holder_name = data.user.accountHolderName;
             setdriverformvalues({
                 form: driverform,
                 data: {
