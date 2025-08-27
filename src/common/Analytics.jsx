@@ -41,6 +41,7 @@ const Analytics = ({ id }) => {
     }, [notificationTypes]);
 
     useEffect(() => {
+        console.log('test', driverList)
         switch (time) {
             case "today":
                 setactiveUser(
@@ -138,8 +139,7 @@ const Analytics = ({ id }) => {
                         <div className="dash-counter">
                             <span>Users Active {timeTitle}</span>
                             <h3>
-                                {driverList.data?.data
-                                    .totalActiveDriversThisMonth || 0}
+                                { activeUser || 0}
                             </h3>
                         </div>
                     </div>

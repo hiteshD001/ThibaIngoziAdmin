@@ -10,11 +10,12 @@ const Navbar = () => {
         const role = localStorage.getItem("role");
 
         if (role === 'super_admin') return superadmin_menulist;
-        if (role === 'company_admin') return Companyadmin_menulist();
+        if (role === 'company_admin' || role === 'company') return Companyadmin_menulist();
         if (role === 'sales_agent') return salesAgent_menulist;
 
         return []; // default empty menu if role doesn't match
     });
+    console.log(menulist)
     const [currentMenu, setCurrentMenu] = useState("Home")
 
     const location = useLocation()
