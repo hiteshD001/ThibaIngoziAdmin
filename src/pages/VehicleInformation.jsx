@@ -58,6 +58,11 @@ const VehicleInformation = () => {
             other_e_hailing_company: [],
             passport_no: "",
             isPaymentToken: "",
+            accountNumber: "",
+            customerCode: "",
+            accountType: "",
+            account_holder_name: "",
+            bankId: "",
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
@@ -133,6 +138,9 @@ const VehicleInformation = () => {
 
         if (data) {
             const user = data.user;
+            // driverform.values.bankId = 
+            data.user.bankId = data.user.bankId ? data.user.bankId._id: null;
+            data.user.account_holder_name = data.user.accountHolderName;
             setdriverformvalues({
                 form: driverform,
                 data: {
@@ -1117,14 +1125,14 @@ const VehicleInformation = () => {
                                 <div className="col-md-6">
                                     <input
                                         type="text"
-                                        name="accountHolderName"
+                                        name="account_holder_name"
                                         placeholder="Account Holder Name"
                                         className="form-control"
-                                        value={driverform.values.accountHolderName}
+                                        value={driverform.values.account_holder_name}
                                         onChange={driverform.handleChange}
                                     />
-                                    {driverform.touched.accountHolderName && (
-                                        <p className="err">{driverform.errors.accountHolderName}</p>
+                                    {driverform.touched.account_holder_name && (
+                                        <p className="err">{driverform.errors.account_holder_name}</p>
                                     )}
                                     <select
                                         name="bankId"

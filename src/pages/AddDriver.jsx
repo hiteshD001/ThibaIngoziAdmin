@@ -380,7 +380,7 @@ const AddDriver = () => {
                                         </label>
                                     </div>
 
-                                    <div className=" form-checkbox form-control">
+                                    {/* <div className=" form-checkbox form-control">
                                         <input
                                             type="checkbox"
                                             name="isPaymentToken"
@@ -392,7 +392,7 @@ const AddDriver = () => {
                                         <label className="form-check-label" htmlFor="isPaymentToken">
                                             Sos payment
                                         </label>
-                                    </div>
+                                    </div> */}
                                     <div className="row">
                                         <div className="col-md-6">
                                             <label>Selfie Image</label>
@@ -492,19 +492,19 @@ const AddDriver = () => {
                                 <div className="col-md-6">
                                     <input
                                         type="text"
-                                        name="accountHolderName"
+                                        name="account_holder_name"
                                         placeholder="Account Holder Name"
                                         className="form-control"
-                                        value={driverForm.values.accountHolderName}
+                                        value={driverForm.values.account_holder_name}
                                         onChange={driverForm.handleChange}
                                     />
-                                    {driverForm.touched.accountHolderName && (
-                                        <p className="err">{driverForm.errors.accountHolderName}</p>
+                                    {driverForm.touched.account_holder_name && (
+                                        <p className="err">{driverForm.errors.account_holder_name}</p>
                                     )}
                                     <select
                                         name="bankId"
                                         className="form-control"
-                                        value={driverForm.values.bankId}
+                                        value={driverForm.values.bankId._id}
                                         onChange={driverForm.handleChange}
                                     >
                                         <option value="" hidden>Bank</option>
@@ -566,7 +566,12 @@ const formValues1 = {
     fullImage: "",
     primary_e_hailing_company: "",
     other_e_hailing_company: [],
-    isPaymentToken: false,
+    // isPaymentToken: false,
+    accountNumber: "",
+    customerCode: "",
+    accountType: "",
+    account_holder_name: "",
+    bankId: "",
 }
 
 const formValues2 = {
@@ -591,5 +596,10 @@ const formValues2 = {
     fullImage: "",
     primary_e_hailing_company: "",
     other_e_hailing_company: [],
-    isPaymentToken: false,
+    // isPaymentToken: false,
+    accountNumber: "",
+    customerCode: "",
+    accountType: "",
+    account_holder_name: "",
+    bankId: "",
 }

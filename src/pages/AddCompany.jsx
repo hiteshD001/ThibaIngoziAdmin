@@ -48,6 +48,11 @@ const AddCompany = () => {
 			services: [],
 			isEnrollToken: false,
 			securityCompany: [],
+			accountNumber: "",
+			customerCode: "",
+			accountType: "",
+			account_holder_name: "",
+			bankId: "",
 		},
 		validationSchema: companyValidation,
 		onSubmit: (values) => {
@@ -96,7 +101,8 @@ const AddCompany = () => {
 	const provincelist = useGetProvinceList(companyForm.values.country)
 	const countrylist = useGetCountryList()
 	const serviceslist = useGetServicesList()
-	const securityList = useGetSecurityList()
+	const securityList = useGetSecurityList();
+	const bankList = useGetBanksList();
 	const createService = useCreateNotificationType();
 	const securityCompanyOptions = securityList?.data?.data?.company?.map((item) => ({
 		label: item.company_name,
@@ -120,7 +126,6 @@ const AddCompany = () => {
 			setServicesList(groupedOptions);
 		}
 	}, [serviceslist]);
-	const bankList = useGetBanksList();
 
 	useEffect(() => {
 		if (companyForm.values.isArmed === true || companyForm.values.isArmed === "true") {
