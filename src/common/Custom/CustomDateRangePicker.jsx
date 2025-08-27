@@ -71,7 +71,7 @@ const CustomDateRangePicker = ({
                     >
                         <Box sx={{ boxShadow: 3, borderRadius: 2, gap: 3, display: 'flex', flexDirection: 'row', backgroundColor: 'white', p: 2 }}>
                             {/* Quick Select Options */}
-                            <Box display="flex" flexDirection={'column'} justifyContent={'space-between'} flexWrap="wrap" gap={1} mb={2}>
+                            {/* <Box display="flex" flexDirection={'column'} justifyContent={'space-between'} flexWrap="wrap" gap={1} mb={2}>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     {[
                                         { label: "Last Week", days: 7 },
@@ -110,7 +110,7 @@ const CustomDateRangePicker = ({
                                 >
                                     Reset
                                 </Button>
-                            </Box>
+                            </Box> */}
 
                             {/* Calendar Picker */}
                             <DateRange
