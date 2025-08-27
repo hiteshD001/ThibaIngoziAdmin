@@ -442,7 +442,7 @@ export const useGetBanksList = () => {
     };
 
     const res = useQuery({
-        queryKey: ["Services List"],
+        queryKey: ["Bank List"],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         retry: false,
@@ -476,7 +476,7 @@ export const useGetSalesAgent = (page = 1, limit = 10, filter, startDate, endDat
         queryKey: ['salesAgent', page, limit, filter, startDate, endDate],
         queryFn: async () =>
             apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer`, {
-                params: { page, limit, filter, startDate, endDate}
+                params: { page, limit, filter, startDate, endDate }
             }),
         staleTime: 15 * 60 * 1000,
         retry: false,
