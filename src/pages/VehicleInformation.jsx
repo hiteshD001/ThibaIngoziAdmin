@@ -1095,6 +1095,7 @@ const VehicleInformation = () => {
                                         className="form-control"
                                         value={driverform.values.accountNumber}
                                         onChange={driverform.handleChange}
+                                        disabled={!edit}
                                     />
                                     {driverform.touched.accountNumber && (
                                         <p className="err">{driverform.errors.accountNumber}</p>
@@ -1106,6 +1107,7 @@ const VehicleInformation = () => {
                                         className="form-control"
                                         value={driverform.values.customerCode}
                                         onChange={driverform.handleChange}
+                                        disabled={!edit}
                                     />
                                     {driverform.touched.customerCode && (
                                         <p className="err">{driverform.errors.customerCode}</p>
@@ -1117,6 +1119,7 @@ const VehicleInformation = () => {
                                         className="form-control"
                                         value={driverform.values.accountType}
                                         onChange={driverform.handleChange}
+                                        disabled={!edit}
                                     />
                                     {driverform.touched.accountType && (
                                         <p className="err">{driverform.errors.accountType}</p>
@@ -1130,6 +1133,7 @@ const VehicleInformation = () => {
                                         className="form-control"
                                         value={driverform.values.account_holder_name}
                                         onChange={driverform.handleChange}
+                                        disabled={!edit}
                                     />
                                     {driverform.touched.account_holder_name && (
                                         <p className="err">{driverform.errors.account_holder_name}</p>
@@ -1139,6 +1143,7 @@ const VehicleInformation = () => {
                                         className="form-control"
                                         value={driverform.values.bankId}
                                         onChange={driverform.handleChange}
+                                        disabled={!edit}
                                     >
                                         <option value="" hidden>Bank</option>
                                         {bankList?.map((bank) => (
