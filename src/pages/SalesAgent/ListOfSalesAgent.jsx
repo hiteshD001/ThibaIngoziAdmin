@@ -21,6 +21,7 @@ const ListOfSalesAgent = () => {
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const [page, setpage] = useState(1);
+    const [sharingId, setSharingId] = useState(null);
     const [filter, setfilter] = useState("");
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
@@ -36,14 +37,16 @@ const ListOfSalesAgent = () => {
     const UserList = useGetSalesAgent(page, 10, filter, startDate, endDate)
     const agentList = UserList?.data?.data?.data?.influencersData
 
-    const { mutate: shareAgent, isPending } = useShareAgent(
+    const { mutate: shareAgent } = useShareAgent(
         (data) => {
-            toast.success('Shared successfully')
+            toast.success("Shared successfully");
             console.log("✅ Shared successfully:", data);
+            setSharingId(null); // reset after success
         },
         (error) => {
-            toast.error("Error Sharing")
+            toast.error("Error Sharing");
             console.error("❌ Error sharing:", error);
+            setSharingId(null); // reset on error too
         }
     );
     const fetchAllUsers = async () => {
@@ -226,10 +229,13 @@ const ListOfSalesAgent = () => {
                                                                 view
                                                             </span>
                                                             <span
-                                                                onClick={() => shareAgent({ id: user?._id, email: user?.email })}
+                                                                onClick={() => {
+                                                                    setSharingId(user?._id);
+                                                                    shareAgent({ id: user?._id, email: user?.email });
+                                                                }}
                                                                 className="tbl-gray ml-2 cursor-pointer"
                                                             >
-                                                                {isPending ? "Sharing..." : "Share"}
+                                                                {sharingId === user?._id ? "Sharing..." : "Share"}
                                                             </span>
                                                         </td>
 
