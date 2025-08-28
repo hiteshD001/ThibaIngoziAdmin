@@ -22,6 +22,7 @@ const ListOfSalesAgent = () => {
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const [page, setpage] = useState(1);
+    const [sharingId, setSharingId] = useState(null);
     const [filter, setfilter] = useState("");
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
@@ -39,18 +40,21 @@ const ListOfSalesAgent = () => {
     console.log(UserList)
     const queryClient = useQueryClient();
 
-    const { mutate: shareAgent, isPending } = useShareAgent(
+    const { mutate: shareAgent } = useShareAgent(
         (data) => {
             toast.success('Shared successfully');
             console.log("✅ Shared successfully:", data);
 
             // 🔄 Refetch sales agent list after success
             queryClient.invalidateQueries(["salesAgent"]);
+            setSharingId(null); // reset after success
         },
         (error) => {
             toast.error("Error Sharing");
             console.error("❌ Error sharing:", error);
-        });
+            setSharingId(null); // reset on error too
+        }
+    );
     const fetchAllUsers = async () => {
         try {
             const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer`, {
@@ -259,10 +263,13 @@ const ListOfSalesAgent = () => {
                                                                 view
                                                             </span>
                                                             <span
-                                                                onClick={() => shareAgent({ id: user?._id, email: user?.email })}
+                                                                onClick={() => {
+                                                                    setSharingId(user?._id);
+                                                                    shareAgent({ id: user?._id, email: user?.email });
+                                                                }}
                                                                 className="tbl-gray ml-2 cursor-pointer"
                                                             >
-                                                                {isPending ? "Sharing..." : "Share"}
+                                                                {sharingId === user?._id ? "Sharing..." : "Share"}
                                                             </span>
                                                             <span
                                                                 onClick={() => shareAgent({ id: user?._id, email: user?.email })}
