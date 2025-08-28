@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import Loader from "../../common/Loader";
 import { startOfYear } from "date-fns";
 import calender from '../../assets/images/calender.svg';
+import { useQueryClient } from "@tanstack/react-query";
 
 const ListOfSalesAgent = () => {
     const [popup, setpopup] = useState(false)
@@ -33,19 +34,23 @@ const ListOfSalesAgent = () => {
     ]);
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
-    const UserList = useGetSalesAgent(page, 10, filter, startDate, endDate)
+    let UserList = useGetSalesAgent(page, 10, filter, startDate, endDate)
     const agentList = UserList?.data?.data?.data?.influencersData
+    console.log(UserList)
+    const queryClient = useQueryClient();
 
     const { mutate: shareAgent, isPending } = useShareAgent(
         (data) => {
-            toast.success('Shared successfully')
+            toast.success('Shared successfully');
             console.log("✅ Shared successfully:", data);
+
+            // 🔄 Refetch sales agent list after success
+            queryClient.invalidateQueries(["salesAgent"]);
         },
         (error) => {
-            toast.error("Error Sharing")
+            toast.error("Error Sharing");
             console.error("❌ Error sharing:", error);
-        }
-    );
+        });
     const fetchAllUsers = async () => {
         try {
             const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer`, {
@@ -124,7 +129,7 @@ const ListOfSalesAgent = () => {
                                 <p>{UserList.isSuccess && UserList?.data?.data?.data?.totalCount || 0}</p>
                             </div>
                             <div className="tbl-filter">
-                                <div className="input-group" style={{ width: '40%' }}>
+                                 {/* <div className="input-group" style={{ width: '40%' }}>
                                     <span className="input-group-text">
                                         <img src={search} />
                                     </span>
@@ -139,7 +144,7 @@ const ListOfSalesAgent = () => {
                                         <img src={icon} />
                                     </span>
 
-                                </div>
+                                </div> */}
                                 <CustomDateRangePicker
                                     value={range}
                                     onChange={setRange}
@@ -175,9 +180,16 @@ const ListOfSalesAgent = () => {
                                                     <th>Contact No.</th>
                                                     <th>Email</th>
                                                     <th>Enroll Amount Deduction</th>
+                                                    <th>Eared Amount</th>
+                                                    <th>Unpaid Amount</th>
+                                                    <th>Total User</th>
+                                                    <th>Account Number</th>
+                                                    <th>Bank Name</th>
+                                                    <th>Branch Code</th>
+                                                    <th>Share Status</th>
                                                     <th>&nbsp;</th>
                                                     <th>&nbsp;</th>
-
+                                                    <th>&nbsp;</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -210,6 +222,27 @@ const ListOfSalesAgent = () => {
                                                         <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
                                                             {user.enrollAmountDeduction}
                                                         </td>
+                                                        <td className={!user.totalCommission ? "0" : ""}>
+                                                            {user.totalCommission}
+                                                        </td>
+                                                        <td className={!user.totalUnPaid ? "0" : ""}>
+                                                            {user.totalUnPaid}
+                                                        </td>
+                                                        <td className={!user.user_id ? "0" : ""}>
+                                                            {user.user_id.length}
+                                                        </td>
+                                                        <td className={!user.accountNumber ? "nodata" : ""}>
+                                                            {user.accountNumber}
+                                                        </td>
+                                                        <td className={!user.bankId ? "nodata" : ""}>
+                                                            {user.bankId?.bank_name ? user.bankId.bank_name: ""}
+                                                        </td>
+                                                        <td className={!user.customerCode ? "nodata" : ""}>
+                                                            {user.customerCode}
+                                                        </td>
+                                                        <td className={!user.sharedStatus ? "nodata" : ""}>
+                                                            {user.sharedStatus}
+                                                        </td>
                                                         {/* <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
                                                             {user.enrollAmountDeduction}
                                                         </td> */}
@@ -230,6 +263,12 @@ const ListOfSalesAgent = () => {
                                                                 className="tbl-gray ml-2 cursor-pointer"
                                                             >
                                                                 {isPending ? "Sharing..." : "Share"}
+                                                            </span>
+                                                            <span
+                                                                onClick={() => shareAgent({ id: user?._id, email: user?.email })}
+                                                                className="tbl-gray ml-2 cursor-pointer"
+                                                            >
+                                                                Pay
                                                             </span>
                                                         </td>
 
