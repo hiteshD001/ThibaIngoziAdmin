@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
+import Select from "react-select";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
@@ -9,7 +10,7 @@ import { sales_agent_e } from "../../common/FormValidation";
 
 import { useFormik } from "formik";
 
-import { useCreateSalesAgent } from "../../API Calls/API";
+import { useCreateSalesAgent, useGetBanksList } from "../../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 import CustomSelect from '../../common/Custom/CustomSelect'
 import Loader from "../../common/Loader";
@@ -18,6 +19,7 @@ import PhoneInput from "react-phone-input-2";
 const AddAgent = () => {
     const client = useQueryClient();
     const [role] = useState(localStorage.getItem("role"));
+    const [banksList, setbanksList] = useState([])
     const nav = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const generateReferralCode = () => {
@@ -25,6 +27,7 @@ const AddAgent = () => {
         const randomStr = Math.random().toString(36).substring(2, 8); // random 6 chars
         return prefix + randomStr;
     };
+    const bankslist = useGetBanksList()
     const onSuccess = () => {
         toast.success("Sales Agent added successfully.");
         UserForm.resetForm();
@@ -50,6 +53,23 @@ const AddAgent = () => {
     };
     const newAgent = useCreateSalesAgent(onSuccess, onError);
 
+    useLayoutEffect(() => {
+        if (Array.isArray(bankslist)) {
+            const filteredServices = bankslist.filter(service => service);
+
+            const groupedOptions = [
+                {
+                    label: "Banks",
+                    options: filteredServices.map((service) => ({
+                        label: service.bank_name,
+                        value: service._id,
+                    })),
+                }
+            ];
+
+            setbanksList(groupedOptions);
+        }
+    }, [bankslist]);
     return (
         <Box p={2}>
             <form onSubmit={UserForm.handleSubmit}>
@@ -198,6 +218,108 @@ const AddAgent = () => {
                                 {UserForm.touched.enrollAmountDeduction && <FormHelperText error>{UserForm.errors.enrollAmountDeduction}</FormHelperText>}
                             </FormControl>
                         </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="accountNumber" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Account Number
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="accountNumber"
+                                        name="accountNumber"
+                                        placeholder="Enter Account Number"
+                                        value={UserForm.values.accountNumber}
+                                        onChange={UserForm.handleChange}
+                                    />
+                                    {UserForm.touched.accountNumber && <FormHelperText error>{UserForm.errors.accountNumber}</FormHelperText>}
+                                </FormControl>
+                        </Grid>
+                        {/* <Grid size={{ xs: 12, sm: 6 }}>
+                                <FormControl variant="standard" fullWidth >
+                                    <InputLabel shrink htmlFor="customerCode" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                        Customer Code
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="customerCode"
+                                        name="customerCode"
+                                        placeholder="Enter Customer Code"
+                                        value={UserForm.values.customerCode}
+                                        onChange={UserForm.handleChange}
+                                    />
+                                    {UserForm.touched.customerCode && <FormHelperText error>{UserForm.errors.customerCode}</FormHelperText>}
+                                </FormControl>
+                        </Grid> */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth >
+                                <InputLabel shrink htmlFor="accountType" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    Account Type
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="accountType"
+                                    name="accountType"
+                                    placeholder="Enter Account Type"
+                                    value={UserForm.values.accountType}
+                                    onChange={UserForm.handleChange}
+                                />
+                                {UserForm.touched.accountType && <FormHelperText error>{UserForm.errors.accountType}</FormHelperText>}
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth >
+                                <InputLabel shrink htmlFor="accountHolderName" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    Account Holder Name
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="accountHolderName"
+                                    name="accountHolderName"
+                                    placeholder="Enter Account Holder Name"
+                                    value={UserForm.values.accountHolderName}
+                                    onChange={UserForm.handleChange}
+                                />
+                                {UserForm.touched.accountHolderName && <FormHelperText error>{UserForm.errors.accountHolderName}</FormHelperText>}
+                            </FormControl>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <FormControl variant="standard" fullWidth >
+                                <label style={{ marginBottom: 0 }}>Bank ID</label>
+                                <Select
+                                    name="bankId"
+                                    options={banksList}
+                                    placeholder="Select Bank"
+                                    classNamePrefix="select"
+                                    // className="form-control"
+                                    value={banksList
+                                        .flatMap((group) => group.options)
+                                        .find((option) => option.value == UserForm?.values?.bankId)}
+                                    onChange={(selectedOption) => {
+                                        UserForm.setFieldValue("bankId", selectedOption?.value || "");
+                                    }}
+                                    styles={{
+                                        control: (base, state) => ({
+                                            ...base,
+                                            minHeight: "45px",   // 👈 decrease container height
+                                            height: "45px",
+                                        }),
+                                        option: (base, state) => ({
+                                            ...base,
+                                            backgroundColor: state.isSelected
+                                                ? "white"
+                                                : state.isFocused
+                                                    ? "#e6e6e6"
+                                                    : "white",
+                                            color: "black",
+                                        }),
+                                        valueContainer: (base) => ({
+                                            ...base,
+                                            padding: "0 10px",   // 👈 tighter padding
+                                            height: "45px",
+                                            maxHeight: "38px",
+                                            overflowY: "auto",
+                                        }),
+                                    }}
+                                />
+                                {UserForm.touched.bankId && <FormHelperText error>{UserForm.errors.bankId}</FormHelperText>}
+                            </FormControl>
+                        </Grid>
 
                         <Grid size={12} sx={{ mt: 1 }}>
                             <Box display="flex" justifyContent="flex-end" gap={2}>
@@ -234,5 +356,10 @@ const formValues1 = {
     email: "",
     mobile_no: "",
     mobile_no_country_code: "",
+    accountNumber: "",
+    customerCode: "",
+    accountType: "",
+    accountHolderName: "",
+    bankId: "",
 }
 

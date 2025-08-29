@@ -55,6 +55,47 @@ export const useGetUserList = (
     return res;
 };
 
+export const useGetUserByInfluncer = (
+    page,
+    limit,
+    startDate,
+    endDate,
+    influncer_id
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer/user/data`, {
+            params: {
+                page,
+                limit,
+                startDate,
+                endDate,
+                influncer_id,
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            page,
+            limit,
+            startDate,
+            endDate,
+            influncer_id
+        ],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
 // get list of company
 export const useGetCompanyList = (
     key,

@@ -97,7 +97,6 @@ const SalesAgentHome = () => {
             ];
 
             setbanksList(groupedOptions);
-            debugger
         }
     }, [bankslist]);
     const displayField = (label, value) => (
@@ -459,7 +458,7 @@ const SalesAgentHome = () => {
                                     )}
                                 </Box>
                             </Grid>
-                            <Grid size={12}>
+                            {/* <Grid size={12}>
                                 <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
                                     {edit ? (
                                         <>
@@ -481,16 +480,16 @@ const SalesAgentHome = () => {
                                             </Button>
                                         </>
                                     ) : (
-                                        <Button
-                                            variant="contained"
-                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                            onClick={() => setedit(true)}
-                                        >
-                                            Edit
-                                        </Button>
+                                        // <Button
+                                        //     variant="contained"
+                                        //     sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                        //     onClick={() => setedit(true)}
+                                        // >
+                                        //     Edit
+                                        // </Button>
                                     )}
                                 </Box>
-                            </Grid>
+                            </Grid> */}
                         </Grid>
                     </form>
                 </Box>

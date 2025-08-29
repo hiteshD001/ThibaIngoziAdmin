@@ -5,17 +5,28 @@ import { Grid, Typography, Box, FormControl, InputLabel, Button, FormHelperText 
 import { useFormik } from "formik"
 import { sales_agent_e } from "../../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query"
-import { useGetAgent, useUpdateSalesAgent, useGetBanksList } from "../../API Calls/API"
+import { useGetAgent, useUpdateSalesAgent, useGetBanksList, useGetUserByInfluncer } from "../../API Calls/API"
 import { toast } from "react-toastify"
 import { QRCodeCanvas } from "qrcode.react";
 import { toastOption } from "../../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
+import search from "../../assets/images/search.png";
+import icon from "../../assets/images/icon.png";
+import Prev from "../../assets/images/left.png";
+import Next from "../../assets/images/right.png";
+import nouser from "../../assets/images/NoUser.png";
+import Loader from "../../common/Loader";
+import { startOfYear } from "date-fns";
 import { BootstrapInput } from "../../common/BootstrapInput";
+import calender from '../../assets/images/calender.svg';
+import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
 const AgentInformation = () => {
     const [edit, setEdit] = useState(false)
-    const [role] = useState(localStorage.getItem("role"));
+    // const [role] = useState(localStorage.getItem("role"));
     const [banksList, setbanksList] = useState([])
     const params = useParams();
+    const [page, setpage] = useState(1);
+    const [filter, setfilter] = useState("");
     const client = useQueryClient()
     const bankslist = useGetBanksList()
     const agentForm = useFormik({
@@ -42,8 +53,17 @@ const AgentInformation = () => {
             });
         },
     });
-
-
+    const [range, setRange] = useState([
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+    const startDate = range[0].startDate.toISOString();
+    const endDate = range[0].endDate.toISOString();
+    const driverList = useGetUserByInfluncer(page, 10, startDate, endDate, params.id)
+    // console.log('test',driverList.data?.data?.data?.influencersData)
     const UserInfo = useGetAgent(params.id)
     const onSuccess = () => {
         toast.success("Agent Updated Successfully.");
@@ -91,14 +111,38 @@ const AgentInformation = () => {
             </Typography>
         </Box>
     );
+    // console.log('test',UserInfo.data?.data?.data)
     return (
         <Box p={2}>
             <Box elevation={0} sx={{ p: 3, borderRadius: '16px', mb: 3, backgroundColor: '#f7f9fb' }}>
+                <Typography variant="h6" gutterBottom fontWeight={600}>
+                    Profile Information
+                </Typography>
+                <div className="row">
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Total Earned Commission</span>
+                            <h3>{UserInfo.data?.data?.data.totalCommission || 0}</h3>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Total Unpaid Commission</span>
+                            <h3>{UserInfo.data?.data?.data.totalUnPaid || 0}</h3>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Total Users</span>
+                            <h3>{UserInfo.data?.data?.data?.user_id.length || 0}</h3>
+                        </div>
+                    </div>
+                </div>
                 <form>
                     <Grid container spacing={edit ? 3 : 1}>
                         <Grid size={12}>
                             <Typography variant="h6" gutterBottom fontWeight={600}>
-                                Profile Information
+                                Basic Information
                             </Typography>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
@@ -256,7 +300,7 @@ const AgentInformation = () => {
                                 </FormControl>
                             ) : displayField("Account Number", agentForm.values.accountNumber)}
                         </Grid>
-                        <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
+                        {/* <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                             {edit ? (
                                 <FormControl variant="standard" fullWidth >
                                     <InputLabel shrink htmlFor="customerCode" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
@@ -272,7 +316,7 @@ const AgentInformation = () => {
                                     {agentForm.touched.customerCode && <FormHelperText error>{agentForm.errors.customerCode}</FormHelperText>}
                                 </FormControl>
                             ) : displayField("Customer Code", agentForm.values.customerCode)}
-                        </Grid>
+                        </Grid> */}
                         <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                             {edit ? (
                                 <FormControl variant="standard" fullWidth >
@@ -401,6 +445,141 @@ const AgentInformation = () => {
                         </Grid>
                     </Grid>
                 </form>
+                <div className="theme-table">
+                        <div className="tab-heading">
+                            <div className="count">
+                                <h3>Total Users</h3>
+                                <p>{driverList.isSuccess && driverList.data?.data?.data?.influencersData?.length || 0}</p>
+                            </div>
+                            <div className="tbl-filter">
+                                <CustomDateRangePicker
+                                    value={range}
+                                    onChange={setRange}
+                                    icon={calender}
+                                />
+                                {/* <button
+                                    onClick={() => nav("/home/total-drivers/add-driver")}
+                                    className="btn btn-primary"
+                                >
+                                    + Add Driver
+                                </button>
+                                <button className="btn btn-primary" onClick={handleExport}
+                                    disabled={isExportingDrivers}>
+                                    {isExportingDrivers ? 'Exporting...' : '+ Export Sheet'}
+                                </button> */}
+
+                                {/* <button className="btn btn-primary" onClick={() => setpopup(true)}>
+                                    + Import Sheet
+                                </button> */}
+                            </div>
+                        </div>
+                        {driverList.isFetching ? (
+                            <Loader />
+                        ) : (
+                            <>
+                                {driverList.data?.data?.data?.influencersData ? (
+                                    <>
+                                        <table
+                                            id="example"
+                                            className="table table-striped nowrap"
+                                            style={{ width: "100%" }}
+                                        >
+                                            <thead>
+                                                <tr>
+                                                    <th>User name</th>
+                                                    <th>Driver ID</th>
+                                                    <th>Company</th>
+                                                    <th>Contact No.</th>
+                                                    <th>Contact Email</th>
+                                                    <th>&nbsp;</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {driverList?.data && driverList.data?.data?.data?.influencersData?.map((driver) => (
+                                                    <tr key={driver._id}>
+                                                        <td>
+                                                            <div
+                                                                className={
+                                                                    (!driver.first_name && !driver.last_name) ? "prof nodata" : "prof"
+                                                                }
+                                                            >
+                                                                <img
+                                                                    className="profilepicture"
+                                                                    src={
+                                                                        driver.selfieImage
+                                                                            ? driver.selfieImage
+                                                                            : nouser
+                                                                    }
+                                                                />
+                                                                {driver.first_name} {driver.last_name}
+                                                            </div>
+                                                        </td>
+                                                        <td className={!driver.id_no ? "nodata" : ""}>
+                                                            {driver.id_no}
+                                                        </td>
+                                                        <td className={!driver.company_name ? "companynamenodata" : ""}>
+                                                            {driver.company_name}
+                                                        </td>
+                                                        <td className={!driver?.mobile_no ? "nodata" : ""}>
+                                                            {`${driver?.mobile_no_country_code ?? ''}${driver?.mobile_no ?? ''}`}
+                                                        </td>
+                                                        <td className={!driver.email ? "nodata" : ""}>
+                                                            {driver.email}
+                                                        </td>
+                                                        {/* <td>
+                                                            <span
+                                                                onClick={() => setconfirmation(driver._id)}
+                                                                className="tbl-gray"
+                                                            >
+                                                                Delete
+                                                            </span>
+                                                            {confirmation === driver._id && (
+                                                                <DeleteConfirm
+                                                                    id={driver._id}
+                                                                    setconfirmation={setconfirmation}
+                                                                />
+                                                            )}
+                                                            <span
+                                                                onClick={() =>
+                                                                    nav(
+                                                                        `/home/total-drivers/driver-information/${driver._id}`
+                                                                    )
+                                                                }
+                                                                className="tbl-btn"
+                                                            >
+                                                                view
+                                                            </span>
+                                                        </td> */}
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                        <div className="pagiation">
+                                            <div className="pagiation-left">
+                                                <button
+                                                    disabled={page === 1}
+                                                    onClick={() => setpage((p) => p - 1)}
+                                                >
+                                                    <img src={Prev} /> Prev
+                                                </button>
+                                            </div>
+                                            <div className="pagiation-right">
+                                                <button
+                                                    disabled={page === driverList.data?.data?.data?.totalPages}
+                                                    onClick={() => setpage((p) => p + 1)}
+                                                >
+                                                    Next <img src={Next} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className="no-data-found">No data found</p>
+                                )}
+                            </>
+                        )}
+
+                    </div>
             </Box>
         </Box>
     )

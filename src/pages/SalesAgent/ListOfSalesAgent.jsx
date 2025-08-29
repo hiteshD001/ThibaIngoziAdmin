@@ -37,7 +37,6 @@ const ListOfSalesAgent = () => {
     const endDate = range[0].endDate.toISOString();
     let UserList = useGetSalesAgent(page, 10, filter, startDate, endDate)
     const agentList = UserList?.data?.data?.data?.influencersData
-    console.log(UserList)
     const queryClient = useQueryClient();
 
     const { mutate: shareAgent } = useShareAgent(
@@ -241,8 +240,8 @@ const ListOfSalesAgent = () => {
                                                         <td className={!user.bankId ? "nodata" : ""}>
                                                             {user.bankId?.bank_name ? user.bankId.bank_name: ""}
                                                         </td>
-                                                        <td className={!user.customerCode ? "nodata" : ""}>
-                                                            {user.customerCode}
+                                                        <td className={!user.bankId ? "nodata" : ""}>
+                                                            {user.bankId?.branch_code ? user.bankId.branch_code: ""}
                                                         </td>
                                                         <td className={!user.sharedStatus ? "nodata" : ""}>
                                                             {user.sharedStatus}
@@ -272,7 +271,7 @@ const ListOfSalesAgent = () => {
                                                                 {sharingId === user?._id ? "Sharing..." : "Share"}
                                                             </span>
                                                             <span
-                                                                onClick={() => shareAgent({ id: user?._id, email: user?.email })}
+                                                                // onClick={() => shareAgent({ id: user?._id, email: user?.email })}
                                                                 className="tbl-gray ml-2 cursor-pointer"
                                                             >
                                                                 Pay
