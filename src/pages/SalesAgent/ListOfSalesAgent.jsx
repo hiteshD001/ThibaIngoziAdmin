@@ -128,8 +128,6 @@ const ListOfSalesAgent = () => {
         }
     };
 
-
-
     const PayoutForm = useFormik({
         initialValues: {
             firstName: '',

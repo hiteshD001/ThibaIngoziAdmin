@@ -669,6 +669,22 @@ const AgentInformation = () => {
                 )}
 
             </div>
+            <div className="theme-table payout-section">
+                <div className="payout-info">
+                    <div className="tab-heading">
+                        <h3>Payout</h3>
+                    </div>
+                    <h4 className="payout-amount">Amount: {UserInfo.data?.data?.data.totalUnPaid || 0}</h4>
+                </div>
+                <button
+                    className="btn btn-primary"
+                    onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
+                    // disabled={edit}
+                >
+                    Pay
+                </button>
+                {renderPopup()}
+            </div>
         </Box>
     )
 }
