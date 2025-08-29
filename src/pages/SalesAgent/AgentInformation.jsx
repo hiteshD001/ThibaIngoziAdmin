@@ -5,13 +5,12 @@ import { Grid, Typography, Box, FormControl, InputLabel, Button, FormHelperText 
 import { useFormik } from "formik"
 import { sales_agent_e } from "../../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query"
-import { useGetAgent, useUpdateSalesAgent, useGetBanksList, useGetUserByInfluncer } from "../../API Calls/API"
+import { useGetAgent, useUpdateSalesAgent, useGetBanksList, useGetUserByInfluncer, armedSosPayout, payoutUserUpdate } from "../../API Calls/API"
 import { toast } from "react-toastify"
 import { QRCodeCanvas } from "qrcode.react";
 import { toastOption } from "../../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
-import search from "../../assets/images/search.png";
-import icon from "../../assets/images/icon.png";
+import PayoutPopup from "../../common/Popup";
 import Prev from "../../assets/images/left.png";
 import Next from "../../assets/images/right.png";
 import nouser from "../../assets/images/NoUser.png";
@@ -29,6 +28,8 @@ const AgentInformation = () => {
     const [filter, setfilter] = useState("");
     const client = useQueryClient()
     const bankslist = useGetBanksList()
+    const [payPopup, setPopup] = useState('')
+    const [selectedPayoutType, setSelectedPayoutType] = useState('');
     const agentForm = useFormik({
         initialValues: {
             referralCode: "",
@@ -111,6 +112,92 @@ const AgentInformation = () => {
             </Typography>
         </Box>
     );
+    const PayoutForm = useFormik({
+        initialValues: {
+            firstName: '',
+            surname: '',
+            branchCode: '',
+            amount: 0,
+            accountNumber: '',
+            customerCode: ''
+        }
+    })
+
+    const parseXmlResponse = (xmlString) => {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+        const result = xmlDoc.getElementsByTagName("Result")[0]?.textContent;
+        const message = xmlDoc.getElementsByTagName("ResultMessage")[0]?.textContent;
+
+        return { result, message };
+    };
+
+    const payoutMutation = armedSosPayout(
+        (res) => {
+            const { result, message } = parseXmlResponse(res.data);
+
+            if (result === "Success") {
+                payoutUpdateMutation.mutate({
+                    user_id: UserInfo.data?.data?.data._id,
+                    type: 'sales_agent',
+                    amount: UserInfo.data?.data?.data.totalUnPaid,
+                });
+                toast.success('Payment successful');
+                closePopup();
+            } else {
+                toast.error(message || 'Payment failed');
+                console.error("Payment Error:", message);
+            }
+        },
+
+        (err) => {
+            toast.error('payment failed')
+            console.error("Error!", err);
+        }
+    );
+
+    const payoutUpdateMutation = payoutUserUpdate(
+        (res) => {
+            toast.success('payment successful');
+        },
+        (err) => {
+            toast.error('payment failed')
+        }
+    );
+
+    const handleChange = () => {
+        payoutMutation.mutate(PayoutForm.values);
+    };
+
+    const handlePopup = (event, type, payoutType) => {
+        event.stopPropagation();
+
+        PayoutForm.setValues({
+            firstName: UserInfo.data?.data?.data?.first_name || "",
+            surname: UserInfo.data?.data?.data?.last_name || "",
+            branchCode: UserInfo.data?.data?.data.bankId?.branch_code || "",
+            accountNumber: UserInfo.data?.data?.data?.accountNumber || "",
+            customerCode: UserInfo.data?.data?.data?.customerCode || "",
+            amount: UserInfo.data?.data?.data?.totalUnPaid || 0,
+        });
+
+        setPopup(type);
+        setSelectedPayoutType(payoutType);
+    };
+
+    const closePopup = (event) => {
+        // event.stopPropagation();
+        setPopup('')
+    }
+    const renderPopup = () => {
+        switch (payPopup) {
+            case 'payout':
+                return <PayoutPopup yesAction={handleChange} noAction={closePopup} />;
+            default:
+                return null;
+        }
+    };
     // console.log('test',UserInfo.data?.data?.data)
     return (
         <Box p={2}>

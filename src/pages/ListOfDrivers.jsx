@@ -602,7 +602,7 @@ const ListOfDrivers = () => {
                                                 <span>Total Driver Amount:</span>
                                                 <p>{companyInfo.data?.data.totalDriverAmount}</p>
                                             </div>
-                                            <button disabled={edit} style={{ height: '50px' }} className="btn btn-primary" onClick={(event) => handlePopup(event, 'payout', 'driver')}>Pay</button>
+                                            {/* <button disabled={edit} style={{ height: '50px' }} className="btn btn-primary" onClick={(event) => handlePopup(event, 'payout', 'driver')}>Pay</button> */}
                                         </div>
                                     </div>
 
