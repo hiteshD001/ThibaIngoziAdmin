@@ -140,7 +140,7 @@ const AgentInformation = () => {
             if (result === "Success") {
                 payoutUpdateMutation.mutate({
                     user_id: UserInfo.data?.data?.data._id,
-                    type: 'sales_agent',
+                    type: selectedPayoutType,
                     amount: UserInfo.data?.data?.data.totalUnPaid,
                 });
                 toast.success('Payment successful');
