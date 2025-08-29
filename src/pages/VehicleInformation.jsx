@@ -12,7 +12,9 @@ import {
     useGetUserList,
     useUpdateUser,
     useGeteHailingList,
-    useGetBanksList
+    useGetBanksList,
+    payoutUserUpdate,
+    armedSosPayout
 } from "../API Calls/API";
 import SingleImagePreview from "../common/SingleImagePreview";
 import { toast } from "react-toastify";
@@ -30,7 +32,7 @@ const VehicleInformation = () => {
     const params = useParams();
     const client = useQueryClient();
     const CompanyId = localStorage.getItem("userID");
-
+    const [selectedPayoutType, setSelectedPayoutType] = useState('');
     const [payPopup, setPopup] = useState('')
 
 
@@ -94,7 +96,6 @@ const VehicleInformation = () => {
 
     });
 
-
     const vehicleForm = useFormik({
         initialValues: {
             vehicle_name: "",
@@ -139,7 +140,7 @@ const VehicleInformation = () => {
         if (data) {
             const user = data.user;
             // driverform.values.bankId = 
-            data.user.bankId = data.user.bankId ? data.user.bankId._id: null;
+            data.user.bankId = data.user.bankId ? data.user.bankId._id : null;
             // data.user.account_holder_name = data.user.accountHolderName;
             setdriverformvalues({
                 form: driverform,
@@ -172,13 +173,79 @@ const VehicleInformation = () => {
             // console.log('driver', driverform.values)
         }
     }, [vehicleInfo.data]);
-    const handleChange = () => {
-        alert('in progress')
+
+
+    const PayoutForm = useFormik({
+        initialValues: {
+            firstName: '',
+            surname: '',
+            branchCode: '',
+            amount: 0,
+            accountNumber: '',
+            customerCode: ''
+        }
+    })
+
+    const parseXmlResponse = (xmlString) => {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+        const result = xmlDoc.getElementsByTagName("Result")[0]?.textContent;
+        const message = xmlDoc.getElementsByTagName("ResultMessage")[0]?.textContent;
+
+        return { result, message };
     };
 
-    const handlePopup = (event, type) => {
+    const payoutMutation = armedSosPayout(
+        (res) => {
+            const { result, message } = parseXmlResponse(res.data);
+
+            if (result === "Success") {
+                payoutUpdateMutation.mutate({
+                    user_id: vehicleInfo?.data?.data?.user._id,
+                    type: selectedPayoutType,
+                    amount: PayoutForm.values.amount,
+                });
+                toast.success('Payment successful');
+                closePopup();
+            } else {
+                toast.error(message || 'Payment failed');
+                console.error("Payment Error:", message);
+            }
+        },
+
+        (err) => {
+            toast.error('payment failed')
+            console.error("Error!", err);
+        }
+    );
+
+    const payoutUpdateMutation = payoutUserUpdate(
+        (res) => {
+            toast.success('payment successful');
+        },
+        (err) => {
+            toast.error('payment failed')
+        }
+    );
+
+    const handleChange = () => {
+        payoutMutation.mutate(PayoutForm.values);
+    };
+
+
+    const handlePopup = (event, type, payoutType) => {
         event.stopPropagation();
+        PayoutForm.setValues({
+            firstName: vehicleInfo?.data?.data?.user?.first_name || "",
+            surname: vehicleInfo?.data?.data?.user?.last_name || "",
+            branchCode: vehicleInfo?.data?.data?.user?.bankId?.branch_code || "",
+            accountNumber: vehicleInfo?.data?.data?.user?.accountNumber || "",
+            customerCode: vehicleInfo?.data?.data?.user?.customerCode || "",
+            amount: vehicleInfo?.data?.data.totalDriverAmount || 0,
+        });
         setPopup(type);
+        setSelectedPayoutType(payoutType);
     };
 
     const closePopup = (event) => {
@@ -1086,7 +1153,7 @@ const VehicleInformation = () => {
                             <h3>Bank Details</h3>
                         </div>
                         <form>
-                        <div className="row mt-4">
+                            <div className="row mt-4">
                                 <div className="col-md-6">
                                     <input
                                         type="text"

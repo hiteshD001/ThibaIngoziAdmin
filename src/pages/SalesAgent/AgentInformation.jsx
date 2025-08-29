@@ -445,19 +445,21 @@ const AgentInformation = () => {
                         </Grid>
                     </Grid>
                 </form>
-                <div className="theme-table">
-                        <div className="tab-heading">
-                            <div className="count">
-                                <h3>Total Users</h3>
-                                <p>{driverList.isSuccess && driverList.data?.data?.data?.influencersData?.length || 0}</p>
-                            </div>
-                            <div className="tbl-filter">
-                                <CustomDateRangePicker
-                                    value={range}
-                                    onChange={setRange}
-                                    icon={calender}
-                                />
-                                {/* <button
+
+            </Box>
+            <div className="theme-table" style={{ marginTop: '20px' }}>
+                <div className="tab-heading">
+                    <div className="count">
+                        <h3>Total Users</h3>
+                        <p>{driverList.isSuccess && driverList.data?.data?.data?.influencersData?.length || 0}</p>
+                    </div>
+                    <div className="tbl-filter">
+                        <CustomDateRangePicker
+                            value={range}
+                            onChange={setRange}
+                            icon={calender}
+                        />
+                        {/* <button
                                     onClick={() => nav("/home/total-drivers/add-driver")}
                                     className="btn btn-primary"
                                 >
@@ -468,65 +470,65 @@ const AgentInformation = () => {
                                     {isExportingDrivers ? 'Exporting...' : '+ Export Sheet'}
                                 </button> */}
 
-                                {/* <button className="btn btn-primary" onClick={() => setpopup(true)}>
+                        {/* <button className="btn btn-primary" onClick={() => setpopup(true)}>
                                     + Import Sheet
                                 </button> */}
-                            </div>
-                        </div>
-                        {driverList.isFetching ? (
-                            <Loader />
-                        ) : (
+                    </div>
+                </div>
+                {driverList.isFetching ? (
+                    <Loader />
+                ) : (
+                    <>
+                        {driverList.data?.data?.data?.influencersData ? (
                             <>
-                                {driverList.data?.data?.data?.influencersData ? (
-                                    <>
-                                        <table
-                                            id="example"
-                                            className="table table-striped nowrap"
-                                            style={{ width: "100%" }}
-                                        >
-                                            <thead>
-                                                <tr>
-                                                    <th>User name</th>
-                                                    <th>Driver ID</th>
-                                                    <th>Company</th>
-                                                    <th>Contact No.</th>
-                                                    <th>Contact Email</th>
-                                                    <th>&nbsp;</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {driverList?.data && driverList.data?.data?.data?.influencersData?.map((driver) => (
-                                                    <tr key={driver._id}>
-                                                        <td>
-                                                            <div
-                                                                className={
-                                                                    (!driver.first_name && !driver.last_name) ? "prof nodata" : "prof"
-                                                                }
-                                                            >
-                                                                <img
-                                                                    className="profilepicture"
-                                                                    src={
-                                                                        driver.selfieImage
-                                                                            ? driver.selfieImage
-                                                                            : nouser
-                                                                    }
-                                                                />
-                                                                {driver.first_name} {driver.last_name}
-                                                            </div>
-                                                        </td>
-                                                        <td className={!driver.id_no ? "nodata" : ""}>
-                                                            {driver.id_no}
-                                                        </td>
-                                                        <td className={!driver.company_name ? "companynamenodata" : ""}>
-                                                            {driver.company_name}
-                                                        </td>
-                                                        <td className={!driver?.mobile_no ? "nodata" : ""}>
-                                                            {`${driver?.mobile_no_country_code ?? ''}${driver?.mobile_no ?? ''}`}
-                                                        </td>
-                                                        <td className={!driver.email ? "nodata" : ""}>
-                                                            {driver.email}
-                                                        </td>
-                                                        {/* <td>
+                                <table
+                                    id="example"
+                                    className="table table-striped nowrap"
+                                    style={{ width: "100%" }}
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th>User name</th>
+                                            <th>Driver ID</th>
+                                            <th>Company</th>
+                                            <th>Contact No.</th>
+                                            <th>Contact Email</th>
+                                            <th>&nbsp;</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {driverList?.data && driverList.data?.data?.data?.influencersData?.map((driver) => (
+                                            <tr key={driver._id}>
+                                                <td>
+                                                    <div
+                                                        className={
+                                                            (!driver.first_name && !driver.last_name) ? "prof nodata" : "prof"
+                                                        }
+                                                    >
+                                                        <img
+                                                            className="profilepicture"
+                                                            src={
+                                                                driver.selfieImage
+                                                                    ? driver.selfieImage
+                                                                    : nouser
+                                                            }
+                                                        />
+                                                        {driver.first_name} {driver.last_name}
+                                                    </div>
+                                                </td>
+                                                <td className={!driver.id_no ? "nodata" : ""}>
+                                                    {driver.id_no}
+                                                </td>
+                                                <td className={!driver.company_name ? "companynamenodata" : ""}>
+                                                    {driver.company_name}
+                                                </td>
+                                                <td className={!driver?.mobile_no ? "nodata" : ""}>
+                                                    {`${driver?.mobile_no_country_code ?? ''}${driver?.mobile_no ?? ''}`}
+                                                </td>
+                                                <td className={!driver.email ? "nodata" : ""}>
+                                                    {driver.email}
+                                                </td>
+                                                {/* <td>
                                                             <span
                                                                 onClick={() => setconfirmation(driver._id)}
                                                                 className="tbl-gray"
@@ -550,37 +552,36 @@ const AgentInformation = () => {
                                                                 view
                                                             </span>
                                                         </td> */}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                        <div className="pagiation">
-                                            <div className="pagiation-left">
-                                                <button
-                                                    disabled={page === 1}
-                                                    onClick={() => setpage((p) => p - 1)}
-                                                >
-                                                    <img src={Prev} /> Prev
-                                                </button>
-                                            </div>
-                                            <div className="pagiation-right">
-                                                <button
-                                                    disabled={page === driverList.data?.data?.data?.totalPages}
-                                                    onClick={() => setpage((p) => p + 1)}
-                                                >
-                                                    Next <img src={Next} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <p className="no-data-found">No data found</p>
-                                )}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                <div className="pagiation">
+                                    <div className="pagiation-left">
+                                        <button
+                                            disabled={page === 1}
+                                            onClick={() => setpage((p) => p - 1)}
+                                        >
+                                            <img src={Prev} /> Prev
+                                        </button>
+                                    </div>
+                                    <div className="pagiation-right">
+                                        <button
+                                            disabled={page === driverList.data?.data?.data?.totalPages}
+                                            onClick={() => setpage((p) => p + 1)}
+                                        >
+                                            Next <img src={Next} />
+                                        </button>
+                                    </div>
+                                </div>
                             </>
+                        ) : (
+                            <p className="no-data-found">No data found</p>
                         )}
+                    </>
+                )}
 
-                    </div>
-            </Box>
+            </div>
         </Box>
     )
 }

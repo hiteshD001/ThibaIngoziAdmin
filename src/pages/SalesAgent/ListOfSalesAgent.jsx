@@ -1,7 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
-import { useGetSalesAgent, useShareAgent } from "../../API Calls/API";
+import {
+    useGetSalesAgent, useShareAgent, payoutUserUpdate,
+    armedSosPayout
+} from "../../API Calls/API";
+import { useFormik } from "formik";
+import PayoutPopup from "../../common/Popup";
 import Prev from "../../assets/images/left.png";
 import Next from "../../assets/images/right.png";
 import nouser from "../../assets/images/NoUser.png";
@@ -26,6 +31,8 @@ const ListOfSalesAgent = () => {
     const [filter, setfilter] = useState("");
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
+    const [selectedPayoutType, setSelectedPayoutType] = useState('');
+    const [payPopup, setPopup] = useState('')
     const [range, setRange] = useState([
         {
             startDate: startOfYear(new Date()),
@@ -121,6 +128,101 @@ const ListOfSalesAgent = () => {
         }
     };
 
+
+
+    const PayoutForm = useFormik({
+        initialValues: {
+            firstName: '',
+            surname: '',
+            branchCode: '',
+            amount: 0,
+            accountNumber: '',
+            customerCode: ''
+        }
+    })
+
+    const parseXmlResponse = (xmlString) => {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+
+        const result = xmlDoc.getElementsByTagName("Result")[0]?.textContent;
+        const message = xmlDoc.getElementsByTagName("ResultMessage")[0]?.textContent;
+
+        return { result, message };
+    };
+
+    const payoutMutation = armedSosPayout(
+        (res) => {
+            const { result, message } = parseXmlResponse(res.data);
+
+            if (result === "Success") {
+                payoutUpdateMutation.mutate({
+                    user_id: vehicleInfo?.data?.data?.user._id,
+                    type: selectedPayoutType,
+                    amount: PayoutForm.values.amount,
+                });
+                toast.success('Payment successful');
+                closePopup();
+            } else {
+                toast.error(message || 'Payment failed');
+                console.error("Payment Error:", message);
+            }
+        },
+
+        (err) => {
+            toast.error('payment failed')
+            console.error("Error!", err);
+        }
+    );
+
+    const payoutUpdateMutation = payoutUserUpdate(
+        (res) => {
+            toast.success('payment successful');
+        },
+        (err) => {
+            toast.error('payment failed')
+        }
+    );
+
+    const handleChange = () => {
+        payoutMutation.mutate(PayoutForm.values);
+    };
+
+
+    const handlePopup = (event, type, payoutType) => {
+        event.stopPropagation();
+        PayoutForm.setValues({
+            firstName: agentList?.first_name || "",
+            surname: agentList?.last_name || "",
+            branchCode: agentList?.bankId?.branch_code || "",
+            accountNumber: agentList?.accountNumber || "",
+            customerCode: agentList?.customerCode || "",
+            amount: agentList?.totalUnPaid || 0,
+        });
+        setPopup(type);
+        setSelectedPayoutType(payoutType);
+    };
+
+    const closePopup = (event) => {
+        // event.stopPropagation();
+        setPopup('')
+    }
+    const renderPopup = () => {
+        if (!payPopup) return null;
+
+        switch (payPopup) {
+            case "payout":
+                return (
+                    <PayoutPopup
+                        yesAction={handleChange}
+                        noAction={closePopup}
+                    />
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
         <div className="container-fluid">
             <div className="row">
@@ -132,7 +234,7 @@ const ListOfSalesAgent = () => {
                                 <p>{UserList.isSuccess && UserList?.data?.data?.data?.totalCount || 0}</p>
                             </div>
                             <div className="tbl-filter">
-                                 {/* <div className="input-group" style={{ width: '40%' }}>
+                                {/* <div className="input-group" style={{ width: '40%' }}>
                                     <span className="input-group-text">
                                         <img src={search} />
                                     </span>
@@ -171,117 +273,129 @@ const ListOfSalesAgent = () => {
                             <>
                                 {agentList ? (
                                     <>
-                                        <table
-                                            id="example"
-                                            className="table table-striped nowrap"
-                                            style={{ width: "100%" }}
+                                        <div
+                                            style={{
+                                                width: "100%",
+                                                overflowX: "auto",   // enables horizontal scroll
+                                                overflowY: "hidden", // hides vertical scroll if not needed
+                                            }}
                                         >
-                                            <thead>
-                                                <tr>
+                                            <table
+                                                id="example"
+                                                className="table table-striped nowrap"
+                                                style={{ width: "100%" }}
+                                            >
+                                                <thead>
+                                                    <tr>
 
-                                                    <th>User</th>
-                                                    <th>Contact No.</th>
-                                                    <th>Email</th>
-                                                    <th>Enroll Amount Deduction</th>
-                                                    <th>Eared Amount</th>
-                                                    <th>Unpaid Amount</th>
-                                                    <th>Total User</th>
-                                                    <th>Account Number</th>
-                                                    <th>Bank Name</th>
-                                                    <th>Branch Code</th>
-                                                    <th>Share Status</th>
-                                                    <th>&nbsp;</th>
-                                                    <th>&nbsp;</th>
-                                                    <th>&nbsp;</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {UserList?.data && agentList?.map((user) => (
-                                                    <tr key={user._id}>
-                                                        <td>
-                                                            <div
-                                                                className={
-                                                                    (!user.first_name && !user.last_name) ? "prof nodata" : "prof"
-                                                                }
-                                                            >
-                                                                <img
-                                                                    className="profilepicture"
-                                                                    src={
-                                                                        user.selfieImage
-                                                                            ? user.selfieImage
-                                                                            : nouser
+                                                        <th>User</th>
+                                                        <th>Contact No.</th>
+                                                        <th>Email</th>
+                                                        <th>Enroll Amount Deduction</th>
+                                                        <th>Eared Amount</th>
+                                                        <th>Unpaid Amount</th>
+                                                        <th>Total User</th>
+                                                        <th>Account Number</th>
+                                                        <th>Bank Name</th>
+                                                        <th>Branch Code</th>
+                                                        <th>Share Status</th>
+                                                        <th>&nbsp;</th>
+                                                        <th>&nbsp;</th>
+                                                        <th>&nbsp;</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {UserList?.data && agentList?.map((user) => (
+                                                        <tr key={user._id}>
+                                                            <td>
+                                                                <div
+                                                                    className={
+                                                                        (!user.first_name && !user.last_name) ? "prof nodata" : "prof"
                                                                     }
-                                                                />
-                                                                {user.first_name} {user.last_name}
-                                                            </div>
-                                                        </td>
+                                                                >
+                                                                    <img
+                                                                        className="profilepicture"
+                                                                        src={
+                                                                            user.selfieImage
+                                                                                ? user.selfieImage
+                                                                                : nouser
+                                                                        }
+                                                                    />
+                                                                    {user.first_name} {user.last_name}
+                                                                </div>
+                                                            </td>
 
-                                                        <td className={!user?.mobile_no ? "nodata" : ""}>
-                                                            {`${user?.mobile_no_country_code ?? ''}${user?.mobile_no ?? ''}`}
-                                                        </td>
-                                                        <td className={!user.email ? "nodata" : ""}>
-                                                            {user.email}
-                                                        </td>
-                                                        <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
-                                                            {user.enrollAmountDeduction}
-                                                        </td>
-                                                        <td className={!user.totalCommission ? "0" : ""}>
-                                                            {user.totalCommission}
-                                                        </td>
-                                                        <td className={!user.totalUnPaid ? "0" : ""}>
-                                                            {user.totalUnPaid}
-                                                        </td>
-                                                        <td className={!user.user_id ? "0" : ""}>
-                                                            {user.user_id.length}
-                                                        </td>
-                                                        <td className={!user.accountNumber ? "nodata" : ""}>
-                                                            {user.accountNumber}
-                                                        </td>
-                                                        <td className={!user.bankId ? "nodata" : ""}>
-                                                            {user.bankId?.bank_name ? user.bankId.bank_name: ""}
-                                                        </td>
-                                                        <td className={!user.bankId ? "nodata" : ""}>
-                                                            {user.bankId?.branch_code ? user.bankId.branch_code: ""}
-                                                        </td>
-                                                        <td className={!user.sharedStatus ? "nodata" : ""}>
-                                                            {user.sharedStatus}
-                                                        </td>
-                                                        {/* <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
+                                                            <td className={!user?.mobile_no ? "nodata" : ""}>
+                                                                {`${user?.mobile_no_country_code ?? ''}${user?.mobile_no ?? ''}`}
+                                                            </td>
+                                                            <td className={!user.email ? "nodata" : ""}>
+                                                                {user.email}
+                                                            </td>
+                                                            <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
+                                                                {user.enrollAmountDeduction}
+                                                            </td>
+                                                            <td className={!user.totalCommission ? "0" : ""}>
+                                                                {user.totalCommission}
+                                                            </td>
+                                                            <td className={!user.totalUnPaid ? "0" : ""}>
+                                                                {user.totalUnPaid}
+                                                            </td>
+                                                            <td className={!user.user_id ? "0" : ""}>
+                                                                {user.user_id.length}
+                                                            </td>
+                                                            <td className={!user.accountNumber ? "nodata" : ""}>
+                                                                {user.accountNumber}
+                                                            </td>
+                                                            <td className={!user.bankId ? "nodata" : ""}>
+                                                                {user.bankId?.bank_name ? user.bankId.bank_name : ""}
+                                                            </td>
+                                                            <td className={!user.bankId ? "nodata" : ""}>
+                                                                {user.bankId?.branch_code ? user.bankId.branch_code : ""}
+                                                            </td>
+                                                            <td className={!user.sharedStatus ? "nodata" : ""}>
+                                                                {user.sharedStatus}
+                                                            </td>
+                                                            {/* <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
                                                             {user.enrollAmountDeduction}
                                                         </td> */}
-                                                        <td style={{ display: 'flex', justifyContent: 'center', flexDirection: 'row', gap: '10px' }}>
+                                                            <td >
 
-                                                            <span
-                                                                onClick={() =>
-                                                                    nav(
-                                                                        `/home/total-sales-agent/agent-information/${user._id}`
-                                                                    )
-                                                                }
-                                                                className="tbl-btn"
-                                                            >
-                                                                view
-                                                            </span>
-                                                            <span
-                                                                onClick={() => {
-                                                                    setSharingId(user?._id);
-                                                                    shareAgent({ id: user?._id, email: user?.email });
-                                                                }}
-                                                                className="tbl-gray ml-2 cursor-pointer"
-                                                            >
-                                                                {sharingId === user?._id ? "Sharing..." : "Share"}
-                                                            </span>
-                                                            <span
-                                                                // onClick={() => shareAgent({ id: user?._id, email: user?.email })}
-                                                                className="tbl-gray ml-2 cursor-pointer"
-                                                            >
-                                                                Pay
-                                                            </span>
-                                                        </td>
+                                                                <span
+                                                                    onClick={() =>
+                                                                        nav(
+                                                                            `/home/total-sales-agent/agent-information/${user._id}`
+                                                                        )
+                                                                    }
+                                                                    className="tbl-btn"
+                                                                    style={{ marginRight: "10px" }}
+                                                                >
+                                                                    view
+                                                                </span>
+                                                                <span
+                                                                    onClick={() => {
+                                                                        setSharingId(user?._id);
+                                                                        shareAgent({ id: user?._id, email: user?.email });
+                                                                    }}
+                                                                    className="tbl-gray ml-2 cursor-pointer"
+                                                                    style={{ marginRight: "10px" }}
+                                                                >
+                                                                    {sharingId === user?._id ? "Sharing..." : "Share"}
+                                                                </span>
+                                                                <span
+                                                                    onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
+                                                                    className="tbl-gray ml-2 cursor-pointer"
+                                                                >
+                                                                    Pay
+                                                                </span>
 
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                            </td>
+
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+
+                                        </div>
                                         <div className="pagiation">
                                             <div className="pagiation-left">
                                                 <button
@@ -309,6 +423,7 @@ const ListOfSalesAgent = () => {
                     </div>
                 </div>
             </div>
+            {payPopup && renderPopup()}
         </div>
     );
 };
