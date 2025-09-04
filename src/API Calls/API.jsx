@@ -838,6 +838,8 @@ export const useResetPassword = (onSuccess, onError) => {
             `${import.meta.env.VITE_BASEURL}/users/reset-password/${token}`,
             { newPassword: password }
         );
+
+        console.log("response",response)
         return response.data
     };
 

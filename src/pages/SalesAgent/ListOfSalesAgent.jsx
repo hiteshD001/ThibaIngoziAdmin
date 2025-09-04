@@ -82,6 +82,7 @@ const ListOfSalesAgent = () => {
         setIsExporting(true);
         try {
             const allUsers = await fetchAllUsers();
+            console.log("allUsers",allUsers)
             setIsExporting(false);
 
             if (!allUsers || allUsers.length === 0) {
@@ -98,8 +99,15 @@ const ListOfSalesAgent = () => {
                 "User Name": `${user.first_name || ''} ${user.last_name || ''}`,
                 "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
                 "Email": user.email || '',
-                "Enroll Amount Deduction": user.enrollAmountDeduction || 'N/A',
-                "Referral Code": user.referralCode || 'N/A',
+                "Enroll Amount Deduction": user.enrollAmountDeduction || '',
+                "Referral Code": user.referralCode || '',
+                "Total Unpaid": user.totalUnPaid || '',
+                "Total Commission": user.totalCommission || '',
+                "Account Holder Name": user.accountHolderName || '',
+                "Account Number": user.accountNumber || '',
+                "Account Type": user.accountType || '',
+                "Bank Name": user?.bankId?.bank_name || '',
+                "Branch Code": user?.bankId?.branch_code || '',
             }));
 
             // ✅ Create worksheet
@@ -292,11 +300,14 @@ const ListOfSalesAgent = () => {
                                                         <th>Enroll Amount Deduction</th>
                                                         <th>Eared Amount</th>
                                                         <th>Unpaid Amount</th>
-                                                        <th>Total User</th>
+                                                        <th>Paid Amount</th>
+                                                        <th>Total Users</th>
                                                         <th>Account Number</th>
                                                         <th>Bank Name</th>
                                                         <th>Branch Code</th>
                                                         <th>Share Status</th>
+                                                        <th>Performance Level</th>
+                                                        <th>Tie</th>
                                                         <th>&nbsp;</th>
                                                         <th>&nbsp;</th>
                                                         <th>&nbsp;</th>
@@ -338,6 +349,9 @@ const ListOfSalesAgent = () => {
                                                             <td className={!user.totalUnPaid ? "0" : ""}>
                                                                 {user.totalUnPaid}
                                                             </td>
+                                                            <td className={!user.totalPaid ? "0" : ""}>
+                                                                {user.totalPaid || 0}
+                                                            </td>
                                                             <td className={!user.user_id ? "0" : ""}>
                                                                 {user.user_id.length}
                                                             </td>
@@ -353,6 +367,14 @@ const ListOfSalesAgent = () => {
                                                             <td className={!user.sharedStatus ? "nodata" : ""}>
                                                                 {user.sharedStatus}
                                                             </td>
+
+                                                            <td className={!user.performanceLevel ? "nodata" : ""}>
+                                                                {user.performanceLevel ? user.performanceLevel : ""}
+                                                            </td>
+                                                            <td className={!user.tie ? "nodata" : ""}>
+                                                                {user.tie}
+                                                            </td>
+                                                            
                                                             {/* <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
                                                             {user.enrollAmountDeduction}
                                                         </td> */}
