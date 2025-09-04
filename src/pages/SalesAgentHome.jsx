@@ -182,7 +182,7 @@ const SalesAgentHome = () => {
                             Total Users
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            {userinfo?.data?.data?.data?.user_id.length}
+                            {userinfo?.data?.data?.data?.user_id?.length}
                         </Typography>
                     </Paper>
                 </Grid>

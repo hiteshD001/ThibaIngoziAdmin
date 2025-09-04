@@ -22,8 +22,9 @@ const ResetPassword = () => {
         },
         validationSchema: resetPasswordValidation,
         onSubmit: (val) => {
-            // const token = p.get('token');
-            const token = localStorage.getItem('accessToken')
+            const token = p.get('token') ? p.get('token') : localStorage.getItem('accessToken');
+            
+            // const token = localStorage.getItem('accessToken')
 
             console.log("tokennnn",token)
             if (!token) {
