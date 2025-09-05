@@ -297,8 +297,9 @@ const ListOfSalesAgent = () => {
                                                         <th>User</th>
                                                         <th>Contact No.</th>
                                                         <th>Email</th>
-                                                        <th>Enroll Amount Deduction</th>
-                                                        <th>Eared Amount</th>
+                                                        <th>Enrolment Discount %</th>
+                                                        <th>Total Earned Amount</th>
+                                                        <th>Total Commission Earned(30%)</th>
                                                         <th>Unpaid Amount</th>
                                                         <th>Paid Amount</th>
                                                         <th>Total Users</th>
@@ -343,8 +344,15 @@ const ListOfSalesAgent = () => {
                                                             <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
                                                                 {user.enrollAmountDeduction}
                                                             </td>
-                                                            <td className={!user.totalCommission ? "0" : ""}>
+                                                            
+                                                            {/* <td className={!user.totalCommission ? "0" : ""}>
                                                                 {user.totalCommission}
+                                                            </td> */}
+                                                            <td className={!user.totalEarnedAmount ? "0" : ""}>
+                                                                {user.totalEarnedAmount}
+                                                            </td>
+                                                            <td className={!user.commissionEarned ? "0" : ""}>
+                                                                {user.commissionEarned}
                                                             </td>
                                                             <td className={!user.totalUnPaid ? "0" : ""}>
                                                                 {user.totalUnPaid}

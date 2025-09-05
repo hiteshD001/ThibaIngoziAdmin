@@ -1,15 +1,17 @@
-import { useEffect, useState,useLayoutEffect } from "react";
+import { useEffect, useState, useLayoutEffect } from "react";
 import Select from "react-select";
-import { Grid, Paper, Typography, Box, FormControl, InputLabel, Button, FormHelperText } from "@mui/material";
+import { Grid, Paper, Typography, Box, FormControl, InputLabel, Button, FormHelperText, Modal, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
 import { useFormik } from "formik";
 import { sales_agent_e } from "../common/FormValidation";
 import { BootstrapInput } from '../common/BootstrapInput'
 import { useQueryClient } from "@tanstack/react-query";
 import { QRCodeCanvas } from "qrcode.react";
-import { useGetAgent, useUpdateSalesAgent,useGetBanksList } from "../API Calls/API";
+import { useGetAgent, useUpdateSalesAgent, useGetBanksList } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import PhoneInput from "react-phone-input-2";
+import Loader from "../common/Loader";
+// import Prev from "../../assets/images/left.png";
 // import { useFormik } from "formik";
 
 const SalesAgentHome = () => {
@@ -20,6 +22,10 @@ const SalesAgentHome = () => {
     const client = useQueryClient();
     const [edit, setedit] = useState(false);
     const bankslist = useGetBanksList()
+    const [tieModalOpen, setTieModalOpen] = useState(false);
+    const [tieUsers, setTieUsers] = useState([]);
+    const [page, setpage] = useState(1);
+    const [tieData, setTieData] = useState(true)
     useEffect(() => {
         switch (time) {
             case "today":
@@ -68,6 +74,23 @@ const SalesAgentHome = () => {
         },
 
     });
+
+    const handleTieClick = () => {
+        const tieUserData = userinfo?.data?.data?.data?.tieUserData;
+        setTieUsers(tieUserData)
+
+        setTieData(true)
+
+        console.log("Tie clicked:", tieUserData);
+
+        if (tieUserData && Array.isArray(tieUserData)) {
+            setTieUsers(tieUserData);
+            setTieModalOpen(true);
+        } else {
+            toast.info("No tie user data available");
+        }
+    };
+
     const handleCancel = () => {
         const data = userinfo?.data?.data?.data;
         if (data) {
@@ -167,6 +190,8 @@ const SalesAgentHome = () => {
                 </Grid>
 
 
+
+
                 {/* Users Active (time filter) */}
                 <Grid size={{ xs: 12, md: 4 }}>
                     <Paper
@@ -186,7 +211,50 @@ const SalesAgentHome = () => {
                         </Typography>
                     </Paper>
                 </Grid>
+                <Grid size={{ xs: 12, md: 4 }} >
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            // textAlign: "center",
+                            bgcolor: "#e3f5ff",
+
+                        }}
+
+                    >
+                        <Typography variant="subtitle1" color="text.secondary" >
+                            Performance Level
+                        </Typography>
+                        <Typography variant="h4" fontWeight="bold" >
+                            {userinfo?.data?.data?.data.performanceLevel}
+                        </Typography>
+                    </Paper>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            // textAlign: "center",
+                            bgcolor: "#e3f5ff",
+                            cursor: "pointer"
+                        }}
+                        // onClick={handleTieClick}
+                    >
+                        <Typography variant="subtitle1" color="text.secondary" >
+                            Tie
+                        </Typography>
+                        <Typography variant="h4" fontWeight="bold">
+                            {userinfo?.data?.data?.data?.tie}
+                        </Typography>
+                    </Paper>
+                </Grid>
             </Grid>
+
+
             <Box p={2}>
                 <Box elevation={0} sx={{ p: 3, borderRadius: '16px', mb: 3, backgroundColor: '#f7f9fb' }}>
                     <form>
@@ -407,39 +475,39 @@ const SalesAgentHome = () => {
                             <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                                 {edit ? (
                                     <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="bankName" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' }, marginBottom: '5%' }}>
-                                        Bank Name
-                                    </InputLabel>
-                                    <Select
-                                    name="bankId"
-                                    options={banksList}
-                                    placeholder="Select Bank"
-                                    classNamePrefix="select"
-                                    className="form-control"
-                                    value={banksList
-                                        .flatMap((group) => group.options)
-                                        .find((option) => option.value == profileForm?.values?.bankId)}
-                                    onChange={(selectedOption) => {
-                                        profileForm.setFieldValue("bankId", selectedOption?.value || "");
-                                    }}
-                                    styles={{
-                                        option: (base, state) => ({
-                                            ...base,
-                                            backgroundColor: state.isSelected
-                                                ? "white"
-                                                : state.isFocused
-                                                    ? "#e6e6e6"
-                                                    : "white",
-                                            color: "black",
-                                        }),
-                                        valueContainer: (base) => ({
-                                            ...base,
-                                            maxHeight: "50px",
-                                            overflowY: "auto",
-                                        }),
-                                    }}
-                                />
-                                </FormControl>
+                                        <InputLabel shrink htmlFor="bankName" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' }, marginBottom: '5%' }}>
+                                            Bank Name
+                                        </InputLabel>
+                                        <Select
+                                            name="bankId"
+                                            options={banksList}
+                                            placeholder="Select Bank"
+                                            classNamePrefix="select"
+                                            className="form-control"
+                                            value={banksList
+                                                .flatMap((group) => group.options)
+                                                .find((option) => option.value == profileForm?.values?.bankId)}
+                                            onChange={(selectedOption) => {
+                                                profileForm.setFieldValue("bankId", selectedOption?.value || "");
+                                            }}
+                                            styles={{
+                                                option: (base, state) => ({
+                                                    ...base,
+                                                    backgroundColor: state.isSelected
+                                                        ? "white"
+                                                        : state.isFocused
+                                                            ? "#e6e6e6"
+                                                            : "white",
+                                                    color: "black",
+                                                }),
+                                                valueContainer: (base) => ({
+                                                    ...base,
+                                                    maxHeight: "50px",
+                                                    overflowY: "auto",
+                                                }),
+                                            }}
+                                        />
+                                    </FormControl>
                                 ) : displayField("Bank ID", profileForm.values.bankId)}
                             </Grid>
                             <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
@@ -449,7 +517,7 @@ const SalesAgentHome = () => {
                                         <>
                                             <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>Referral Code</Typography>
                                             <QRCodeCanvas
-                                                value={`https://api.thibaingozi.com/api/referralCode?referral_code=${profileForm.values.referralCode}`}
+                                                value={`https://api.thibaingozi.com/api/referralCode?refferal_code=${profileForm.values.referralCode}`}
                                                 size={128}
                                                 bgColor="#ffffff"
                                                 fgColor="#000000"
@@ -494,6 +562,109 @@ const SalesAgentHome = () => {
                     </form>
                 </Box>
             </Box>
+
+            {tieData && (
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <div className="theme-table">
+                                <div className="tab-heading">
+                                    <div className="count">
+                                        <h3>Tie Users</h3>
+                                        <p>{userinfo?.data?.data?.data?.tieUserData.length || 0}</p>
+                                    </div>
+                                        {/* <button
+                                            onClick={() => setTieData(false)}
+                                            className="btn btn-dark"
+                                        >
+                                            close
+                                        </button> */}
+                                </div>
+
+
+                                {tieUsers ? (
+                                    <>
+                                        <div
+                                            style={{
+                                                width: "100%",
+                                                overflowX: "auto",
+                                                overflowY: "hidden",
+                                            }}
+                                        >
+                                            <table
+                                                id="example"
+                                                className="table table-striped nowrap"
+                                                style={{ width: "100%" }}
+                                            >
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th>Name</th>
+                                                        <th>Users</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {userinfo?.data?.data?.data?.tieUserData?.map((user, index) => (
+                                                        <tr key={user._id}>
+                                                            <td>
+                                                                {index + 1}
+                                                            </td>
+
+                                                            <td>
+                                                                <div
+                                                                    className={
+                                                                        (!user.name) ? "prof nodata" : "prof"
+                                                                    }
+                                                                >
+                                                                    {/* <img
+                                                                    className="profilepicture"
+                                                                    src={
+                                                                        user.selfieImage
+                                                                            ? user.selfieImage
+                                                                            : nouser
+                                                                    }
+                                                                /> */}
+                                                                    {user.name}
+                                                                </div>
+                                                            </td>
+
+                                                            <td>
+                                                                {user.salesCount}
+                                                            </td>
+
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                        <div className="pagiation">
+                                            <div className="pagiation-left">
+                                                <button
+                                                    disabled={page === 1}
+                                                    onClick={() => setpage((p) => p - 1)}
+                                                >
+                                                    {/* <img src={Prev} /> Prev */}
+                                                </button>
+                                            </div>
+                                            <div className="pagiation-right">
+                                                <button
+                                                    // disabled={page === UserList?.data?.data?.data?.totalPages}
+                                                    onClick={() => setpage((p) => p + 1)}
+                                                >
+                                                    {/* Next <img src={Next} /> */}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className="no-data-found">No data found</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
 
     );
@@ -522,17 +693,17 @@ const setAgentformvalues = ({ ...props }) => {
     let newdata = {};
 
     Object.keys(form.values).forEach((key) => {
-
         if (key === 'images') {
             newdata = { ...newdata, [key]: Array.from({ length: 5 }, (_, i) => data?.[`image_${i + 1}`] || null).filter(Boolean) };
         } else if (key === 'company_id') {
             newdata = { ...newdata, [key]: data?.company_id?._id ?? '' };
-        }
-        else {
+        } else if (key === 'bankId' && data?.[key] && typeof data[key] === 'object') {
+            // Extract just the ID from the bank object
+            newdata = { ...newdata, [key]: data[key]._id ?? '' };
+        } else {
             newdata = { ...newdata, [key]: data?.[key] ?? '' };
         }
-
     });
 
-    form.setValues(newdata)
-}
+    form.setValues(newdata);
+};
