@@ -296,8 +296,8 @@ const ListOfSalesAgent = () => {
                                                         <th>User</th>
                                                         <th>Contact No.</th>
                                                         <th>Email</th>
-                                                        <th>Enroll Percentage Deduction</th>
-                                                        <th>Earned Amount</th>
+                                                        <th>Enrolment Discount %</th>
+                                                        <th>Total Earned Amount</th>
                                                         <th>Total Commission Earned(30%)</th>
                                                         <th>Unpaid Amount</th>
                                                         <th>Paid Amount</th>
