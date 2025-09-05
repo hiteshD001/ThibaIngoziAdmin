@@ -82,7 +82,6 @@ const ListOfSalesAgent = () => {
         setIsExporting(true);
         try {
             const allUsers = await fetchAllUsers();
-            console.log("allUsers",allUsers)
             setIsExporting(false);
 
             if (!allUsers || allUsers.length === 0) {
