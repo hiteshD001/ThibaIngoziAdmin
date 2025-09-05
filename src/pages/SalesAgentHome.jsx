@@ -254,7 +254,6 @@ const SalesAgentHome = () => {
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
                             {userinfo?.data?.data?.data?.tie}
-<<<<<<< Updated upstream
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
