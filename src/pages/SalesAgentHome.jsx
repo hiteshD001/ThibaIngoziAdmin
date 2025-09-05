@@ -209,7 +209,10 @@ const SalesAgentHome = () => {
                         <Typography variant="h4" fontWeight="bold">
                             {userinfo?.data?.data?.data?.user_id.length}
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
                         </Typography>
                     </Paper>
                 </Grid>
@@ -251,6 +254,9 @@ const SalesAgentHome = () => {
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
                             {userinfo?.data?.data?.data?.tie}
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                         </Typography>
                     </Paper>
