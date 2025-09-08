@@ -30,6 +30,8 @@ const AgentInformation = () => {
     const bankslist = useGetBanksList()
     const [payPopup, setPopup] = useState('')
     const [selectedPayoutType, setSelectedPayoutType] = useState('');
+    const [tieUsers, setTieUsers] = useState([]);
+     const [tieData, setTieData] = useState(true)
     const agentForm = useFormik({
         initialValues: {
             referralCode: "",
@@ -224,6 +226,30 @@ const AgentInformation = () => {
                             <h3>{UserInfo.data?.data?.data?.user_id.length || 0}</h3>
                         </div>
                     </div>
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Total Earned Amount</span>
+                            <h3>{UserInfo.data?.data?.data?.totalEarnedAmount || 0}</h3>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Total Commission Earned(30%)</span>
+                            <h3>{UserInfo.data?.data?.data?.commissionEarned || 0}</h3>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Performance Level</span>
+                            <h3>{UserInfo.data?.data?.data?.performanceLevel || 0}</h3>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Tie</span>
+                            <h3>{UserInfo.data?.data?.data?.tie || 0}</h3>
+                        </div>
+                    </div>
                 </div>
                 <form>
                     <Grid container spacing={edit ? 3 : 1}>
@@ -357,7 +383,7 @@ const AgentInformation = () => {
                             {edit ? (
                                 <FormControl variant="standard" fullWidth >
                                     <InputLabel shrink htmlFor="enrollAmountDeduction" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        Enroll Amount Deduction
+                                        Enrolment Discount %
                                     </InputLabel>
                                     <BootstrapInput
                                         id="enrollAmountDeduction"
@@ -368,7 +394,7 @@ const AgentInformation = () => {
                                     />
                                     {agentForm.touched.enrollAmountDeduction && <FormHelperText error>{agentForm.errors.enrollAmountDeduction}</FormHelperText>}
                                 </FormControl>
-                            ) : displayField("Enroll Amount Deduction", agentForm.values.enrollAmountDeduction)}
+                            ) : displayField("Enrolment Discount %", agentForm.values.enrollAmountDeduction)}
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                             {edit ? (
@@ -669,6 +695,112 @@ const AgentInformation = () => {
                 )}
 
             </div>
+
+            
+            {tieData && (
+                <div className="container-fluid">
+                    <div className="row">
+                        <div className="col-md-12">
+                            <div className="theme-table">
+                                <div className="tab-heading">
+                                    <div className="count">
+                                        <h3>Tie Users</h3>
+                                        <p>{UserInfo?.data?.data?.data?.tieUserData.length || 0}</p>
+                                    </div>
+                                        {/* <button
+                                            onClick={() => setTieData(false)}
+                                            className="btn btn-dark"
+                                        >
+                                            close
+                                        </button> */}
+                                </div>
+
+
+                                {tieUsers ? (
+                                    <>
+                                        <div
+                                            style={{
+                                                width: "100%",
+                                                overflowX: "auto",
+                                                overflowY: "hidden",
+                                            }}
+                                        >
+                                            <table
+                                                id="example"
+                                                className="table table-striped nowrap"
+                                                style={{ width: "100%" }}
+                                            >
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th>Name</th>
+                                                        <th>Users</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {UserInfo?.data?.data?.data?.tieUserData?.map((user, index) => (
+                                                        <tr key={user._id}>
+                                                            <td>
+                                                                {index + 1}
+                                                            </td>
+
+                                                            <td>
+                                                                <div
+                                                                    className={
+                                                                        (!user.name) ? "prof nodata" : "prof"
+                                                                    }
+                                                                >
+                                                                    {/* <img
+                                                                    className="profilepicture"
+                                                                    src={
+                                                                        user.selfieImage
+                                                                            ? user.selfieImage
+                                                                            : nouser
+                                                                    }
+                                                                /> */}
+                                                                    {user.name}
+                                                                </div>
+                                                            </td>
+
+                                                            <td>
+                                                                {user.salesCount}
+                                                            </td>
+
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                        <div className="pagiation">
+                                            <div className="pagiation-left">
+                                                <button
+                                                    disabled={page === 1}
+                                                    onClick={() => setpage((p) => p - 1)}
+                                                >
+                                                    {/* <img src={Prev} /> Prev */}
+                                                </button>
+                                            </div>
+                                            <div className="pagiation-right">
+                                                <button
+                                                    // disabled={page === UserList?.data?.data?.data?.totalPages}
+                                                    onClick={() => setpage((p) => p + 1)}
+                                                >
+                                                    {/* Next <img src={Next} /> */}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <p className="no-data-found">No data found</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+
             <div className="theme-table payout-section">
                 <div className="payout-info">
                     <div className="tab-heading">
@@ -679,7 +811,7 @@ const AgentInformation = () => {
                 <button
                     className="btn btn-primary"
                     onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
-                    // disabled={edit}
+                // disabled={edit}
                 >
                     Pay
                 </button>
@@ -691,22 +823,23 @@ const AgentInformation = () => {
 
 export default AgentInformation
 
+
 const setAgentformvalues = ({ ...props }) => {
     const { form, data } = props;
     let newdata = {};
 
     Object.keys(form.values).forEach((key) => {
-
         if (key === 'images') {
             newdata = { ...newdata, [key]: Array.from({ length: 5 }, (_, i) => data?.[`image_${i + 1}`] || null).filter(Boolean) };
         } else if (key === 'company_id') {
             newdata = { ...newdata, [key]: data?.company_id?._id ?? '' };
-        }
-        else {
+        } else if (key === 'bankId') {
+            // Handle bankId - extract just the ID from the bank object
+            newdata = { ...newdata, [key]: data?.bankId?._id ?? '' };
+        } else {
             newdata = { ...newdata, [key]: data?.[key] ?? '' };
         }
-
     });
 
-    form.setValues(newdata)
-}
+    form.setValues(newdata);
+};

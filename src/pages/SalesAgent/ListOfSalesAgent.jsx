@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
 import {
     useGetSalesAgent, useShareAgent, payoutUserUpdate,
-    armedSosPayout
+    armedSosPayout,
+    useDeleteSalesAgent,
+    useBulkUploadSalesAgent
 } from "../../API Calls/API";
 import { useFormik } from "formik";
 import PayoutPopup from "../../common/Popup";
@@ -19,7 +21,9 @@ import { toast } from "react-toastify";
 import Loader from "../../common/Loader";
 import { startOfYear } from "date-fns";
 import calender from '../../assets/images/calender.svg';
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { DeleteSalesAgent } from "../../common/ConfirmationPOPup";
+import ImportSheet from "../../common/ImportSheet";
 
 const ListOfSalesAgent = () => {
     const [popup, setpopup] = useState(false)
@@ -40,6 +44,8 @@ const ListOfSalesAgent = () => {
             key: 'selection'
         }
     ]);
+    const fileInputRef = useRef(null);
+
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
     let UserList = useGetSalesAgent(page, 10, filter, startDate, endDate)
@@ -61,6 +67,24 @@ const ListOfSalesAgent = () => {
             setSharingId(null); // reset on error too
         }
     );
+
+
+    const { mutate: bulkUploadAgent } = useBulkUploadSalesAgent(
+        (data) => {
+            toast.success('Sales agents uploaded successfully');
+            console.log("✅ Sales agents uploaded successfully:", data);
+
+            queryClient.invalidateQueries(["salesAgent"]);
+            // ❌ remove setImportFile(null);
+        },
+        (error) => {
+            toast.error("Error uploading sales agents");
+            console.error("❌ Error uploading sales agents:", error);
+            // ❌ remove setImportFile(null);
+        }
+    );
+
+
     const fetchAllUsers = async () => {
         try {
             const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer`, {
@@ -82,7 +106,7 @@ const ListOfSalesAgent = () => {
         setIsExporting(true);
         try {
             const allUsers = await fetchAllUsers();
-            console.log("allUsers",allUsers)
+            console.log("allUsers", allUsers)
             setIsExporting(false);
 
             if (!allUsers || allUsers.length === 0) {
@@ -277,7 +301,27 @@ const ListOfSalesAgent = () => {
                                     disabled={isExporting}>
                                     {isExporting ? 'Exporting...' : '+ Export Sheet'}
                                 </button>
+
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => setpopup(true)}
+
+                                >
+                                    + Import Sheet
+                                </button>
+                                {/* <input
+                                    type="file"
+                                    accept=".xlsx, .xls, .csv"
+                                    ref={fileInputRef}
+                                    style={{ display: "none" }}
+                                    onChange={handleFileChange}
+                                /> */}
                             </div>
+                            {
+                                popup && (
+                                    <ImportSheet setpopup={setpopup} popup={popup} type="sales-agent" />
+                                )
+                            }
                         </div>
                         {UserList.isFetching ? (
                             <Loader />
@@ -350,7 +394,7 @@ const ListOfSalesAgent = () => {
                                                             <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
                                                                 {user.enrollAmountDeduction}
                                                             </td>
-                                                            
+
                                                             {/* <td className={!user.totalCommission ? "0" : ""}>
                                                                 {user.totalCommission}
                                                             </td> */}
@@ -388,7 +432,7 @@ const ListOfSalesAgent = () => {
                                                             <td className={!user.tie ? "nodata" : ""}>
                                                                 {user.tie}
                                                             </td>
-                                                            
+
                                                             {/* <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
                                                             {user.enrollAmountDeduction}
                                                         </td> */}
@@ -421,7 +465,19 @@ const ListOfSalesAgent = () => {
                                                                 >
                                                                     Pay
                                                                 </span>
-
+                                                                <span
+                                                                    // onClick={() => deleteAgent(user._id)}
+                                                                    onClick={() => setconfirmation(user._id)}
+                                                                    className="tbl-gray"
+                                                                >
+                                                                    Delete
+                                                                </span>
+                                                                {confirmation === user._id && (
+                                                                    <DeleteSalesAgent
+                                                                        id={user._id}
+                                                                        setconfirmation={setconfirmation}
+                                                                    />
+                                                                )}
                                                             </td>
 
                                                         </tr>

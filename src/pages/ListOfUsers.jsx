@@ -96,7 +96,7 @@ const ListOfUsers = () => {
                     <div className="theme-table">
                         <div className="tab-heading">
                             <div className="count">
-                                <h3>Total Users</h3>
+                                <h3>Total Sales </h3>
                                 <p>{UserList.isSuccess && UserList.data?.data.totalUsers || 0}</p>
                             </div>
                             <div className="tbl-filter">

@@ -11,6 +11,12 @@ import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import PhoneInput from "react-phone-input-2";
 import Loader from "../common/Loader";
+import { useGetUserByInfluncer } from "../../../../ThibaIngoziAdmin/src/API Calls/API";
+import { startOfYear } from "date-fns";
+import { useParams } from "react-router-dom";
+import nouser from "../assets/images/NoUser.png";
+import Prev from "../assets/images/left.png";
+import Next from "../assets/images/right.png";
 // import Prev from "../../assets/images/left.png";
 // import { useFormik } from "formik";
 
@@ -59,8 +65,23 @@ const SalesAgentHome = () => {
         toast.error(error.response.data.message || "Something went Wrong", toastOption);
     };
     const { mutate } = useUpdateSalesAgent(onSuccess, onError)
+    const params = useParams();
 
+    const [range, setRange] = useState([
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+
+    const startDate = range[0].startDate.toISOString();
+    const endDate = range[0].endDate.toISOString();
+
+    
+    
     const userinfo = useGetAgent(localStorage.getItem("userID"));
+    const listOfSalesAgentUsers = useGetUserByInfluncer(page, 10, startDate, endDate, userinfo?.data?.data?.data?._id)
 
     const profileForm = useFormik({
         initialValues: sales_agent,
@@ -122,6 +143,7 @@ const SalesAgentHome = () => {
             setbanksList(groupedOptions);
         }
     }, [bankslist]);
+
     const displayField = (label, value) => (
         <Box mb={3}>
             <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>{label}</Typography>
@@ -171,6 +193,42 @@ const SalesAgentHome = () => {
                     </Paper>
                 </Grid>
                 <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            // textAlign: "center",
+                            bgcolor: "#e3f5ff",
+                        }}
+                    >
+                        <Typography variant="subtitle1" color="text.secondary">
+                            Total Commission Unpaid
+                        </Typography>
+                        <Typography variant="h4" fontWeight="bold">
+                            {userinfo?.data?.data?.data?.totalUnPaid}
+                        </Typography>
+                    </Paper>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            // textAlign: "center",
+                            bgcolor: "#e3f5ff",
+                        }}
+                    >
+                        <Typography variant="subtitle1" color="text.secondary">
+                            Total Commission Unpaid
+                        </Typography>
+                        <Typography variant="h4" fontWeight="bold">
+                            {userinfo?.data?.data?.data?.totalUnPaid}
+                        </Typography>
+                    </Paper>
+                </Grid>
+                 <Grid size={{ xs: 12, md: 4 }}>
                     <Paper
                         elevation={3}
                         sx={{
@@ -390,7 +448,7 @@ const SalesAgentHome = () => {
                                 {edit ? (
                                     <FormControl variant="standard" fullWidth >
                                         <InputLabel shrink htmlFor="enrollAmountDeduction" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                            Enroll Amount Deduction
+                                        Enrolment Discount %
                                         </InputLabel>
                                         <BootstrapInput
                                             id="enrollAmountDeduction"
@@ -402,7 +460,7 @@ const SalesAgentHome = () => {
                                         />
                                         {profileForm.touched.enrollAmountDeduction && <FormHelperText error>{profileForm.errors.enrollAmountDeduction}</FormHelperText>}
                                     </FormControl>
-                                ) : displayField("Enroll Amount Deduction", profileForm.values.enrollAmountDeduction)}
+                                ) : displayField("Enrolment Discount %", profileForm.values.enrollAmountDeduction)}
                             </Grid>
                             <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                                 {edit ? (
@@ -563,6 +621,139 @@ const SalesAgentHome = () => {
                 </Box>
             </Box>
 
+            <div className="theme-table" style={{ marginTop: '20px' }}>
+                <div className="tab-heading">
+                    <div className="count">
+                        <h3>Total Users</h3>
+                        <p>{listOfSalesAgentUsers.isSuccess && listOfSalesAgentUsers.data?.data?.data?.influencersData?.length || 0}</p>
+                    </div>
+                    <div className="tbl-filter">
+                        
+                        {/* <button
+                                    onClick={() => nav("/home/total-drivers/add-driver")}
+                                    className="btn btn-primary"
+                                >
+                                    + Add Driver
+                                </button>
+                                <button className="btn btn-primary" onClick={handleExport}
+                                    disabled={isExportingDrivers}>
+                                    {isExportingDrivers ? 'Exporting...' : '+ Export Sheet'}
+                                </button> */}
+
+                        {/* <button className="btn btn-primary" onClick={() => setpopup(true)}>
+                                    + Import Sheet
+                                </button> */}
+                    </div>
+                </div>
+                {listOfSalesAgentUsers.isFetching ? (
+                    <Loader />
+                ) : (
+                    <>
+                        {listOfSalesAgentUsers.data?.data?.data?.influencersData ? (
+                            <>
+                                <table
+                                    id="example"
+                                    className="table table-striped nowrap"
+                                    style={{ width: "100%" }}
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th>User name</th>
+                                            <th>Driver ID</th>
+                                            <th>Company</th>
+                                            <th>Contact No.</th>
+                                            <th>Contact Email</th>
+                                            <th>&nbsp;</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {listOfSalesAgentUsers?.data && listOfSalesAgentUsers.data?.data?.data?.influencersData?.map((driver) => (
+                                            <tr key={driver._id}>
+                                                <td>
+                                                    <div
+                                                        className={
+                                                            (!driver.first_name && !driver.last_name) ? "prof nodata" : "prof"
+                                                        }
+                                                    >
+                                                        <img
+                                                            className="profilepicture"
+                                                            src={
+                                                                driver.selfieImage
+                                                                    ? driver.selfieImage
+                                                                    : nouser
+                                                            }
+                                                        />
+                                                        {driver.first_name} {driver.last_name}
+                                                    </div>
+                                                </td>
+                                                <td className={!driver.id_no ? "nodata" : ""}>
+                                                    {driver.id_no}
+                                                </td>
+                                                <td className={!driver.company_name ? "companynamenodata" : ""}>
+                                                    {driver.company_name}
+                                                </td>
+                                                <td className={!driver?.mobile_no ? "nodata" : ""}>
+                                                    {`${driver?.mobile_no_country_code ?? ''}${driver?.mobile_no ?? ''}`}
+                                                </td>
+                                                <td className={!driver.email ? "nodata" : ""}>
+                                                    {driver.email}
+                                                </td>
+                                                {/* <td>
+                                                            <span
+                                                                onClick={() => setconfirmation(driver._id)}
+                                                                className="tbl-gray"
+                                                            >
+                                                                Delete
+                                                            </span>
+                                                            {confirmation === driver._id && (
+                                                                <DeleteConfirm
+                                                                    id={driver._id}
+                                                                    setconfirmation={setconfirmation}
+                                                                />
+                                                            )}
+                                                            <span
+                                                                onClick={() =>
+                                                                    nav(
+                                                                        `/home/total-drivers/driver-information/${driver._id}`
+                                                                    )
+                                                                }
+                                                                className="tbl-btn"
+                                                            >
+                                                                view
+                                                            </span>
+                                                        </td> */}
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                <div className="pagiation">
+                                    <div className="pagiation-left">
+                                        <button
+                                            disabled={page === 1}
+                                            onClick={() => setpage((p) => p - 1)}
+                                        >
+                                            <img src={Prev} /> Prev
+                                        </button>
+                                    </div>
+                                    <div className="pagiation-right">
+                                        <button
+                                            disabled={page === listOfSalesAgentUsers.data?.data?.data?.totalPages}
+                                            onClick={() => setpage((p) => p + 1)}
+                                        >
+                                            Next <img src={Next} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <p className="no-data-found">No data found</p>
+                        )}
+                    </>
+                )}
+
+            </div>
+
+
             {tieData && (
                 <div className="container-fluid">
                     <div className="row">
@@ -570,7 +761,7 @@ const SalesAgentHome = () => {
                             <div className="theme-table">
                                 <div className="tab-heading">
                                     <div className="count">
-                                        <h3>Tie Users</h3>
+                                        <h3>Tie Sales Agent</h3>
                                         <p>{userinfo?.data?.data?.data?.tieUserData.length || 0}</p>
                                     </div>
                                         {/* <button

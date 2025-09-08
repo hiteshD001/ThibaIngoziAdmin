@@ -1,13 +1,13 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
-import { useFileUpload, useUserFileUpload } from "../API Calls/API";
+import { useBulkUploadSalesAgent, useFileUpload, useUserFileUpload } from "../API Calls/API";
 import Loader from "./Loader";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useQueryClient } from "@tanstack/react-query";
 import { MdFileDownload } from "react-icons/md";
 
-const ImportSheet = ({ setpopup, type = "driver" }) => {
+const ImportSheet = ({ setpopup, popup, type = "driver" }) => {
     const [file, setFile] = useState(null);
     const [error, seterror] = useState("")
     const [apiError, setApiError] = useState([])
@@ -42,13 +42,14 @@ const ImportSheet = ({ setpopup, type = "driver" }) => {
         toast.error(error.response.data.message || "Something went Wrong", toastOption)
     }
     const onSuccess = () => {
-        client.invalidateQueries(type === "driver" ? "driver list" : "user list")
-        toast.success(`${type === "driver" ? "Driver" : "User"} imported successfully.`);
+        client.invalidateQueries(type === "driver" ? "driver list" : type === 'sales-agent' ? "salesAgent" : "user list")
+        toast.success(`${type === "driver" ? "Driver" : type === 'sales-agent' ? "Sales Agent" : "User"} imported successfully.`);
         setpopup(false);
     }
 
     const driverUpload = useFileUpload(onSuccess, onError);
     const userUpload = useUserFileUpload(onSuccess, onError);
+    const salesAgentUpload = useBulkUploadSalesAgent(onSuccess, onError);
 
     const handleFileUpload = () => {
         if (file) {
@@ -58,6 +59,8 @@ const ImportSheet = ({ setpopup, type = "driver" }) => {
 
             if (type === "driver") {
                 driverUpload.mutate(formData);
+            }else if(type === 'sales-agent'){
+                salesAgentUpload.mutate({ file })
             } else {
                 userUpload.mutate(formData);
             }
@@ -70,17 +73,30 @@ const ImportSheet = ({ setpopup, type = "driver" }) => {
         document.getElementById("fileInput").click();
     };
 
-    const isPending = type === "driver" ? driverUpload.isPending : userUpload.isPending;
-    const sampleFileName = type === "driver" ? "Sample_Driver.xlsx" : "Sample_User.xlsx";
-    const downloadPath = type === "driver" ? "/assests/Driver.xlsx" : "/assests/Users.xlsx";
+    const isPending = type === "driver" ? driverUpload.isPending  : type === 'sales-agent' ? salesAgentUpload.isPending : userUpload.isPending;
+    const sampleFileName = type === "driver" ? "Sample_Driver.xlsx" : type === 'sales-agent' ? "Sample_SalesAgent.xlsx" : "Sample_User.xlsx";
+    const downloadPath = type === "driver" ? "/assests/Driver.xlsx" : type === 'sales-agent' ? "/assests/SalesAgent.xlsx" : "/assests/Users.xlsx";
     console.log("File:", file);
     console.log("Is Pending:", isPending);
 
+    const getImportText = () => {
+        switch (type) {
+            case "driver":
+                return "drivers";
+            case "user":
+                return "users";
+            case "sales-agent":
+                return "sales agents";
+            default:
+                return "data";
+        }
+    };
+
     return (
         <div className="popup-overlay">
-            <div className="popup-content">
-                <div className="import">
-                    <p>Please Choose a file to import {type === "driver" ? "drivers" : "users"}</p>
+            <div className="popup-content ">
+                <div className='import'>
+                    <p className={`${popup === true ? "bg-transparent border-0 mb-3" : ""}`}>Please Choose a file to import {getImportText()}</p>
                     <div className="fileinput">
                         <input id="fileInput" type="file" onChange={handleFileChange} hidden />
                         <div className="filecontainer">
