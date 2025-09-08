@@ -11,7 +11,7 @@ import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import PhoneInput from "react-phone-input-2";
 import Loader from "../common/Loader";
-import { useGetUserByInfluncer } from "../../../../ThibaIngoziAdmin/src/API Calls/API";
+import { useGetUserByInfluncer } from "../API Calls/API";
 import { startOfYear } from "date-fns";
 import { useParams } from "react-router-dom";
 import nouser from "../assets/images/NoUser.png";
