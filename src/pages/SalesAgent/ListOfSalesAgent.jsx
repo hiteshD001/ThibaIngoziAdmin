@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
 import {
     useGetSalesAgent, useShareAgent, payoutUserUpdate,
-    armedSosPayout
+    armedSosPayout,
+    useDeleteSalesAgent,
+    useBulkUploadSalesAgent
 } from "../../API Calls/API";
 import { useFormik } from "formik";
 import PayoutPopup from "../../common/Popup";
@@ -19,7 +21,7 @@ import { toast } from "react-toastify";
 import Loader from "../../common/Loader";
 import { startOfYear } from "date-fns";
 import calender from '../../assets/images/calender.svg';
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const ListOfSalesAgent = () => {
     const [popup, setpopup] = useState(false)
@@ -40,6 +42,48 @@ const ListOfSalesAgent = () => {
             key: 'selection'
         }
     ]);
+    const fileInputRef = useRef(null);
+
+    const handleImportClick = () => {
+        fileInputRef.current.click();
+    };
+
+
+
+
+    // Handle file selection
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            const validTypes = [
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'text/csv'
+            ];
+
+            if (!validTypes.includes(file.type)) {
+                toast.error('Please select a valid Excel or CSV file');
+                e.target.value = "";
+                return;
+            }
+
+            // Validate file size (e.g., 5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error('File size should be less than 5MB');
+                e.target.value = "";
+                return;
+            }
+
+            console.log("📂 Selected file:", file);
+            bulkUploadAgent({ file });
+            e.target.value = "";
+        }
+    };
+
+
+
+
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
     let UserList = useGetSalesAgent(page, 10, filter, startDate, endDate)
@@ -61,6 +105,39 @@ const ListOfSalesAgent = () => {
             setSharingId(null); // reset on error too
         }
     );
+
+
+    const { mutate: bulkUploadAgent } = useBulkUploadSalesAgent(
+        (data) => {
+            toast.success('Sales agents uploaded successfully');
+            console.log("✅ Sales agents uploaded successfully:", data);
+
+            queryClient.invalidateQueries(["salesAgent"]);
+            // ❌ remove setImportFile(null);
+        },
+        (error) => {
+            toast.error("Error uploading sales agents");
+            console.error("❌ Error uploading sales agents:", error);
+            // ❌ remove setImportFile(null);
+        }
+    );
+
+
+    const { mutate: deleteAgent } = useDeleteSalesAgent(
+        (data) => {
+            toast.success('Sales agent deleted successfully');
+            console.log("✅ Sales agent deleted successfully:", data);
+
+            queryClient.invalidateQueries(["salesAgent"]);
+            setSharingId(null);
+        },
+        (error) => {
+            toast.error("Error deleting");
+            console.error("❌ Error deleting:", error);
+            setSharingId(null);
+        }
+    );
+
     const fetchAllUsers = async () => {
         try {
             const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer`, {
@@ -82,7 +159,7 @@ const ListOfSalesAgent = () => {
         setIsExporting(true);
         try {
             const allUsers = await fetchAllUsers();
-            console.log("allUsers",allUsers)
+            console.log("allUsers", allUsers)
             setIsExporting(false);
 
             if (!allUsers || allUsers.length === 0) {
@@ -277,6 +354,17 @@ const ListOfSalesAgent = () => {
                                     disabled={isExporting}>
                                     {isExporting ? 'Exporting...' : '+ Export Sheet'}
                                 </button>
+
+                                <button className="btn btn-primary" onClick={handleImportClick}>
+                                    + Import Sheet
+                                </button>
+                                <input
+                                    type="file"
+                                    accept=".xlsx, .xls, .csv"
+                                    ref={fileInputRef}
+                                    style={{ display: "none" }}
+                                    onChange={handleFileChange}
+                                />
                             </div>
                         </div>
                         {UserList.isFetching ? (
@@ -350,7 +438,7 @@ const ListOfSalesAgent = () => {
                                                             <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
                                                                 {user.enrollAmountDeduction}
                                                             </td>
-                                                            
+
                                                             {/* <td className={!user.totalCommission ? "0" : ""}>
                                                                 {user.totalCommission}
                                                             </td> */}
@@ -388,12 +476,17 @@ const ListOfSalesAgent = () => {
                                                             <td className={!user.tie ? "nodata" : ""}>
                                                                 {user.tie}
                                                             </td>
-                                                            
+
                                                             {/* <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
                                                             {user.enrollAmountDeduction}
                                                         </td> */}
                                                             <td >
-
+                                                                <span
+                                                                    onClick={() => deleteAgent(user._id)}
+                                                                    className="tbl-gray"
+                                                                >
+                                                                    Delete
+                                                                </span>
                                                                 <span
                                                                     onClick={() =>
                                                                         nav(

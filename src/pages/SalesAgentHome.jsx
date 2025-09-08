@@ -390,7 +390,7 @@ const SalesAgentHome = () => {
                                 {edit ? (
                                     <FormControl variant="standard" fullWidth >
                                         <InputLabel shrink htmlFor="enrollAmountDeduction" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                            Enroll Amount Deduction
+                                        Enrolment Discount %
                                         </InputLabel>
                                         <BootstrapInput
                                             id="enrollAmountDeduction"
@@ -402,7 +402,7 @@ const SalesAgentHome = () => {
                                         />
                                         {profileForm.touched.enrollAmountDeduction && <FormHelperText error>{profileForm.errors.enrollAmountDeduction}</FormHelperText>}
                                     </FormControl>
-                                ) : displayField("Enroll Amount Deduction", profileForm.values.enrollAmountDeduction)}
+                                ) : displayField("Enrolment Discount %", profileForm.values.enrollAmountDeduction)}
                             </Grid>
                             <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                                 {edit ? (

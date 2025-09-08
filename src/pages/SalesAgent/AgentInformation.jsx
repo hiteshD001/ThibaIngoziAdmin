@@ -224,6 +224,18 @@ const AgentInformation = () => {
                             <h3>{UserInfo.data?.data?.data?.user_id.length || 0}</h3>
                         </div>
                     </div>
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Total Earned Amount</span>
+                            <h3>{UserInfo.data?.data?.data?.totalEarnedAmount || 0}</h3>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Total Commission Earned(30%)</span>
+                            <h3>{UserInfo.data?.data?.data?.commissionEarned || 0}</h3>
+                        </div>
+                    </div>
                 </div>
                 <form>
                     <Grid container spacing={edit ? 3 : 1}>
@@ -357,7 +369,7 @@ const AgentInformation = () => {
                             {edit ? (
                                 <FormControl variant="standard" fullWidth >
                                     <InputLabel shrink htmlFor="enrollAmountDeduction" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        Enroll Amount Deduction
+                                    Enrolment Discount %
                                     </InputLabel>
                                     <BootstrapInput
                                         id="enrollAmountDeduction"
@@ -368,7 +380,7 @@ const AgentInformation = () => {
                                     />
                                     {agentForm.touched.enrollAmountDeduction && <FormHelperText error>{agentForm.errors.enrollAmountDeduction}</FormHelperText>}
                                 </FormControl>
-                            ) : displayField("Enroll Amount Deduction", agentForm.values.enrollAmountDeduction)}
+                            ) : displayField("Enrolment Discount %", agentForm.values.enrollAmountDeduction)}
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                             {edit ? (

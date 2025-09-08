@@ -574,6 +574,27 @@ export const useUpdateSalesAgent = (onSucess, onError) => {
     });
     return res;
 };
+
+// sales agent delete by id
+
+// sales agent delete by id
+export const useDeleteSalesAgent = (onSuccess, onError) => {
+
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/influencer/deleteById/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
 // sales agent details share 
 export const useShareAgent = (onSuccess, onError) => {
     return useMutation({
@@ -603,6 +624,30 @@ export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
 
     return res;
 };
+
+// bulk upload sales agent using excel file
+export const useBulkUploadSalesAgent = (onSuccess, onError) => {
+    return useMutation({
+        mutationFn: async ({ file }) => {
+
+            try {
+                const res = await apiClient.post(
+                    `${import.meta.env.VITE_BASEURL}/influencer/bulk-upload`, { file }
+                );
+                return res.data;
+            } catch (error) {
+                console.error("Upload error details:", error.response?.data);
+                throw error;
+            }
+        },
+        onSuccess,
+        onError,
+    });
+};
+
+
+
+
 
 // active driver list
 export const useGetActiveSOS = () => {
@@ -839,7 +884,7 @@ export const useResetPassword = (onSuccess, onError) => {
             { newPassword: password }
         );
 
-        console.log("response",response)
+        console.log("response", response)
         return response.data
     };
 
