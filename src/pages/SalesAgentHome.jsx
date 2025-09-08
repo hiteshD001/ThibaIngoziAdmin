@@ -188,6 +188,42 @@ const SalesAgentHome = () => {
                         </Typography>
                     </Paper>
                 </Grid>
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            // textAlign: "center",
+                            bgcolor: "#e3f5ff",
+                        }}
+                    >
+                        <Typography variant="subtitle1" color="text.secondary">
+                            Total Commission Unpaid
+                        </Typography>
+                        <Typography variant="h4" fontWeight="bold">
+                            {userinfo?.data?.data?.data?.totalUnPaid}
+                        </Typography>
+                    </Paper>
+                </Grid>
+                 <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            // textAlign: "center",
+                            bgcolor: "#e3f5ff",
+                        }}
+                    >
+                        <Typography variant="subtitle1" color="text.secondary">
+                            Total Commission Unpaid
+                        </Typography>
+                        <Typography variant="h4" fontWeight="bold">
+                            {userinfo?.data?.data?.data?.totalUnPaid}
+                        </Typography>
+                    </Paper>
+                </Grid>
 
 
 
@@ -570,7 +606,7 @@ const SalesAgentHome = () => {
                             <div className="theme-table">
                                 <div className="tab-heading">
                                     <div className="count">
-                                        <h3>Tie Users</h3>
+                                        <h3>Tie Sales Agent</h3>
                                         <p>{userinfo?.data?.data?.data?.tieUserData.length || 0}</p>
                                     </div>
                                         {/* <button

@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount } from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteSalesAgent } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useState } from "react";
@@ -95,6 +95,48 @@ export const DeleteConfirm = ({ ...p }) => {
 //     </div>
 //   );
 // };
+
+export const DeleteSalesAgent = ({ ...p }) => {
+  const client = useQueryClient();
+
+  const onSuccess = () => {
+    toast.success("Delete Sales Agent Amount Successfully.");
+    client.invalidateQueries("salesAgent");
+  }
+  const onError = (error) => {
+    toast.error(error.response.data.message || "Something went Wrong", toastOption)
+  }
+
+
+  const deleteSalesAgent = useDeleteSalesAgent(onSuccess, onError)
+
+  return (
+    <div className="popup-overlay">
+      <div className="popup-content">
+        <p>Are you sure you want to delete this?</p>
+        <div className="popup-buttons">
+          <button
+            disabled={deleteSalesAgent.isPending}
+            style={{
+              opacity: deleteSalesAgent.isPending ? 0.5 : 1,
+              cursor: deleteSalesAgent.isPending ? "not-allowed" : "",
+            }}
+            className="popup-button confirm"
+            onClick={() => deleteSalesAgent.mutate(p.id)}
+          >
+            Confirm
+          </button>
+          <button
+            className="popup-button"
+            onClick={() => p.setconfirmation("")}
+          >
+            cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 
 export const DeleteSosAmount = ({ ...p }) => {

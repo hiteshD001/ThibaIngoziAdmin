@@ -236,6 +236,18 @@ const AgentInformation = () => {
                             <h3>{UserInfo.data?.data?.data?.commissionEarned || 0}</h3>
                         </div>
                     </div>
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Performance Level</span>
+                            <h3>{UserInfo.data?.data?.data?.performanceLevel || 0}</h3>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Tie</span>
+                            <h3>{UserInfo.data?.data?.data?.tie || 0}</h3>
+                        </div>
+                    </div>
                 </div>
                 <form>
                     <Grid container spacing={edit ? 3 : 1}>

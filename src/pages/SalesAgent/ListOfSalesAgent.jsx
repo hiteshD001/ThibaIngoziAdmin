@@ -22,6 +22,8 @@ import Loader from "../../common/Loader";
 import { startOfYear } from "date-fns";
 import calender from '../../assets/images/calender.svg';
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { DeleteSalesAgent } from "../../common/ConfirmationPOPup";
+import ImportSheet from "../../common/ImportSheet";
 
 const ListOfSalesAgent = () => {
     const [popup, setpopup] = useState(false)
@@ -43,46 +45,6 @@ const ListOfSalesAgent = () => {
         }
     ]);
     const fileInputRef = useRef(null);
-
-    const handleImportClick = () => {
-        fileInputRef.current.click();
-    };
-
-
-
-
-    // Handle file selection
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file type
-            const validTypes = [
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'text/csv'
-            ];
-
-            if (!validTypes.includes(file.type)) {
-                toast.error('Please select a valid Excel or CSV file');
-                e.target.value = "";
-                return;
-            }
-
-            // Validate file size (e.g., 5MB max)
-            if (file.size > 5 * 1024 * 1024) {
-                toast.error('File size should be less than 5MB');
-                e.target.value = "";
-                return;
-            }
-
-            console.log("📂 Selected file:", file);
-            bulkUploadAgent({ file });
-            e.target.value = "";
-        }
-    };
-
-
-
 
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
@@ -122,21 +84,6 @@ const ListOfSalesAgent = () => {
         }
     );
 
-
-    const { mutate: deleteAgent } = useDeleteSalesAgent(
-        (data) => {
-            toast.success('Sales agent deleted successfully');
-            console.log("✅ Sales agent deleted successfully:", data);
-
-            queryClient.invalidateQueries(["salesAgent"]);
-            setSharingId(null);
-        },
-        (error) => {
-            toast.error("Error deleting");
-            console.error("❌ Error deleting:", error);
-            setSharingId(null);
-        }
-    );
 
     const fetchAllUsers = async () => {
         try {
@@ -355,17 +302,26 @@ const ListOfSalesAgent = () => {
                                     {isExporting ? 'Exporting...' : '+ Export Sheet'}
                                 </button>
 
-                                <button className="btn btn-primary" onClick={handleImportClick}>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => setpopup(true)}
+
+                                >
                                     + Import Sheet
                                 </button>
-                                <input
+                                {/* <input
                                     type="file"
                                     accept=".xlsx, .xls, .csv"
                                     ref={fileInputRef}
                                     style={{ display: "none" }}
                                     onChange={handleFileChange}
-                                />
+                                /> */}
                             </div>
+                            {
+                                popup && (
+                                    <ImportSheet setpopup={setpopup} popup={popup} type="sales-agent" />
+                                )
+                            }
                         </div>
                         {UserList.isFetching ? (
                             <Loader />
@@ -481,12 +437,7 @@ const ListOfSalesAgent = () => {
                                                             {user.enrollAmountDeduction}
                                                         </td> */}
                                                             <td >
-                                                                <span
-                                                                    onClick={() => deleteAgent(user._id)}
-                                                                    className="tbl-gray"
-                                                                >
-                                                                    Delete
-                                                                </span>
+
                                                                 <span
                                                                     onClick={() =>
                                                                         nav(
@@ -514,7 +465,19 @@ const ListOfSalesAgent = () => {
                                                                 >
                                                                     Pay
                                                                 </span>
-
+                                                                <span
+                                                                    // onClick={() => deleteAgent(user._id)}
+                                                                    onClick={() => setconfirmation(user._id)}
+                                                                    className="tbl-gray"
+                                                                >
+                                                                    Delete
+                                                                </span>
+                                                                {confirmation === user._id && (
+                                                                    <DeleteSalesAgent
+                                                                        id={user._id}
+                                                                        setconfirmation={setconfirmation}
+                                                                    />
+                                                                )}
                                                             </td>
 
                                                         </tr>
