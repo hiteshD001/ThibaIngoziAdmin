@@ -638,14 +638,11 @@ export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
 // bulk upload sales agent using excel file
 export const useBulkUploadSalesAgent = (onSuccess, onError) => {
     return useMutation({
-      mutationFn: async ({ file }) => {
+      mutationFn: async (data) => {
         try {
-          const formData = new FormData();
-          formData.append("driversSheet", file); // 👈 use the same field name your backend expects
-  
           const res = await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/influencer/bulk-upload`,
-            formData
+            data
           );
   
           return res.data;
