@@ -9,7 +9,18 @@ apiClient.interceptors.request.use(
         const accessToken = localStorage.getItem('accessToken');
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
-            config.headers['Content-Type'] = 'application/json ';
+            // Do not force Content-Type for FormData. Let the browser set the correct multipart boundary.
+            if (config.data instanceof FormData) {
+                if (config.headers && config.headers['Content-Type']) {
+                    delete config.headers['Content-Type'];
+                }
+            } else {
+                // Default to JSON for non-FormData requests if not already set
+                if (!config.headers) config.headers = {};
+                if (!config.headers['Content-Type']) {
+                    config.headers['Content-Type'] = 'application/json';
+                }
+            }
         }
         return config;
     },
@@ -36,3 +47,4 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
+

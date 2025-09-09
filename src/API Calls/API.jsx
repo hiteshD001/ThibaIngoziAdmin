@@ -645,12 +645,7 @@ export const useBulkUploadSalesAgent = (onSuccess, onError) => {
   
           const res = await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/influencer/bulk-upload`,
-            { file },
-            {
-              headers: {
-                "Content-Type": "application/json | multipart/form-data", // 👈 important
-              },
-            }
+            formData
           );
   
           return res.data;
