@@ -9,7 +9,7 @@ apiClient.interceptors.request.use(
         const accessToken = localStorage.getItem('accessToken');
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
-            config.headers['Content-Type'] = 'application/json | multipart/form-data';
+            config.headers['Content-Type'] = 'application/json ';
         }
         return config;
     },

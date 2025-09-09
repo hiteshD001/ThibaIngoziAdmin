@@ -270,7 +270,7 @@ const ListOfSalesAgent = () => {
                                 <p>{UserList.isSuccess && UserList?.data?.data?.data?.totalCount || 0}</p>
                             </div>
                             <div className="tbl-filter">
-                                {/* <div className="input-group" style={{ width: '40%' }}>
+                                <div className="input-group" style={{ width: '40%' }}>
                                     <span className="input-group-text">
                                         <img src={search} />
                                     </span>
@@ -285,12 +285,12 @@ const ListOfSalesAgent = () => {
                                         <img src={icon} />
                                     </span>
 
-                                </div> */}
-                                <CustomDateRangePicker
+                                </div>
+                                {/* <CustomDateRangePicker
                                     value={range}
                                     onChange={setRange}
                                     icon={calender}
-                                />
+                                /> */}
                                 <button
                                     onClick={() => nav("/home/total-sales-agent/add-agent")}
                                     className="btn btn-primary"
