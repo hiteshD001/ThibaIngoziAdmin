@@ -48,7 +48,7 @@ const ListOfSalesAgent = () => {
 
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
-    let UserList = useGetSalesAgent(page, 10, filter, startDate, endDate)
+    let UserList = useGetSalesAgent(page, 15, filter, startDate, endDate)
     const agentList = UserList?.data?.data?.data?.influencersData
     const queryClient = useQueryClient();
 
