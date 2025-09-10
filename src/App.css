@@ -407,6 +407,11 @@ header {
     margin-bottom: 30px;
 }
 
+.dash-sales-data {
+    margin-top: 10px;
+    margin-bottom: 10px !important;
+}
+
 .dash-counter.gray {
     background: #e5ecf6;
 }
@@ -1274,8 +1279,9 @@ position: relative;
     opacity: 1;
 }
 
-
-
+table#example {
+    margin-top: 15px !important;
+}
 
 
 @media only screen and (max-width: 1200px) {

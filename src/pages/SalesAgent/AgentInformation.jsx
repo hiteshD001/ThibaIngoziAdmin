@@ -1,6 +1,6 @@
 import { useEffect, useState, useLayoutEffect } from "react"
 import Select from "react-select";
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { Grid, Typography, Box, FormControl, InputLabel, Button, FormHelperText } from "@mui/material";
 import { useFormik } from "formik"
 import { sales_agent_e } from "../../common/FormValidation";
@@ -22,6 +22,7 @@ import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
 const AgentInformation = () => {
     const [edit, setEdit] = useState(false)
     // const [role] = useState(localStorage.getItem("role"));
+    const nav = useNavigate();
     const [banksList, setbanksList] = useState([])
     const params = useParams();
     const [page, setpage] = useState(1);
@@ -31,7 +32,12 @@ const AgentInformation = () => {
     const [payPopup, setPopup] = useState('')
     const [selectedPayoutType, setSelectedPayoutType] = useState('');
     const [tieUsers, setTieUsers] = useState([]);
-     const [tieData, setTieData] = useState(true)
+    const [tieData, setTieData] = useState(true)
+
+  
+
+    console.log("tieUsers",tieUsers);
+    
     const agentForm = useFormik({
         initialValues: {
             referralCode: "",
@@ -696,7 +702,7 @@ const AgentInformation = () => {
 
             </div>
 
-            
+
             {tieData && (
                 <div className="container-fluid">
                     <div className="row">
@@ -707,7 +713,7 @@ const AgentInformation = () => {
                                         <h3>Tie Users</h3>
                                         <p>{UserInfo?.data?.data?.data?.tieUserData.length || 0}</p>
                                     </div>
-                                        {/* <button
+                                    {/* <button
                                             onClick={() => setTieData(false)}
                                             className="btn btn-dark"
                                         >
@@ -735,6 +741,7 @@ const AgentInformation = () => {
                                                         <th>No</th>
                                                         <th>Name</th>
                                                         <th>Users</th>
+                                                        <th></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -764,6 +771,22 @@ const AgentInformation = () => {
 
                                                             <td>
                                                                 {user.salesCount}
+                                                            </td>
+
+                                                            <td>
+                                                                <span
+                                                                    onClick={() =>{
+                                                                        nav(
+                                                                            `/home/total-sales-agent/agent-information/${user._id}`
+                                                                        )
+                                                                    }
+                                                                        
+                                                                    }
+                                                                    className="tbl-btn"
+                                                                    style={{ marginRight: "10px" }}
+                                                                >
+                                                                    view
+                                                                </span>
                                                             </td>
 
                                                         </tr>

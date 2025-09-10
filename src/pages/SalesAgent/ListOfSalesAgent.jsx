@@ -323,17 +323,50 @@ const ListOfSalesAgent = () => {
                                 )
                             }
                         </div>
+                        <div className="row">
+                            <div className="col-md-4">
+                                <div className="dash-counter dash-sales-data">
+                                    <span>Total Earned Amount</span>
+                                    <h3>{UserList.data?.data?.data?.totalEarnedAmount || 0}</h3>
+                                </div>
+                            </div>
+                            <div className="col-md-4">
+                                <div className="dash-counter dash-sales-data">
+                                    <span>Total Commission Earned(30%)</span>
+                                    <h3>{UserList.data?.data?.data?.totalCommissionEarned || 0}</h3>
+                                </div>
+                            </div>
+                            <div className="col-md-4">
+                                <div className="dash-counter dash-sales-data">
+                                    <span>Total Users</span>
+                                    <h3>{UserList.data?.data?.data?.totalUsers || 0}</h3>
+                                </div>
+                            </div>
+                            <div className="col-md-4">
+                                <div className="dash-counter dash-sales-data">
+                                    <span>Total Paid Amount</span>
+                                    <h3>{UserList.data?.data?.data.totalPaid || 0}</h3>
+                                </div>
+                            </div>
+                            <div className="col-md-4">
+                                <div className="dash-counter dash-sales-data">
+                                    <span>Total Unpaid Amount</span>
+                                    <h3>{UserList.data?.data?.data.totalUnpaid || 0}</h3>
+                                </div>
+                            </div>
+                        </div>
                         {UserList.isFetching ? (
                             <Loader />
                         ) : (
                             <>
-                                {agentList ? (
+                                {agentList?.length > 0  ? (
                                     <>
                                         <div
                                             style={{
                                                 width: "100%",
                                                 overflowX: "auto",   // enables horizontal scroll
                                                 overflowY: "hidden", // hides vertical scroll if not needed
+                                                
                                             }}
                                         >
                                             <table
