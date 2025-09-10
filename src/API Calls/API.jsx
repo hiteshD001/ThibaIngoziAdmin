@@ -530,9 +530,15 @@ export const useGetSalesAgent = (page = 1, limit = 10, filter, startDate, endDat
 // add sales agent
 export const useCreateSalesAgent = (onSuccess, onError) => {
     const mutationFn = async (data) => {
+
         return await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/influencer`,
-            data
+            JSON.stringify(data),  
+            {
+                headers: {
+                    "Content-Type": "application/json",  
+                },
+            }
         );
     };
 
@@ -544,6 +550,10 @@ export const useCreateSalesAgent = (onSuccess, onError) => {
 
     return mutation;
 };
+
+
+
+
 
 // get sales agent by id 
 export const useGetAgent = (id) => {
@@ -628,23 +638,24 @@ export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
 // bulk upload sales agent using excel file
 export const useBulkUploadSalesAgent = (onSuccess, onError) => {
     return useMutation({
-        mutationFn: async ({ file }) => {
-
-            try {
-                const res = await apiClient.post(
-                    `${import.meta.env.VITE_BASEURL}/influencer/bulk-upload`, { file }
-                );
-                return res.data;
-            } catch (error) {
-                console.error("Upload error details:", error.response?.data);
-                throw error;
-            }
-        },
-        onSuccess,
-        onError,
+      mutationFn: async (data) => {
+        try {
+          const res = await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/influencer/bulk-upload`,
+            data
+          );
+  
+          return res.data;
+        } catch (error) {
+          console.error("Upload error details:", error.response?.data || error);
+          throw error;
+        }
+      },
+      onSuccess,
+      onError,
     });
-};
-
+  };
+  
 
 
 

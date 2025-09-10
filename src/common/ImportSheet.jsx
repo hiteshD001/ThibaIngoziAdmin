@@ -54,13 +54,13 @@ const ImportSheet = ({ setpopup, popup, type = "driver" }) => {
     const handleFileUpload = () => {
         if (file) {
             const formData = new FormData();
-            const fieldName = type === "driver" ? "driversSheet" : "driversSheet";
+            const fieldName = type === "driver" ? "driversSheet" : type === 'sales-agent' ? "file" : "driversSheet";
             formData.append(fieldName, file);
 
             if (type === "driver") {
                 driverUpload.mutate(formData);
             }else if(type === 'sales-agent'){
-                salesAgentUpload.mutate({ file })
+                salesAgentUpload.mutate(formData)
             } else {
                 userUpload.mutate(formData);
             }

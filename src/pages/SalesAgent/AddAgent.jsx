@@ -41,7 +41,8 @@ const AddAgent = () => {
             if (!values.referralCode) {
                 values.referralCode = generateReferralCode();
             }
-            newAgent.mutate(values); // send plain JSON
+            
+            newAgent.mutate(values); 
         },
     });
 
@@ -205,13 +206,13 @@ const AddAgent = () => {
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <FormControl variant="standard" fullWidth >
                                 <InputLabel shrink htmlFor="enrollAmountDeduction" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                    Enroll Amount Deduction
+                                    Enrolment Discount %
                                 </InputLabel>
                                 <BootstrapInput
                                     id="enrollAmountDeduction"
                                     name="enrollAmountDeduction"
                                     type="number"
-                                    placeholder="Enter Enroll Amount Deduction"
+                                    placeholder="Enter Enrolment Discount %"
                                     value={UserForm.values.enrollAmountDeduction}
                                     onChange={UserForm.handleChange}
                                 />
@@ -280,7 +281,7 @@ const AddAgent = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <FormControl variant="standard" fullWidth >
-                                <label style={{ marginBottom: 0 }}>Bank ID</label>
+                                <label style={{ marginBottom: 0 }}>Bank Name</label>
                                 <Select
                                     name="bankId"
                                     options={banksList}
