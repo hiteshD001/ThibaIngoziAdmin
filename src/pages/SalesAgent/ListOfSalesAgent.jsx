@@ -265,9 +265,9 @@ const ListOfSalesAgent = () => {
                 <div className="col-md-12">
                     <div className="theme-table">
                         <div className="tab-heading">
-                            <div className="count">
-                                <h3>Total Sales Agent</h3>
-                                <p>{UserList.isSuccess && UserList?.data?.data?.data?.totalCount || 0}</p>
+                            <div className="count p-2">
+                                <h3 className=" text-nowrap">Total Sales Agent</h3>
+                                <p >{UserList.isSuccess && UserList?.data?.data?.data?.totalCount || 0}</p>
                             </div>
                             <div className="tbl-filter">
                                 <div className="input-group" style={{ width: '40%' }}>
@@ -286,14 +286,15 @@ const ListOfSalesAgent = () => {
                                     </span>
 
                                 </div>
-                                {/* <CustomDateRangePicker
+                                <CustomDateRangePicker
                                     value={range}
                                     onChange={setRange}
                                     icon={calender}
-                                /> */}
+
+                                />
                                 <button
                                     onClick={() => nav("/home/total-sales-agent/add-agent")}
-                                    className="btn btn-primary"
+                                    className="btn btn-primary "
                                 >
                                     + Add Agent
                                 </button>

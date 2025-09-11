@@ -1283,6 +1283,10 @@ table#example {
     margin-top: 15px !important;
 }
 
+.tab-heading h3 {
+    white-space: nowrap;
+  }
+
 
 @media only screen and (max-width: 1200px) {
 
