@@ -424,7 +424,7 @@ const ListOfSalesAgent = () => {
                                                             <td className={!user.email ? "nodata" : ""}>
                                                                 {user.email}
                                                             </td>
-                                                            <td className={!user.enrollAmountDeduction ? "nodata" : ""}>
+                                                            <td className={!user.enrollAmountDeduction ? "" : ""}>
                                                                 {user.enrollAmountDeduction}
                                                             </td>
 
@@ -462,7 +462,7 @@ const ListOfSalesAgent = () => {
                                                             <td className={!user.performanceLevel ? "nodata" : ""}>
                                                                 {user.performanceLevel ? user.performanceLevel : ""}
                                                             </td>
-                                                            <td className={!user.tie ? "nodata" : ""}>
+                                                            <td className={!user.tie ? "" : ""}>
                                                                 {user.tie}
                                                             </td>
 
