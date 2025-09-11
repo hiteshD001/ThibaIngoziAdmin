@@ -188,7 +188,7 @@ const SalesAgentHome = () => {
                             Total Commission Earned
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            {userinfo?.data?.data?.data?.totalCommission}
+                            R.{userinfo?.data?.data?.data?.totalCommission}
                         </Typography>
                     </Paper>
                 </Grid>
@@ -206,7 +206,7 @@ const SalesAgentHome = () => {
                             Total Commission Unpaid
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            {userinfo?.data?.data?.data?.totalUnPaid}
+                            R.{userinfo?.data?.data?.data?.totalUnPaid}
                         </Typography>
                     </Paper>
                 </Grid>
@@ -224,7 +224,7 @@ const SalesAgentHome = () => {
                             Total Commission Unpaid
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            {userinfo?.data?.data?.data?.totalUnPaid}
+                            R.{userinfo?.data?.data?.data?.totalUnPaid}
                         </Typography>
                     </Paper>
                 </Grid>
@@ -242,7 +242,7 @@ const SalesAgentHome = () => {
                             Total Commission Unpaid
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            {userinfo?.data?.data?.data?.totalUnPaid}
+                            R.{userinfo?.data?.data?.data?.totalUnPaid}
                         </Typography>
                     </Paper>
                 </Grid>
@@ -621,7 +621,7 @@ const SalesAgentHome = () => {
                 </Box>
             </Box>
 
-            <div className="theme-table" style={{ marginTop: '20px' }}>
+            {/* <div className="theme-table" style={{ marginTop: '20px' }}>
                 <div className="tab-heading">
                     <div className="count">
                         <h3>Total Users</h3>
@@ -629,7 +629,7 @@ const SalesAgentHome = () => {
                     </div>
                     <div className="tbl-filter">
                         
-                        {/* <button
+                        <button
                                     onClick={() => nav("/home/total-drivers/add-driver")}
                                     className="btn btn-primary"
                                 >
@@ -638,11 +638,11 @@ const SalesAgentHome = () => {
                                 <button className="btn btn-primary" onClick={handleExport}
                                     disabled={isExportingDrivers}>
                                     {isExportingDrivers ? 'Exporting...' : '+ Export Sheet'}
-                                </button> */}
+                                </button>
 
-                        {/* <button className="btn btn-primary" onClick={() => setpopup(true)}>
+                        <button className="btn btn-primary" onClick={() => setpopup(true)}>
                                     + Import Sheet
-                                </button> */}
+                                </button>
                     </div>
                 </div>
                 {listOfSalesAgentUsers.isFetching ? (
@@ -698,7 +698,7 @@ const SalesAgentHome = () => {
                                                 <td className={!driver.email ? "nodata" : ""}>
                                                     {driver.email}
                                                 </td>
-                                                {/* <td>
+                                                <td>
                                                             <span
                                                                 onClick={() => setconfirmation(driver._id)}
                                                                 className="tbl-gray"
@@ -721,7 +721,7 @@ const SalesAgentHome = () => {
                                                             >
                                                                 view
                                                             </span>
-                                                        </td> */}
+                                                        </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -751,7 +751,7 @@ const SalesAgentHome = () => {
                     </>
                 )}
 
-            </div>
+            </div> */}
 
         </>
 
