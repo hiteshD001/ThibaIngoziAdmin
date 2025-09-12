@@ -51,18 +51,21 @@ const AddCompany = () => {
 			accountNumber: "",
 			customerCode: "",
 			accountType: "",
-			account_holder_name: "",
+			accountHolderName: "",
 			bankId: "",
 		},
 		validationSchema: companyValidation,
 		onSubmit: (values) => {
 			const formData = new FormData();
+			console.log("values",values)
 			Object.keys(values).forEach(key => {
 				if (key !== "selfieImage" && key !== "fullImage" && key !== "services") {
 					if (key === "securityCompany") {
 						values[key]?.forEach(id => {
 							formData.append("securityCompany[]", id);
 						});
+					}else if(key === 'accountHolderName'){
+						formData.append("account_holder_name", values[key]);
 					} else {
 						formData.append(key, values[key]);
 					}

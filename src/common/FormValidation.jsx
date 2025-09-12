@@ -95,7 +95,11 @@ export const companyValidation = yup.object({
     suburb: String,
     postal_code: Number,
     country: String,
-    id_no: ID,
+    id_no: yup.number().required("Number value is required"),
+    bankId: yup.string().required("Bank is required"),
+    customerCode: yup.string().required("Customer Code is required"),
+    accountType: yup.string().required("Account Type is required"),
+    accountHolderName : yup.string().required("Account Holder Name is required"),   
     company_bio: yup.string().required("Bio is required")
 })
 
