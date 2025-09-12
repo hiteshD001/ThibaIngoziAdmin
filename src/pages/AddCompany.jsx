@@ -57,7 +57,6 @@ const AddCompany = () => {
 		validationSchema: companyValidation,
 		onSubmit: (values) => {
 			const formData = new FormData();
-			console.log("values",values)
 			Object.keys(values).forEach(key => {
 				if (key !== "selfieImage" && key !== "fullImage" && key !== "services") {
 					if (key === "securityCompany") {
