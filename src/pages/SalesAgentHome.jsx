@@ -262,7 +262,7 @@ const SalesAgentHome = () => {
                         }}
                     >
                         <Typography variant="subtitle1" color="text.secondary" >
-                            Total Users
+                            My Total Users
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
                             {userinfo?.data?.data?.data?.user_id?.length}
@@ -307,6 +307,27 @@ const SalesAgentHome = () => {
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
                             {userinfo?.data?.data?.data?.tie}
+                        </Typography>
+                    </Paper>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            // textAlign: "center",
+                            bgcolor: "#e3f5ff",
+                            cursor: "pointer"
+                        }}
+                        // onClick={handleTieClick}
+                    >
+                        <Typography variant="subtitle1" color="text.secondary" >
+                        Total Sales agent Users 
+                        </Typography>
+                        <Typography variant="h4" fontWeight="bold">
+                            {userinfo?.data?.data?.data?.grandTotalUsers}
                         </Typography>
                     </Paper>
                 </Grid>

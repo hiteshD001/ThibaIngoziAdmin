@@ -340,7 +340,7 @@ const ListOfSalesAgent = () => {
                             <div className="col-md-4">
                                 <div className="dash-counter dash-sales-data">
                                     <span>Total Users</span>
-                                    <h3>{UserList.data?.data?.data?.totalUsers || 0}</h3>
+                                    <h3>{UserList.data?.data?.data?.grandTotalUsers || 0}</h3>
                                 </div>
                             </div>
                             <div className="col-md-4">
