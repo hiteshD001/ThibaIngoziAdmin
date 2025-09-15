@@ -228,7 +228,7 @@ const AgentInformation = () => {
                     </div>
                     <div className="col-md-4">
                         <div className="dash-counter">
-                            <span>Total Users</span>
+                            <span>My Total Users</span>
                             <h3>{UserInfo.data?.data?.data?.user_id.length || 0}</h3>
                         </div>
                     </div>
@@ -254,6 +254,13 @@ const AgentInformation = () => {
                         <div className="dash-counter">
                             <span>Tie</span>
                             <h3>{UserInfo.data?.data?.data?.tie || 0}</h3>
+                        </div>
+                    </div>
+
+                    <div className="col-md-4">
+                        <div className="dash-counter">
+                            <span>Total Sales Agent Users</span>
+                            <h3>{UserInfo.data?.data?.data?.grandTotalUsers || 0}</h3>
                         </div>
                     </div>
                 </div>
