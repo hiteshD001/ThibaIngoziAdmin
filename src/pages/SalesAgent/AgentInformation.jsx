@@ -34,10 +34,10 @@ const AgentInformation = () => {
     const [tieUsers, setTieUsers] = useState([]);
     const [tieData, setTieData] = useState(true)
 
-  
 
-    console.log("tieUsers",tieUsers);
-    
+
+    console.log("tieUsers", tieUsers);
+
     const agentForm = useFormik({
         initialValues: {
             referralCode: "",
@@ -217,13 +217,13 @@ const AgentInformation = () => {
                     <div className="col-md-4">
                         <div className="dash-counter">
                             <span>Total Earned Commission</span>
-                            <h3>{UserInfo.data?.data?.data.totalCommission || 0}</h3>
+                            <h3>R {UserInfo.data?.data?.data.totalCommission || 0}</h3>
                         </div>
                     </div>
                     <div className="col-md-4">
                         <div className="dash-counter">
                             <span>Total Unpaid Commission</span>
-                            <h3>{UserInfo.data?.data?.data.totalUnPaid || 0}</h3>
+                            <h3>R {UserInfo.data?.data?.data.totalUnPaid || 0}</h3>
                         </div>
                     </div>
                     <div className="col-md-4">
@@ -235,13 +235,13 @@ const AgentInformation = () => {
                     <div className="col-md-4">
                         <div className="dash-counter">
                             <span>Total Earned Amount</span>
-                            <h3>{UserInfo.data?.data?.data?.totalEarnedAmount || 0}</h3>
+                            <h3>R {UserInfo.data?.data?.data?.totalEarnedAmount || 0}</h3>
                         </div>
                     </div>
                     <div className="col-md-4">
                         <div className="dash-counter">
                             <span>Total Commission Earned(30%)</span>
-                            <h3>{UserInfo.data?.data?.data?.commissionEarned || 0}</h3>
+                            <h3>R {UserInfo.data?.data?.data?.commissionEarned || 0}</h3>
                         </div>
                     </div>
                     <div className="col-md-4">
@@ -647,30 +647,18 @@ const AgentInformation = () => {
                                                 <td className={!driver.email ? "nodata" : ""}>
                                                     {driver.email}
                                                 </td>
-                                                {/* <td>
-                                                            <span
-                                                                onClick={() => setconfirmation(driver._id)}
-                                                                className="tbl-gray"
-                                                            >
-                                                                Delete
-                                                            </span>
-                                                            {confirmation === driver._id && (
-                                                                <DeleteConfirm
-                                                                    id={driver._id}
-                                                                    setconfirmation={setconfirmation}
-                                                                />
-                                                            )}
-                                                            <span
-                                                                onClick={() =>
-                                                                    nav(
-                                                                        `/home/total-drivers/driver-information/${driver._id}`
-                                                                    )
-                                                                }
-                                                                className="tbl-btn"
-                                                            >
-                                                                view
-                                                            </span>
-                                                        </td> */}
+                                                <td>
+                                                    <span
+                                                        onClick={() =>
+                                                            nav(
+                                                                `/home/total-drivers/driver-information/${driver._id}`
+                                                            )
+                                                        }
+                                                        className="tbl-btn"
+                                                    >
+                                                        view
+                                                    </span>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -775,12 +763,12 @@ const AgentInformation = () => {
 
                                                             <td>
                                                                 <span
-                                                                    onClick={() =>{
+                                                                    onClick={() => {
                                                                         nav(
                                                                             `/home/total-sales-agent/agent-information/${user._id}`
                                                                         )
                                                                     }
-                                                                        
+
                                                                     }
                                                                     className="tbl-btn"
                                                                     style={{ marginRight: "10px" }}
@@ -829,7 +817,7 @@ const AgentInformation = () => {
                     <div className="tab-heading">
                         <h3>Payout</h3>
                     </div>
-                    <h4 className="payout-amount">Amount: {UserInfo.data?.data?.data.totalUnPaid || 0}</h4>
+                    <h4 className="payout-amount">Amount:R {UserInfo.data?.data?.data.totalUnPaid || 0}</h4>
                 </div>
                 <button
                     className="btn btn-primary"

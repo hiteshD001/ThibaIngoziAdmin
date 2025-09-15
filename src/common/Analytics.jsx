@@ -9,6 +9,7 @@ import Loader from "./Loader";
 import { FaLocationDot } from "react-icons/fa6";
 import CustomChart from "./CustomChart";
 import { useNavigate } from "react-router-dom";
+import { Grid, Box, Typography, Paper } from "@mui/material";
 
 const Analytics = ({ id }) => {
     const [time, settime] = useState("today");
@@ -139,7 +140,7 @@ const Analytics = ({ id }) => {
                         <div className="dash-counter">
                             <span>Users Active {timeTitle}</span>
                             <h3>
-                                { activeUser || 0}
+                                {activeUser || 0}
                             </h3>
                         </div>
                     </div>
@@ -165,49 +166,84 @@ const Analytics = ({ id }) => {
                     }
                 </select>
             </div>
-            <div className="row">
-                <div className="col-md-8">
-                    <div className="requests-chart">
-                        <div className="chart-heading">
-                            <h3>SOS Requests</h3>
-                        </div>
+            <Grid container spacing={2} mb={4}>
+                {/* SOS Requests Chart */}
+                <Grid size={{ xs: 12, md: 8 }} sx={{ backgroundColor: '#f7f9fb', borderRadius: '16px' }}>
+                    <Box sx={{ p: 2, height: "100%" }}>
+                        <Box mb={2}>
+                            <Typography variant="h6" fontWeight="bold">
+                                SOS Requests
+                            </Typography>
+                        </Box>
                         <CustomChart data={chartData} />
-                    </div>
-                </div>
-                <div className="col-md-4">
-                    <div className="hotspot">
-                        <h1>Hotspot</h1>
-                        <div className="location-list">
+                    </Box>
+                </Grid>
+
+                {/* Hotspot Section */}
+                <Grid size={{ xs: 12, md: 4 }} sx={{ backgroundColor: 'rgb(229, 236, 246)', borderRadius: '16px' }}>
+                    <Box sx={{ p: 2, height: "100%" }}>
+                        <Typography variant="h6" fontWeight="bold" gutterBottom>
+                            Hotspot
+                        </Typography>
+                        <Box
+                            sx={{
+                                maxHeight: 400,
+                                overflowY: "auto",
+                            }}
+                        >
                             {hotspot?.isFetching ? (
                                 <Loader />
                             ) : hotspot?.data?.data?.length === 0 ? (
-                                <p>No data Found</p>
+                                <Typography>No data Found</Typography>
                             ) : (
-                                hotspot?.data?.data && Array.isArray(hotspot.data.data) &&
-                                hotspot.data.data.sort((a, b) =>
-                                    a.timesCalled > b.timesCalled ? -1 : 1
-                                )
+                                hotspot?.data?.data &&
+                                Array.isArray(hotspot.data.data) &&
+                                hotspot.data.data
+                                    .sort((a, b) =>
+                                        a.timesCalled > b.timesCalled ? -1 : 1
+                                    )
                                     .map((d, index) => (
-                                        <div className="location" key={index}>
-                                            <span>{d.address || "N/A"}</span>
-                                            <span>{d.timesCalled || 0}</span>
-                                            <span>
+                                        <Box
+                                            key={index}
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                alignItems: "center",
+                                                p: 1,
+                                                gap: 2,
+                                                // borderBottom: "1px solid #eee",
+                                            }}
+                                        >
+                                            <Typography variant="body2">
+                                                {d.address || "N/A"}
+                                            </Typography>
+                                            <Box
+                                                sx={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: 1,
+                                                }}
+                                            >
+                                                <Typography variant="body2">
+                                                    {d.timesCalled || 0}
+                                                </Typography>
                                                 <FaLocationDot
                                                     className="viewlocation"
+                                                    style={{ cursor: "pointer", color: "#1976d2" }}
                                                     onClick={() =>
                                                         nav(
                                                             `/home/hotspot/location?lat=${d.lat}&long=${d.long}`
                                                         )
                                                     }
                                                 />
-                                            </span>
-                                        </div>
+                                            </Box>
+                                        </Box>
                                     ))
                             )}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        </Box>
+                    </Box>
+                </Grid>
+            </Grid>
             <div className="clearfix"></div>
         </div>
     );
