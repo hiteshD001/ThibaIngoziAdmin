@@ -24,6 +24,8 @@ import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
+import { FaLocationDot } from "react-icons/fa6";
+
 
 const Home = () => {
 
@@ -452,20 +454,31 @@ const Home = () => {
                                                     {/* {moment(row?.updatedAt).format("HH:mm:ss - dd/MM/yyyy")} */}
                                                     {format(row.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </td>
-                                                <td>
-                                                    <Link
-                                                        to={`/home/total-drivers/driver-information/${row?.user_id?._id}`}
-                                                        className="tbl-btn"
-                                                    >
-                                                        view
-                                                    </Link>
+                                                <td >
+                                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <FaLocationDot
+                                                            className="viewlocation"
+                                                            style={{ cursor: "pointer", color: "#1976d2" }}
+                                                            onClick={() =>
+                                                                nav(
+                                                                    `/home/hotspot/location?locationId=${row?._id}&lat=${row?.user_id?.current_lat}&long=${row?.user_id?.current_long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}}`
+                                                                )
+                                                            }
+                                                        />
+                                                        <Link
+                                                            to={`/home/total-drivers/driver-information/${row?.user_id?._id}`}
+                                                            className="tbl-btn"
+                                                        >
+                                                            view
+                                                        </Link>
+                                                    </div>
 
-                                                    {/* <Link
-                                                        to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
+                                                    {/* <NavLink
+                                                        type="button"
+                                                        to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.user_id?.current_lat}&long=${row?.user_id?.current_long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
                                                         className="tbl-btn"
-                                                    >
-                                                        view
-                                                    </Link> */}
+                                                    >location</NavLink> */}
+
                                                 </td>
                                             </tr>
                                         ))}
@@ -741,20 +754,31 @@ const Home = () => {
                                                     {/* {moment(row?.updatedAt).format("HH:mm:ss - dd/MM/yyyy")} */}
                                                     {format(row.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </td>
-                                                <td>
-                                                    <Link
-                                                        to={`/home/total-drivers/driver-information/${row?.armedUserId?._id}`}
-                                                        className="tbl-btn"
-                                                    >
-                                                        view
-                                                    </Link>
+                                                <td >
+                                                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <FaLocationDot
+                                                            className="viewlocation"
+                                                            style={{ cursor: "pointer", color: "#1976d2" }}
+                                                            onClick={() =>
+                                                                nav(
+                                                                    `/home/hotspot/location?locationId=${row?.armedLocationId?._id}&lat=${row?.armedLocationId?.armedLocationlatitude}&long=${row?.armedLocationId?.armedLocationlongitude}&end_lat=${row?.armedUserId?.current_lat}&end_long=${row?.armedUserId?.current_long}&req_reach=${row?.armedLocationId?.req_reach}&req_accept=${row?.armedLocationId?.req_accept}}`
+                                                                )
+                                                            }
+                                                        />
+                                                        <Link
+                                                            to={`/home/total-drivers/driver-information/${row?.armedUserId?._id}`}
+                                                            className="tbl-btn"
+                                                        >
+                                                            view
+                                                        </Link>
+                                                    </div>
 
-                                                    {/* <Link
-                                                        to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
+                                                    {/* <NavLink
+                                                        type="button"
+                                                        to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.user_id?.current_lat}&long=${row?.user_id?.current_long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
                                                         className="tbl-btn"
-                                                    >
-                                                        view
-                                                    </Link> */}
+                                                    >location</NavLink> */}
+
                                                 </td>
                                             </tr>
                                         ))}
