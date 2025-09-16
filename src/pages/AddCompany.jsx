@@ -586,16 +586,28 @@ const AddCompany = () => {
                                     {companyForm.touched.accountNumber && (
                                         <p className="err">{companyForm.errors.accountNumber}</p>
                                     )}
-                                    <input
-                                        type="text"
-                                        name="customerCode"
-                                        placeholder="Customer Code"
+                                    <select
+                                        name="bankId"
                                         className="form-control"
-                                        value={companyForm.values.customerCode}
-                                        onChange={companyForm.handleChange}
-                                    />
-                                    {companyForm.touched.customerCode && (
-                                        <p className="err">{companyForm.errors.customerCode}</p>
+                                        value={companyForm.values.bankId}
+                                        onChange={(e) => {
+                                            const selectedBank = bankList?.find(bank => bank._id === e.target.value);
+                                            companyForm.setValues({
+                                                ...companyForm.values,
+                                                bankId: e.target.value,
+                                                customerCode: selectedBank?.branch_code || ''
+                                            });
+                                        }}
+                                    >
+                                        <option value="" hidden>Bank</option>
+                                        {bankList?.map((bank) => (
+                                            <option key={bank._id} value={bank._id}>
+                                                {bank.bank_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {companyForm.touched.bankId && (
+                                        <p className="err">{companyForm.errors.bankId}</p>
                                     )}
                                     <input
                                         type="text"
@@ -621,21 +633,16 @@ const AddCompany = () => {
                                     {companyForm.touched.accountHolderName && (
                                         <p className="err">{companyForm.errors.accountHolderName}</p>
                                     )}
-                                    <select
-                                        name="bankId"
+                                     <input
+                                        type="text"
+                                        name="customerCode"
+                                        placeholder="Branch Code"
                                         className="form-control"
-                                        value={companyForm.values.bankId}
-                                        onChange={companyForm.handleChange}
-                                    >
-                                        <option value="" hidden>Bank</option>
-                                        {bankList?.map((bank) => (
-                                            <option key={bank._id} value={bank._id}>
-                                                {bank.bank_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {companyForm.touched.bankId && (
-                                        <p className="err">{companyForm.errors.bankId}</p>
+                                        value={companyForm.values.customerCode}
+                                        readOnly
+                                    />
+                                    {companyForm.touched.customerCode && (
+                                        <p className="err">{companyForm.errors.customerCode}</p>
                                     )}
                                 </div>
                             </div>

@@ -237,12 +237,12 @@ const AddAgent = () => {
                         {/* <Grid size={{ xs: 12, sm: 6 }}>
                                 <FormControl variant="standard" fullWidth >
                                     <InputLabel shrink htmlFor="customerCode" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        Customer Code
+                                        Branch Code
                                     </InputLabel>
                                     <BootstrapInput
                                         id="customerCode"
                                         name="customerCode"
-                                        placeholder="Enter Customer Code"
+                                        placeholder="Enter Branch Code"
                                         value={UserForm.values.customerCode}
                                         onChange={UserForm.handleChange}
                                     />

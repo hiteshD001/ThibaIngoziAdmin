@@ -449,7 +449,7 @@ const AddDriver = () => {
 
                                         </div>
                                     </div>
-                                    
+
                                 </div>
 
                             </div>
@@ -466,16 +466,28 @@ const AddDriver = () => {
                                     {driverForm.touched.accountNumber && (
                                         <p className="err">{driverForm.errors.accountNumber}</p>
                                     )}
-                                    <input
-                                        type="text"
-                                        name="customerCode"
-                                        placeholder="Customer Code"
+                                    <select
+                                        name="bankId"
                                         className="form-control"
-                                        value={driverForm.values.customerCode}
-                                        onChange={driverForm.handleChange}
-                                    />
-                                    {driverForm.touched.customerCode && (
-                                        <p className="err">{driverForm.errors.customerCode}</p>
+                                        value={driverForm.values.bankId}
+                                        onChange={(e) => {
+                                            const selectedBank = bankList?.find(bank => bank._id === e.target.value);
+                                            driverForm.setValues({
+                                                ...driverForm.values,
+                                                bankId: e.target.value,
+                                                customerCode: selectedBank?.branch_code || ''
+                                            });
+                                        }}
+                                    >
+                                        <option value="" hidden>Bank</option>
+                                        {bankList?.map((bank) => (
+                                            <option key={bank._id} value={bank._id}>
+                                                {bank.bank_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {driverForm.touched.bankId && (
+                                        <p className="err">{driverForm.errors.bankId}</p>
                                     )}
                                     <input
                                         type="text"
@@ -501,21 +513,16 @@ const AddDriver = () => {
                                     {driverForm.touched.account_holder_name && (
                                         <p className="err">{driverForm.errors.account_holder_name}</p>
                                     )}
-                                    <select
-                                        name="bankId"
+                                    <input
+                                        type="text"
+                                        name="customerCode"
+                                        placeholder="Branch Code"
                                         className="form-control"
-                                        value={driverForm.values.bankId}
-                                        onChange={driverForm.handleChange}
-                                    >
-                                        <option value="" hidden>Bank</option>
-                                        {bankList?.map((bank) => (
-                                            <option key={bank._id} value={bank._id}>
-                                                {bank.bank_name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {driverForm.touched.bankId && (
-                                        <p className="err">{driverForm.errors.bankId}</p>
+                                        value={driverForm.values.customerCode}
+                                        readOnly
+                                    />
+                                    {driverForm.touched.customerCode && (
+                                        <p className="err">{driverForm.errors.customerCode}</p>
                                     )}
                                 </div>
                             </div>
