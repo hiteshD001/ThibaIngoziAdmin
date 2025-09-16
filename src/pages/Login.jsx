@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
-import { loginValidation } from "../common/FormValidation";
+import { loginValidation_salesAgent } from "../common/FormValidation";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
@@ -31,7 +31,7 @@ export const Login = () => {
             fcm_token: "fcm_token",
             role: "sales_agent",
         },
-        validationSchema: loginValidation,
+        validationSchema: loginValidation_salesAgent,
         onSubmit: (values) => {
             let payload = { ...values };
 
