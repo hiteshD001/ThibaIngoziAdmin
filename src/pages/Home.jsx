@@ -461,7 +461,7 @@ const Home = () => {
                                                             style={{ cursor: "pointer", color: "#1976d2" }}
                                                             onClick={() =>
                                                                 nav(
-                                                                    `/home/hotspot/location?locationId=${row?._id}&lat=${row?.user_id?.current_lat}&long=${row?.user_id?.current_long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}}`
+                                                                    `/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${row?.user_id?.current_lat}&end_long=${row?.user_id?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}}`
                                                                 )
                                                             }
                                                         />
