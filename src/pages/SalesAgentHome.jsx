@@ -81,6 +81,7 @@ const SalesAgentHome = () => {
     
     
     const userinfo = useGetAgent(localStorage.getItem("userID"));
+    console.log("userinfo",userinfo?.data?.data)
     const listOfSalesAgentUsers = useGetUserByInfluncer(page, 10, startDate, endDate, userinfo?.data?.data?.data?._id)
 
     const profileForm = useFormik({
@@ -172,6 +173,24 @@ const SalesAgentHome = () => {
                 </Grid>
             </Grid> */}
             <Grid container spacing={3} px={2}>
+            <Grid size={{ xs: 12, md: 4 }}>
+                    <Paper
+                        elevation={3}
+                        sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            // textAlign: "center",
+                            bgcolor: "#e3f5ff",
+                        }}
+                    >
+                        <Typography variant="subtitle1" color="text.secondary">
+                            Total Earned Amount
+                        </Typography>
+                        <Typography variant="h4" fontWeight="bold">
+                            R {userinfo?.data?.data?.data?.totalEarnedAmount}
+                        </Typography>
+                    </Paper>
+                </Grid>
 
                 {/* Total Companies */}
                 <Grid size={{ xs: 12, md: 4 }}>
@@ -188,10 +207,11 @@ const SalesAgentHome = () => {
                             Total Commission Earned
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            R.{userinfo?.data?.data?.data?.totalCommission}
+                            R {userinfo?.data?.data?.data?.totalCommission}
                         </Typography>
                     </Paper>
                 </Grid>
+                
                 <Grid size={{ xs: 12, md: 4 }}>
                     <Paper
                         elevation={3}
@@ -206,28 +226,11 @@ const SalesAgentHome = () => {
                             Total Commission Unpaid
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            R.{userinfo?.data?.data?.data?.totalUnPaid}
+                            R {userinfo?.data?.data?.data?.totalUnPaid}
                         </Typography>
                     </Paper>
                 </Grid>
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 3,
-                            borderRadius: 3,
-                            // textAlign: "center",
-                            bgcolor: "#e3f5ff",
-                        }}
-                    >
-                        <Typography variant="subtitle1" color="text.secondary">
-                            Total Commission Unpaid
-                        </Typography>
-                        <Typography variant="h4" fontWeight="bold">
-                            R.{userinfo?.data?.data?.data?.totalUnPaid}
-                        </Typography>
-                    </Paper>
-                </Grid>
+                
                  <Grid size={{ xs: 12, md: 4 }}>
                     <Paper
                         elevation={3}
@@ -239,10 +242,10 @@ const SalesAgentHome = () => {
                         }}
                     >
                         <Typography variant="subtitle1" color="text.secondary">
-                            Total Commission Unpaid
+                            Total Commission Paid
                         </Typography>
                         <Typography variant="h4" fontWeight="bold">
-                            R.{userinfo?.data?.data?.data?.totalUnPaid}
+                            R {userinfo?.data?.data?.data?.totalPaid}
                         </Typography>
                     </Paper>
                 </Grid>
