@@ -236,33 +236,33 @@ const Home = () => {
                                     </thead>
                                     <tbody>
                                         {activeUserList.map((row) => (
-                                            <tr key={row._id}>
+                                            <tr key={row?._id}>
                                                 <td>
                                                     <div
                                                         className={
-                                                            !row.user_id?.first_name
+                                                            !row?.user_id?.first_name
                                                                 ? "prof nodata"
                                                                 : "prof"
                                                         }
                                                     >
                                                         {
-                                                            row.user_id?.role === "driver" ? (
-                                                                <Link to={`/home/total-drivers/driver-information/${row.user_id._id}`} className="link">
+                                                            row?.user_id?.role === "driver" ? (
+                                                                <Link to={`/home/total-drivers/driver-information/${row?.user_id?._id}`} className="link">
                                                                     <img
                                                                         className="profilepicture"
                                                                         src={
-                                                                            row.user_id
+                                                                            row?.user_id
                                                                                 ?.selfieImage ||
                                                                             nouser
                                                                         }
                                                                     />
                                                                     {row?.user_id?.first_name || ''} {row?.user_id?.last_name || ''}
                                                                 </Link>) : (
-                                                                <Link to={`/home/total-users/user-information/${row.user_id._id}`} className="link">
+                                                                <Link to={`/home/total-users/user-information/${row?.user_id?._id}`} className="link">
                                                                     <img
                                                                         className="profilepicture"
                                                                         src={
-                                                                            row.user_id
+                                                                            row?.user_id
                                                                                 ?.selfieImage ||
                                                                             nouser
                                                                         }
@@ -278,12 +278,12 @@ const Home = () => {
 
                                                 <td
                                                     className={
-                                                        !row.user_id?.company_name
+                                                        !row?.user_id?.company_name
                                                             ? "companynamenodata"
                                                             : ""
                                                     }
                                                 >
-                                                    {row.user_id?.company_name}
+                                                    {row?.user_id?.company_name}
                                                 </td>
 
                                                 <td
@@ -291,13 +291,13 @@ const Home = () => {
                                                         !row.address ? "nodata" : ""
                                                     }
                                                 >
-                                                    {row.address}
+                                                    {row?.address}
                                                 </td>
 
-                                                <td>{row.req_reach}</td>
+                                                <td>{row?.req_reach}</td>
 
-                                                <td>{row.req_accept}</td>
-                                                <td>{row.type?.type || "-"}</td>
+                                                <td>{row?.req_accept}</td>
+                                                <td>{row?.type?.type || "-"}</td>
                                                 <td>{moment(row?.createdAt).format('HH:mm:ss')}</td>
                                                 <td>
                                                     {!row?.help_received && <select
@@ -376,34 +376,34 @@ const Home = () => {
                                     </thead>
                                     <tbody>
                                         {recentSos?.data?.items?.map((row) => (
-                                            <tr key={row._id}>
+                                            <tr key={row?._id}>
                                                 <td>
                                                     <div
                                                         className={
-                                                            !row.user_id?.first_name
+                                                            !row?.user_id?.first_name
                                                                 ? "prof nodata"
                                                                 : "prof"
                                                         }
                                                     >
 
                                                         {
-                                                            row.user_id?.role === "driver" ? (
-                                                                <Link to={`/home/total-drivers/driver-information/${row.user_id._id}`} className="link">
+                                                            row?.user_id?.role === "driver" ? (
+                                                                <Link to={`/home/total-drivers/driver-information/${row?.user_id?._id}`} className="link">
                                                                     <img
                                                                         className="profilepicture"
                                                                         src={
-                                                                            row.user_id
+                                                                            row?.user_id
                                                                                 ?.selfieImage ||
                                                                             nouser
                                                                         }
                                                                     />
                                                                     {row?.user_id?.first_name || ''} {row?.user_id?.last_name || ''}
                                                                 </Link>) : (
-                                                                <Link to={`/home/total-users/user-information/${row.user_id._id}`} className="link">
+                                                                <Link to={`/home/total-users/user-information/${row?.user_id?._id}`} className="link">
                                                                     <img
                                                                         className="profilepicture"
                                                                         src={
-                                                                            row.user_id
+                                                                            row?.user_id
                                                                                 ?.selfieImage ||
                                                                             nouser
                                                                         }
@@ -424,7 +424,7 @@ const Home = () => {
                                                             : ""
                                                     }
                                                 >
-                                                    {row.user_id?.company_name}
+                                                    {row?.user_id?.company_name}
                                                 </td>
 
                                                 <td
@@ -432,27 +432,27 @@ const Home = () => {
                                                         !row.address ? "nodata" : ""
                                                     }
                                                 >
-                                                    {row.address}
+                                                    {row?.address}
                                                 </td>
-                                                <td>{row.type?.type || "-"}</td>
+                                                <td>{row?.type?.type || "-"}</td>
                                                 <td
                                                     className={
-                                                        !row.createdAt
+                                                        !row?.createdAt
                                                             ? "nodata"
                                                             : ""
                                                     }
                                                 >
-                                                    {format(row.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                    {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </td>
                                                 <td
                                                     className={
-                                                        !row.updatedAt
+                                                        !row?.updatedAt
                                                             ? "nodata"
                                                             : ""
                                                     }
                                                 >
                                                     {/* {moment(row?.updatedAt).format("HH:mm:ss - dd/MM/yyyy")} */}
-                                                    {format(row.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                    {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </td>
                                                 <td >
                                                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
@@ -544,19 +544,19 @@ const Home = () => {
                                                         }
                                                     >
                                                         {
-                                                            row.armedUserId?.role === "driver" ? (
-                                                                <Link to={`/home/total-drivers/driver-information/${row.armedUserId._id}`} className="link">
+                                                            row?.armedUserId?.role === "driver" ? (
+                                                                <Link to={`/home/total-drivers/driver-information/${row?.armedUserId?._id}`} className="link">
                                                                     <img
                                                                         className="profilepicture"
                                                                         src={
-                                                                            row.armedUserId
+                                                                            row?.armedUserId
                                                                                 ?.selfieImage ||
                                                                             nouser
                                                                         }
                                                                     />
                                                                     {row?.armedUserId?.first_name || ''} {row?.armedUserId?.last_name || ''}
                                                                 </Link>) : (
-                                                                <Link to={`/home/total-users/user-information/${row.armedUserId._id}`} className="link">
+                                                                <Link to={`/home/total-users/user-information/${row.armedUserId?._id}`} className="link">
                                                                     <img
                                                                         className="profilepicture"
                                                                         src={
