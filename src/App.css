@@ -439,21 +439,21 @@ header {
     margin-bottom: 30px;
 }
 .dash-counter.orange{
-    display: flex;
+    /* display: flex; */
     align-items: flex-start;
     justify-content: space-between;
     flex-direction: row;
     background-color: #FFF3E5;
 }
 .dash-counter.blue{
-    display: flex;
+    /* display: flex; */
         align-items: flex-start;
         justify-content: space-between;
         flex-direction: row;
     background-color: #E9EFFF;
 }
 .dash-counter.green {
-    display: flex;
+    /* display: flex; */
     align-items: flex-start;
     justify-content: space-between;
     flex-direction: row;

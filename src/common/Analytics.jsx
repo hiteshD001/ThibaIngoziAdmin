@@ -23,11 +23,13 @@ import CustomChart from "./CustomChart";
 import { useNavigate } from "react-router-dom";
 import CustomFilter from "./Custom/CustomFilter";
 import { startOfYear } from "date-fns";
+import TimeFilter from "./Custom/TimeFilter";
 
 const Analytics = ({ id }) => {
     const [time, settime] = useState("today");
     const [timeTitle, settimeTitle] = useState("Today");
     const [activeUser, setactiveUser] = useState(0);
+    const [activePercentage, setActivePercentage] = useState(0)
     const notificationTypes = useGetNotificationType();
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [range, setRange] = useState([
@@ -43,6 +45,7 @@ const Analytics = ({ id }) => {
 
     const driverList = useGetUserList("driver list", "driver", id);
     const companyList = useGetUserList("company list", "company");
+    const [selected, setSelected] = useState('today');
 
 
     const hotspot = useGetHotspot(time, id, selectedNotification);
@@ -63,43 +66,42 @@ const Analytics = ({ id }) => {
     }, [notificationTypes]);
 
     useEffect(() => {
+        if (!driverList.data?.data) return;
+    
         switch (time) {
             case "today":
-                setactiveUser(
-                    driverList.data?.data.totalActiveDriversToday || 0
-                );
+                setactiveUser(driverList.data?.data.totalActiveDriversToday || 0);
                 settimeTitle("Today");
+                setActivePercentage(driverList.data?.data.activeUsersPercentageFromToday || 0);
                 break;
             case "yesterday":
-                setactiveUser(
-                    driverList.data?.data.totalActiveDriversYesterday || 0
-                );
+                setactiveUser(driverList.data?.data.totalActiveDriversYesterday || 0);
                 settimeTitle("Yesterday");
+                setActivePercentage(driverList.data?.data.activeUsersPercentageFromYesterday || 0);
                 break;
             case "this_week":
-                setactiveUser(
-                    driverList.data?.data.totalActiveDriversThisWeek || 0
-                );
+                setactiveUser(driverList.data?.data.totalActiveDriversThisWeek || 0);
                 settimeTitle("This Week");
+                setActivePercentage(driverList.data?.data.activeUsersPercentageFromLastWeek || 0);
                 break;
             case "this_month":
-                setactiveUser(
-                    driverList.data?.data.totalActiveDriversThisMonth || 0
-                );
+                setactiveUser(driverList.data?.data.totalActiveDriversThisMonth || 0);
                 settimeTitle("This Month");
+                setActivePercentage(driverList.data?.data.activeUsersPercentageFromLastMonth || 0);
                 break;
             case "this_year":
-                setactiveUser(
-                    driverList.data?.data.totalActiveDriversThisYear || 0
-                );
+                setactiveUser(driverList.data?.data.totalActiveDriversThisYear || 0);
                 settimeTitle("This Year");
+                setActivePercentage(driverList.data?.data.activeUsersPercentageFromLastYear || 0);
                 break;
             default:
-                setactiveUser(0);
+                setactiveUser(driverList.data?.data.totalActiveDriversToday || 0);
                 settimeTitle("Today");
+                setActivePercentage(driverList.data?.data.activeUsersPercentageFromYesterday || 0);
                 break;
         }
     }, [driverList.data, time]);
+    
 
 
     const handleExport = () => {
@@ -130,7 +132,14 @@ const Analytics = ({ id }) => {
                 <Grid size={{ xs: 12, md: 7, lg: 6 }}>
                     <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
                         <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
+                             <TimeFilter 
+                              selected={time}          // current selected time
+                              onApply={(value) => settime(value)}
+                              />
                             <CustomFilter onApply={handleFilterApply} />
+
+                            
+
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
@@ -142,38 +151,63 @@ const Analytics = ({ id }) => {
                         </Box>
                     </Box>
                 </Grid>
+                
             </Grid>
             <Box p={2}>
                 <div className="clearfix"></div>
 
                 {localStorage.getItem("role") === "super_admin" && !id ? (
-                    <div className="row px-2">
-                        <div className="col-md-4">
-                            <div className="dash-counter orange">
-                                <div>
-                                    <span>Total Companies</span>
-                                    <h3>{companyList.data?.data.totalUsers || 0}</h3>
-                                </div>
-                                <img src={div} alt="dash-counter" />
-                            </div>
-                        </div>
-                        <div className="col-md-4">
-                            <div className="dash-counter blue">
-                                <div>
-                                    <span>Active Users</span>
-                                    <h3>
-                                        {driverList.data?.data.totalActiveDrivers || 0}
-                                    </h3>
-                                </div>
-                                <img src={div2} alt="dash-counter" />
-                            </div>
-                        </div>
-                        <div className="col-md-4">
-                            <div className="dash-counter green">
-                                <div><span>Users Active {timeTitle}</span>
-                                    <h3>{activeUser}</h3></div>
-                                <img src={div3} alt="dash-counter" />
+                    <div className="row px-2 ">
+                        <div className="col-md-4 ">
+                            <div className="dash-counter orange ">
+                                <div className=" flex-column">
+                                    <div className="d-flex justify-content-between  w-100 ">
+                                        <div className="">
+                                            <span>Total Companies</span>
+                                            <h3>{companyList.data?.data.totalUsers || 0}</h3>
+                                        </div>
+                                        <img src={div} alt="dash-counter" />
 
+                                    </div>
+                                    <div className="">
+                                        <span> {companyList.data?.data.companiesPercentageFromLastMonth.toFixed(2)} % from last month</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        
+                        <div className="col-md-4">
+                            <div className="dash-counter blue   ">
+                                    <div className="d-flex flex-column">
+                                        <div className="d-flex justify-content-between  w-100 ">
+                                            <div>
+                                                <span>Active Users</span>
+                                                <h3>
+                                                    {driverList.data?.data.totalActiveDrivers || 0}
+                                                </h3>
+                                            </div>
+                                            <img src={div2} alt="dash-counter" />
+                                        </div>
+                                    </div>
+    
+                                <div className="">
+                                    <span> {driverList.data?.data.activeUsersPercentageFromYesterday.toFixed(2)}% from yesterday</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-md-4 ">
+
+                            <div className="dash-counter green d-flex row">
+                                <div className="d-flex justify-content-between  ">
+
+                                    <div><span>Users Active {timeTitle}</span>
+                                        <h3>{activeUser}</h3></div>
+                                    <img src={div3} alt="dash-counter" />
+                                </div>
+                                <div className="">
+                                    <span> {activePercentage.toFixed(2)}% from {timeTitle}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -181,10 +215,18 @@ const Analytics = ({ id }) => {
                     <div className="row">
                         <div className="col-md-6">
                             <div className="dash-counter blue">
-                                <span>Active Users</span>
-                                <h3>
-                                    {driverList.data?.data.totalActiveDrivers || 0}
-                                </h3>
+                                <div className="d-flex justify-content-between w-100 ">
+                                    <div>
+                                        <span>Active Users</span>
+                                        <h3>
+                                            {driverList.data?.data.totalActiveDrivers || 0}
+                                        </h3>
+                                    </div>
+                                    <img src={div2} alt="dash-counter" />
+                                </div>
+                                <div className="">
+                                    <span> 12% from last month</span>
+                                </div>
                             </div>
                         </div>
                         <div className="col-md-6">

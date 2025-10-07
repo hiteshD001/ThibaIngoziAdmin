@@ -234,8 +234,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            // element: <ListofMissingPerson />
-                            element: <WorkInProgress />
+                            element: <ListofMissingPerson />
+                            // element: <WorkInProgress />
 
                         },
                         {
@@ -272,8 +272,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            // element: <ListOfStolenCars />
-                            element: <WorkInProgress />
+                            element: <ListOfStolenCars />
+                            // element: <WorkInProgress />
 
                         },
                         {
