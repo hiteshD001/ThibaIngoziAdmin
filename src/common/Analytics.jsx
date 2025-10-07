@@ -19,6 +19,9 @@ import div from '../assets/images/div.svg'
 import div2 from '../assets/images/div2.svg'
 import div3 from '../assets/images/div3.svg'
 import { FaLocationDot } from "react-icons/fa6";
+import { FaArrowUpLong } from "react-icons/fa6";
+import { FaArrowDownLong } from "react-icons/fa6";
+
 import CustomChart from "./CustomChart";
 import { useNavigate } from "react-router-dom";
 import CustomFilter from "./Custom/CustomFilter";
@@ -30,6 +33,7 @@ const Analytics = ({ id }) => {
     const [timeTitle, settimeTitle] = useState("Today");
     const [activeUser, setactiveUser] = useState(0);
     const [activePercentage, setActivePercentage] = useState(0)
+    const [lastActivePercentage, setLastActivePercentage] = useState(0)
     const notificationTypes = useGetNotificationType();
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [range, setRange] = useState([
@@ -51,7 +55,7 @@ const Analytics = ({ id }) => {
     const hotspot = useGetHotspot(time, id, selectedNotification);
     const chartData = useGetChartData(id, time, selectedNotification);
 
-    console.log("chartData",chartData?.data?.data)
+    console.log("chartData", chartData?.data?.data)
 
     // useEffect(()=>{
     //     if(selectedNotification === 'all'){
@@ -65,9 +69,9 @@ const Analytics = ({ id }) => {
 
     const handleNotificationChange = (e) => {
         const value = e.target.value;
-    setSelectedNotification(value === "" ? "all" : value);
+        setSelectedNotification(value === "" ? "all" : value);
     };
-    
+
 
     useEffect(() => {
         if (notificationTypes?.data?.data?.length > 0 && !selectedNotification) {
@@ -75,45 +79,61 @@ const Analytics = ({ id }) => {
         }
     }, [notificationTypes]);
 
+    let arrow = null; // Default: no arrow
+
+    if (activePercentage > lastActivePercentage) {
+      arrow = <FaArrowUpLong color="green" />;
+    } else if (activePercentage < lastActivePercentage) {
+      arrow = <FaArrowDownLong color="red" />;
+    } else {
+      arrow = null; 
+    }
+
     useEffect(() => {
         if (!driverList.data?.data) return;
-    
+
         switch (time) {
             case "today":
                 setactiveUser(driverList.data?.data.totalActiveDriversToday || 0);
                 settimeTitle("Today");
                 setActivePercentage(driverList.data?.data.activeUsersPercentageFromToday || 0);
+                setLastActivePercentage(driverList.data?.data.activeUsersPercentageFromYesterday || 0);
                 break;
             case "yesterday":
                 setactiveUser(driverList.data?.data.totalActiveDriversYesterday || 0);
                 settimeTitle("Yesterday");
                 setActivePercentage(driverList.data?.data.activeUsersPercentageFromYesterday || 0);
+                setLastActivePercentage(driverList.data?.data.activeUsersPercentageFromYesterday || 0);
                 break;
             case "this_week":
                 setactiveUser(driverList.data?.data.totalActiveDriversThisWeek || 0);
-                settimeTitle("This Week");
+                settimeTitle("Last Week");
                 setActivePercentage(driverList.data?.data.activeUsersPercentageFromLastWeek || 0);
+                setLastActivePercentage(driverList.data?.data.activeUsersPercentageFromLastWeeks || 0);
                 break;
             case "this_month":
                 setactiveUser(driverList.data?.data.totalActiveDriversThisMonth || 0);
-                settimeTitle("This Month");
+                settimeTitle("Last Month");
                 setActivePercentage(driverList.data?.data.activeUsersPercentageFromLastMonth || 0);
+                setLastActivePercentage(driverList.data?.data.activeUsersPercentageFromLastMonths || 0);
                 break;
             case "this_year":
                 setactiveUser(driverList.data?.data.totalActiveDriversThisYear || 0);
-                settimeTitle("This Year");
+                settimeTitle("Last Year");
                 setActivePercentage(driverList.data?.data.activeUsersPercentageFromLastYear || 0);
+                setLastActivePercentage(driverList.data?.data.activeUsersPercentageFromLastYears || 0);
                 break;
             default:
                 setactiveUser(driverList.data?.data.totalActiveDriversToday || 0);
+                setLastActivePercentage(driverList.data?.data.activeUsersPercentageFromYesterday || 0);
                 settimeTitle("Today");
                 setActivePercentage(driverList.data?.data.activeUsersPercentageFromYesterday || 0);
                 break;
         }
     }, [driverList.data, time]);
 
-   
-    
+
+
 
 
     const handleExport = () => {
@@ -144,13 +164,13 @@ const Analytics = ({ id }) => {
                 <Grid size={{ xs: 12, md: 7, lg: 6 }}>
                     <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
                         <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
-                             <TimeFilter 
-                              selected={time}          // current selected time
-                              onApply={(value) => settime(value)}
-                              />
+                            <TimeFilter
+                                selected={time}          // current selected time
+                                onApply={(value) => settime(value)}
+                            />
                             <CustomFilter onApply={handleFilterApply} />
 
-                            
+
 
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
@@ -163,7 +183,7 @@ const Analytics = ({ id }) => {
                         </Box>
                     </Box>
                 </Grid>
-                
+
             </Grid>
             <Box p={2}>
                 <div className="clearfix"></div>
@@ -182,29 +202,40 @@ const Analytics = ({ id }) => {
 
                                     </div>
                                     <div className="">
-                                        <span> {companyList.data?.data.companiesPercentageFromLastMonth.toFixed(2)} % from last month</span>
+                                        <div className="d-flex gap-2">
+                                            <div className="percentage-green">
+                                                {companyList.data?.data.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList.data?.data.companiesPercentageFromLastMonth.toFixed(2)} %
+                                            </div>
+                                            <span> from last month</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                         </div>
-                        
+
                         <div className="col-md-4">
                             <div className="dash-counter blue   ">
-                                    <div className="d-flex flex-column">
-                                        <div className="d-flex justify-content-between  w-100 ">
-                                            <div>
-                                                <span>Active Users</span>
-                                                <h3>
-                                                    {driverList.data?.data.totalActiveDrivers || 0}
-                                                </h3>
-                                            </div>
-                                            <img src={div2} alt="dash-counter" />
+                                <div className="d-flex flex-column">
+                                    <div className="d-flex justify-content-between  w-100 ">
+                                        <div>
+                                            <span>Active Users</span>
+                                            <h3>
+                                                {driverList.data?.data.totalActiveDrivers || 0}
+                                            </h3>
                                         </div>
+                                        <img src={div2} alt="dash-counter" />
                                     </div>
-    
-                                <div className="">
-                                    <span> {driverList.data?.data.activeUsersPercentageFromYesterday.toFixed(2)}% from yesterday</span>
+                                </div>
+
+                                <div className=''>
+                                    <div className="d-flex gap-2">
+                                        <div className="percentage-green">
+                                            {driverList.data?.data.activeUsersPercentageFromYesterday === 0 ? "" : <FaArrowDownLong />}
+                                            {driverList.data?.data.activeUsersPercentageFromYesterday.toFixed(2)} %
+                                        </div>
+                                        <span>from yesterday</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -217,8 +248,13 @@ const Analytics = ({ id }) => {
                                         <h3>{activeUser}</h3></div>
                                     <img src={div3} alt="dash-counter" />
                                 </div>
-                                <div className="">
-                                    <span> {activePercentage.toFixed(2)}% from {timeTitle}</span>
+                                <div className="d-flex gap-2">
+                                    <div className="percentage-green">
+                                        {arrow} {activePercentage.toFixed(2)}%
+                                        
+                                    </div>
+                                    <span>from {timeTitle}</span>
+
                                 </div>
                             </div>
                         </div>
@@ -281,7 +317,7 @@ const Analytics = ({ id }) => {
                                     </select>
                                 </div>
                             </div>
-                            <CustomChart data={chartData?.data?.data}/>
+                            <CustomChart data={chartData?.data?.data} />
                         </div>
                     </div>
                 </div>
