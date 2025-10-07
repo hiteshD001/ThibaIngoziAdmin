@@ -457,6 +457,31 @@ export const useDeleteUserMeetingTripTrip = (onSuccess, onError) => {
     return mutation;
 };
 
+// missing person
+
+export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, startDate, endDate,archived) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson`, {
+            params: { page, limit, filter, startDate, endDate,archived },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [key, page, limit, filter, startDate, endDate,archived],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
 // get list of Province
 export const useGetProvinceList = (id) => {
     const queryFn = async (queryId) => {

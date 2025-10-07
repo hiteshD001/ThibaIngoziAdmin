@@ -15,54 +15,59 @@ import ViewBtn from '../../assets/images/ViewBtn.svg'
 import ImportSheet from "../../common/ImportSheet";
 import nouser from "../../assets/images/NoUser.png";
 import { startOfYear } from "date-fns";
+import moment from "moment";
+import { useGetMissingPersonList } from "../../API Calls/API";
+import Listtrip from '../../assets/images/Listtrip.svg'
+import delBtn from '../../assets/images/delBtn.svg'
 
-const MissingPersons = [
-    {
-        "_id": 1,
-        "name": 'Mohammad Salem',
-        "location": 'Sandton, Johannesburg Gauteng,2196',
-        "date": '02/05/25',
-        "req_accept": '20',
-        "req_reached": '30',
-        'reportedBy': 'Jane Cooper'
-    },
-    {
-        "_id": 2,
-        "name": 'Mohammad Salem',
-        "location": 'Sandton, Johannesburg Gauteng,2196',
-        "date": '02/05/25',
-        "req_accept": '20',
-        "req_reached": '30',
-        'reportedBy': 'Jane Cooper'
-    },
-    {
-        "_id": 3,
-        "name": 'Mohammad Salem',
-        "location": 'Sandton, Johannesburg Gauteng,2196',
-        "date": '02/05/25',
-        "req_accept": '20',
-        "req_reached": '30',
-        'reportedBy': 'Jane Cooper'
-    },
-    {
-        "_id": 4,
-        "name": 'Mohammad Salem',
-        "location": 'Sandton, Johannesburg Gauteng,2196',
-        "date": '02/05/25',
-        "req_accept": '20',
-        "req_reached": '30',
-        'reportedBy': 'Jane Cooper'
-    },
-    {
-        "_id": 5,
-        "name": 'Mohammad Salem',
-        "location": 'Sandton, Johannesburg Gauteng,2196',
-        "date": '02/05/25',
-        "req_accept": '20',
-        "req_reached": '30',
-        'reportedBy': 'Jane Cooper'
-    },
-]
+
+// const MissingPersons = [
+//     {
+//         "_id": 1,
+//         "name": 'Mohammad Salem',
+//         "location": 'Sandton, Johannesburg Gauteng,2196',
+//         "date": '02/05/25',
+//         "req_accept": '20',
+//         "req_reached": '30',
+//         'reportedBy': 'Jane Cooper'
+//     },
+//     {
+//         "_id": 2,
+//         "name": 'Mohammad Salem',
+//         "location": 'Sandton, Johannesburg Gauteng,2196',
+//         "date": '02/05/25',
+//         "req_accept": '20',
+//         "req_reached": '30',
+//         'reportedBy': 'Jane Cooper'
+//     },
+//     {
+//         "_id": 3,
+//         "name": 'Mohammad Salem',
+//         "location": 'Sandton, Johannesburg Gauteng,2196',
+//         "date": '02/05/25',
+//         "req_accept": '20',
+//         "req_reached": '30',
+//         'reportedBy': 'Jane Cooper'
+//     },
+//     {
+//         "_id": 4,
+//         "name": 'Mohammad Salem',
+//         "location": 'Sandton, Johannesburg Gauteng,2196',
+//         "date": '02/05/25',
+//         "req_accept": '20',
+//         "req_reached": '30',
+//         'reportedBy': 'Jane Cooper'
+//     },
+//     {
+//         "_id": 5,
+//         "name": 'Mohammad Salem',
+//         "location": 'Sandton, Johannesburg Gauteng,2196',
+//         "date": '02/05/25',
+//         "req_accept": '20',
+//         "req_reached": '30',
+//         'reportedBy': 'Jane Cooper'
+//     },
+// ]
 
 const ListofMissingPerson = () => {
     const [popup, setpopup] = useState(false);
@@ -78,8 +83,23 @@ const ListofMissingPerson = () => {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
-    const totalUsers = 10;
+    const [confirmation, setconfirmation] = useState("");
+
+
+    const MissingPersons = useGetMissingPersonList(
+        "MissingPersonList",
+        currentPage,
+        rowsPerPage,
+        filter,
+        range[0].startDate,
+        range[0].endDate,
+        false
+    );
+
+    const totalUsers = MissingPersons?.data?.data?.total;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
+    // console.log(MissingPersons.data.data.data)
+
     return (
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
@@ -140,9 +160,9 @@ const ListofMissingPerson = () => {
                     </Grid>
                 </Grid>
 
-                {MissingPersons.length < 0 ? (
+                {MissingPersons?.data?.data?.data?.length < 0 ? (
                     <Loader />
-                ) : MissingPersons.length > 0 ? (
+                ) : MissingPersons?.data?.data?.data?.length > 0 ? (
                     <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
                         <TableContainer >
                             <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', } }}>
@@ -153,13 +173,15 @@ const ListofMissingPerson = () => {
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Date</TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>Request Reached</TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>Request Accepted</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Reported by</TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {MissingPersons.map((user) => (
-                                        <TableRow key={user._id}>
+                                    {MissingPersons?.data?.data?.data?.map((user) => (
+                                        console.log(user),
+                                        <TableRow key={user?._id}>
                                             <TableCell sx={{ color: '#4B5563' }}>
                                                 <Stack direction="row" alignItems="center" gap={1}>
                                                     <Avatar
@@ -168,32 +190,38 @@ const ListofMissingPerson = () => {
                                                     />
 
                                                     {/* {user.first_name} {user.last_name} */}
-                                                    {user.name}
+                                                    {user?.name}
                                                 </Stack>
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>
 
-                                                {user.location || "-"}
+                                                {user?.lastSeenLocation || "-"}
 
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>
 
-                                                {user.date}
+                                                {moment(user?.date).format("DD/MM/YYYY")}
 
                                             </TableCell>
                                             <TableCell sx={{ color: 'var(--orange)', textAlign: 'center' }}>
 
-                                                {user.req_reached || "-"}
+                                                {user?.requestReached || "-"}
 
                                             </TableCell>
+
                                             <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
 
-                                                {user.req_accept || "-"}
+                                                {user?.requestAccepted || "-"}
+
+                                            </TableCell>
+                                            <TableCell sx={{ color: 'var(--orange)', textAlign: 'start' }}>
+
+                                                {user?.status || "-"}
 
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>
 
-                                                {user.reportedBy || "-"}
+                                                {user?.reportedBy || "-"}
 
                                             </TableCell>
 
@@ -202,6 +230,21 @@ const ListofMissingPerson = () => {
                                                     <IconButton onClick={() => nav(`/home/total-missing-person/person-information/${user._id}`)}>
                                                         <img src={ViewBtn} alt="view button" />
                                                     </IconButton>
+                                                    <IconButton onClick={() => {
+                                                        updateTripMutation.mutate({
+                                                            id: data?._id,
+                                                            data: { isArchived: true }
+                                                        });
+                                                    }}>
+                                                        <img src={Listtrip} alt="view button" />
+                                                    </IconButton>
+                                                    <IconButton onClick={() => setConfirmation(data?._id)}>
+                                                        <img src={delBtn} alt="Delete" />
+                                                    </IconButton>
+
+                                                    {/* {confirmation === data?._id && (
+                                                        <DeleteConfirm id={data?._id} setconfirmation={setConfirmation} trip="trip" />
+                                                    )} */}
                                                 </Box>
                                             </TableCell>
                                         </TableRow>
@@ -267,6 +310,7 @@ const ListofMissingPerson = () => {
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>
+
                                 </Box>
                             </Grid>
                         </Grid>
