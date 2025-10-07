@@ -563,7 +563,6 @@ export const useGetActiveSOS = () => {
 // get chart data
 
 export const useGetChartData = (company_id, time, notificationType) => {
-    const [chartData, setChartData] = useState(new Array(12).fill(0));
 
     const queryFn = async () => {
         const currentYear = new Date().getFullYear();
@@ -607,7 +606,7 @@ export const useGetChartData = (company_id, time, notificationType) => {
     //     }
     // }, [res.data]);
 
-    return chartData;
+    return res;
 };
 
 // get active sos 

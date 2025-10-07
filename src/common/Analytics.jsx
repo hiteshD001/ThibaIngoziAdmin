@@ -51,13 +51,23 @@ const Analytics = ({ id }) => {
     const hotspot = useGetHotspot(time, id, selectedNotification);
     const chartData = useGetChartData(id, time, selectedNotification);
 
+    console.log("chartData",chartData?.data?.data)
+
+    // useEffect(()=>{
+    //     if(selectedNotification === 'all'){
+    //         setSelectedNotification("all");
+    //     }
+    // },[selectedNotification])
+
     const handleTimeChange = (e) => {
         settime(e.target.value);
     };
 
     const handleNotificationChange = (e) => {
-        setSelectedNotification(e.target.value);
+        const value = e.target.value;
+    setSelectedNotification(value === "" ? "all" : value);
     };
+    
 
     useEffect(() => {
         if (notificationTypes?.data?.data?.length > 0 && !selectedNotification) {
@@ -101,6 +111,8 @@ const Analytics = ({ id }) => {
                 break;
         }
     }, [driverList.data, time]);
+
+   
     
 
 
@@ -257,7 +269,7 @@ const Analytics = ({ id }) => {
                                 <div className="col-md-3 d-flex justify-content-end">
                                     <select
                                         className="form-select"
-                                        value={selectedNotification}
+                                        value={selectedNotification === "all" ? "" : selectedNotification}
                                         onChange={handleNotificationChange}
                                     >
                                         <option value="">All Categories</option>
@@ -269,7 +281,7 @@ const Analytics = ({ id }) => {
                                     </select>
                                 </div>
                             </div>
-                            <CustomChart data={chartData} />
+                            <CustomChart data={chartData?.data?.data}/>
                         </div>
                     </div>
                 </div>

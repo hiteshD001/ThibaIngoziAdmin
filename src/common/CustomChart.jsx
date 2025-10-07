@@ -20,18 +20,20 @@ ChartJS.register(
     Tooltip,
     Legend
 );
-const resolvedData = [15, 22, 30, 18, 25, 25, 30, 28, 22, 28, 20, 26];
-const pendingData = [5, 8, 12, 10, 9, 6, 7, 10, 15, 12, 8, 9];
+
 
 
 const CustomChart = ({ ...props }) => {
+    const resolved = props?.data?.map(item => item.resolved);
+    const pending = props?.data?.map(item => item.pending);
+
     const data = {
         labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 
         datasets: [
             {
                 label: "Resolved",
-                data: resolvedData,
+                data: resolved,
                 borderColor: "#367BE0",
                 backgroundColor: "#367BE0",
                 pointBorderColor: "#367BE0",
@@ -43,7 +45,7 @@ const CustomChart = ({ ...props }) => {
             },
             {
                 label: "Pending",
-                data: pendingData,
+                data: pending,
                 borderColor: "#F97316",
                 backgroundColor: "#F97316",
                 pointBorderColor: "#F97316",
