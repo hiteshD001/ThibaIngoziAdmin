@@ -51,6 +51,8 @@ import CrimeReport from "./pages/crimeReports/CrimeReport";
 import ForwardToPolice from "./pages/crimeReports/ForwardToPolice";
 import WorkInProgress from "./common/WorkInProgress";
 import Confirmation from "./pages/crimeReports/Confirmation";
+import ListOfViewArcheived from "./pages/ListOfViewArcheived";
+import ListOfViewArcheivedMeeting from "./pages/ListOfViewArcheivedMeeting";
 // Define your map loader options once here
 const mapLoaderOptions = {
     id: 'google-map-script-main',
@@ -172,6 +174,10 @@ function App() {
                             path: "location",
                             element: <GoogleMaps isMapLoaded={isLoaded} />
                         },
+                        {
+                            path: "view-archeived",
+                            element: <ListOfViewArcheived />
+                        },
                     ]
                 },
                 {
@@ -188,6 +194,10 @@ function App() {
                         {
                             path: "location",
                             element: <GoogleMaps isMapLoaded={isLoaded} />
+                        },
+                        {
+                            path: "view-archeived",
+                            element: <ListOfViewArcheivedMeeting />
                         },
                     ]
                 },

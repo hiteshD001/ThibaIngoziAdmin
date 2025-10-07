@@ -28,7 +28,7 @@ const ListOfMeetingLinkTrips = () => {
   const nav = useNavigate();
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [isArchived, setIsArchived] = useState(false);
+  const [isArchived, setIsArchived] = useState(true);
   const [filter, setFilter] = useState("");
   const [range, setRange] = useState([
     {
@@ -141,7 +141,7 @@ const ListOfMeetingLinkTrips = () => {
       <Paper elevation={3} sx={{ backgroundColor: "#fdfdfd", padding: 2, borderRadius: "10px" }}>
         <Grid container justifyContent="space-between" alignItems="center" mb={2}>
           <Grid size={{ xs: 12, md: 3, lg: 4 }} >
-            <Typography variant="h6" fontWeight={590}>List of Meeting Link Trips</Typography>
+            <Typography variant="h6" fontWeight={590}>List of View Archeived</Typography>
           </Grid>
 
           <Grid size={{ xs: 12, md: 9, lg: 8 }} sx={{ display: "flex", justifyContent: "flex-end", gap: 2, flexDirection: { xs: "column", sm: "row" } }}>
@@ -174,13 +174,13 @@ const ListOfMeetingLinkTrips = () => {
               />
 
               <CustomExportMenu onExport={handleExport} />
-              <Button
+              {/* <Button
                 onClick={() => nav('/home/total-meeting-link-trips/view-archeived')}
                 variant="contained"
                 sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
                 startIcon={<img src={ViewBtn} alt="View" />}>
                 View Archeived
-              </Button>
+              </Button> */}
             </Box>
           </Grid>
 
@@ -293,7 +293,7 @@ const ListOfMeetingLinkTrips = () => {
                                   "userId2": data.user_id2,
                                   "notification_type": data.notification_type,
                                   "start_by":data.start_by,
-                                  "isArchived" : true
+                                  "isArchived" : false
                                 }
                               })}
                             >

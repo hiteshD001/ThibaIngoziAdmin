@@ -349,20 +349,22 @@ export const useDeleteSosAmount = (onSuccess, onError) => {
     return mutation
 }
 
+
+
 // trip
-export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, endDate) => {
+export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, endDate,archived) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userTrip`, {
             params: {
-                page, limit, filter, startDate, endDate
+                page, limit, filter, startDate, endDate,archived
             },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate],
+        queryKey: [key, page, limit, filter, startDate, endDate,archived],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         retry: false,
@@ -374,6 +376,18 @@ export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, end
     }
     return res;
 };
+
+export const usePutUserTrip = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/userTrip/${id}`, data)
+    }
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    })
+    return mutation
+}
 
 export const useDeleteUserTrip = (onSuccess, onError) => {
     const mutationFn = async (id) => {
@@ -392,17 +406,17 @@ export const useDeleteUserTrip = (onSuccess, onError) => {
 };
 
 //meetingLink trip
-export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter, startDate, endDate) => {
+export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter, startDate, endDate,archived) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userMeetingTrip`, {
-            params: { page, limit, filter, startDate, endDate },
+            params: { page, limit, filter, startDate, endDate,archived },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate],
+        queryKey: [key, page, limit, filter, startDate, endDate,archived],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         retry: false,
@@ -414,6 +428,18 @@ export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter, sta
     }
     return res;
 };
+
+export const useUpdateUserMeetingTripTrip = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/userMeetingTrip/${id}`, data)
+    }
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    })
+    return mutation
+}
 
 export const useDeleteUserMeetingTripTrip = (onSuccess, onError) => {
     const mutationFn = async (id) => {

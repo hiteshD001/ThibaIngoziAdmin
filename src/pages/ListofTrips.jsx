@@ -12,7 +12,7 @@ import ViewBtn from '../assets/images/ViewBtn.svg';
 import delBtn from '../assets/images/delBtn.svg';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { useGetTripList } from "../API Calls/API";
+import { useGetTripList, usePutUserTrip } from "../API Calls/API";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
 import Listtrip from '../assets/images/Listtrip.svg'
@@ -28,6 +28,7 @@ const ListOfTrips = () => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filter, setFilter] = useState("");
+   const [archived,setArchived] = useState(false)
   const [range, setRange] = useState([
     {
       startDate: startOfYear(new Date()),
@@ -38,10 +39,29 @@ const ListOfTrips = () => {
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate);
+  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate,archived);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
+
+  const Data = {
+    "isArchived" : true
+  }
+
+  const updateTripMutation = usePutUserTrip(
+    (id,data) => {
+      
+        console.log('Trip updated successfully:', Data);
+
+         toast.success("User Archived Successfully")
+
+         trip.refetch();
+
+    },
+    (error) => {
+        console.error('Error updating trip:', error);
+    }
+);
 
   const getChipStyle = (status) => {
     switch (status) {
@@ -186,7 +206,10 @@ const ListOfTrips = () => {
                 icon={calender}
               />
               <CustomExportMenu onExport={handleExport} />
-              <Button variant="contained" sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
+              <Button 
+                onClick={() => nav('/home/total-trips/view-archeived')}
+                variant="contained" 
+                sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
                 startIcon={<img src={ViewBtn} alt="View" />}>
                 View Archeived
               </Button>
@@ -264,11 +287,12 @@ const ListOfTrips = () => {
                             <IconButton onClick={() => nav(`/home/total-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)}>
                               <img src={ViewBtn} alt="View" />
                             </IconButton>
-                            <IconButton
-                              onClick={() =>
-                                nav(`/home/total-meeting-link-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
-                              }
-                            >
+                            <IconButton onClick={() => {
+                             updateTripMutation.mutate({
+                              id: data._id,
+                              data: { isArchived: true }
+                            });
+                            }}>
                               <img src={Listtrip} alt="view button" />
                             </IconButton>
                             <IconButton onClick={() => setConfirmation(data._id)}>
