@@ -45,11 +45,11 @@ export const superadmin_menulist = [
     },
     {
         id: "total-trips",
-        name: "Total Trips",
+        name: "Total Linked Trips",
         path: "/home/total-trips",
         image: trip,
         submenu: {
-            name: "List of Trips",
+            name: "List of Linked Trips",
             path: "/home/total-trips",
             image: arrowLeft
         },
@@ -57,11 +57,11 @@ export const superadmin_menulist = [
     },
     {
         id: "total-meeting-link-trips",
-        name: "Total Meeting Link Trips",
+        name: "Total Meeting Links",
         path: "/home/total-meeting-link-trips",
         image: trip,
         submenu: {
-            name: "List of Meeting Link Trips",
+            name: "List of Meeting Links",
             path: "/home/total-meeting-link-trips",
             image: arrowLeft
         },
