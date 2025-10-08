@@ -19,9 +19,6 @@ const TimeFilter = ({ selected, onApply }) => {
         <MenuItem value="this_year">This Year</MenuItem>
       </Select>
     </FormControl>
-    <Button variant="outlined" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <img src={filterIcon} alt="filter" /> Apply
-    </Button>
   </Box>
   );
 };

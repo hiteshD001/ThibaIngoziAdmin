@@ -168,7 +168,7 @@ const Analytics = ({ id }) => {
                                 selected={time}          // current selected time
                                 onApply={(value) => settime(value)}
                             />
-                            <CustomFilter onApply={handleFilterApply} />
+                            {/* <CustomFilter onApply={handleFilterApply} /> */}
 
 
 
