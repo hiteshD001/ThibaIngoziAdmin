@@ -459,17 +459,17 @@ export const useDeleteUserMeetingTripTrip = (onSuccess, onError) => {
 
 // missing person
 
-export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, startDate, endDate,archived) => {
+export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, startDate, endDate,archived,country,province,city,suburb) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson`, {
-            params: { page, limit, filter, startDate, endDate,archived },
+            params: { page, limit, filter, startDate, endDate,archived,country,province,city,suburb },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate,archived],
+        queryKey: [key, page, limit, filter, startDate, endDate,archived,country,province,city,suburb],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         retry: false,
@@ -481,6 +481,80 @@ export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, start
     }
     return res;
 };
+
+export const useGetMissingPersonById = (key,id) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson/${id}`);
+    };
+
+    const res = useQuery({
+        queryKey: [key, id],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useDeleteMissingPerson = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/missingPerson/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const usePatchArchivedMissingPerson = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        console.log(data)
+        return await apiClient.patch(
+            `${import.meta.env.VITE_BASEURL}/missingPerson/archive/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const usePatchUnArchivedMissingPerson = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        console.log(data)
+        return await apiClient.patch(
+            `${import.meta.env.VITE_BASEURL}/missingPerson/unarchive/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
 
 // get list of Province
 export const useGetProvinceList = (id) => {

@@ -7,6 +7,9 @@ import ViewBtn from '../../assets/images/ViewBtn.svg'
 
 import WhiteTick from '../../assets/images/WhiteTick.svg'
 import { AiOutlineEye, AiOutlineCheck } from "react-icons/ai";
+import { useGetMissingPersonById } from '../../API Calls/API';
+import { useParams } from 'react-router-dom';
+import moment from 'moment';
 
 const MissingPersonDetails = () => {
     // Mock data – replace with actual props or API data
@@ -26,6 +29,15 @@ const MissingPersonDetails = () => {
             'reportedBy': 'Jane Cooper'
         },
     ]
+
+    const params = useParams();
+
+    const getMissingPersonById = useGetMissingPersonById("MissingPersonById", params.id);
+
+    console.log(getMissingPersonById.data?.data)
+    const user = getMissingPersonById?.data?.data;
+
+
     return (
         <Box px={2} sx={{ display: 'flex', gap: 3, flexDirection: 'column' }}>
             <Paper
@@ -46,7 +58,7 @@ const MissingPersonDetails = () => {
                 {/* Suspect Info */}
                 <Box mt={2}>
                     <Typography variant="h5" fontWeight={600}>
-                        {suspectName}
+                        {user?.name}
                     </Typography>
                 </Box>
 
@@ -63,7 +75,7 @@ const MissingPersonDetails = () => {
                         Description
                     </Typography>
                     <Typography variant="body1" mt={1} sx={{ backgroundColor: '#F9FAFB', borderRadius: '6px', p: 1.5 }}>
-                        {description}
+                        {user?.description}
                     </Typography>
                 </Box>
 
@@ -74,7 +86,7 @@ const MissingPersonDetails = () => {
                             Location of Sighting
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={0.5}>
-                            {location}
+                            {user?.lastSeenLocation}
                         </Typography>
                     </Box>
 
@@ -83,7 +95,9 @@ const MissingPersonDetails = () => {
                             Time and Date
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={0.5}>
-                            {dateTime}
+                            {user?.createdAt
+                                ? moment(user.createdAt).format('MMM D, YYYY - HH:mm A')
+                                : '-'}
                         </Typography>
                     </Box>
                 </Box>
@@ -100,7 +114,7 @@ const MissingPersonDetails = () => {
                             Reporter Name
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={1}>
-                            John Doe
+                            {user?.reportedBy}
                         </Typography>
                     </Box>
 
@@ -109,7 +123,7 @@ const MissingPersonDetails = () => {
                             Contact Information
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={0.5}>
-                            LAPD Tip Line +27 12 007 3660
+                            LAPD Tip Line {user?.contactNumber}
                         </Typography>
                     </Box>
                 </Box>
@@ -119,16 +133,39 @@ const MissingPersonDetails = () => {
                         Evidence
                     </Typography>
                     <Grid container spacing={2} mt={2}>
-                        {[1, 2, 3, 4].map((item) => (
-                            <Grid size={{ xs: 6, sm: 3 }} key={item}>
-                                <Box
-                                    component="img"
-                                    src={`https://blocks.astratic.com/img/general-img-landscape.png`}
-                                    alt={`Placeholder ${item}`}
-                                    sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
-                                />
-                            </Grid>
-                        ))}
+                        <Grid size={{ xs: 6, sm: 3 }} key={user?._id}>
+                            <Box
+                                component="img"
+                                src={user?.image_missing_person1}
+                                alt={`Placeholder ${user?.name}`}
+                                sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 3 }} key={user?._id}>
+                            <Box
+                                component="img"
+                                src={user?.image_missing_person2}
+                                alt={`Placeholder ${user?.name}`}
+                                sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 3 }} key={user?._id}>
+                            <Box
+                                component="img"
+                                src={user?.image_missing_person3}
+                                alt={`Placeholder ${user?.name}`}
+                                sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 3 }} key={user?._id}>
+                            <Box
+                                component="img"
+                                src={user?.image_missing_person4}
+                                alt={`Placeholder ${user?.name}`}
+                                sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                            />
+                        </Grid>
+
                     </Grid>
                 </Box>
                 <Box sx={{ mt: 4, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', gap: 2 }}>

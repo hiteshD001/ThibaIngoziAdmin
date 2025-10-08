@@ -53,6 +53,7 @@ import WorkInProgress from "./common/WorkInProgress";
 import Confirmation from "./pages/crimeReports/Confirmation";
 import ListOfViewArcheived from "./pages/ListOfViewArcheived";
 import ListOfViewArcheivedMeeting from "./pages/ListOfViewArcheivedMeeting";
+import ListOfViewArcheivedMissingPerson from "./pages/ListOfViewArcheivedMissingPerson";
 // Define your map loader options once here
 const mapLoaderOptions = {
     id: 'google-map-script-main',
@@ -252,6 +253,11 @@ function App() {
                             path: 'person-information/:id',
                             element: <MissingPersonDetails />
                         },
+                        {
+                            path: "view-archeived-person",
+                            element: <ListOfViewArcheivedMissingPerson />
+                        },
+                        
                     ]
                 },
                 {

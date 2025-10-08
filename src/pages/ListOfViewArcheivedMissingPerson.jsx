@@ -6,21 +6,21 @@ import {
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import search from '../../assets/images/search.svg';
-import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
-import calender from '../../assets/images/calender.svg';
-import CustomExportMenu from "../../common/Custom/CustomExport";
-import CustomFilter from "../../common/Custom/CustomFilter";
-import Loader from "../../common/Loader";
-import ViewBtn from '../../assets/images/ViewBtn.svg'
-import ImportSheet from "../../common/ImportSheet";
-import nouser from "../../assets/images/NoUser.png";
+import search from '../assets/images/search.svg';
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
+import calender from '../assets/images/calender.svg';
+import CustomExportMenu from "../common/Custom/CustomExport";
+import CustomFilter from "../common/Custom/CustomFilter";
+import Loader from "../common/Loader";
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import ImportSheet from "../common/ImportSheet";
+import nouser from "../assets/images/NoUser.png";
 import { startOfYear } from "date-fns";
 import moment from "moment";
-import { useDeleteMissingPerson, useGetMissingPersonList, usePatchArchivedMissingPerson } from "../../API Calls/API";
-import Listtrip from '../../assets/images/Listtrip.svg'
-import delBtn from '../../assets/images/delBtn.svg'
-import { DeleteConfirm } from "../../common/ConfirmationPOPup";
+import { useDeleteMissingPerson, useGetMissingPersonList, usePatchArchivedMissingPerson, usePatchUnArchivedMissingPerson } from "../API Calls/API";
+import Listtrip from '../assets/images/Listtrip.svg'
+import delBtn from '../assets/images/delBtn.svg'
+import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import { toast } from "react-toastify";
 
 
@@ -83,14 +83,6 @@ const ListofMissingPerson = () => {
         }
     ]);
 
-    const [locationFilters, setLocationFilters] = useState({
-        country: "",
-        province: "",
-        city: "",
-        suburb: "",
-    });
-
-
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
@@ -104,23 +96,18 @@ const ListofMissingPerson = () => {
         filter,
         range[0].startDate,
         range[0].endDate,
-        false,
-        locationFilters.country,
-        locationFilters.province,
-        locationFilters.city,
-        locationFilters.suburb
-
+        true,
     );
 
     const totalUsers = MissingPersons?.data?.data?.total;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
 
-    const achiveMissingPerson = usePatchArchivedMissingPerson(
+    const achiveMissingPerson = usePatchUnArchivedMissingPerson(
         () => {
-            toast.success("Person archived successfully!")
-            MissingPersons.refetch()
+            toast.success("Person unarchived successfully!");
+            MissingPersons.refetch();
         },
-        () => toast.error("Failed to archive person.")
+        () => toast.error("Failed to unarchive person.")
     );
 
 
@@ -175,7 +162,7 @@ const ListofMissingPerson = () => {
                             }}
                         />
                         <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
-                            <CustomFilter onApply={(filters) => setLocationFilters(filters)} />
+                            <CustomFilter />
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
@@ -235,7 +222,7 @@ const ListofMissingPerson = () => {
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>
 
-                                                {moment(user?.createdAt).format("DD/MM/YYYY")}
+                                                {moment(user?.date).format("DD/MM/YYYY")}
 
                                             </TableCell>
                                             <TableCell sx={{ color: 'var(--orange)', textAlign: 'center' }}>
@@ -268,7 +255,7 @@ const ListofMissingPerson = () => {
                                                     <IconButton onClick={() => {
                                                         achiveMissingPerson.mutate({
                                                             id: user?._id,
-                                                            data: { isArchived: true }
+                                                            data: { isArchived: false }
                                                         });
                                                     }}>
                                                         <img src={Listtrip} alt="view button" />
