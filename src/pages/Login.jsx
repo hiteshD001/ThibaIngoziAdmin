@@ -2,7 +2,7 @@ import logo3 from "../assets/images/logo3.svg";
 
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
-import { loginValidation } from "../common/FormValidation";
+import { loginValidation_salesAgent } from "../common/FormValidation";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
@@ -20,12 +20,21 @@ export const Login = () => {
 
     const loginForm = useFormik({
         initialValues: {
-            email: '',
-            password: '',
-            fcm_token: "fcm_token"
+            email: "",
+            password: "",
+            fcm_token: "fcm_token",
+            role: "sales_agent",
         },
-        validationSchema: loginValidation,
-        onSubmit: (values) => loginfn.mutate(values),
+        validationSchema: loginValidation_salesAgent,
+        onSubmit: (values) => {
+            let payload = { ...values };
+
+            // ❌ remove role if not sales_agent
+            if (values.role !== "sales_agent") {
+                delete payload.role;
+            }
+            loginfn.mutate(payload);
+        },
     });
 
     const onError = (error) => {

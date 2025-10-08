@@ -13,7 +13,7 @@ import "../css/reset-password.css";
 const ResetPassword = () => {
     const [showpass, setshowpass] = useState(false);
     const [showconfirmpass, setshowconfirmpass] = useState(false);
-    const [p] = useSearchParams()
+    const [p] = useSearchParams();
     const [resetSuccessful, setResetSuccessful] = useState(false);
     const resetPasswordForm = useFormik({
         initialValues: {
@@ -22,7 +22,11 @@ const ResetPassword = () => {
         },
         validationSchema: resetPasswordValidation,
         onSubmit: (val) => {
-            const token = p.get('token');
+            const token = p.get('token') ? p.get('token') : localStorage.getItem('accessToken');
+            
+            // const token = localStorage.getItem('accessToken')
+
+            console.log("tokennnn",token)
             if (!token) {
                 toast.error("Invalid or expired reset link", toastOption);
                 return;
@@ -33,14 +37,19 @@ const ResetPassword = () => {
 
 
     const resetpass = useResetPassword(
-        (error) => toast.error(error.response.data.message || "Error", toastOption),
         (data) => {
+            
             setResetSuccessful(true);
-            toast.success(data.data.message, toastOption);
+            console.log("data",data?.message)
+            toast.success(data?.message, toastOption);
 
-        }
+        },
+        (error) => toast.error(error.response.data.message || "Error", toastOption), 
     );
+
+    
     if (resetSuccessful) {
+
         return (
             <div className="reset-container">
                 <div className="wrapper">

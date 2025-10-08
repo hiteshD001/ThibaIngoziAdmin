@@ -12,12 +12,16 @@ import { useEffect, useState, useLayoutEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList, useGetServicesList, useGetCityList } from "../API Calls/API";
 import { toast } from "react-toastify";
+import SingleImagePreview from "../common/SingleImagePreview";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 import GrayPlus from '../assets/images/GrayPlus.svg'
 const Profile = () => {
   const [servicesList, setServicesList] = useState({});
+  const [previewImage, setPreviewImage] = useState(null);
+  const [isSingle, setIsSingle] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [GrpservicesList, setGrpservicesList] = useState([]);
   const [role] = useState(localStorage.getItem("role"));
   const [edit, setedit] = useState(false);

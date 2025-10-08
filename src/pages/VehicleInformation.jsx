@@ -36,6 +36,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { BootstrapInput } from "../common/BootstrapInput";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
+import ImagePreviewModal from "../common/ImagePreviewModal";
 import PhoneInput from "react-phone-input-2";
 
 const VehicleInformation = () => {
@@ -49,7 +50,7 @@ const VehicleInformation = () => {
     const params = useParams();
     const client = useQueryClient();
     const CompanyId = localStorage.getItem("userID");
-
+    const [selectedPayoutType, setSelectedPayoutType] = useState('');
     const [payPopup, setPopup] = useState('')
 
 
@@ -77,6 +78,11 @@ const VehicleInformation = () => {
             other_e_hailing_company: [],
             passport_no: "",
             isPaymentToken: "",
+            accountNumber: "",
+            customerCode: "",
+            accountType: "",
+            account_holder_name: "",
+            bankId: "",
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
@@ -106,7 +112,6 @@ const VehicleInformation = () => {
         }
 
     });
-
 
     const vehicleForm = useFormik({
         initialValues: {
@@ -251,12 +256,22 @@ const VehicleInformation = () => {
     };
 
     const handleChange = () => {
-        alert('in progress')
+        payoutMutation.mutate(PayoutForm.values);
     };
 
-    const handlePopup = (event, type) => {
+
+    const handlePopup = (event, type, payoutType) => {
         event.stopPropagation();
+        PayoutForm.setValues({
+            firstName: vehicleInfo?.data?.data?.user?.first_name || "",
+            surname: vehicleInfo?.data?.data?.user?.last_name || "",
+            branchCode: vehicleInfo?.data?.data?.user?.bankId?.branch_code || "",
+            accountNumber: vehicleInfo?.data?.data?.user?.accountNumber || "",
+            customerCode: vehicleInfo?.data?.data?.user?.customerCode || "",
+            amount: vehicleInfo?.data?.data.totalDriverAmount || 0,
+        });
         setPopup(type);
+        setSelectedPayoutType(payoutType);
     };
 
     const closePopup = (event) => {

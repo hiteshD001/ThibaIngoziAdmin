@@ -157,7 +157,7 @@ export const superadmin_menulist = [
 ]
 
 export const Companyadmin_menulist = () => {
-    const [id] = useState(localStorage.getItem("userID"))
+    const id = localStorage.getItem("userID");
 
     return [
         {

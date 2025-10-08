@@ -35,3 +35,11 @@ export const RouteGuard = ({ children }) => {
         return <Navigate to="/home" />
     }
 }
+export const SalesGuard = ({ children }) => {
+    if (localStorage.getItem('role') === 'sales_agent') {
+        return children
+    }
+    else {
+        return <Navigate to='/home' />
+    }
+}

@@ -54,6 +54,11 @@ const AddCompany = () => {
 			services: [],
 			isEnrollToken: false,
 			securityCompany: [],
+			accountNumber: "",
+			customerCode: "",
+			accountType: "",
+			accountHolderName: "",
+			bankId: "",
 		},
 		validationSchema: companyValidation,
 		onSubmit: (values) => {
@@ -64,6 +69,8 @@ const AddCompany = () => {
 						values[key]?.forEach(id => {
 							formData.append("securityCompany[]", id);
 						});
+					}else if(key === 'accountHolderName'){
+						formData.append("account_holder_name", values[key]);
 					} else {
 						formData.append(key, values[key]);
 					}
@@ -103,7 +110,8 @@ const AddCompany = () => {
 	const cityList = useGetCityList(companyForm.values.province)
 	const countrylist = useGetCountryList()
 	const serviceslist = useGetServicesList()
-	const securityList = useGetSecurityList()
+	const securityList = useGetSecurityList();
+	const bankList = useGetBanksList();
 	const createService = useCreateNotificationType();
 	const securityCompanyOptions = securityList?.data?.data?.company?.map((item) => ({
 		label: item.company_name,

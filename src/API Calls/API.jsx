@@ -61,6 +61,47 @@ export const useGetUserList = (
     return res;
 };
 
+export const useGetUserByInfluncer = (
+    page,
+    limit,
+    startDate,
+    endDate,
+    influncer_id
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer/user/data`, {
+            params: {
+                page,
+                limit,
+                startDate,
+                endDate,
+                influncer_id,
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            page,
+            limit,
+            startDate,
+            endDate,
+            influncer_id
+        ],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
 // get list of company
 export const useGetCompanyList = (
     key,
@@ -102,6 +143,7 @@ export const useGetCompanyList = (
     }
     return res;
 };
+
 // get security service list
 export const useGetSecurityList = () => {
     const queryFn = async () => {
@@ -117,7 +159,7 @@ export const useGetSecurityList = () => {
 
     return res;
 };
-// get eHailing lisy
+// get eHailing list
 export const useGeteHailingList = () => {
     const queryFn = async () => {
         return await apiClient.get(
@@ -611,7 +653,6 @@ export const useGetCountryList = () => {
 };
 
 // get list of Services
-
 export const useGetServicesList = () => {
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/notificationType`);
@@ -627,8 +668,22 @@ export const useGetServicesList = () => {
     return res?.data?.data;
 };
 
-// get single user
+export const useGetBanksList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/bank`);
+    };
 
+    const res = useQuery({
+        queryKey: ["Bank List"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    return res?.data?.data;
+};
+
+// get single user
 export const useGetUser = (userId) => {
     const queryFn = async () => {
         return await apiClient.get(
@@ -667,8 +722,32 @@ export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, search
     return res;
 };
 
-// active driver list
+// bulk upload sales agent using excel file
+export const useBulkUploadSalesAgent = (onSuccess, onError) => {
+    return useMutation({
+      mutationFn: async (data) => {
+        try {
+          const res = await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/influencer/bulk-upload`,
+            data
+          );
+  
+          return res.data;
+        } catch (error) {
+          console.error("Upload error details:", error.response?.data || error);
+          throw error;
+        }
+      },
+      onSuccess,
+      onError,
+    });
+  };
+  
 
+
+
+
+// active driver list
 export const useGetActiveSOS = () => {
     const queryFn = async () => {
         return await apiClient.get(
@@ -685,8 +764,8 @@ export const useGetActiveSOS = () => {
     return res?.data?.data;
 };
 
-// get chart data
 
+// get chart data
 export const useGetChartData = (company_id, time, notificationType) => {
 
     const queryFn = async () => {
@@ -789,7 +868,6 @@ export const useGetHotspot = (startDate, endDate, company_id, notificationType) 
 
 
 // notifications
-
 export const useCreateNotificationType = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
@@ -823,7 +901,6 @@ export const useGetNotificationType = () => {
 };
 
 // get all orders
-
 export const useGetAllOrders = (page = 0, limit = 100) => {
     // const token = localStorage.getItem("accessToken");
 
@@ -846,7 +923,6 @@ export const useGetAllOrders = (page = 0, limit = 100) => {
 };
 
 // update order
-
 export const useUpdateStatus = (onSucess, onError) => {
     // const token = localStorage.getItem("accessToken");
 
@@ -870,13 +946,14 @@ export const useUpdateStatus = (onSucess, onError) => {
 };
 
 // reset password
-
 export const useResetPassword = (onSuccess, onError) => {
     const mutationFn = async ({ password, token }) => {
         const response = await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/users/reset-password/${token}`,
             { newPassword: password }
         );
+
+        console.log("response", response)
         return response.data
     };
 
@@ -890,7 +967,6 @@ export const useResetPassword = (onSuccess, onError) => {
 };
 
 // delete user
-
 export const useDeleteUser = (onSuccess, onError) => {
     const mutationFn = async (id) => {
         return await apiClient.delete(
@@ -908,7 +984,6 @@ export const useDeleteUser = (onSuccess, onError) => {
 };
 
 // login user
-
 export const useUserLogin = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
@@ -927,7 +1002,6 @@ export const useUserLogin = (onSuccess, onError) => {
 };
 
 // register user
-
 export const useRegister = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
@@ -946,7 +1020,6 @@ export const useRegister = (onSuccess, onError) => {
 };
 
 // update user
-
 export const useUpdateUser = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
         return await apiClient.put(
@@ -965,7 +1038,6 @@ export const useUpdateUser = (onSuccess, onError) => {
 };
 
 // update Location Status
-
 export const useUpdateLocationStatus = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
         return await apiClient.put(
@@ -1012,6 +1084,7 @@ export const useGetLocationByLocationId = (locationId) => {
         isLoading: res.isLoading,
     };
 };
+
 // driver import 
 export const useFileUpload = (onSuccess, onError) => {
     const mutationFn = async (data) => {
@@ -1042,9 +1115,7 @@ export const useUserFileUpload = (onSuccess, onError) => {
     return mutation;
 }
 
-
 // payout api
-
 export const armedSosPayout = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(

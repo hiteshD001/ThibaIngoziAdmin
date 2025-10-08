@@ -19,6 +19,8 @@ const Password = yup.string()
     .matches(/[0-9]/, 'Password must contain at least one number')
     .matches(/[!@#$%^&*]/, 'Password must contain at least one special character')
 
+const salesAgentPassword = yup.string().required("Password is Required")
+
 const MobileNumber = yup.string()
     .required("Mobile Number is Required");
 
@@ -43,7 +45,17 @@ export const changePasswordValidation = yup.object({
 });
 export const loginValidation = yup.object({
     email: Email,
-    password: Password,
+    password:  Password ,
+})
+
+export const loginValidation_salesAgent = yup.object({
+    email: Email,
+    password: salesAgentPassword,
+})
+
+export const salesAgentValidation = yup.object({
+    email: Email,
+    password: salesAgentPassword,
 })
 
 export const profileValidation_s = yup.object({
@@ -57,6 +69,18 @@ export const profileValidation_s = yup.object({
     suburb: String,
     postal_code: Number,
     country: String
+})
+export const sales_agent_e = yup.object({
+    first_name: Username,
+    last_name: Username,
+    email: Email,
+    mobile_no: MobileNumber,
+    // referralCode: String,
+    enrollAmountDeduction: Number,
+    // accountNumber: String,
+    // customerCode: String,
+    // accountType: String,
+    // accountHolderName: String,
 })
 
 export const profileValidation_c = yup.object({
@@ -83,7 +107,11 @@ export const companyValidation = yup.object({
     suburb: String,
     postal_code: Number,
     country: String,
-    id_no: ID,
+    id_no: yup.number().required("Number value is required"),
+    bankId: yup.string().required("Bank is required"),
+    customerCode: yup.string().required("Branch Code is required"),
+    accountType: yup.string().required("Account Type is required"),
+    accountHolderName : yup.string().required("Account Holder Name is required"),   
     company_bio: yup.string().required("Bio is required")
 })
 

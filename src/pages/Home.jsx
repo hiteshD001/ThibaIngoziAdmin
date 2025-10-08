@@ -30,6 +30,8 @@ import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
+import { FaLocationDot } from "react-icons/fa6";
+
 
 
 const Home = ({ isMapLoaded }) => {
