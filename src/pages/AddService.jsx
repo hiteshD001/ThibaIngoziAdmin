@@ -6,27 +6,34 @@ import { useCreateNotificationType } from "../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Yup from "yup";
 import Loader from "../common/Loader";
+import { BootstrapInput } from "../common/BootstrapInput";
+import {
+    Paper,
+    Typography,
+    TextField,
+    Button,
+    Box,
+    Divider, Grid,
+    FormControl, InputLabel
+} from "@mui/material";
 
 const AddService = () => {
     const client = useQueryClient();
     const nav = useNavigate();
 
-    // Success callback
     const onSuccess = () => {
         toast.success("Service added successfully.");
         serviceForm.resetForm();
-        client.invalidateQueries("NotificationType List"); // Update this query key if needed
+        client.invalidateQueries("NotificationType List");
         nav("/home/total-sos-amount");
     };
 
-    // Error callback
     const onError = (error) => {
         toast.error(error?.response?.data?.message || "Something went wrong", toastOption);
     };
 
     const newService = useCreateNotificationType(onSuccess, onError);
 
-    // Formik form config
     const serviceForm = useFormik({
         initialValues: {
             type: "",
@@ -44,60 +51,78 @@ const AddService = () => {
     });
 
     return (
-        <div className="container-fluid">
-            <div className="row">
-                <div className="col-md-12">
-                    <div className="theme-table">
-                        <form onSubmit={serviceForm.handleSubmit}>
-                            <div className="row">
-                                <div className="col-md-12">
-                                    <div className="tab-heading">
-                                        <h3>Add New Service</h3>
-                                    </div>
+        <Box px={3} sx={{ height: '90vh' }}>
+            <Paper elevation={2} sx={{ p: 3, borderRadius: '10px', pb: { xs: 10, sm: 25 } }}>
+                <Box
+                    sx={{
+                        p: 1,
+                        mb: 3,
+                        borderBottom: '1px solid #E5E7EB'
+                    }}
+                >
+                    <Typography variant="h6" fontWeight={550} color="black">
+                        Add New Service
+                    </Typography>
+                </Box>
 
-                                    <div className="row">
-                                        <div className="col-md-4 mt-2">
-                                            <input
-                                                type="text"
-                                                name="type"
-                                                placeholder="Service Name"
-                                                className="form-control"
-                                                value={serviceForm.values.type}
-                                                onChange={serviceForm.handleChange}
-                                                onBlur={serviceForm.handleBlur}
-                                            />
-                                            {serviceForm.touched.type && serviceForm.errors.type && (
-                                                <p className="err">{serviceForm.errors.type}</p>
-                                            )}
-                                        </div>
-                                        <div className="col-md-4 mt-3">
-                                            <button
-                                                type="submit"
-                                                className="btn btn-primary"
-                                                disabled={newService.isPending}
-                                            >
-                                                {newService.isPending ? <Loader color="white" /> : "Save"}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {/* <div className="col-md-12">
-                                        <button
-                                            type="submit"
-                                            className="btn btn-primary"
-                                            disabled={newService.isPending}
-                                        >
-                                            {newService.isPending ? <Loader color="white" /> : "Save"}
-                                        </button>
-                                    </div> */}
-                                </div>
-                            </div>
+                <form onSubmit={serviceForm.handleSubmit}>
+                    <Grid container display="flex" flexDirection="column" gap={2}>
+                        <Grid size={{ xs: 12, sm: 5 }}>
+                            <FormControl variant="standard" fullWidth sx={{ mb: 2 }}>
+                                <InputLabel
+                                    shrink
+                                    htmlFor="bootstrap-input-name"
+                                    sx={{
+                                        fontSize: '1.3rem',
+                                        mb: 10,
+                                        color: 'rgba(0, 0, 0, 0.6)',
+                                        '&.Mui-focused': {
+                                            color: 'black',
+                                        },
+                                    }}
+                                >
+                                    Service name:
+                                </InputLabel>
+                                <BootstrapInput
+                                    name="type"
+                                    id="bootstrap-input-name"
+                                    placeholder="Enter service name"
+                                    value={serviceForm.values.type}
+                                    onChange={serviceForm.handleChange}
+                                    onBlur={serviceForm.handleBlur}
+                                />
+                                {serviceForm.touched.type && !serviceForm.isSubmitting && (
+                                    <div style={{ color: 'red', fontSize: 12 }}>{serviceForm.errors.type}</div>
+                                )}
+                            </FormControl>
+                        </Grid>
 
+                        <Grid display={'flex'} justifyContent={'flex-end'} gap={2} size={{ xs: 12 }}>
+                            <Button
+                                variant="contained"
+                                onClick={() => serviceForm.resetForm()}
+                                sx={{
+                                    backgroundColor: 'white', color: 'var(--font-gray)', boxShadow: 'none', border: '1px solid var(--light-gray)', width: '130px', height: '48px', borderRadius: '10px', '&:hover': {
+                                        boxShadow: 'none'
+                                    }
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="contained"
+                                type="submit"
+                                sx={{ backgroundColor: 'var(--Blue)', width: '130px', height: '48px', borderRadius: '10px' }}
+                                disabled={newService.isPending}
+                            >
+                                {newService.isPending ? <Loader color="white" /> : "Save"}
+                            </Button>
 
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Paper>
+        </Box>
     );
 };
 

@@ -2,73 +2,138 @@
 // import search from "../assets/images/search.png"
 // import icon from "../assets/images/icon.png"
 import { useEffect, useState } from "react";
-import { Companyadmin_menulist, superadmin_menulist, salesAgent_menulist } from "./Menulist";
+import { Avatar, Box, Divider, Typography, IconButton } from "@mui/material";
+import { useGetUser } from "../API Calls/API";
+import notificationIcon from '../assets/images/notificationIcon.svg';
+import { Companyadmin_menulist, superadmin_menulist } from "./Menulist";
 import { useLocation, useNavigate } from "react-router-dom";
+import { IoIosMenu } from "react-icons/io";
+import { IoArrowBack } from "react-icons/io5";
+const Navbar = ({ setActive, isActive }) => {
+    const [role] = useState(localStorage.getItem("role"))
+    const [userName] = useState(localStorage.getItem('userName'))
+    const [selfieImage] = useState(localStorage.getItem('selfieImage'))
+    const [contact_name] = useState(localStorage.getItem('contact_name'))
 
-const Navbar = () => {
-    const [menulist] = useState(() => {
-        const role = localStorage.getItem("role");
-
-        if (role === 'super_admin') return superadmin_menulist;
-        if (role === 'company') return Companyadmin_menulist();
-        if (role === 'sales_agent') return salesAgent_menulist;
-
-        return []; // default empty menu if role doesn't match
-    });
-    console.log(menulist)
+    const [menulist] = useState(role === 'super_admin' ? superadmin_menulist : Companyadmin_menulist())
+    const [pageTitle, setPageTitle] = useState("Dashboard");
+    const [isSubMenu, setIsSubMenu] = useState(false);
     const [currentMenu, setCurrentMenu] = useState("Home")
+    const [userId, setUserID] = useState("");
 
     const location = useLocation()
     const nav = useNavigate();
 
+
     useEffect(() => {
-        const Menu = location.pathname.split("/")[2] ? location.pathname.split("/")[2] : location.pathname.split("/")[1]
-        setCurrentMenu(menulist.filter(menu => menu.id === Menu)[0])
-    }, [location])
+        const pathParts = location.pathname.split("/").filter(part => part);
+        if (pathParts.length > 2) {
+            setIsSubMenu(true);
+            const menuId = pathParts[1];
+            const subMenuId = pathParts[2];
+            const currentMenu = menulist.find(menu => menu.id === menuId);
 
+            if (currentMenu) {
+                let subTitle = '';
+                if (subMenuId === "driver-information" || subMenuId === "vehicle-information") {
+                    subTitle = currentMenu.info;
+                } else if (subMenuId.startsWith("add-")) {
+                    subTitle = currentMenu.add;
+                } else {
+                    subTitle = currentMenu.company;
+                }
+                setPageTitle(subTitle || currentMenu.name);
+            }
+        } else {
+            setIsSubMenu(false);
+            const menuId = pathParts.length > 1 ? pathParts[1] : pathParts[0];
+            const currentMenu = menulist.find(menu => menu.id === menuId);
+            setPageTitle(currentMenu ? currentMenu.name : "Dashboard");
+        }
 
+    }, [location, menulist]);
+
+    useEffect(() => {
+        const storedId = localStorage.getItem('userID');
+        if (storedId) {
+            setUserID(storedId);
+        }
+    }, []);
+    const handleProfileClick = () => {
+        nav('/home/profile');
+    };
     return (
-        <header>
-            <div className="container-fluid">
-                <div className="row">
-                    <div className="col-md-6">
-                        <div className="breadcrumb">
-                            <span>Dashboards</span>
-                            <span>/</span>
-                            <span onClick={() => nav(currentMenu.submenu.path)}>{currentMenu?.submenu && (currentMenu.submenu ? currentMenu.submenu.name : currentMenu.name)}</span>
-                            {location.pathname.split("/").length > 3 && <>
-                                <span>/</span>
-                                <span>
-                                    {location.pathname.split("/")[3] === "driver-information" ? currentMenu?.info
-                                        : location.pathname.split("/")[3] === "add-driver" || location.pathname.split("/")[3] === "add-company" ? currentMenu?.add
-                                            : currentMenu?.company}
-                                </span>
-                            </>}
-                        </div>
-                    </div>
-                    <div className="col-md-6 text-end">
-                        <div className="header-noti">
-                            {/* <div className="header-search">
-                                <div className="input-group">
-                                    <span className="input-group-text"><img src={search} /></span>
-                                    <input type="text" className="form-control" placeholder="Search" />
-                                    <span className="input-group-text"><img src={icon} /></span>
-                                </div>
-                            </div> */}
-                            {/* <div className="dropdown">
-                                <button className="btn btn-secondary dropdown-toggle" id="dropdownMenuButton1" onClick={() => setopen(p => !p)}>
-                                    <img src={bell} />
-                                </button>
-                                <ul className={`dropdown-menu ${open && "show"}`} aria-labelledby="dropdownMenuButton1">
-                                    <li><a className="dropdown-item" href="#">Action</a></li>
-                                    <li><a className="dropdown-item" href="#">Another action</a></li>
-                                    <li><a className="dropdown-item" href="#">Something else here</a></li>
-                                </ul>
-                            </div> */}
-                        </div>
-                    </div>
-                </div>
+        <header className="navbar shadow-sm px-3 py-2 d-flex justify-content-between align-items-center">
+
+            {/* --- DYNAMIC BREADCRUMB / TITLE --- */}
+            <div className="d-flex align-items-center breadcrumb">
+                {isSubMenu ? (
+                    <>
+                        <IconButton onClick={() => nav(-1)} className="me-2">
+                            <IoArrowBack size={24} />
+                        </IconButton>
+                    </>
+                ) : (
+                    <button className="btn d-lg-none me-3" onClick={() => setActive(true)}>
+                        <IoIosMenu size={24} />
+                    </button>
+                )}
+                <Typography variant="h5" fontWeight={600} className="mb-0">
+                    {pageTitle}
+                </Typography>
             </div>
+
+
+            {/* <div className="breadcrumb">
+                <span>Dashboards</span>
+                <span>/</span>
+                <span onClick={() => nav(currentMenu.submenu.path)}>{currentMenu?.submenu && (currentMenu.submenu ? currentMenu.submenu.name : currentMenu.name)}</span>
+                {location.pathname.split("/").length > 3 && <>
+                    <span>/</span>
+                    <span>
+                        {location.pathname.split("/")[3] === "driver-information" ? currentMenu?.info
+                            : location.pathname.split("/")[3] === "add-driver" || location.pathname.split("/")[3] === "add-company" ? currentMenu?.add
+                                : currentMenu?.company}
+                    </span>
+                </>}
+            </div> */}
+
+            {/* --- Profile Section --- */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, pr: 2 }}>
+                <Box onClick={() => nav('/home/notification')}>
+                    <img src={notificationIcon} alt="notification" style={{ cursor: 'pointer' }} />
+                </Box>
+
+                <Divider orientation="vertical" flexItem sx={{ bgcolor: 'grey.300' }} />
+
+                <Box
+                    sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }}
+                    onClick={handleProfileClick} // Open menu on click
+                >
+                    {
+                        role == 'company' ? (
+                            <Typography variant="body1" component="span" sx={{ color: '#0E0E0E', fontWeight: 550 }}>
+                                {contact_name}
+                            </Typography>
+                        ) : (
+                            <Typography variant="body1" component="span" sx={{ color: '#0E0E0E', fontWeight: 550 }}>
+                                {userName}
+                            </Typography>
+                        )
+                    }
+
+
+                    <Avatar
+                        alt={userName || contact_name}
+                        src={selfieImage}
+                        // src={...} // Add a src for the user's profile photo if available
+                        sx={{ width: 32, height: 32 }}
+                    />
+
+                </Box>
+            </Box>
+
+
         </header>
     )
 }

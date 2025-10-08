@@ -1,162 +1,194 @@
+import {
+    Box, Button, IconButton, InputAdornment, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, Grid, Select, MenuItem
+} from "@mui/material";
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useState } from "react";
+import plus from '../assets/images/plus.svg'
 import { useNavigate } from "react-router-dom";
-
-import icon from "../assets/images/icon.png";
-import search from "../assets/images/search.png";
-import Prev from "../assets/images/left.png";
-import Next from "../assets/images/right.png";
-import nouser from "../assets/images/NoUser.png";
-
+import search from '../assets/images/search.svg'
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
+import whiteplus from '../assets/images/whiteplus.svg'
 import { useGetSoSAmountList } from "../API Calls/API";
 import { DeleteSosAmount } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
 
 const ListOfSosAmount = () => {
     const nav = useNavigate();
-    const [role] = useState(localStorage.getItem("role"))
-    const [page, setpage] = useState(1);
-    const [filter, setfilter] = useState("");
-    const [confirmation, setconfirmation] = useState("");
+    const [role] = useState(localStorage.getItem("role"));
+    const [page, setPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [filter, setFilter] = useState("");
+    const [confirmation, setConfirmation] = useState("");
 
-    const sosList = useGetSoSAmountList("ArmedSOSAmount List", page, 10, filter)
+    const [currentPage, setCurrentPage] = useState(1);
+    const sosList = useGetSoSAmountList("ArmedSOSAmount List", page + 1, rowsPerPage, filter);
+    const totalPages = Math.ceil(sosList.length / rowsPerPage);
+    const handleChangePage = (event, newPage) => setPage(newPage);
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
 
     return (
-        <div className="container-fluid">
-            <div className="row">
-                <div className="col-md-12">
-                    <div className="theme-table">
-                        <div className="tab-heading">
-                            <h3>List of Sos Amount</h3>
-                            <div className="tbl-filter">
-                                <div className="input-group">
-                                    <span className="input-group-text">
-                                        <img src={search} />
-                                    </span>
-                                    <input
-                                        type="text"
-                                        value={filter}
-                                        onChange={(e) => setfilter(e.target.value)}
-                                        className="form-control"
-                                        placeholder="Search"
-                                    />
-                                    <span className="input-group-text">
-                                        <img src={icon} />
-                                    </span>
-                                </div>
-                                {
-                                    role === 'super_admin' && (
-                                        <button
-                                            className="btn btn-primary"
-                                            onClick={() => nav("add-service")}
-                                        >
-                                            + Add Service
-                                        </button>
-                                    )
-                                }
-                                <button
-                                    className="btn btn-primary"
-                                    onClick={() => nav("add-sos")}
-                                >
-                                    + Add Sos
-                                </button>
-                            </div>
-                        </div>
-                        {!sosList.data ? (
-                            <Loader />
-                        ) : (
-                            <>
-                                {sosList.data?.data ? (
-                                    <>
-                                        <table
-                                            id="example"
-                                            className="table table-striped nowrap"
-                                            style={{ width: "100%" }}
-                                        >
-                                            <thead>
-                                                <tr>
-                                                    <th>Armed Sos Amount</th>
-                                                    <th>Driver Split Amount</th>
-                                                    <th>Company Split Amount</th>
-                                                    <th>Currency</th>
-                                                    <th>Type</th>
+        <Box p={2}>
+            <Paper elevation={3} sx={{ backgroundColor: "rgb(252, 252, 252)", padding: 2, borderRadius: '10px' }}>
+                <Grid container display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                    <Grid size={{ xs: 12, md: 4 }} sx={{ mb: { xs: 2, md: 0 } }}>
+                        <Typography variant="h6" fontWeight={550}>List of SOS Amount</Typography>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+                        <TextField
+                            variant="outlined"
+                            placeholder="Search"
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                            fullWidth
+                            sx={{
+                                width: '100%',
+                                height: '40px',
+                                borderRadius: '8px',
+                                '& .MuiInputBase-root': {
+                                    height: '40px',
+                                    fontSize: '14px',
+                                },
+                                '& .MuiOutlinedInput-input': {
+                                    padding: '10px 14px',
+                                },
+                            }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <img src={search} alt="search icon" />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                        <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+                            {role === "super_admin" && (
+                                <Button variant="outlined" size="small" sx={{ height: '40px', width: '150px', borderRadius: '8px' }} onClick={() => nav("add-service")} startIcon={<img src={plus} alt="plus icon" />}>
+                                    Add Service
+                                </Button>
+                            )}
+                            <Button sx={{ height: '40px', width: '150px', borderRadius: '8px' }} variant="contained" onClick={() => nav("add-sos")} startIcon={<img src={whiteplus} alt='white plus' />}>
+                                Add SOS
+                            </Button>
+                        </Box>
+                    </Grid>
+                </Grid>
 
-                                                    <th>&nbsp;</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {sosList.data?.data.map((data) => (
-                                                    <tr key={data._id}>
-                                                        <td>{data.amount}</td>
-                                                        <td>
-                                                            <div className={data.driverSplitAmount === null ? "nodata" : ""}>
-                                                                {data.driverSplitAmount == null ? 0 : data.driverSplitAmount}
-                                                            </div>
-                                                        </td>
 
-                                                        <td className={data.companySplitAmount === null ? "nodata" : ""}>
-                                                            {data.companySplitAmount == null ? 0 : data.companySplitAmount}
-                                                        </td>
+                {!sosList.data ? (
+                    <Loader />
+                ) : sosList.data?.data?.length ? (
+                    <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                        <TableContainer >
+                            <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', paddingBlock: '13px' } }}>
+                                <TableHead >
+                                    <TableRow>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', borderTopLeftRadius: '10px', color: '#4B5563' }}>Armed SOS Amount</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Driver Split Amount</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company Split Amount</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Currency</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Type</TableCell>
+                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {sosList.data.data.map((data) => (
+                                        <TableRow key={data._id}>
+                                            <TableCell sx={{ color: '#4B5563' }}>{data.amount}</TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>{data.driverSplitAmount ?? 0}</TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>{data.companySplitAmount ?? 0}</TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>{data.currency || "-"}</TableCell>
+                                            <TableCell sx={{ color: data?.notificationTypeId?.bgColor }}>{data.notificationTypeId?.type || "-"}</TableCell>
+                                            <TableCell align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                <IconButton onClick={() => nav(`/home/total-sos-amount/sos-amount/${data._id}`)}>
+                                                    <img src={ViewBtn} alt="view button" />
+                                                </IconButton>
+                                                <IconButton onClick={() => setConfirmation(data._id)}>
+                                                    <img src={delBtn} alt="delete button" />
+                                                </IconButton>
+                                                {confirmation === data._id && (
+                                                    <DeleteSosAmount id={data._id} setconfirmation={setConfirmation} />
+                                                )}
 
-                                                        <td className={!data.currency ? "nodata" : ""}>
-                                                            {data.currency}
-                                                        </td>
-                                                        <td className={!data.notificationTypeId?.type ? "nodata" : ""}>
-                                                            {data.notificationTypeId?.type}
-                                                        </td>
-                                                        <td>
-                                                            <span
-                                                                onClick={() => setconfirmation(data._id)}
-                                                                className="tbl-gray"
-                                                            >
-                                                                Delete
-                                                            </span>
-                                                            {confirmation === data._id && (
-                                                                < DeleteSosAmount
-                                                                    id={data._id}
-                                                                    setconfirmation={setconfirmation}
-                                                                />
-                                                            )}
-                                                            <span
-                                                                onClick={() =>
-                                                                    nav(`/home/total-sos-amount/sos-amount/${data._id}`)
-                                                                }
-                                                                className="tbl-btn"
-                                                            >
-                                                                view
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                        <div className="pagiation">
-                                            <div className="pagiation-left">
-                                                <button
-                                                    disabled={page === 1}
-                                                    onClick={() => setpage((p) => p - 1)}
-                                                >
-                                                    <img src={Prev} /> Prev
-                                                </button>
-                                            </div>
-                                            <div className="pagiation-right">
-                                                <button
-                                                    disabled={page === sosList.data?.data.totalPages}
-                                                    onClick={() => setpage((p) => p + 1)}
-                                                >
-                                                    Next <img src={Next} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <p className="no-data-found">No data found</p>
-                                )}
-                            </>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+
+
+                        </TableContainer>
+                        <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                            <Grid >
+                                <Typography variant="body2">
+                                    Rows per page:&nbsp;
+                                    <Select
+                                        size="small"
+                                        value={rowsPerPage}
+                                        sx={{
+                                            border: 'none',
+                                            boxShadow: 'none',
+                                            outline: 'none',
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '& .MuiOutlinedInput-root': {
+                                                boxShadow: 'none',
+                                                outline: 'none',
+                                            },
+                                            '& .MuiSelect-select': {
+                                                outline: 'none',
+                                            },
+                                        }}
+                                        onChange={(e) => {
+                                            setRowsPerPage(Number(e.target.value));
+                                            setCurrentPage(1);
+                                        }}
+                                    >
+                                        {[5, 10, 15, 20].map((num) => (
+                                            <MenuItem key={num} value={num}>
+                                                {num}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Typography>
+                            </Grid>
+                            <Grid>
+                                <Box display="flex" alignItems="center" gap={2}>
+                                    <Typography variant="body2">
+                                        {currentPage} / {totalPages}
+                                    </Typography>
+                                    <IconButton
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                                    >
+                                        <ArrowBackIosNewIcon fontSize="small" />
+                                    </IconButton>
+                                    <IconButton
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                                    >
+                                        <ArrowForwardIosIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                ) : (
+                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                        No data found
+                    </Typography>
+                )
+                }
+            </Paper >
+        </Box >
     );
 };
 

@@ -1,9 +1,9 @@
 .add-company-services {
-    height: 60px;
-    border-radius: 12px !important;
-    margin-bottom: 30px;
+    border:1px solid #E0E3E7;
+    height: 44px;
+    border-radius: 4px !important;
     box-shadow: none !important;
-    outline: none !important
+    outline: none !important;
 }
 .edit-company-services {
     display: block;
@@ -31,6 +31,12 @@
     box-shadow: none !important;
     border: 0 !important;
 }
-.select__indicators {
+.css-1u9des2-indicatorSeparator {
     display: none !important;
 }
+.select__clear-indicator{
+    display: none !important;
+}
+/* .select__indicators.select_clear-indicator {
+    display: none !important;
+} */

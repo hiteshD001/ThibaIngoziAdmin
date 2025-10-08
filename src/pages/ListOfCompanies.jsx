@@ -1,218 +1,325 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import icon from "../assets/images/icon.png";
-import search from "../assets/images/search.png";
-import Prev from "../assets/images/left.png";
-import Next from "../assets/images/right.png";
+import {
+  Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
+} from "@mui/material";
+// import plus from '../assets/images/plus.svg'
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import whiteplus from '../assets/images/whiteplus.svg';
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
+// import icon from "../assets/images/icon.png";
+import search from '../assets/images/search.svg';
+// import Prev from "../assets/images/left.png";
+// import Next from "../assets/images/right.png";
 import nouser from "../assets/images/NoUser.png";
-import apiClient from "../API Calls/APIClient";
+import jsPDF from 'jspdf';
+import { autoTable } from 'jspdf-autotable'
 import * as XLSX from 'xlsx';
-import 'jspdf-autotable';
 import { toast } from "react-toastify";
+import CustomExportMenu from '../common/Custom/CustomExport'
 import { useGetUserList } from "../API Calls/API";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
+import apiClient from '../API Calls/APIClient'
+import calender from '../assets/images/calender.svg';
+import { startOfYear } from "date-fns";
 
 const ListOfCompanies = () => {
   const nav = useNavigate();
-  const [page, setpage] = useState(1);
+  const [range, setRange] = useState([
+    {
+      startDate: startOfYear(new Date()),
+      endDate: new Date(),
+      key: 'selection'
+    }
+  ]);
+
   const [filter, setfilter] = useState("");
-  const [isExporting, setIsExporting] = useState(false);
   const [confirmation, setconfirmation] = useState("");
 
-  const companyList = useGetUserList("company list", "company", "", page, 10, filter)
-  const fetchAllUsers = async () => {
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const startDate = range[0].startDate.toISOString();
+  const endDate = range[0].endDate.toISOString();
+  const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, filter, "", startDate, endDate)
+  const totalCompany = companyList.data?.data?.totalUsers || 0;
+  const totalPages = Math.ceil(totalCompany / rowsPerPage);
+
+  const handleExport = async ({ startDate, endDate, format }) => {
     try {
-      const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+      const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
         params: {
           role: "company",
           page: 1,
           limit: 10000,
-          filter,
+          filter: "",
           company_id: "",
+          startDate,
+          endDate,
         },
       });
-      return response?.data?.users || [];
-    } catch (error) {
-      console.error("Error fetching all Company data for export:", error);
-      toast.error("Failed to fetch Company data.");
-      return [];
+
+      const allUsers = data?.users || [];
+      if (!allUsers.length) {
+        toast.warning("No company data found for this period.");
+        return;
+      }
+
+      const exportData = allUsers.map(user => ({
+        "Company": user.company_name || '',
+        "Contact Name": user.contact_name || '',
+        "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+        "Contact Email": user.email || ''
+      }));
+
+      if (format === "xlsx") {
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+          wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+        }));
+        worksheet['!cols'] = columnWidths;
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Companies");
+        XLSX.writeFile(workbook, "Companies_List.xlsx");
+      }
+      else if (format === "csv") {
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const csv = XLSX.utils.sheet_to_csv(worksheet);
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'company_list.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      else if (format === "pdf") {
+        const doc = new jsPDF();
+        doc.text('Company List', 14, 16);
+        autoTable(doc, {
+          head: [['Company', 'Contact Name', 'Contact No.', 'Contact Email']],
+          body: allUsers.map(user => [
+            user.company_name ?? 'NA',
+            user.contact_name ?? 'NA',
+            `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
+            user.email ?? 'NA'
+          ]),
+          startY: 20,
+          theme: 'striped',
+          headStyles: { fillColor: '#367BE0' },
+          margin: { top: 20 },
+          styles: { fontSize: 10 },
+        });
+        doc.save("Companies_List.pdf");
+      }
+
+    } catch (err) {
+      console.error("Error exporting data:", err);
+      toast.error("Export failed.");
     }
-  };
-
-  const handleExport = async () => {
-    setIsExporting(true);
-    const allUsers = await fetchAllUsers();
-    setIsExporting(false);
-
-    if (!allUsers || allUsers.length === 0) {
-      toast.warning("No Company data to export.");
-      return;
-    }
-
-    const fileName = "Companies_List";
-
-    // Prepare data for export
-    const exportData = allUsers.map(user => ({
-      "Company": user.company_name || '',
-      "userName": `${user.first_name || ''} ${user.last_name || ''}`,
-      "Contact Name": user.contact_name || '',
-      "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
-      "Contact Email": user.email || ''
-    }));
-
-    // Create worksheet
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-    // Set column widths dynamically
-    const columnWidths = Object.keys(exportData[0]).map((key) => ({
-      wch: Math.max(
-        key.length,
-        ...exportData.map((row) => String(row[key] || '').length)
-      ) + 2,
-    }));
-    worksheet['!cols'] = columnWidths;
-
-    // Create workbook and add the worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
-
-    // Trigger download
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
   };
   return (
-    <div className="container-fluid">
-      <div className="row">
-        <div className="col-md-12">
-          <div className="theme-table">
-            <div className="tab-heading">
-              <h3>List of Companies</h3>
-              <div className="tbl-filter">
-                <div className="input-group">
-                  <span className="input-group-text">
-                    <img src={search} />
-                  </span>
-                  <input
-                    type="text"
-                    value={filter}
-                    onChange={(e) => setfilter(e.target.value)}
-                    className="form-control"
-                    placeholder="Search"
-                  />
-                  <span className="input-group-text">
-                    <img src={icon} />
-                  </span>
-                </div>
-                <button className="btn btn-primary" onClick={handleExport}
-                  disabled={isExporting}>
-                  {isExporting ? 'Exporting...' : '+ Export Sheet'}
-                </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => nav("add-company")}
-                >
-                  + Add Company
-                </button>
-              </div>
-            </div>
-            {!companyList.data ? (
-              <Loader />
-            ) : (
-              <>
-                {companyList.data?.data.users ? (
-                  <>
-                    <table
-                      id="example"
-                      className="table table-striped nowrap"
-                      style={{ width: "100%" }}
-                    >
-                      <thead>
-                        <tr>
-                          <th>Company</th>
-                          <th>Contact name</th>
-                          <th>Contact No.</th>
-                          <th>Contact Email</th>
-                          <th>&nbsp;</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {companyList.data?.data.users.map((data) => (
-                          <tr key={data._id}>
-                            <td>{data.company_name}</td>
-                            <td>
-                              <div
-                                className={
-                                  !data.contact_name ? "prof nodata" : "prof"
-                                }
-                              >
-                                <img
-                                  className="profilepicture"
-                                  src={data.selfieImage || nouser}
-                                />
-                                {data.contact_name}
-                              </div>
-                            </td>
-                            <td className={!data?.mobile_no ? "nodata" : ""}>
-                              {`${data?.mobile_no_country_code ?? ''}${data?.mobile_no ?? ''}`}
-                            </td>
-                            <td className={!data.email ? "nodata" : ""}>
-                              {data.email}
-                            </td>
-                            <td>
-                              <span
-                                onClick={() => setconfirmation(data._id)}
-                                className="tbl-gray"
-                              >
-                                Delete
-                              </span>
-                              {confirmation === data._id && (
-                                <DeleteConfirm
-                                  id={data._id}
-                                  setconfirmation={setconfirmation}
-                                />
-                              )}
-                              <span
-                                onClick={() =>
-                                  nav(`/home/total-drivers/${data._id}`)
-                                }
-                                className="tbl-btn"
-                              >
-                                view
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                    <div className="pagiation">
-                      <div className="pagiation-left">
-                        <button
-                          disabled={page === 1}
-                          onClick={() => setpage((p) => p - 1)}
-                        >
-                          <img src={Prev} /> Prev
-                        </button>
-                      </div>
-                      <div className="pagiation-right">
-                        <button
-                          disabled={page === companyList.data?.data.totalPages}
-                          onClick={() => setpage((p) => p + 1)}
-                        >
-                          Next <img src={Next} />
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <p className="no-data-found">No data found</p>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    <Box p={2}>
+      <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
+        <Grid container justifyContent="space-between" alignItems="center" mb={2}>
+          <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+            <Typography variant="h6" fontWeight={590}>Onboarded Companies</Typography>
+            <Typography variant="h6" fontWeight={550}>
+              {/* {companyList.isSuccess ? companyList.data?.data.totalUsers : 0} */}
+            </Typography>
+          </Grid>
+          <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
+
+            <TextField
+              variant="outlined"
+              placeholder="Search"
+              value={filter}
+              onChange={(e) => setfilter(e.target.value)}
+              fullWidth
+              sx={{
+                width: '100%',
+                height: '40px',
+                borderRadius: '8px',
+                '& .MuiInputBase-root': {
+                  height: '40px',
+                  fontSize: '14px',
+                },
+                '& .MuiOutlinedInput-input': {
+                  padding: '10px 14px',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <img src={search} alt="search icon" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+              <CustomDateRangePicker
+                value={range}
+                onChange={setRange}
+                icon={calender}
+              />
+              <CustomExportMenu onExport={handleExport} />
+              <Button
+                variant="contained"
+                sx={{ height: '40px', width: '170px', borderRadius: '8px', fontWeight: 400 }}
+                onClick={() => nav("/home/total-companies/add-company")}
+                startIcon={<img src={whiteplus} alt='white plus' />}
+              >
+                Add Company
+              </Button>
+
+            </Box>
+
+          </Grid>
+        </Grid>
+        {companyList.isFetching ? (
+          <Loader />
+        ) : companyList.data?.data.users?.length > 0 ? (
+          <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+            <TableContainer >
+              <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
+                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                  <TableRow >
+                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Company</TableCell>
+                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>User name</TableCell>
+                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Contact No.</TableCell>
+                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Contact Email</TableCell>
+                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {companyList.data?.data.users.map((user) => (
+                    <TableRow key={user._id}>
+                      <TableCell sx={{ color: '#4B5563' }}>
+
+                        {user.company_name || "-"}
+
+                      </TableCell>
+                      <TableCell sx={{ color: '#4B5563' }}>
+                        <Stack direction="row" alignItems="center" gap={1}>
+                          <Avatar
+                            src={user?.selfieImage || nouser}
+                            alt="User"
+                          />
+
+                          {user.contact_name || "-"}
+
+                        </Stack>
+                      </TableCell>
+
+                      <TableCell sx={{ color: '#4B5563' }}>
+
+                        {`${user?.mobile_no_country_code ?? ""}${user?.mobile_no ?? "-"}`}
+
+                      </TableCell>
+                      <TableCell sx={{ color: '#4B5563' }}>
+
+                        {user.email || "-"}
+
+                      </TableCell>
+
+                      <TableCell >
+                        <Box sx={{
+                          justifyContent: 'center',
+                          display: 'flex',
+                          flexDirection: 'row',
+                        }}>
+                          <IconButton onClick={() =>
+                            nav(`/home/total-companies/company-information/${user?._id}`)
+                          }>
+                            <img src={ViewBtn} alt="view button" />
+                          </IconButton>
+                          <IconButton onClick={() => setconfirmation(user?._id)}>
+                            <img src={delBtn} alt="delete button" />
+                          </IconButton>
+                          {confirmation === user?._id && (
+                            <DeleteConfirm id={user?._id} setconfirmation={setconfirmation} />
+                          )}
+                        </Box>
+
+
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+            </TableContainer>
+            <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+              <Grid>
+                <Typography variant="body2">
+                  Rows per page:&nbsp;
+                  <Select
+                    size="small"
+                    sx={{
+                      border: 'none',
+                      boxShadow: 'none',
+                      outline: 'none',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        border: 'none',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        border: 'none',
+                      },
+                      '& .MuiOutlinedInput-root': {
+                        boxShadow: 'none',
+                        outline: 'none',
+                      },
+                      '& .MuiSelect-select': {
+                        outline: 'none',
+                      },
+                    }}
+                    value={rowsPerPage}
+                    onChange={(e) => {
+                      setRowsPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    {[5, 10, 15, 20].map((num) => (
+                      <MenuItem key={num} value={num}>
+                        {num}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Typography>
+              </Grid>
+              <Grid>
+                <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                  <Typography variant="body2">
+                    {currentPage} / {totalPages}
+                  </Typography>
+                  <IconButton
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((prev) => prev - 1)}
+                  >
+                    <NavigateBeforeIcon fontSize="small" sx={{
+                      color: currentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
+                    }} />
+                  </IconButton>
+                  <IconButton
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                  >
+                    <NavigateNextIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+        ) : (
+          <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+            No data found
+          </Typography>
+        )}
+      </Paper>
+    </Box>
   );
 };
 

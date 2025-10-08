@@ -1,16 +1,16 @@
-import logo1 from "../assets/images/logo-1.png";
+import logo4 from "../assets/images/logo4.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { superadmin_menulist, Companyadmin_menulist, salesAgent_menulist } from "./Menulist";
+import { superadmin_menulist, Companyadmin_menulist } from "./Menulist";
 import { LogoutConfirm } from "./ConfirmationPOPup";
 
-const SideBar = () => {
+const SideBar = ({ setActive, isActive, sidebarRef }) => {
     const [confirm, setconfirm] = useState(false)
     const role = localStorage.getItem('role')
     const [menulist] = useState(() => {
         if (role === 'super_admin') return superadmin_menulist;
         if (role === 'company') return Companyadmin_menulist();
-        if (role === 'sales_agent') return salesAgent_menulist;
+        // if (role === 'sales_agent') return salesAgent_menulist();
 
         return [];
     });
@@ -32,19 +32,16 @@ const SideBar = () => {
     }, [location])
 
     return (
-        <div className="sidebar">
+        <div ref={sidebarRef} className={`sidebar ${isActive ? "show" : ""}`}>
             <div className="logo">
-                <img src={logo1} alt="logo" />
+                <img src={logo4} alt="logo" />
             </div>
 
             <ul>
                 {menulist.map(menu =>
                     <li key={menu.name} onClick={() => menu.id === "logout" ? setconfirm(true) : nav(menu.path)}>
                         <span
-                            className={`${currentMenu === menu.id ? "active" : ""}${menu.name === "Logout" ? " logout" : ""}`} ><img src={menu.image} />{menu.name}</span>
-                        {menu.submenu && <ul>
-                            <li onClick={() => nav(menu.submenu.path)}><span><img src={menu.submenu.image} />{menu.submenu.name}</span></li>
-                        </ul>}
+                            className={`${currentMenu === menu.id ? "active" : ""}`} ><img src={menu.image} />{menu.name}</span>
                     </li>
                 )}
             </ul>

@@ -1,242 +1,374 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import apiClient from "../API Calls/APIClient";
+import { useState, useRef } from "react";
+import {
+  Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, Chip, MenuItem,
+  Button
+} from "@mui/material";
+import calender from '../assets/images/calender.svg';
+import CustomExportMenu from "../common/Custom/CustomExport";
+import CustomDateRangePicker from '../common/Custom/CustomDateRangePicker';
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { useNavigate, Link } from "react-router-dom";
+import { format } from "date-fns";
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
+import search from "../assets/images/search.svg";
+import { startOfYear } from "date-fns";
+import { useGetMeetingLinkTripList, useUpdateUserMeetingTripTrip } from "../API Calls/API";
+import Loader from "../common/Loader";
+import { DeleteConfirm } from "../common/ConfirmationPOPup";
+import Listtrip from '../assets/images/Listtrip.svg'
+import jsPDF from 'jspdf';
+import { autoTable } from 'jspdf-autotable'
 import * as XLSX from 'xlsx';
 import { toast } from "react-toastify";
-import 'jspdf-autotable';
-import icon from "../assets/images/icon.png";
-import search from "../assets/images/search.png";
-import Prev from "../assets/images/left.png";
-import Next from "../assets/images/right.png";
-import { format } from "date-fns";
-import { useGetMeetingLinkTripList } from "../API Calls/API";
-import { DeleteConfirm } from "../common/ConfirmationPOPup";
-import Loader from "../common/Loader";
-// import moment from "moment/moment";
-
+import apiClient from "../API Calls/APIClient";
 
 const ListOfMeetingLinkTrips = () => {
   const nav = useNavigate();
-  const [page, setpage] = useState(1);
-  const [filter, setfilter] = useState("");
-  const [confirmation, setconfirmation] = useState("");
-  const [isExporting, setIsExporting] = useState(false);
-  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, 10, filter)
-  const tripList = trip?.data?.data?.tripData
+  const [page, setPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [isArchived, setIsArchived] = useState(false);
+  const [filter, setFilter] = useState("");
+  const [range, setRange] = useState([
+    {
+      startDate: startOfYear(new Date()),
+      endDate: new Date(),
+      key: 'selection'
+    }
+  ]);
+  const [confirmation, setConfirmation] = useState("");
+  const startDate = range[0].startDate.toISOString();
+  const endDate = range[0].endDate.toISOString();
+  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter, startDate, endDate, isArchived);
+  const tripList = trip?.data?.data?.tripData || [];
+  const totalTrips = trip?.data?.data?.totalMeetingLinkTripData || 0;
+  const totalPages = Math.ceil(totalTrips / rowsPerPage);
 
-  const fetchAllUsers = async () => {
+  const updateMeetingLinkTripMutation = useUpdateUserMeetingTripTrip(
+    (id, data) => {
+
+      toast.success("User Archived Successfully")
+
+      trip.refetch();
+
+    },
+    (error) => {
+      console.error('Error updating trip:', error);
+    }
+  );
+
+
+
+  const handleExport = async ({ startDate, endDate, format: fileFormat }) => {
     try {
-      const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/userMeetingTrip`, {
+      const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/userMeetingTrip`, {
         params: {
           page: 1,
           limit: 10000,
-          filter,
+          filter: "",
+          startDate,
+          endDate,
         },
       });
-      return response?.data?.tripData || [];
-    } catch (error) {
-      console.error("Error fetching all Trip data for export:", error);
-      toast.error("Failed to fetch Trp data.");
-      return [];
+
+      const allUsers = data?.tripData || [];
+      if (!allUsers.length) {
+        toast.warning("No Meeting Link Trip data found.");
+        return;
+      }
+
+      const exportData = allUsers.map(user => ({
+        "User1": user.user1.first_name || '',
+        "User2": user.user2.first_name || '',
+        "Started At": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
+        "Ended At": user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
+        // "Ended By": user.ended_by || '',
+        "Status": user.trip_status || '',
+      }));
+
+      if (fileFormat === "xlsx") {
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+          wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+        }));
+        worksheet['!cols'] = columnWidths;
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Meeting_Link_Trip_List");
+        XLSX.writeFile(workbook, "Meeting_Link_Trip_List.xlsx");
+      }
+      else if (fileFormat === "csv") {
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const csv = XLSX.utils.sheet_to_csv(worksheet);
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'Meeting_Link_Trip_List.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      else if (fileFormat === "pdf") {
+        const doc = new jsPDF();
+        doc.text('Meeting Link TripList', 14, 16);
+        autoTable(doc, {
+          head: [['User1', 'User2', 'Started At', 'Ended At', 'Status']],
+          body: allUsers.map(user => [
+            user.user1.first_name ?? 'NA',
+            user.user2.first_name ?? 'NA',
+            format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") ?? 'NA',
+            user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
+            // user.ended_by ?? 'NA',
+            user.trip_status ?? 'NA'
+          ]),
+          startY: 20,
+          theme: 'striped',
+          headStyles: { fillColor: '#367BE0' },
+          margin: { top: 20 },
+          styles: { fontSize: 10 },
+        });
+        doc.save("Meeting_Link_Trip_List.pdf");
+      }
+
+    } catch (err) {
+      console.error("Error exporting data:", err);
+      toast.error("Export failed.");
     }
   };
 
-  const handleExport = async () => {
-    setIsExporting(true);
-    const allUsers = await fetchAllUsers();
-    setIsExporting(false);
-
-    if (!allUsers || allUsers.length === 0) {
-      toast.warning("No Trip data to export.");
-      return;
-    }
-
-    const fileName = "Meeting_Link_Trip_List";
-
-    // Prepare data for export
-    const exportData = allUsers.map(user => ({
-      "User1": user?.user1.first_name ?? '',
-      "User2": user?.user2.first_name ?? '',
-      "Status": user?.trip_status ?? '',
-      "Started at": format(user?.createdAt, "HH:mm:ss - dd/MM/yyyy") ?? '',
-      "Ended at": user?.trip_status === 'ended' ? format(user?.endedAt, "HH:mm:ss - dd/MM/yyyy") : '',
-      // "Ended By": user?.ended_by ?? '',
-    }));
-
-    // Create worksheet
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-    // Set column widths dynamically
-    const columnWidths = Object.keys(exportData[0]).map((key) => ({
-      wch: Math.max(
-        key.length,
-        ...exportData.map((row) => String(row[key] || '').length)
-      ) + 2,
-    }));
-    worksheet['!cols'] = columnWidths;
-
-    // Create workbook and add the worksheet
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
-
-    // Trigger download
-    XLSX.writeFile(workbook, `${fileName}.xlsx`);
-  };
   return (
-    <div className="container-fluid">
-      <div className="row">
-        <div className="col-md-12">
-          <div className="theme-table">
-            <div className="tab-heading">
-              <h3>List of Meeting Link Trips</h3>
-              <div className="tbl-filter">
-                <div className="input-group" style={{ width: "100%" }}>
-                  <span className="input-group-text">
-                    <img src={search} />
-                  </span>
-                  <input
-                    type="text"
-                    value={filter}
-                    onChange={(e) => setfilter(e.target.value)}
-                    className="form-control"
-                    placeholder="Search"
-                  />
-                  <span className="input-group-text">
-                    <img src={icon} />
-                  </span>
-                </div>
-                <button className="btn btn-primary" onClick={handleExport}
-                  disabled={isExporting}>
-                  {isExporting ? 'Exporting...' : '+ Export Sheet'}
-                </button>
-              </div>
-            </div>
-            {!tripList ? (
-              <Loader />
-            ) : (
-              <>
-                {tripList ? (
-                  <>
-                    <table
-                      id="example"
-                      className="table table-striped nowrap"
-                      style={{ width: "100%" }}
-                    >
-                      <thead>
-                        <tr>
-                          <th>User1</th>
-                          <th>User2</th>
-                          <th>Status</th>
-                          <th>Started at</th>
-                          <th>Ended at</th>
-                          {/* <th>Ended By</th> */}
-                          <th>Trip Location</th>
-                          <th>&nbsp;</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {tripList?.map((data) => {
-                          const startlat = data?.trip_start?.split(",")[0]
-                          const startlong = data?.trip_start?.split(",")[1]
-                          const endlat = data?.trip_end?.split(",")[0]
-                          const endlong = data?.trip_end?.split(",")[1]
+    <Box p={2}>
+      <Paper elevation={3} sx={{ backgroundColor: "#fdfdfd", padding: 2, borderRadius: "10px" }}>
+        <Grid container justifyContent="space-between" alignItems="center" mb={2}>
+          <Grid size={{ xs: 12, md: 3, lg: 4 }} >
+            <Typography variant="h6" fontWeight={590}>List of Meeting Link Trips</Typography>
+          </Grid>
 
-                          return <tr key={data?._id}>
-                            {/* <td>{`${data.driver_id.first_name} ${data.driver_id.last_name}`}</td> */}
-                            <td>
-                              {data.user1.role === "driver" ? (
-                                <Link to={`/home/total-drivers/driver-information/${data.user1._id}`} className="link">
-                                  {data.user1.first_name}
-                                </Link>
-                              ) : data.user1.role === "passanger" ? (
-                                <Link to={`/home/total-meeting-link-trips/user-information/${data.user1._id}`} className="link">
-                                  {data.user1.first_name}
-                                </Link>
-                              ) : (
-                                data.user1.first_name
-                              )}
-                            </td>
-                            <td>
-                              {data.user2.role === "driver" ? (
-                                <Link to={`/home/total-drivers/driver-information/${data.user2._id}`} className="link">
-                                  {data.user2.first_name}
-                                </Link>
-                              ) : data.user2.role === "passanger" ? (
-                                <Link to={`/home/total-meeting-link-trips/user-information/${data.user2._id}`} className="link">
-                                  {data.user2.first_name}
-                                </Link>
-                              ) : (
-                                data.user2.first_name
-                              )}
-                            </td>
+          <Grid size={{ xs: 12, md: 9, lg: 8 }} sx={{ display: "flex", justifyContent: "flex-end", gap: 2, flexDirection: { xs: "column", sm: "row" } }}>
+            <TextField
+              variant="outlined"
+              placeholder="Search"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              fullWidth
+              sx={{
+                width: "100%",
+                height: "40px",
+                borderRadius: "8px",
+                '& .MuiInputBase-root': { height: '40px', fontSize: '14px' },
+                '& .MuiOutlinedInput-input': { padding: '10px 14px' },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <img src={search} alt="search icon" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
+              <CustomDateRangePicker
+                value={range}
+                onChange={setRange}
+                icon={calender}
+              />
 
-                            <td>
-                              {data.trip_status}
-                            </td>
-                            <td> {format(data.createdAt, "HH:mm:ss - dd/MM/yyyy")}</td>
-                            <td>
-                              {data.trip_status === 'ended' ? format(data.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---'}
-                            </td>
-                            {/* <td>
-                              {data.ended_by}
-                            </td> */}
-                            <td>
-                              <span
-                                onClick={() =>
-                                  nav(`/home/total-meeting-link-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
+              <CustomExportMenu onExport={handleExport} />
+              <Button
+                onClick={() => nav('/home/total-meeting-link-trips/view-archeived')}
+                variant="contained"
+                sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
+                startIcon={<img src={ViewBtn} alt="View" />}>
+                View Archeived
+              </Button>
+            </Box>
+          </Grid>
+
+        </Grid>
+
+        {trip.isFetching ? (
+          <Loader />
+        ) : tripList.length > 0 ? (
+          <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+            <TableContainer>
+              <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
+                <TableHead sx={{ borderTopLeftRadius: '10px', backgroundColor: '#f5f5f5', borderTopRightRadius: '10px', }}>
+                  <TableRow>
+                    <TableCell sx={{ color: '#4B5563', borderTopLeftRadius: '10px' }}>User 1</TableCell>
+                    <TableCell sx={{ color: '#4B5563' }}>User 2</TableCell>
+
+                    <TableCell sx={{ color: '#4B5563' }}>Started At</TableCell>
+                    <TableCell sx={{ color: '#4B5563' }}>Ended At</TableCell>
+                    <TableCell sx={{ color: '#4B5563' }}>Status</TableCell>
+                    {/* <TableCell sx={{ color: '#4B5563' }}>Ended By</TableCell> */}
+                    <TableCell align="center" sx={{ color: '#4B5563' }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+
+                <TableBody>
+                  {tripList.map((data) => {
+                    const [startlat, startlong] = data?.trip_start?.split(",") || [];
+                    const [endlat, endlong] = data?.trip_end?.split(",") || [];
+
+                    return (
+                      <TableRow key={data._id}>
+                        <TableCell>
+                          <Link
+                            className="link2"
+                            to={
+                              data.user1.role === "driver"
+                                ? `/home/total-drivers/driver-information/${data.user1._id}`
+                                : data.user1.role === "passanger"
+                                  ? `/home/total-meeting-link-trips/user-information/${data.user1._id}`
+                                  : "#"
+                            }
+                          >
+                            {data.user1.first_name}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <Link
+                            className="link2"
+                            to={
+                              data.user2.role === "driver"
+                                ? `/home/total-drivers/driver-information/${data.user2._id}`
+                                : data.user2.role === "passanger"
+                                  ? `/home/total-meeting-link-trips/user-information/${data.user2._id}`
+                                  : "#"
+                            }
+                          >
+                            {data.user2.first_name}
+                          </Link>
+                        </TableCell>
+
+                        <TableCell>{format(data.createdAt, "HH:mm:ss - dd/MM/yyyy")}</TableCell>
+                        <TableCell>
+                          {data.trip_status === "ended"
+                            ? format(data.endedAt, "HH:mm:ss - dd/MM/yyyy")
+                            : "---"}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={data.trip_status}
+                            sx={{
+                              backgroundColor:
+                                data.trip_status === 'ended' ? '#367BE01A' :
+                                  data.trip_status === 'started' ? '#E5565A33' :
+                                    data.trip_status === 'linked' ? '#DCFCE7' :
+                                      '#F3F4F6',
+                              '& .MuiChip-label': {
+                                textTransform: 'capitalize',
+                                fontWeight: 500,
+                                color: data.trip_status === 'ended' ? '#367BE0' :
+                                  data.trip_status === 'started' ? '#E5565A' :
+                                    data.trip_status === 'linked' ? '#166534' :
+                                      'black',
+                              }
+                            }}
+                          />
+                        </TableCell>
+                        {/* <TableCell>
+                          {data.trip_status === "ended"
+                            ? format(data.endedAt, "HH:mm:ss - dd/MM/yyyy")
+                            : "---"}
+                        </TableCell> */}
+                        <TableCell >
+                          <Box sx={{
+                            justifyContent: 'center',
+                            display: 'flex',
+                            flexDirection: 'row',
+                          }}>
+                            <IconButton
+                              onClick={() =>
+                                nav(`/home/total-meeting-link-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
+                              }
+                            >
+                              <img src={ViewBtn} alt="view button" />
+                            </IconButton>
+                            <IconButton
+                              onClick={() => updateMeetingLinkTripMutation.mutate({
+                                id: data._id,
+                                data: {
+                                  "userId1": data.user_id1,
+                                  "userId2": data.user_id2,
+                                  "notification_type": data.notification_type,
+                                  "start_by":data.start_by,
+                                  "isArchived" : true
                                 }
-                                className="tbl-btn"
-                              >
-                                view
-                              </span>
-                            </td>
-                            <td>
-                              <span
-                                onClick={() => setconfirmation(data._id)}
-                                className="tbl-gray"
-                              >
-                                Delete
-                              </span>
-                              {confirmation === data._id && (
-                                <DeleteConfirm
-                                  id={data._id}
-                                  setconfirmation={setconfirmation}
-                                  trip={"LinkTrip"}
-                                />
-                              )}
-                            </td>
-                          </tr>
-                        })}
-                      </tbody>
-                    </table>
-                    <div className="pagiation">
-                      <div className="pagiation-left">
-                        <button
-                          disabled={page === 1}
-                          onClick={() => setpage((p) => p - 1)}
-                        >
-                          <img src={Prev} /> Prev
-                        </button>
-                      </div>
-                      <div className="pagiation-right">
-                        <button
-                          disabled={page === (trip.data.data?.totalPages ?? 0)}
-                          onClick={() => setpage((p) => p + 1)}
-                        >
-                          Next <img src={Next} />
-                        </button>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <p className="no-data-found">No data found</p>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+                              })}
+                            >
+                              <img src={Listtrip} alt="view button" />
+                            </IconButton>
+                            <IconButton
+                              onClick={() => setConfirmation(data._id)}
+                            >
+                              <img src={delBtn} alt="delete button" />
+                            </IconButton>
+
+                          </Box>
+                          {confirmation === data._id && (
+                            <DeleteConfirm id={data._id} setconfirmation={setConfirmation} trip="LinkTrip" />
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+              <Grid >
+                <Typography variant="body2">
+                  Rows per page:&nbsp;
+                  <Select
+                    size="small"
+                    value={rowsPerPage}
+                    onChange={(e) => {
+                      setRowsPerPage(Number(e.target.value));
+                      setPage(1);
+                    }}
+                    sx={{
+                      border: 'none',
+                      '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                      '& .MuiSelect-select': { padding: '4px 10px' },
+                    }}
+                  >
+                    {[5, 10, 15, 20].map((num) => (
+                      <MenuItem key={num} value={num}>
+                        {num}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Typography>
+              </Grid>
+
+              <Grid>
+                <Box display="flex" alignItems="center" gap={2}>
+                  <Typography variant="body2">{page} / {totalPages}</Typography>
+                  <IconButton
+                    disabled={page === 1}
+                    onClick={() => setPage((prev) => prev - 1)}
+                  >
+                    <NavigateBeforeIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    disabled={page === totalPages}
+                    onClick={() => setPage((prev) => prev + 1)}
+                  >
+                    <NavigateNextIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+        ) : (
+          <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+            No data found
+          </Typography>
+        )}
+      </Paper>
+    </Box>
   );
 };
 

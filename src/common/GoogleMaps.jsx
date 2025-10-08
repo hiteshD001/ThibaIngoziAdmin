@@ -13,7 +13,7 @@ import { GoogleMapConfirm } from "./ConfirmationPOPup";
 
 const mapContainerStyle = { width: "100%", height: "calc(100vh - 100px )" };
 
-const GoogleMaps = () => {
+const GoogleMaps = ({ isMapLoaded }) => {
     const [params] = useSearchParams();
     const nav = useNavigate();
     const [directions, setDirections] = useState(null);
@@ -37,9 +37,9 @@ const GoogleMaps = () => {
     };
     const [mapCenter] = useState(startLocation);
 
-    const { isLoaded } = useJsApiLoader({
-        googleMapsApiKey: import.meta.env.VITE_MAP_API_KEY,
-    });
+    // const { isLoaded } = useJsApiLoader({
+    //     googleMapsApiKey: import.meta.env.VITE_MAP_API_KEY,
+    // });
 
     // Reverse geocoding to get the address from lat/lng
     const getAddressFromLatLng = (lat, lng) => {
@@ -59,7 +59,7 @@ const GoogleMaps = () => {
     useEffect(() => {
         let location = null;
         if (
-            !isLoaded ||
+            !isMapLoaded ||
             !startLocation.lat ||
             !startLocation.lng ||
             !endLocation.lat ||
@@ -108,7 +108,7 @@ const GoogleMaps = () => {
                 }
             }
         );
-    }, [isLoaded, params, locations]);
+    }, [isMapLoaded, params, locations]);
 
     const handleStartMarkerHover = () => {
         const startedAt = new Date(params.get("startedAt")).toLocaleString();
@@ -134,7 +134,7 @@ const GoogleMaps = () => {
         nav("/home/total-drivers");
     };
 
-    if (!isLoaded) return <p>Loading Map...</p>;
+    if (!isMapLoaded) return <p>Loading Map...</p>;
 
     return (
         <>

@@ -1,47 +1,101 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { companyEditValidation, companyValidation } from "../common/FormValidation";
-import { useGetUser, useGetUserList, useUpdateUser, useGetArmedSoS, useGetServicesList, armedSosPayout, payoutUserUpdate, useGetSecurityList } from "../API Calls/API";
-import PayoutPopup from "../common/Popup";
-import Select from "react-select";
-import { useQueryClient } from "@tanstack/react-query"
-import Prev from "../assets/images/left.png";
-import Next from "../assets/images/right.png";
-import nouser from "../assets/images/NoUser.png";
-import search from "../assets/images/search.png";
-import icon from "../assets/images/icon.png";
+import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup } from "@mui/material";
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
+import payIcon from '../assets/images/payIcon.svg';
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import whiteplus from '../assets/images/whiteplus.svg';
+import plus from '../assets/images/plus.svg'
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
 import { useFormik } from "formik";
+import Select from "react-select";
+import checkedboxIcon from '../assets/images/checkboxIcon.svg'
+import uncheckedIcon from '../assets/images/UnChecked.svg'
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
+import calender from '../assets/images/calender.svg';
+import { useQueryClient } from "@tanstack/react-query";
+import jsPDF from 'jspdf';
+import { startOfYear } from "date-fns";
+import { autoTable } from 'jspdf-autotable'
+import * as XLSX from 'xlsx';
+import { toast } from "react-toastify";
+import { components } from 'react-select';
+import driverPaidicon from '../assets/images/driverPaidicon.svg'
+import driverPayoutIcon from '../assets/images/driverPayoutIcon.svg'
+import {
+    companyEditValidation,
+    companyValidation,
+} from "../common/FormValidation";
+import {
+    useGetUser,
+    useGetUserList,
+    useUpdateUser,
+    useGetArmedSoS,
+    useGetServicesList,
+    armedSosPayout,
+    payoutUserUpdate,
+    useGetSecurityList,
+} from "../API Calls/API";
+import CustomExportMenu from '../common/Custom/CustomExport'
+import PayoutPopup from "../common/Popup";
 import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
-import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
-import * as XLSX from 'xlsx';
-import 'jspdf-autotable';
 import apiClient from "../API Calls/APIClient";
+
+import search from "../assets/images/search.svg";
+import nouser from "../assets/images/NoUser.png";
 
 const ListOfDrivers = () => {
     const [edit, setedit] = useState(false);
     const [isArmedLocal, setIsArmedLocal] = useState(false);
-    const [popup, setpopup] = useState(false)
-    const client = useQueryClient()
+    const [popup, setpopup] = useState(false);
+    const client = useQueryClient();
     const nav = useNavigate();
     const params = useParams();
-    const [role] = useState(localStorage.getItem("role"))
+    const [role] = useState(localStorage.getItem("role"));
     const [page, setpage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
-    const [servicesList, setServicesList] = useState({});
-    const [GrpservicesList, setGrpservicesList] = useState({});
-    const [payPopup, setPopup] = useState('')
-    const [selectedPayoutType, setSelectedPayoutType] = useState('');
-    const [isExportingDrivers, setIsExportingDrivers] = useState(false);
+    const [servicesList, setServicesList] = useState([]);
+    const [GrpservicesList, setGrpservicesList] = useState([]);
+    const [payPopup, setPopup] = useState("");
+    const [selectedPayoutType, setSelectedPayoutType] = useState("");
+    const [range, setRange] = useState([
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+    const startDate = range[0].startDate.toISOString();
+    const endDate = range[0].endDate.toISOString();
 
-    const companyInfo = useGetUser(params.id)
-    const notification_type = "677534649c3a99e13dcd7456"
-    const driverList = useGetUserList("driver list", "driver", params.id, page, 10, filter, notification_type)
-    const getArmedSOS = useGetArmedSoS()
+    const companyInfo = useGetUser(params.id);
+    const driverList = useGetUserList(
+        "driver list",
+        "driver",
+        params.id,
+        page,
+        rowsPerPage,
+        filter,
+        "",
+        startDate,
+        endDate
+    );
+    const getArmedSOS = useGetArmedSoS();
+    const securityList = useGetSecurityList();
+    const serviceslist = useGetServicesList();
+
+    const totalDrivers = driverList.data?.data?.totalUsers || 0;
+    const totalPages = Math.ceil(totalDrivers / rowsPerPage);
+
     const CompanyForm = useFormik({
         initialValues: {
             company_name: "",
@@ -51,7 +105,7 @@ const ListOfDrivers = () => {
             isPaymentToken: "",
             services: [],
             securityCompany: [],
-            isEnrollToken: ""
+            isEnrollToken: "",
         },
         validationSchema: companyEditValidation,
         onSubmit: (values) => {
@@ -67,7 +121,7 @@ const ListOfDrivers = () => {
                 }
             });
             mutate({ id: params.id, data: formData });
-        }
+        },
     });
 
     useEffect(() => {
@@ -75,7 +129,6 @@ const ListOfDrivers = () => {
             setIsArmedLocal(companyInfo.data?.data?.user?.isArmed);
         }
     }, [companyInfo.data]);
-
 
     useEffect(() => {
         const user = companyInfo.data?.data?.user;
@@ -87,14 +140,14 @@ const ListOfDrivers = () => {
                 isArmed: user.isArmed || false,
                 isPaymentToken: user.isPaymentToken || false,
                 isEnrollToken: user.isEnrollToken || false,
-                services: user.services
-                    ?.filter(s => s.serviceId?.isService)
-                    .map(s => s.serviceId._id) || [],
-                securityCompany: user.securityCompany?.map((item) => item.securityCompanyId._id) || [],
+                services:
+                    user.services?.filter((s) => s.serviceId?.isService).map((s) => s.serviceId._id) ||
+                    [],
+                securityCompany:
+                    user.securityCompany?.map((item) => item.securityCompanyId._id) || [],
             });
 
-            const filteredServices = user.services?.filter(s => s.serviceId?.isService);
-
+            const filteredServices = user.services?.filter((s) => s.serviceId?.isService);
             const grouped = filteredServices?.reduce((acc, s) => {
                 const type = s.serviceId.type;
                 if (!acc[type]) acc[type] = [];
@@ -104,26 +157,23 @@ const ListOfDrivers = () => {
                 });
                 return acc;
             }, {});
-
-            const groupedOptions = Object.keys(grouped || {}).map(type => ({
+            const groupedOptions = Object.keys(grouped || {}).map((type) => ({
                 label: type,
                 options: grouped[type],
             }));
-
             setServicesList(groupedOptions);
         }
-    }, [companyInfo.data?.data?.user]);
+    }, [companyInfo.data?.data?.user, edit]);
 
-    const securityList = useGetSecurityList()
-    const securityCompanyOptions = securityList?.data?.data?.company?.map((item) => ({
-        label: item.company_name,
-        value: item._id,
-    })) || [];
-    const serviceslist = useGetServicesList()
+    const securityCompanyOptions =
+        securityList?.data?.data?.company?.map((item) => ({
+            label: item.company_name,
+            value: item._id,
+        })) || [];
+
     useLayoutEffect(() => {
         if (Array.isArray(serviceslist)) {
-            const filteredServices = serviceslist.filter(service => service.isService);
-
+            const filteredServices = serviceslist.filter((service) => service.isService);
             const groupedOptions = [
                 {
                     label: "Services",
@@ -131,71 +181,68 @@ const ListOfDrivers = () => {
                         label: service.type,
                         value: service._id,
                     })),
-                }
+                },
             ];
-
-            setGrpservicesList(groupedOptions ?? [])
+            setGrpservicesList(groupedOptions ?? []);
         }
-    }, [serviceslist])
+    }, [serviceslist]);
+
     const onSuccess = () => {
         client.invalidateQueries(["user", params.id]);
         toast.success("User Updated Successfully.");
-    }
-    const onError = (error) => { toast.error(error.response.data.message || "Something went Wrong", toastOption) }
+    };
+    const onError = (error) => {
+        toast.error(error.response?.data?.message || "Something went Wrong", toastOption);
+    };
     const { mutate } = useUpdateUser(onSuccess, onError);
-
 
     const PayoutForm = useFormik({
         initialValues: {
-            firstName: '',
-            surname: '',
-            branchCode: '',
+            firstName: "",
+            surname: "",
+            branchCode: "",
             amount: 0,
-            accountNumber: '',
-            customerCode: ''
-        }
-    })
+            accountNumber: "",
+            customerCode: "",
+        },
+    });
 
     const parseXmlResponse = (xmlString) => {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-
         const result = xmlDoc.getElementsByTagName("Result")[0]?.textContent;
         const message = xmlDoc.getElementsByTagName("ResultMessage")[0]?.textContent;
-
         return { result, message };
     };
 
     const payoutMutation = armedSosPayout(
         (res) => {
             const { result, message } = parseXmlResponse(res.data);
-
             if (result === "Success") {
                 payoutUpdateMutation.mutate({
                     user_id: companyInfo.data.data.user._id,
                     type: selectedPayoutType,
                     amount: PayoutForm.values.amount,
                 });
-                toast.success('Payment successful');
+                toast.success("Payment successful");
                 closePopup();
             } else {
-                toast.error(message || 'Payment failed');
+                toast.error(message || "Payment failed");
                 console.error("Payment Error:", message);
             }
         },
-
         (err) => {
-            toast.error('payment failed')
+            toast.error("payment failed");
             console.error("Error!", err);
         }
     );
 
     const payoutUpdateMutation = payoutUserUpdate(
         (res) => {
-            toast.success('payment successful');
+            toast.success("payment successful");
         },
         (err) => {
-            toast.error('payment failed')
+            toast.error("payment failed");
         }
     );
 
@@ -205,8 +252,7 @@ const ListOfDrivers = () => {
 
     const handlePopup = (event, type, payoutType) => {
         event.stopPropagation();
-
-        const isCompany = payoutType === 'company';
+        const isCompany = payoutType === "company";
         const selectedAmount = isCompany
             ? companyInfo.data?.data.totalCompanyAmount
             : companyInfo.data?.data.totalDriverAmount;
@@ -224,13 +270,11 @@ const ListOfDrivers = () => {
         setSelectedPayoutType(payoutType);
     };
 
-    const closePopup = (event) => {
-        // event.stopPropagation();
-        setPopup('')
-    }
+    const closePopup = () => setPopup("");
+
     const renderPopup = () => {
         switch (payPopup) {
-            case 'payout':
+            case "payout":
                 return <PayoutPopup yesAction={handleChange} noAction={closePopup} />;
             default:
                 return null;
@@ -243,288 +287,260 @@ const ListOfDrivers = () => {
         }
     }, [CompanyForm.values.isArmed]);
 
-    const fetchAllDrivers = async () => {
+
+    const handleExport = async ({ startDate, endDate, format }) => {
         try {
-            const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
                 params: {
                     role: "driver",
                     page: 1,
                     limit: 10000,
-                    filter,
+                    filter: "",
                     company_id: params.id,
+                    startDate,
+                    endDate,
                 },
             });
-            return response?.data?.users || [];
-        } catch (error) {
-            console.error("Error fetching all driver data for export:", error);
-            toast.error("Failed to fetch driver data.");
-            return [];
+
+            const allUsers = data?.users || [];
+            if (!allUsers.length) {
+                toast.warning("No driver data found for this time period.");
+                return;
+            }
+            const exportData = allUsers.map(user => ({
+                "Driver": `${user.first_name || ''} ${user.last_name || ''}` || '',
+                "Driver ID": user.passport_no || '',
+                "Company": user.company_name || '',
+                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+                "Contact Email": user.email || ''
+            }));
+
+            if (format === "xlsx") {
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+                }));
+                worksheet['!cols'] = columnWidths;
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
+                XLSX.writeFile(workbook, "Drivers_List.xlsx");
+            }
+            else if (format === "csv") {
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const csv = XLSX.utils.sheet_to_csv(worksheet);
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'driver_list.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            else if (format === "pdf") {
+                const doc = new jsPDF();
+                doc.text('Driver List', 14, 16);
+                autoTable(doc, {
+                    head: [['Driver', 'Driver ID', 'Company', 'Contact No.', 'Contact Email']],
+                    body: allUsers.map(user => [
+                        `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
+                        user.passport_no ?? 'NA',
+                        user.company_name ?? 'NA',
+                        user?.email ?? 'NA',
+                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
+                        user.email ?? 'NA'
+                    ]),
+                    startY: 20,
+                    theme: 'striped',
+                    headStyles: { fillColor: '#367BE0' },
+                    margin: { top: 20 },
+                    styles: { fontSize: 10 },
+                });
+                doc.save("Drivers_List.pdf");
+            }
+
+        } catch (err) {
+            console.error("Error exporting data:", err);
+            toast.error("Export failed.");
         }
     };
 
-    const handleExport = async () => {
-        setIsExportingDrivers(true);
-        const allDrivers = await fetchAllDrivers();
-        console.log(allDrivers)
-        setIsExportingDrivers(false);
 
-        if (!allDrivers || allDrivers.length === 0) {
-            toast.warning("No driver data to export.");
-            return;
+    const handleAddDriver = () => {
+        if (role === "company" && params.id) {
+            nav("/home/total-drivers/add-driver", { state: { companyId: params.id } });
+        } else {
+            nav("/home/total-drivers/add-driver");
         }
-
-        const fileName = "Drivers_List";
-
-        // Prepare data for export
-        const exportData = allDrivers.map(driver => ({
-            "Driver Name": `${driver.first_name || ''} ${driver.last_name || ''}`,
-            "Driver ID": driver.id_no || '',
-            "Company": driver.company_name || '',
-            "Contact No.": `${driver.mobile_no_country_code || ''}${driver.mobile_no || ''}`,
-            "Contact Email": driver.email || ''
-        }));
-
-        // Create worksheet
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-        // Set column widths dynamically
-        const columnWidths = Object.keys(exportData[0]).map((key) => ({
-            wch: Math.max(
-                key.length,
-                ...exportData.map((row) => String(row[key] || '').length)
-            ) + 2,
-        }));
-        worksheet['!cols'] = columnWidths;
-
-        // Create workbook and add the worksheet
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
-
-        // Trigger download
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
     };
-
+    const DropdownIndicator = (props) => {
+        return (
+            <components.DropdownIndicator {...props}>
+                {props.selectProps.menuIsOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+            </components.DropdownIndicator>
+        );
+    };
     return (
-        <div className="container-fluid">
-            <div className="row">
-                <div className="col-md-12">
-                    {params.id && (
-                        <>
-                            <div className="company-info">
-                                <div className="comapny-titles">Company Information</div>
-                                <div className="comapny-det">
-                                    <div className="c-info">
-                                        <span>Company</span>
-                                        {edit && role !== "company" ? (
-                                            <input
-                                                type="text"
-                                                name="company_name"
-                                                placeholder="Company Name"
-                                                className="form-control"
-                                                value={CompanyForm.values.company_name}
-                                                onChange={CompanyForm.handleChange}
+        <Box p={2}>
+            {/* Company Info (when params.id is present) */}
+            {params.id && (
+                <Box sx={{}}>
+                    <Paper
+                        elevation={3}
+                        sx={{ backgroundColor: "rgb(253, 253, 253)", p: 3, borderRadius: "10px", mb: 2 }}
+                    >
+                        <Box sx={{ borderBottom: '1px solid var(--light-gray)', mb: 3 }}>
+                            <Typography variant="h6" fontWeight={550} mb={1}>
+                                Company Information
+                            </Typography>
+                        </Box>
+
+                        <Grid container spacing={2}>
+                            {/* Company Name */}
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
+                                    Company Name
+                                </Typography>
+                                {edit ? (
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        name="company_name"
+                                        placeholder="Company Name"
+                                        value={CompanyForm.values.company_name}
+                                        onChange={CompanyForm.handleChange}
+                                    />
+                                ) : (
+                                    <Typography >{companyInfo.data?.data.user.company_name}</Typography>
+                                )}
+                            </Grid>
+
+                            {/* Contact No */}
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
+                                    Contact Number
+                                </Typography>
+                                {edit ? (
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        name="mobile_no"
+                                        placeholder="Contact No."
+                                        value={CompanyForm.values.mobile_no}
+                                        onChange={CompanyForm.handleChange}
+                                    />
+                                ) : (
+                                    <Typography >{companyInfo.data?.data.user.mobile_no}</Typography>
+                                )}
+                            </Grid>
+
+                            {/* Contact Email */}
+                            <Grid size={{ xs: 12, md: 4 }}>
+                                <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
+                                    Contact Email
+                                </Typography>
+                                {edit ? (
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        name="email"
+                                        placeholder="Contact Email"
+                                        value={CompanyForm.values.email}
+                                        onChange={CompanyForm.handleChange}
+                                    />
+                                ) : (
+                                    <Typography>{companyInfo.data?.data.user.email}</Typography>
+                                )}
+                            </Grid>
+
+                            {/* Google APIs Used */}
+                            <Grid size={{ xs: 12, md: 4 }} sx={{ pt: 1 }}>
+                                <Typography variant="body1" color="text.secondary">
+                                    Total Google APIs Used
+                                </Typography>
+                                <Typography sx={{ pt: 1 }}>{companyInfo.data?.data.totalGoogleMapApi}</Typography>
+                            </Grid>
+
+                            {/* Toggles */}
+                            <Grid size={{ xs: 12, md: 8 }} sx={{ display: "flex", flexDirection: 'column', flexWrap: "wrap", pt: 1 }}>
+                                <Typography variant="body1" color="text.secondary">
+                                    Enabled Services
+                                </Typography>
+                                <Box>
+                                    <FormControlLabel
+                                        sx={{
+                                            '&.Mui-disabled': {
+                                                color: 'black !important',
+                                            },
+                                            '.MuiTypography-root': {
+                                                color: 'black',
+                                            }
+                                        }}
+                                        control={
+                                            <Checkbox
+                                                checked={CompanyForm.values.isArmed}
+                                                onChange={(e) => CompanyForm.setFieldValue("isArmed", e.target.checked)}
+                                                disabled={!edit}
+                                                icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
+                                                checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />}
+                                                sx={{
+                                                    '&.Mui-disabled': {
+                                                        color: 'black',
+                                                    }
+                                                }}
+                                            />
+                                        }
+                                        label="Security"
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={CompanyForm.values.isPaymentToken}
+                                                onChange={(e) =>
+                                                    CompanyForm.setFieldValue("isPaymentToken", e.target.checked)
+                                                }
+                                                icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
+                                                checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />}
                                                 disabled={!edit}
                                             />
-
-                                        ) : (
-                                            <p>{companyInfo.data?.data.user.company_name}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="c-info">
-                                        <span>Contact No.</span>
-                                        {edit && role !== "company" ? (
-                                            <input
-                                                type="text"
-                                                name="mobile_no"
-                                                placeholder="Contact No."
-                                                className="form-control"
-                                                value={CompanyForm.values.mobile_no}
-                                                onChange={CompanyForm.handleChange}
+                                        }
+                                        label="Sos payment"
+                                    />
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={CompanyForm.values.isEnrollToken}
+                                                onChange={(e) =>
+                                                    CompanyForm.setFieldValue("isEnrollToken", e.target.checked)
+                                                }
+                                                icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
+                                                checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />}
                                                 disabled={!edit}
                                             />
+                                        }
+                                        label="Pay subscription"
+                                    />
+                                </Box>
+                            </Grid>
+                        </Grid>
 
-                                        ) : (
-                                            <p>{companyInfo.data?.data.user.mobile_no}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="c-info">
-                                        <span>Contact Email</span>
-                                        {edit && role !== "company" ? (
-
-                                            <input
-                                                type="email"
-                                                name="email"
-                                                placeholder="Contact Email"
-                                                className="form-control"
-                                                value={CompanyForm.values.email}
-                                                onChange={CompanyForm.handleChange}
-                                                disabled={!edit}
-                                            />
-
-                                        ) : (
-                                            <p>{companyInfo.data?.data.user.email}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="c-info">
-                                        <span>Total Used Google APIs</span>
-                                        <p>{companyInfo.data?.data.totalGoogleMapApi}</p>
-                                    </div>
-
-                                    <div className="c-info2">
-
-                                        <input
-                                            type="checkbox"
-                                            name="isArmed"
-                                            id="isArmed"
-                                            className="form-check-input me-1"
-                                            checked={CompanyForm.values.isArmed}
-                                            onChange={(e) =>
-                                                CompanyForm.setFieldValue(
-                                                    "isArmed",
-                                                    e.target.checked
-                                                )
-                                            }
-                                            disabled={!edit || role == "company"}
-                                        />
-                                        <label
-                                            htmlFor="isArmed"
-                                        >
-                                            Security
-                                        </label>
-
-                                    </div>
-                                    <div className="c-info2">
-
-                                        <input
-                                            type="checkbox"
-                                            name="isPaymentToken"
-                                            id="isPaymentToken"
-                                            className="form-check-input me-1"
-                                            checked={CompanyForm.values.isPaymentToken}
-                                            onChange={(e) =>
-                                                CompanyForm.setFieldValue(
-                                                    "isPaymentToken",
-                                                    e.target.checked
-                                                )
-                                            }
-                                            disabled={!edit || role == "company"}
-                                        />
-                                        <label
-                                            htmlFor="isPaymentToken"
-                                        >
-                                            Sos payment
-                                        </label>
-
-                                    </div>
-                                    <div className="c-info2">
-
-                                        <input
-                                            type="checkbox"
-                                            name="isEnrollToken"
-                                            id="isEnrollToken"
-                                            className="form-check-input me-1"
-                                            checked={CompanyForm.values.isEnrollToken}
-                                            onChange={(e) =>
-                                                CompanyForm.setFieldValue(
-                                                    "isEnrollToken",
-                                                    e.target.checked
-                                                )
-                                            }
-                                            disabled={!edit || role == "company"}
-                                        />
-                                        <label
-                                            htmlFor="isEnrollToken"
-                                        >
-                                            Pay subscription
-                                        </label>
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            {edit && role !== "company" ? (
-                                <div className="company-info">
-                                    <div className="comapny-titles">Company Services</div>
-                                    <div className="comapny-det">
-                                        <Select
-                                            isMulti
-                                            name="services"
-
-                                            options={GrpservicesList}
-                                            classNamePrefix="select"
-                                            placeholder="Select Services"
-                                            className="form-control"
-                                            value={GrpservicesList
-                                                .flatMap((group) => group.options)
-                                                .filter((option) => CompanyForm.values.services?.includes(option.value))}
-                                            onChange={(selectedOptions) => {
-                                                const selectedValues = selectedOptions?.map((option) => option.value) || [];
-                                                CompanyForm.setFieldValue("services", selectedValues);
-                                            }}
-                                            menuPortalTarget={document.body}
-                                            menuPosition="fixed"
-                                            styles={{
-                                                control: (base) => ({
-                                                    ...base,
-                                                    border: 'none',
-                                                    boxShadow: 'none',
-                                                    backgroundColor: 'transparent',
-                                                }),
-                                                valueContainer: (base) => ({
-                                                    ...base,
-                                                    flexWrap: 'wrap',
-                                                    maxHeight: '50px',
-                                                    overflowY: 'auto',
-                                                }),
-                                                multiValue: (base) => ({
-                                                    ...base,
-                                                    margin: '2px',
-                                                }),
-                                                menu: (base) => ({
-                                                    ...base,
-                                                    zIndex: 9999, // ensure it's above modals and overflow parents
-                                                }),
-                                            }}
-                                        />
-
-                                    </div>
-                                </div>
-                            ) : (
-                                servicesList.length > 0 && (
-                                    <div className="company-info">
-                                        <div className="comapny-titles">Company Services</div>
-                                        <div className="comapny-det comapny-det2">
-                                            {servicesList.map((group, index) => (
-                                                <div
-                                                    key={index}
-                                                    className={servicesList.length > index + 1 ? "c-ser" : "c-ser2"}
-                                                >
-                                                    {group.options.map((service, idx) => (
-                                                        <p key={`${index}-${idx}`}>{service.label}</p>
-                                                    ))}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )
-                            )
-                            }
-                            {
-                                edit ? (<div className="company-info">
-                                    <div className="comapny-titles">Security Companies</div>
-                                    <div className="comapny-det">
+                        {/* Security Companies */}
+                        <Grid container>
+                            <Grid size={{ xs: 12, md: 5 }}>
+                                {edit ? (
+                                    <Box mt={3}>
+                                        <Typography variant="h6" fontWeight={550} mb={1}>
+                                            Security Companies
+                                        </Typography>
                                         <Select
                                             isMulti
                                             name="securityCompany"
                                             options={securityCompanyOptions}
                                             isDisabled={CompanyForm.values.isArmed}
                                             classNamePrefix="select"
+                                            components={{ DropdownIndicator }}
                                             placeholder="Select Security Companies"
-                                            className="form-control"
-                                            value={securityCompanyOptions.filter(option =>
+                                            className="add-company-services"
+                                            value={securityCompanyOptions.filter((option) =>
                                                 CompanyForm.values.securityCompany.includes(option.value)
                                             )}
                                             onChange={(selectedOptions) => {
@@ -536,19 +552,42 @@ const ListOfDrivers = () => {
                                             styles={{
                                                 control: (base) => ({
                                                     ...base,
-                                                    border: 'none',
-                                                    boxShadow: 'none',
-                                                    backgroundColor: 'transparent',
+                                                    border: "1px solid rgba(0,0,0,0.23)",
+                                                    boxShadow: "none",
+                                                    backgroundColor: "transparent",
                                                 }),
                                                 valueContainer: (base) => ({
                                                     ...base,
-                                                    flexWrap: 'wrap',
-                                                    maxHeight: '50px',
-                                                    overflowY: 'auto',
+                                                    cursor: 'pointer',
+                                                    flexWrap: "wrap",
+                                                    maxHeight: "42px",
+                                                    overflowY: "auto",
                                                 }),
                                                 multiValue: (base) => ({
                                                     ...base,
                                                     margin: '2px',
+                                                    borderRadius: '8px',
+                                                    border: '1px solid var(--icon-gray)',
+                                                }),
+                                                multiValueLabel: (base) => ({
+                                                    ...base,
+                                                    color: 'black',
+                                                    backgroundColor: 'white',
+                                                    borderBottomLeftRadius: '8px',
+                                                    borderTopLeftRadius: '8px',
+                                                    fontWeight: 500,
+                                                    fontSize: 13,
+                                                }),
+                                                multiValueRemove: (base) => ({
+                                                    ...base,
+                                                    color: 'black',
+                                                    backgroundColor: 'white',
+                                                    borderBottomRightRadius: '8px',
+                                                    borderTopRightRadius: '8px',
+                                                    ':hover': {
+                                                        backgroundColor: 'white',
+                                                        color: 'black',
+                                                    },
                                                 }),
                                                 menu: (base) => ({
                                                     ...base,
@@ -556,233 +595,446 @@ const ListOfDrivers = () => {
                                                 }),
                                             }}
                                         />
-                                    </div>
-                                </div>
+                                    </Box>
                                 ) : (
                                     CompanyForm.values.securityCompany.length > 0 && (
-                                        <div className="company-info">
-                                            <div className="comapny-titles">Security Companies</div>
-                                            <div className="comapny-det comapny-det2">
-                                                {(CompanyForm.values.isArmed !== true) &&
-                                                    securityCompanyOptions
-                                                        .filter(opt => CompanyForm.values.securityCompany.includes(opt.value))
+                                        <Box mt={3}>
+                                            <Typography variant="h6" fontWeight={550} mb={1}>
+                                                Security Companies
+                                            </Typography>
+                                            {(CompanyForm.values.isArmed !== true) && (
+                                                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                                                    {securityCompanyOptions
+                                                        .filter((opt) => CompanyForm.values.securityCompany.includes(opt.value))
                                                         .map((company, index) => (
-                                                            <div
-                                                                key={index}
-                                                                className={servicesList.length > index + 1 ? "c-ser" : "c-ser2"}
-                                                            >
-                                                                <p>{company.label}</p>
-                                                            </div>
-                                                        ))
-                                                }
-                                            </div>
-                                        </div>
+                                                            <Typography key={index} variant="body1">
+                                                                {company.label}
+                                                            </Typography>
+                                                        ))}
+                                                </Box>
+                                            )}
+                                        </Box>
                                     )
-                                )
-                            }
-
-                            <div className="company-info">
-                                <div className="comapny-titles">Company Payout</div>
-                                <div className="comapny-det comapny-det2">
-                                    <div className="c-info c-pay3">
-                                        <div className="c-pay2">
-                                            <div className="c-pay">
-                                                <span>Total Company Amount:</span>
-                                                <p>{companyInfo.data?.data.totalCompanyAmount}</p>
-                                            </div>
-                                            <button disabled={edit} style={{ height: '50px' }} className="btn btn-primary" onClick={(event) => handlePopup(event, 'payout', 'company')}>Pay</button>
-                                            {renderPopup()}
-                                        </div>
-                                    </div>
-
-
-                                    <div className="c-info">
-                                        <div className="c-pay2">
-                                            <div className="c-pay">
-                                                <span>Total Driver Amount:</span>
-                                                <p>{companyInfo.data?.data.totalDriverAmount}</p>
-                                            </div>
-                                            {/* <button disabled={edit} style={{ height: '50px' }} className="btn btn-primary" onClick={(event) => handlePopup(event, 'payout', 'driver')}>Pay</button> */}
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
-
-                            <div className="col-md-12 text-end">
-                                <div className="saveform">
-                                    {edit ? (
-                                        <button type="submit"
-                                            onClick={() => CompanyForm.submitForm()} className="btn btn-dark">Save</button>
-                                    ) : (
-                                        <button
-                                            onClick={() => setedit(true)}
-                                            className="btn btn-dark"
-                                        >
-                                            Edit
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-
-                        </>
-                    )}
-
-
-                    {role === 'super_admin' && params.id && <Analytics id={params.id} />}
-
-
-
-                    <div className="theme-table">
-                        <div className="tab-heading">
-                            <div className="count">
-                                <h3>Total Drivers</h3>
-                                <p>{driverList.isSuccess && driverList.data?.data.totalUsers || 0}</p>
-                            </div>
-                            <div className="tbl-filter">
-                                <div className="input-group">
-                                    <span className="input-group-text">
-                                        <img src={search} />
-                                    </span>
-                                    <input
-                                        type="text"
-                                        value={filter}
-                                        onChange={(e) => setfilter(e.target.value)}
-                                        className="form-control"
-                                        placeholder="Search"
-                                    />
-                                    <span className="input-group-text">
-                                        <img src={icon} />
-                                    </span>
-                                </div>
-                                <button
-                                    onClick={() => nav("/home/total-drivers/add-driver")}
-                                    className="btn btn-primary"
-                                >
-                                    + Add Driver
-                                </button>
-                                <button className="btn btn-primary" onClick={handleExport}
-                                    disabled={isExportingDrivers}>
-                                    {isExportingDrivers ? 'Exporting...' : '+ Export Sheet'}
-                                </button>
-
-                                <button className="btn btn-primary" onClick={() => setpopup(true)}>
-                                    + Import Sheet
-                                </button>
-                            </div>
-                        </div>
-                        {driverList.isFetching ? (
-                            <Loader />
-                        ) : (
-                            <>
-                                {driverList.data?.data.users ? (
-                                    <>
-                                        <table
-                                            id="example"
-                                            className="table table-striped nowrap"
-                                            style={{ width: "100%" }}
-                                        >
-                                            <thead>
-                                                <tr>
-                                                    <th>Driver</th>
-                                                    <th>Driver ID</th>
-                                                    <th>Company</th>
-                                                    <th>Contact No.</th>
-                                                    <th>Contact Email</th>
-                                                    <th>&nbsp;</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {driverList?.data && driverList.data?.data?.users?.map((driver) => (
-                                                    <tr key={driver._id}>
-                                                        <td>
-                                                            <div
-                                                                className={
-                                                                    (!driver.first_name && !driver.last_name) ? "prof nodata" : "prof"
-                                                                }
-                                                            >
-                                                                <img
-                                                                    className="profilepicture"
-                                                                    src={
-                                                                        driver.selfieImage
-                                                                            ? driver.selfieImage
-                                                                            : nouser
-                                                                    }
-                                                                />
-                                                                {driver.first_name} {driver.last_name}
-                                                            </div>
-                                                        </td>
-                                                        <td className={!driver.id_no ? "nodata" : ""}>
-                                                            {driver.id_no}
-                                                        </td>
-                                                        <td className={!driver.company_name ? "companynamenodata" : ""}>
-                                                            {driver.company_name}
-                                                        </td>
-                                                        <td className={!driver?.mobile_no ? "nodata" : ""}>
-                                                            {`${driver?.mobile_no_country_code ?? ''}${driver?.mobile_no ?? ''}`}
-                                                        </td>
-                                                        <td className={!driver.email ? "nodata" : ""}>
-                                                            {driver.email}
-                                                        </td>
-                                                        <td>
-                                                            <span
-                                                                onClick={() => setconfirmation(driver._id)}
-                                                                className="tbl-gray"
-                                                            >
-                                                                Delete
-                                                            </span>
-                                                            {confirmation === driver._id && (
-                                                                <DeleteConfirm
-                                                                    id={driver._id}
-                                                                    setconfirmation={setconfirmation}
-                                                                />
-                                                            )}
-                                                            <span
-                                                                onClick={() =>
-                                                                    nav(
-                                                                        `/home/total-drivers/driver-information/${driver._id}`
-                                                                    )
-                                                                }
-                                                                className="tbl-btn"
-                                                            >
-                                                                view
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                        <div className="pagiation">
-                                            <div className="pagiation-left">
-                                                <button
-                                                    disabled={page === 1}
-                                                    onClick={() => setpage((p) => p - 1)}
-                                                >
-                                                    <img src={Prev} /> Prev
-                                                </button>
-                                            </div>
-                                            <div className="pagiation-right">
-                                                <button
-                                                    disabled={page === driverList.data?.data.totalPages}
-                                                    onClick={() => setpage((p) => p + 1)}
-                                                >
-                                                    Next <img src={Next} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <p className="no-data-found">No data found</p>
                                 )}
-                            </>
-                        )}
+                            </Grid>
+                        </Grid>
 
-                    </div>
-                </div>
-            </div>
+
+                        {/* Save / Edit */}
+                        <Box mt={3} textAlign="right">
+                            {edit ? (
+                                <Box sx={{ display: "flex", justifyContent: 'flex-end', gap: 2 }}>
+                                    <Button
+                                        variant="outlined"
+                                        sx={{ width: 130, height: 48, borderRadius: '10px', border: '1px solid var(--icon-gray)', backgroundColor: 'white', color: 'black' }}
+                                        onClick={() => {
+                                            setedit(false);
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        variant="contained"
+                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                        onClick={() => CompanyForm.submitForm()}
+                                    >
+                                        Save
+                                    </Button>
+
+                                </Box>
+                            ) : (
+                                <Button variant="contained" sx={{ width: 120, height: 45, borderRadius: '10px', backgroundColor: 'var(--Blue)' }} onClick={() => setedit(true)}>
+                                    Edit
+                                </Button>
+                            )}
+                        </Box>
+                    </Paper>
+                    <Grid container gap={{ xs: 0, lg: 4 }} >
+                        {/* Company Services */}
+                        <Grid size={{ xs: 12, md: 12, lg: 7.5 }}>
+                            <Paper
+                                elevation={3}
+                                sx={{ backgroundColor: "rgb(253, 253, 253)", p: 3, borderRadius: "10px", mb: 2 }}
+                            >
+                                <Typography variant="h6" fontWeight={550} mb={1}>
+                                    Company Services
+                                </Typography>
+                                <Typography fontSize={'0.9rem'} color="text.secondary" fontWeight={500} mb={1}>
+                                    Enabled Emergency Services
+                                </Typography>
+
+                                <Box>
+                                    {GrpservicesList.map((group, groupIdx) => (
+                                        <Box key={group.label} mb={2}>
+                                            <FormGroup row>
+                                                {group.options.map((service, idx) => {
+                                                    const isChecked = CompanyForm.values.services?.includes(service.value);
+
+                                                    return (
+                                                        <FormControlLabel
+                                                            key={service.value}
+                                                            control={
+                                                                <Checkbox
+                                                                    checked={isChecked}
+                                                                    onChange={(e) => {
+                                                                        const current = CompanyForm.values.services || [];
+                                                                        const updated = e.target.checked
+                                                                            ? [...current, service.value]
+                                                                            : current.filter((v) => v !== service.value);
+
+                                                                        CompanyForm.setFieldValue("services", updated);
+                                                                    }}
+                                                                    disabled={!edit}
+                                                                    icon={<img src={uncheckedIcon} alt="unchecked" />}
+                                                                    checkedIcon={<img src={checkedboxIcon} alt="checked" />}
+                                                                />
+                                                            }
+                                                            label={service.label}
+                                                        />
+                                                    );
+                                                })}
+                                            </FormGroup>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </Paper>
+                        </Grid>
+                        {/* Payout Section */}
+                        <Grid size={{ xs: 12, md: 12, lg: 4 }} >
+                            <Paper
+                                elevation={3}
+                                sx={{ backgroundColor: "rgb(253, 253, 253)", px: 3, py: 4.8, borderRadius: "10px", mb: 2 }}
+                            >
+
+                                <Box>
+                                    <Typography variant="h6" fontWeight={550} mb={1}>
+                                        Financial Overview
+                                    </Typography>
+
+                                    <Grid container spacing={2}>
+                                        <Grid size={{ xs: 6, lg: 12 }}>
+                                            <Box
+                                                sx={{
+                                                    p: 2,
+                                                    borderRadius: 1,
+                                                    bgcolor: "#f7f9fb",
+                                                    display: "flex",
+                                                    flexDirection: 'column',
+                                                    justifyContent: "space-between",
+                                                }}
+                                            >
+                                                <Box sx={{ pb: { xs: 1, lg: 0 } }}>
+                                                    <Typography variant="body2" fontWeight={550} color="text.secondary">
+                                                        Total Company Amount:
+                                                    </Typography>
+                                                    <Typography sx={{ py: 1 }} fontWeight={600} >{companyInfo.data?.data.totalCompanyAmount}</Typography>
+                                                </Box>
+                                                <Button
+                                                    disabled={edit}
+                                                    variant="contained"
+                                                    sx={{ gap: 1, backgroundColor: 'var(--Blue)' }}
+                                                    onClick={(event) => handlePopup(event, "payout", "company")}
+                                                >
+                                                    <img src={payIcon} alt="payIcon" />
+                                                    Pay Company
+                                                </Button>
+                                            </Box>
+                                            {renderPopup()}
+                                        </Grid>
+
+                                        <Grid size={{ xs: 6, lg: 12 }}>
+                                            <Box
+                                                sx={{
+                                                    p: 2,
+                                                    borderRadius: 1,
+                                                    bgcolor: "#f7f9fb",
+                                                    display: "flex",
+                                                    flexDirection: 'column',
+                                                    justifyContent: "space-between",
+                                                }}
+                                            >
+                                                <Box sx={{ pb: 1 }}>
+                                                    <Typography variant="body2" fontWeight={550} color="text.secondary">
+                                                        Total Driver Amount:
+                                                    </Typography>
+                                                    <Typography sx={{ py: 1 }} fontWeight={600}>{companyInfo.data?.data.totalDriverAmount}</Typography>
+                                                </Box>
+                                                <Button
+                                                    disabled={edit}
+                                                    variant="contained"
+                                                    sx={{ gap: 1, backgroundColor: 'var(--Blue)' }}
+                                                    onClick={(event) => handlePopup(event, "payout", "driver")}
+                                                >
+                                                    <img src={payIcon} alt="payIcon" />
+                                                    Pay Driver
+                                                </Button>
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                            </Paper>
+                        </Grid>
+                    </Grid>
+                </Box>
+
+            )}
+
+            {/* Analytics */}
+            {role === "super_admin" && params.id && <Analytics id={params.id} />}
+
+            {/* Drivers List */}
+            <Paper
+                elevation={3}
+                sx={{ backgroundColor: "rgb(253, 253, 253)", p: 2, borderRadius: "10px" }}
+            >
+                {/* Header */}
+                <Grid container justifyContent="space-between" alignItems="center" mb={2}>
+                    <Grid
+                        size={{ xs: 12, lg: 2.5 }}
+                        sx={{ display: "flex", flexDirection: "row", gap: 2, mb: { xs: 1, md: 0 } }}
+                    >
+                        <Typography variant="h6" fontWeight={590}>
+                            Total Drivers
+                        </Typography>
+                        <Typography variant="h6" fontWeight={550}>
+                            {driverList.isSuccess && driverList.data?.data.totalUsers ? driverList.data?.data.totalUsers : 0}
+                        </Typography>
+                    </Grid>
+
+                    <Grid size={{ xs: 12, lg: 9.5 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
+                        <TextField
+                            variant="outlined"
+                            placeholder="Search"
+                            value={filter}
+                            onChange={(e) => setfilter(e.target.value)}
+                            fullWidth
+                            sx={{
+                                width: "100%",
+                                height: "40px",
+                                borderRadius: "8px",
+                                "& .MuiInputBase-root": {
+                                    height: "40px",
+                                    fontSize: "14px",
+                                },
+                                "& .MuiOutlinedInput-input": {
+                                    padding: "10px 14px",
+                                },
+                            }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <img src={search} alt="search icon" />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+
+                        <Box display="flex" gap={1} sx={{ justifyContent: { xs: "space-between" } }}>
+                            <CustomDateRangePicker
+                                value={range}
+                                onChange={setRange}
+                                icon={calender}
+                            />
+                            <CustomExportMenu onExport={handleExport} />
+                            <Button variant="outlined" startIcon={<img src={plus} alt="plus icon" />} sx={{ height: '40px', width: '160px', fontSize: '0.8rem', borderRadius: '8px', border: '1px solid var(--Blue)' }} onClick={() => setpopup(true)}>
+                                Import Sheet
+                            </Button>
+                            <Button variant="contained" onClick={handleAddDriver} sx={{ height: '40px', fontSize: '0.8rem', width: '150px', borderRadius: '8px' }}
+                                startIcon={<img src={whiteplus} alt='white plus' />}>
+                                Add Driver
+                            </Button>
+
+
+
+                        </Box>
+                    </Grid>
+                </Grid>
+
+                {/* Table / Loader / Empty */}
+                {driverList.isFetching ? (
+                    <Loader />
+                ) : driverList.data?.data.users?.length > 0 ? (
+                    <Box
+                        sx={{
+                            px: { xs: 0, md: 2 },
+                            pt: { xs: 0, md: 3 },
+                            backgroundColor: "#FFFFFF",
+                            borderRadius: "10px",
+                        }}
+                    >
+                        <TableContainer>
+                            <Table sx={{ "& .MuiTableCell-root": { fontSize: "15px" } }}>
+                                <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+                                    <TableRow>
+                                        <TableCell sx={{ backgroundColor: "#F9FAFB", borderTopLeftRadius: '10px', color: "#4B5563" }}>
+                                            Driver
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563", width: '10%' }}>
+                                            Driver ID
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
+                                            Company
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
+                                            Contact No.
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
+                                            Contact Email
+                                        </TableCell>
+                                        <TableCell
+                                            align="center"
+                                            sx={{ backgroundColor: "#F9FAFB", borderTopRightRadius: '10px', color: "#4B5563" }}
+                                        >
+                                            Actions
+                                        </TableCell>
+                                    </TableRow>
+                                </TableHead>
+
+                                <TableBody>
+                                    {driverList?.data?.data?.users?.map((driver) => (
+                                        <TableRow key={driver._id}>
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                <Stack direction="row" alignItems="center" gap={1.5}>
+                                                    <Avatar
+                                                        src={driver?.selfieImage || nouser}
+                                                        alt="driver"
+                                                        sx={{ width: 32, height: 32 }}
+                                                    />
+                                                    {driver.first_name} {driver.last_name}
+
+                                                </Stack>
+                                            </TableCell>
+
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                {driver?.passport_no || "-"}
+                                            </TableCell>
+
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                {driver.company_name || "-"}
+                                            </TableCell>
+
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                {`${driver?.mobile_no_country_code ?? ""}${driver?.mobile_no ?? ""}` || "-"}
+                                            </TableCell>
+
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                {driver.email || "-"}
+                                            </TableCell>
+
+                                            <TableCell>
+                                                <Box
+                                                    align="center"
+                                                    sx={{ display: "flex", flexDirection: "row", gap: 0 }}
+                                                >
+                                                    <IconButton onClick={() =>
+                                                        nav(`/home/total-drivers/driver-information/${driver._id}`)
+                                                    }>
+                                                        <img src={ViewBtn} alt="view button" />
+                                                    </IconButton>
+                                                    <IconButton onClick={() => setconfirmation(driver._id)}>
+                                                        <img src={delBtn} alt="delete button" />
+                                                    </IconButton>
+                                                    <IconButton onClick={() =>
+                                                        nav(`/home/total-drivers`)
+                                                    }>
+                                                        <img src={driverPayoutIcon} alt="view button" />
+                                                    </IconButton>
+                                                    {confirmation === driver._id && (
+                                                        <DeleteConfirm
+                                                            id={driver._id}
+                                                            setconfirmation={setconfirmation}
+                                                        />
+                                                    )}
+
+                                                </Box>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+
+                        {/* Pagination */}
+                        <Grid
+                            container
+                            sx={{ px: { xs: 0, sm: 3 } }}
+                            justifyContent="space-between"
+                            alignItems="center"
+                            mt={2}
+                        >
+                            <Grid >
+                                <Typography variant="body2">
+                                    Rows per page:&nbsp;
+                                    <MuiSelect
+                                        size="small"
+                                        sx={{
+                                            border: "none",
+                                            boxShadow: "none",
+                                            outline: "none",
+                                            "& .MuiOutlinedInput-notchedOutline": {
+                                                border: "none",
+                                            },
+                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                border: "none",
+                                            },
+                                            "& .MuiOutlinedInput-root": {
+                                                boxShadow: "none",
+                                                outline: "none",
+                                            },
+                                            "& .MuiSelect-select": {
+                                                outline: "none",
+                                            },
+                                        }}
+                                        value={rowsPerPage}
+                                        onChange={(e) => {
+                                            setRowsPerPage(Number(e.target.value));
+                                            setpage(1);
+                                        }}
+                                    >
+                                        {[5, 10, 15, 20].map((num) => (
+                                            <MenuItem key={num} value={num}>
+                                                {num}
+                                            </MenuItem>
+                                        ))}
+                                    </MuiSelect>
+                                </Typography>
+                            </Grid>
+
+                            <Grid>
+                                <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                    <Typography variant="body2">
+                                        {page} / {totalPages}
+                                    </Typography>
+                                    <IconButton
+                                        disabled={page === 1}
+                                        onClick={() => setpage((prev) => prev - 1)}
+                                    >
+                                        <NavigateBeforeIcon
+                                            fontSize="small"
+                                            sx={{
+                                                color: page === 1 ? "#BDBDBD" : "#1976d2",
+                                            }}
+                                        />
+                                    </IconButton>
+                                    <IconButton
+                                        disabled={page === totalPages}
+                                        onClick={() => setpage((prev) => prev + 1)}
+                                    >
+                                        <NavigateNextIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                ) : (
+                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                        No data found
+                    </Typography>
+                )}
+            </Paper>
+
             {popup && <ImportSheet setpopup={setpopup} type="driver" />}
-        </div>
+        </Box>
     );
 };
 
