@@ -22,18 +22,10 @@ export const Login = () => {
         initialValues: {
             email: "",
             password: "",
-            fcm_token: "fcm_token",
-            role: "sales_agent",
         },
         validationSchema: loginValidation_salesAgent,
         onSubmit: (values) => {
-            let payload = { ...values };
-
-            // ❌ remove role if not sales_agent
-            if (values.role !== "sales_agent") {
-                delete payload.role;
-            }
-            loginfn.mutate(payload);
+            loginfn.mutate(values);
         },
     });
 
