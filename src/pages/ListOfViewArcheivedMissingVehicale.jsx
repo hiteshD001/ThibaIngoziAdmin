@@ -6,24 +6,24 @@ import {
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import search from '../../assets/images/search.svg';
-import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
-import calender from '../../assets/images/calender.svg';
-import CustomExportMenu from "../../common/Custom/CustomExport";
-import CustomFilter from "../../common/Custom/CustomFilter";
-import Loader from "../../common/Loader";
-import ViewBtn from '../../assets/images/ViewBtn.svg'
-import ImportSheet from "../../common/ImportSheet";
+import search from '../assets/images/search.svg';
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
+import calender from '../assets/images/calender.svg';
+import CustomExportMenu from "../common/Custom/CustomExport";
+import CustomFilter from "../common/Custom/CustomFilter";
+import Loader from "../common/Loader";
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import ImportSheet from "../common/ImportSheet";
 import { startOfYear } from "date-fns";
-import { useGetMissingVehicaleList, usePatchArchivedMissingVehicale } from "../../API Calls/API";
+import { useGetMissingVehicaleList, usePatchArchivedMissingVehicale, usePatchUnArchivedMissingVehicale } from "../API Calls/API";
 import moment from "moment/moment";
-import Listtrip from '../../assets/images/Listtrip.svg'
-import delBtn from '../../assets/images/delBtn.svg'
-import { DeleteConfirm } from "../../common/ConfirmationPOPup";
+import Listtrip from '../assets/images/Listtrip.svg'
+import delBtn from '../assets/images/delBtn.svg'
+import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import { toast } from "react-toastify";
 
 
-const ListOfStolenCars = () => {
+const ListOfViewArcheivedMissingVehicale = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [range, setRange] = useState([
@@ -36,7 +36,7 @@ const ListOfStolenCars = () => {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
-    const totalUsers = 10;
+
     
     const [confirmation, setconfirmation] = useState("");
 
@@ -49,16 +49,16 @@ const ListOfStolenCars = () => {
         filter,
         range[0].startDate,
         range[0].endDate,
-        false,
+        true,
     );
 
-    const missingVehicale = missingVehicaleData?.data?.data;
-
-    const totalPages = Math.ceil(missingVehicale?.total / rowsPerPage);
-
-    const achiveMissingvehicale = usePatchArchivedMissingVehicale(
+    
+    const missingVehicale = missingVehicaleData?.data?.data
+    
+    const totalPages = Math.ceil(missingVehicaleData?.data?.data?.total / rowsPerPage);
+    const achiveMissingvehicale = usePatchUnArchivedMissingVehicale(
         () => {
-            toast.success("Person archived successfully!")
+            toast.success("Person Unarchived successfully!")
             missingVehicaleData.refetch()
         },
         () => toast.error("Failed to archive person.")
@@ -70,7 +70,7 @@ const ListOfStolenCars = () => {
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                     <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                        <Typography variant="h6" fontWeight={590}>Stolen Cars</Typography>
+                        <Typography variant="h6" fontWeight={590}>List of Acheived</Typography>
                     </Grid>
                     <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
 
@@ -120,13 +120,6 @@ const ListOfStolenCars = () => {
                                 icon={calender}
                             />
                             <CustomExportMenu />
-                            <Button
-                                onClick={() => nav('/home/total-stolen-cars/view-archeived-vehicale')}
-                                variant="contained"
-                                sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
-                                startIcon={<img src={ViewBtn} alt="View" />}>
-                                View Archeived
-                            </Button>
                         </Box>
 
                     </Grid>
@@ -208,7 +201,7 @@ const ListOfStolenCars = () => {
                                                     <IconButton onClick={() => {
                                                         achiveMissingvehicale.mutate({
                                                             id: user?._id,
-                                                            data: { isArchived: true }
+                                                            data: { isArchived: false }
                                                         });
                                                     }}>
                                                         <img src={Listtrip} alt="view button" />
@@ -304,4 +297,4 @@ const ListOfStolenCars = () => {
     );
 };
 
-export default ListOfStolenCars;
+export default ListOfViewArcheivedMissingVehicale;

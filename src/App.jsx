@@ -54,6 +54,8 @@ import Confirmation from "./pages/crimeReports/Confirmation";
 import ListOfViewArcheived from "./pages/ListOfViewArcheived";
 import ListOfViewArcheivedMeeting from "./pages/ListOfViewArcheivedMeeting";
 import ListOfViewArcheivedMissingPerson from "./pages/ListOfViewArcheivedMissingPerson";
+import ListofMissingvehicale from "./pages/ListOfViewArcheivedMissingVehicale";
+import ListOfViewArcheivedMissingVehicale from "./pages/ListOfViewArcheivedMissingVehicale";
 // Define your map loader options once here
 const mapLoaderOptions = {
     id: 'google-map-script-main',
@@ -295,6 +297,10 @@ function App() {
                         {
                             path: 'stolen-car/:id',
                             element: <StolenCarDetails />
+                        },
+                        {
+                            path: "view-archeived-vehicale",
+                            element: <ListOfViewArcheivedMissingVehicale />
                         },
                     ]
                 },

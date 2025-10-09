@@ -22,8 +22,6 @@ export const Login = () => {
         initialValues: {
             email: "",
             password: "",
-            fcm_token: "fcm_token",
-            role: "sales_agent",
         },
         validationSchema: loginValidation_salesAgent,
         onSubmit: (values) => {

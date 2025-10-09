@@ -99,6 +99,8 @@ const ListofMissingPerson = () => {
         true,
     );
 
+    console.log("MissingPersons",MissingPersons)
+
     const totalUsers = MissingPersons?.data?.data?.total;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
 

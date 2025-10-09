@@ -7,7 +7,7 @@ import ViewBtn from '../../assets/images/ViewBtn.svg'
 
 import WhiteTick from '../../assets/images/WhiteTick.svg'
 import { AiOutlineEye, AiOutlineCheck } from "react-icons/ai";
-import { useGetMissingPersonById } from '../../API Calls/API';
+import { useGetMissingPersonById, usePutMissingPerson } from '../../API Calls/API';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 
@@ -33,6 +33,16 @@ const MissingPersonDetails = () => {
     const params = useParams();
 
     const getMissingPersonById = useGetMissingPersonById("MissingPersonById", params.id);
+
+    const updateMissingPerson = usePutMissingPerson(
+        () => {
+            console.log("Missing Person Updated Successfully");
+            getMissingPersonById.refetch();
+        },
+        (err) => {
+            console.log(err);
+        }
+    );
 
     console.log(getMissingPersonById.data?.data)
     const user = getMissingPersonById?.data?.data;
@@ -179,21 +189,33 @@ const MissingPersonDetails = () => {
                     </Button> */}
                     <Button
                         variant="contained"
-                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: '#259157' }}
-                        onClick={() => nav("/home/total-companies/add-company")}
+                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: user?.MarkFound ? '#b71c1c' : '#259157' }}
+                        onClick={() => {
+                          
+                            updateMissingPerson.mutate({
+                                id: user?._id,
+                                data: { MarkFound : !user?.MarkFound }
+                            })
+                        }}
+                       
                         startIcon={<img src={WhiteTick} alt="white tick" />}
 
                     >
-                        Mark as Found
+                      {user?.MarkFound ? "Mark as Founded" : "Mark as Found"}
                     </Button>
                     <Button
                         variant="contained"
-                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: 'var(--Blue)' }}
-                        onClick={() => nav("/home/total-companies/add-company")}
+                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor:  user?.MarkNotReviewed ? 'var(--Blue)' : '#b71c1c' }}
+                        onClick={() => {
+                            updateMissingPerson.mutate({
+                                id: user?._id,
+                                data: { MarkNotReviewed : !user?.MarkNotReviewed }
+                            })
+                        }}
                         startIcon={<img src={WhiteTick} alt="white tick" />}
 
                     >
-                        Mark as Reviewed
+                        {user?.MarkNotReviewed ? "Mark as Reviewed" : "Mark as Review"}
                     </Button>
                 </Box>
             </Paper>

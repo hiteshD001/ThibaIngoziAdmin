@@ -4,6 +4,9 @@ import {
 } from "@mui/material";
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import WhiteTick from '../../assets/images/WhiteTick.svg'
+import { useParams } from 'react-router-dom';
+import { useDeleteMissingVehicaleById, usePutMissingVehicale } from '../../API Calls/API';
+import moment from 'moment';
 
 const StolenCarDetails = () => {
     // Mock data – replace with actual props or API data
@@ -23,6 +26,25 @@ const StolenCarDetails = () => {
             'reportedBy': 'Jane Cooper'
         },
     ]
+
+    const params = useParams()
+
+    const missingVehicaleById = useDeleteMissingVehicaleById("missingVehicaleById",params.id)
+
+    const vehicale = missingVehicaleById?.data?.data
+
+    const updateMissingVehicale = usePutMissingVehicale(
+        (data)=>{
+            console.log("data",data)
+            missingVehicaleById.refetch()
+        },
+        (error)=>{
+            console.log("error",error)
+        }
+    )
+
+    console.log("missingVehicaleData",vehicale)
+    
     return (
         <Box px={2} sx={{ display: 'flex', gap: 3, flexDirection: 'column' }}>
             <Paper
@@ -43,12 +65,12 @@ const StolenCarDetails = () => {
                 {/* Suspect Info */}
                 <Box mt={2}>
                     <Typography variant="h5" fontWeight={600}>
-                        {suspectName}
+                        {vehicale?.VehicleOwnerName || '-'}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
                         <Typography>Vehicle Registration Number:</Typography>
                         <Chip
-                            label={caseNumber}
+                            label={vehicale?.VehicleRegistrationNumber || '-'}
                             color="primary"
                             size="small"
                             sx={{
@@ -77,7 +99,7 @@ const StolenCarDetails = () => {
                         Description
                     </Typography>
                     <Typography variant="body1" mt={1} sx={{ backgroundColor: '#F9FAFB', borderRadius: '6px', p: 1.5 }}>
-                        {description}
+                        {vehicale?.description}
                     </Typography>
                 </Box>
 
@@ -88,7 +110,7 @@ const StolenCarDetails = () => {
                             Location of Sighting
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={0.5}>
-                            {location}
+                            {vehicale?.lastSeenLocation}
                         </Typography>
                     </Box>
 
@@ -97,7 +119,9 @@ const StolenCarDetails = () => {
                             Time and Date
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={0.5}>
-                            {dateTime}
+                            {vehicale?.createdAt
+                                                            ? moment(vehicale.createdAt).format('MMM D, YYYY - HH:mm A')
+                                                            : '-'}
                         </Typography>
                     </Box>
                 </Box>
@@ -114,7 +138,7 @@ const StolenCarDetails = () => {
                             Reporter Name
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={1}>
-                            John Doe
+                            {vehicale?.reportedBy}
                         </Typography>
                     </Box>
 
@@ -123,7 +147,7 @@ const StolenCarDetails = () => {
                             Contact Information
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={0.5}>
-                            LAPD Tip Line +27 12 007 3660
+                            LAPD Tip Line {vehicale?.contactNumber}
                         </Typography>
                     </Box>
                 </Box>
@@ -133,16 +157,38 @@ const StolenCarDetails = () => {
                         Evidence
                     </Typography>
                     <Grid container spacing={2} mt={2}>
-                        {[1, 2, 3, 4].map((item) => (
-                            <Grid size={{ xs: 6, sm: 3 }} key={item}>
+                            <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
                                 <Box
                                     component="img"
-                                    src={`https://blocks.astratic.com/img/general-img-landscape.png`}
-                                    alt={`Placeholder ${item}`}
+                                    src={vehicale?.image_1}
+                                    alt={`Placeholder ${vehicale?.name}`}
                                     sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
                                 />
                             </Grid>
-                        ))}
+                            <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
+                                <Box
+                                    component="img"
+                                    src={vehicale?.image_2}
+                                    alt={`Placeholder ${vehicale?.name}`}
+                                    sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
+                                <Box
+                                    component="img"
+                                    src={vehicale?.image_3}
+                                    alt={`Placeholder ${vehicale?.name}`}
+                                    sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
+                                <Box
+                                    component="img"
+                                    src={vehicale?.image_4}
+                                    alt={`Placeholder ${vehicale?.name}`}
+                                    sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                                />
+                            </Grid>
                     </Grid>
                 </Box>
                 <Box sx={{ mt: 4, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', gap: 2 }}>
@@ -156,21 +202,31 @@ const StolenCarDetails = () => {
                     </Button> */}
                     <Button
                         variant="contained"
-                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: '#259157' }}
-                        onClick={() => nav("/home/total-companies/add-company")}
+                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: vehicale?.MarkFound ? '#b71c1c' : '#259157' }}
+                        onClick={() => {
+                            updateMissingVehicale.mutate({
+                                id: vehicale?._id,
+                                data: { MarkFound : !vehicale?.MarkFound }
+                            })
+                        }}
                         startIcon={<img src={WhiteTick} alt="white tick" />}
 
                     >
-                        Mark as Found
+                        {vehicale?.MarkFound ? "Mark as Founded" : "Mark as Found"}
                     </Button>
                     <Button
                         variant="contained"
-                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: 'var(--Blue)' }}
-                        onClick={() => nav("/home/total-companies/add-company")}
+                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: vehicale?.MarkNotReviewed ? 'var(--Blue)' : '#b71c1c' }}
+                        onClick={() => {
+                            updateMissingVehicale.mutate({
+                                id: vehicale?._id,
+                                data: { MarkNotReviewed : !vehicale?.MarkNotReviewed }
+                            })
+                        }}
                         startIcon={<img src={WhiteTick} alt="white tick" />}
 
                     >
-                        Mark as Reviewed
+                        {vehicale?.MarkNotReviewed ? "Mark as Reviewed" : "Mark as Review"}
                     </Button>
                 </Box>
             </Paper>

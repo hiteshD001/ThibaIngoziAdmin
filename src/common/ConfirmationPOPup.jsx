@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
-import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson } from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useState } from "react";
@@ -38,10 +38,17 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
     setconfirmation("");
   }
 
+  const onSuccessMissingVehicle = () => {
+    toast.success("Missing vehicle deleted successfully");
+    client.invalidateQueries("driver list");
+    setconfirmation("");
+  }
+
   const deleteDriver = useDeleteUser(onSuccess, onError)
   const deleteTrip = useDeleteUserTrip(onSuccessTrip, onError)
   const deleteMeetingLinkTrip = useDeleteUserMeetingTripTrip(onSuccessMeetingTrip, onError)
   const deleteMissingPerson = useDeleteMissingPerson(onSuccessMissingPerson, onError)
+  const deleteMissingVehicle = useDeleteMissingVehicale(onSuccessMissingVehicle, onError)
 
   const handleConfirm = () => {
     if (trip === "trip") {
@@ -50,7 +57,10 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
       deleteMeetingLinkTrip.mutate(id);
     } else if (trip === "missingPerson") {
       deleteMissingPerson.mutate(id);
-    } else {
+    } else if (trip === "missingVehicle") {
+      deleteMissingVehicle.mutate(id);
+    } 
+    else {
       deleteDriver.mutate(id);
     }
   };

@@ -597,6 +597,141 @@ export const usePatchUnArchivedMissingPerson = (onSuccess, onError) => {
     return mutation;
 }
 
+export const usePutMissingPerson = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/missingPerson/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+// missing vehicale
+
+export const useGetMissingVehicaleList =  (key, page = 1, limit = 10, filter, startDate, endDate,archived,country,province,city,suburb) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingVehicle`, {
+            params: { page, limit, filter, startDate, endDate,archived,country,province,city,suburb },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [key, page, limit, filter, startDate, endDate,archived,country,province,city,suburb],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const usePatchArchivedMissingVehicale = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        console.log(data)
+        return await apiClient.patch(
+            `${import.meta.env.VITE_BASEURL}/missingVehicle/archive/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const usePatchUnArchivedMissingVehicale = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        console.log(data)
+        return await apiClient.patch(
+            `${import.meta.env.VITE_BASEURL}/missingVehicle/unarchive/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useDeleteMissingVehicale = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/missingVehicle/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useDeleteMissingVehicaleById = (key,id) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingVehicle/${id}`);
+    };
+
+    const res = useQuery({
+        queryKey: [key, id],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const usePutMissingVehicale = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/missingVehicle/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+
+
+
 
 // get list of Province
 export const useGetProvinceList = (id) => {
