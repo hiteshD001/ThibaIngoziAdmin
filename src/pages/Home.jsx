@@ -315,6 +315,7 @@ const Home = () => {
                                                     </select>}
                                                 </td>
                                                 <td>
+                                                    {/* {row.} */}
                                                     <NavLink
                                                         type="button"
                                                         to={`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`}
@@ -465,12 +466,17 @@ const Home = () => {
                                                                 )
                                                             }
                                                         />
+                                                        {row?.type?.type === "linked_sos" ? 
                                                         <Link
                                                             to={`/home/total-drivers/driver-information/${row?.user_id?._id}`}
                                                             className="tbl-btn"
+                                                            style={{ whiteSpace: 'nowrap' }} 
                                                         >
-                                                            view
-                                                        </Link>
+                                                            Other user 
+                                                        </Link> :
+                                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                                                         }
+                                                        
                                                     </div>
 
                                                     {/* <NavLink
