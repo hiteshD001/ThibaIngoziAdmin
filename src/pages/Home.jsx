@@ -468,7 +468,7 @@ const Home = () => {
                                                         />
                                                         {row?.type?.type === "linked_sos" ? 
                                                         <Link
-                                                            to={`/home/total-drivers/driver-information/${row?.user_id?._id}`}
+                                                            to={`/home/total-drivers/driver-information/${row?.otherUser?._id}`}
                                                             className="tbl-btn"
                                                             style={{ whiteSpace: 'nowrap' }} 
                                                         >
