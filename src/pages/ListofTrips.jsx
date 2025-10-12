@@ -71,7 +71,7 @@ const ListOfTrips = () => {
           color: '#367BE0',
           fontWeight: 500,
         };
-      case 'started':
+      case 'linked':
         return {
           backgroundColor: '#DCFCE7',
           color: '#166534',
@@ -263,7 +263,7 @@ const ListOfTrips = () => {
                               backgroundColor:
                                 data.trip_status === 'ended' ? '#367BE01A' :
                                   data.trip_status === 'flagged' ? '#F59E0B1A' :
-                                    data.trip_status === 'started' ? '#DCFCE7' :
+                                    data.trip_status === 'linked' ? '#DCFCE7' :
                                       '#F3F4F6',
                               '& .MuiChip-label': {
                                 textTransform: 'capitalize',

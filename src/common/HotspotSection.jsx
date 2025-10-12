@@ -104,6 +104,7 @@ function HotspotSection({ isMapLoaded }) {
                                 a.timesCalled > b.timesCalled ? -1 : 1
                             )
                                 .map((d, index) => (
+                                    console.log(d),
                                     <Box
                                         key={index}
                                         sx={{
@@ -115,20 +116,20 @@ function HotspotSection({ isMapLoaded }) {
                                             '&:last-child': { borderBottom: 'none' },
                                         }}
                                     >
-                                        <Typography variant="body2" sx={{ flexGrow: 1 }}>{d.address || "N/A"}</Typography>
+                                        <Typography variant="body2" sx={{ flexGrow: 1 }}>{d.provinceName || "N/A"}</Typography>
                                         <Box sx={{
                                             borderRadius: '50%',
                                             padding: '1px',
                                             height: '35px',
                                             display: 'flex',
                                             minWidth: '35px',
-                                            justifyContent: 'center', alignItems: 'center', cursor: 'pointer', fontWeight: 'bold', backgroundColor: (d.timesCalled || 0) > 70 ? '#E5565A26' : '#F9731626',
+                                            justifyContent: 'center', alignItems: 'center', cursor: 'pointer', fontWeight: 'bold', backgroundColor: (d.totalCalls || 0) > 70 ? '#E5565A26' : '#F9731626',
                                         }} onClick={() =>
                                             nav(
                                                 `/home/hotspot/location?lat=${d.lat}&long=${d.long}`
                                             )
                                         }>
-                                            <Typography variant="body2" sx={{ mx: 1, fontWeight: 'bold', color: (d.timesCalled || 0) > 70 ? 'red' : 'orange', }}>{d.timesCalled || 0}</Typography>
+                                            <Typography variant="body2" sx={{ mx: 1, fontWeight: 'bold', color: (d.totalCalls || 0) > 70 ? 'red' : 'orange', }}>{d.totalCalls || 0}</Typography>
 
                                         </Box>
 
