@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem, Chip
+    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem, Chip,
+    Tooltip
 } from "@mui/material";
 import flaggedBtn from '../../assets/images/flaggedBtn.svg'
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -346,10 +347,11 @@ const ListOfCrimeReports = () => {
                                             </TableCell>
                                             <TableCell >
                                                 <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                    <IconButton onClick={() => nav(`/home/crime-reports/crime-report/${user._id}`)}>
-                                                        <img src={ViewBtn} alt="flagged button" />
-                                                    </IconButton>
-
+                                                    <Tooltip title="View" arrow placement="top">
+                                                        <IconButton onClick={() => nav(`/home/crime-reports/crime-report/${user._id}`)}>
+                                                            <img src={ViewBtn} alt="flagged button" />
+                                                        </IconButton>
+                                                    </Tooltip>
                                                 </Box>
 
 

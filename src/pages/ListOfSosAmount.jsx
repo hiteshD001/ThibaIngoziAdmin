@@ -1,5 +1,6 @@
 import {
-    Box, Button, IconButton, InputAdornment, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, Grid, Select, MenuItem
+    Box, Button, IconButton, InputAdornment, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, Grid, Select, MenuItem,
+    Tooltip
 } from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
@@ -104,12 +105,16 @@ const ListOfSosAmount = () => {
                                             <TableCell sx={{ color: '#4B5563' }}>{data.currency || "-"}</TableCell>
                                             <TableCell sx={{ color: data?.notificationTypeId?.bgColor }}>{data.notificationTypeId?.type || "-"}</TableCell>
                                             <TableCell align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                <IconButton onClick={() => nav(`/home/total-sos-amount/sos-amount/${data._id}`)}>
-                                                    <img src={ViewBtn} alt="view button" />
-                                                </IconButton>
-                                                <IconButton onClick={() => setConfirmation(data._id)}>
-                                                    <img src={delBtn} alt="delete button" />
-                                                </IconButton>
+                                                <Tooltip title="View" arrow placement="top">
+                                                    <IconButton onClick={() => nav(`/home/total-sos-amount/sos-amount/${data._id}`)}>
+                                                        <img src={ViewBtn} alt="view button" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Delete" arrow placement="top">
+                                                    <IconButton onClick={() => setConfirmation(data._id)}>
+                                                        <img src={delBtn} alt="delete button" />
+                                                    </IconButton>
+                                                </Tooltip>
                                                 {confirmation === data._id && (
                                                     <DeleteSosAmount id={data._id} setconfirmation={setConfirmation} />
                                                 )}

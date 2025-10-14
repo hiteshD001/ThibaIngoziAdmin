@@ -1,6 +1,6 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup } from "@mui/material";
+import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, Tooltip } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import payIcon from '../assets/images/payIcon.svg';
@@ -926,19 +926,25 @@ const ListOfDrivers = () => {
                                                     align="center"
                                                     sx={{ display: "flex", flexDirection: "row", gap: 0 }}
                                                 >
-                                                    <IconButton onClick={() =>
-                                                        nav(`/home/total-drivers/driver-information/${driver._id}`)
-                                                    }>
-                                                        <img src={ViewBtn} alt="view button" />
-                                                    </IconButton>
-                                                    <IconButton onClick={() => setconfirmation(driver._id)}>
-                                                        <img src={delBtn} alt="delete button" />
-                                                    </IconButton>
-                                                    <IconButton onClick={() =>
-                                                        nav(`/home/total-drivers`)
-                                                    }>
-                                                        <img src={driverPayoutIcon} alt="view button" />
-                                                    </IconButton>
+                                                    <Tooltip title="View" arrow placement="top">
+                                                        <IconButton onClick={() =>
+                                                            nav(`/home/total-drivers/driver-information/${driver._id}`)
+                                                        }>
+                                                            <img src={ViewBtn} alt="view button" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Delete" arrow placement="top">
+                                                        <IconButton onClick={() => setconfirmation(driver._id)}>
+                                                            <img src={delBtn} alt="delete button" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Payout" arrow placement="top">
+                                                        <IconButton onClick={() =>
+                                                            nav(`/home/total-drivers`)
+                                                        }>
+                                                            <img src={driverPayoutIcon} alt="view button" />
+                                                        </IconButton>
+                                                    </Tooltip>
                                                     {confirmation === driver._id && (
                                                         <DeleteConfirm
                                                             id={driver._id}

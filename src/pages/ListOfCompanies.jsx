@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
+  Tooltip,
 } from "@mui/material";
 // import plus from '../assets/images/plus.svg'
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -231,14 +232,18 @@ const ListOfCompanies = () => {
                           display: 'flex',
                           flexDirection: 'row',
                         }}>
-                          <IconButton onClick={() =>
-                            nav(`/home/total-companies/company-information/${user?._id}`)
-                          }>
-                            <img src={ViewBtn} alt="view button" />
-                          </IconButton>
-                          <IconButton onClick={() => setconfirmation(user?._id)}>
-                            <img src={delBtn} alt="delete button" />
-                          </IconButton>
+                          <Tooltip title="View" arrow placement="top">
+                            <IconButton onClick={() =>
+                              nav(`/home/total-companies/company-information/${user?._id}`)
+                            }>
+                              <img src={ViewBtn} alt="view button" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete" arrow placement="top">
+                            <IconButton onClick={() => setconfirmation(user?._id)}>
+                              <img src={delBtn} alt="delete button" />
+                            </IconButton>
+                          </Tooltip>
                           {confirmation === user?._id && (
                             <DeleteConfirm id={user?._id} setconfirmation={setconfirmation} />
                           )}

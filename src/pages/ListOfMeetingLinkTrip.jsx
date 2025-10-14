@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
 import {
   Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, Chip, MenuItem,
-  Button
+  Button,
+  Tooltip
 } from "@mui/material";
 import calender from '../assets/images/calender.svg';
 import CustomExportMenu from "../common/Custom/CustomExport";
@@ -278,32 +279,38 @@ const ListOfMeetingLinkTrips = () => {
                             display: 'flex',
                             flexDirection: 'row',
                           }}>
-                            <IconButton
-                              onClick={() =>
-                                nav(`/home/total-meeting-links/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
-                              }
-                            >
-                              <img src={ViewBtn} alt="view button" />
-                            </IconButton>
-                            <IconButton
-                              onClick={() => updateMeetingLinkTripMutation.mutate({
-                                id: data._id,
-                                data: {
-                                  "userId1": data.user_id1,
-                                  "userId2": data.user_id2,
-                                  "notification_type": data.notification_type,
-                                  "start_by":data.start_by,
-                                  "isArchived" : true
+                            <Tooltip title="View" arrow placement="top">
+                              <IconButton
+                                onClick={() =>
+                                  nav(`/home/total-meeting-links/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
                                 }
-                              })}
-                            >
-                              <img src={Listtrip} alt="view button" />
-                            </IconButton>
-                            <IconButton
-                              onClick={() => setConfirmation(data._id)}
-                            >
-                              <img src={delBtn} alt="delete button" />
-                            </IconButton>
+                              >
+                                <img src={ViewBtn} alt="view button" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Archive" arrow placement="top">
+                              <IconButton
+                                onClick={() => updateMeetingLinkTripMutation.mutate({
+                                  id: data._id,
+                                  data: {
+                                    "userId1": data.user_id1,
+                                    "userId2": data.user_id2,
+                                    "notification_type": data.notification_type,
+                                    "start_by": data.start_by,
+                                    "isArchived": true
+                                  }
+                                })}
+                              >
+                                <img src={Listtrip} alt="view button" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete" arrow placement="top">
+                              <IconButton
+                                onClick={() => setConfirmation(data._id)}
+                              >
+                                <img src={delBtn} alt="delete button" />
+                              </IconButton>
+                            </Tooltip>
 
                           </Box>
                           {confirmation === data._id && (

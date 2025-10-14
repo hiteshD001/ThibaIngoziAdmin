@@ -7,7 +7,8 @@ import {
     useUpdateLocationStatus, useGetNotificationType,
 } from "../API Calls/API";
 import {
-    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, FormControl, InputLabel
+    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, FormControl, InputLabel,
+    Tooltip
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -331,9 +332,11 @@ const Home = ({ isMapLoaded }) => {
                                                 </TableCell>
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                        <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${user?._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`)}>
-                                                            <img src={ViewBtn} alt="view button" />
-                                                        </IconButton>
+                                                        <Tooltip title="View" arrow placement="top">
+                                                            <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${user?._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`)}>
+                                                                <img src={ViewBtn} alt="view button" />
+                                                            </IconButton>
+                                                        </Tooltip>
                                                     </Box>
                                                 </TableCell>
                                             </TableRow>
@@ -557,9 +560,11 @@ const Home = ({ isMapLoaded }) => {
                                                         </TableCell>
                                                         <TableCell >
                                                             <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                                <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user?._id}`)}>
-                                                                    <img src={ViewBtn} alt="view button" />
-                                                                </IconButton>
+                                                                <Tooltip title="View" arrow placement="top">
+                                                                    <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user?._id}`)}>
+                                                                        <img src={ViewBtn} alt="view button" />
+                                                                    </IconButton>
+                                                                </Tooltip>
                                                             </Box>
                                                         </TableCell>
                                                     </TableRow>
