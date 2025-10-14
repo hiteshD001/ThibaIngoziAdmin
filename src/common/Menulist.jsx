@@ -48,16 +48,16 @@ export const superadmin_menulist = [
         company: "Company Information"
     },
     {
-        id: "total-trips",
-        name: "Total Trips",
-        path: "/home/total-trips",
+        id: "total-linked-trips",
+        name: "Total Linked Trips",
+        path: "/home/total-linked-trips",
         image: Trip,
         company: "User Information"
     },
     {
-        id: "total-meeting-link-trips",
-        name: "Total Meeting Link Trips",
-        path: "/home/total-meeting-link-trips",
+        id: "total-meeting-links",
+        name: "Total Meeting Links",
+        path: "/home/total-meeting-links",
         image: MeetingLink,
         company: "User Information"
     },

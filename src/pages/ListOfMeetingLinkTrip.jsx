@@ -175,7 +175,7 @@ const ListOfMeetingLinkTrips = () => {
 
               <CustomExportMenu onExport={handleExport} />
               <Button
-                onClick={() => nav('/home/total-meeting-link-trips/view-archeived')}
+                onClick={() => nav('/home/total-meeting-links/view-archeived')}
                 variant="contained"
                 sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
                 startIcon={<img src={ViewBtn} alt="View" />}>
@@ -219,7 +219,7 @@ const ListOfMeetingLinkTrips = () => {
                               data.user1.role === "driver"
                                 ? `/home/total-drivers/driver-information/${data.user1._id}`
                                 : data.user1.role === "passanger"
-                                  ? `/home/total-meeting-link-trips/user-information/${data.user1._id}`
+                                  ? `/home/total-meeting-links/user-information/${data.user1._id}`
                                   : "#"
                             }
                           >
@@ -233,7 +233,7 @@ const ListOfMeetingLinkTrips = () => {
                               data.user2.role === "driver"
                                 ? `/home/total-drivers/driver-information/${data.user2._id}`
                                 : data.user2.role === "passanger"
-                                  ? `/home/total-meeting-link-trips/user-information/${data.user2._id}`
+                                  ? `/home/total-meeting-links/user-information/${data.user2._id}`
                                   : "#"
                             }
                           >
@@ -280,7 +280,7 @@ const ListOfMeetingLinkTrips = () => {
                           }}>
                             <IconButton
                               onClick={() =>
-                                nav(`/home/total-meeting-link-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
+                                nav(`/home/total-meeting-links/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
                               }
                             >
                               <img src={ViewBtn} alt="view button" />

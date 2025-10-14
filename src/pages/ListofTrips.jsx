@@ -207,7 +207,7 @@ const ListOfTrips = () => {
               />
               <CustomExportMenu onExport={handleExport} />
               <Button 
-                onClick={() => nav('/home/total-trips/view-archeived')}
+                onClick={() => nav('/home/total-linked-trips/view-archeived')}
                 variant="contained" 
                 sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
                 startIcon={<img src={ViewBtn} alt="View" />}>
@@ -248,7 +248,7 @@ const ListOfTrips = () => {
                           </Link>
                         </TableCell>
                         <TableCell>
-                          <Link className="link2" to={`/home/total-trips/user-information/${data.passenger._id}`}>
+                          <Link className="link2" to={`/home/total-linked-trips/user-information/${data.passenger._id}`}>
                             {data.passenger.first_name}
                           </Link>
                         </TableCell>
@@ -284,7 +284,7 @@ const ListOfTrips = () => {
                             display: 'flex',
                             flexDirection: 'row',
                           }}>
-                            <IconButton onClick={() => nav(`/home/total-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)}>
+                            <IconButton onClick={() => nav(`/home/total-linked-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)}>
                               <img src={ViewBtn} alt="View" />
                             </IconButton>
                             <IconButton onClick={() => {

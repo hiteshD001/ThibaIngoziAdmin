@@ -161,7 +161,7 @@ function App() {
                     ]
                 },
                 {
-                    path: "total-trips",
+                    path: "total-linked-trips",
                     children: [
                         {
                             path: "",
@@ -182,7 +182,7 @@ function App() {
                     ]
                 },
                 {
-                    path: "total-meeting-link-trips",
+                    path: "total-meeting-links",
                     children: [
                         {
                             path: "",
