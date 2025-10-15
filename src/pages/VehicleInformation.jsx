@@ -30,6 +30,7 @@ import uncheckedIcon from '../assets/images/UnChecked.svg'
 import payIcon from '../assets/images/payIcon.svg';
 import {
     TextField, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel, Typography, Grid, Alert, Paper, IconButton, Box, FormLabel, FormGroup, Button, FormHelperText, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    Chip,
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -83,6 +84,7 @@ const VehicleInformation = () => {
             accountType: "",
             account_holder_name: "",
             bankId: "",
+            subscription_status: "",
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
@@ -623,6 +625,38 @@ const VehicleInformation = () => {
                                 }
                                 label="Security"
                             />) : (displayField("Security", driverform.values.isArmed ? 'Enabled' : "Disabled"))}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                            {editInfo ? (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            name="subscription_status"
+                                            checked={driverform.values.subscription_status === 'active'}
+                                            onChange={(e) => driverform.setFieldValue("subscription_status", e.target.checked ? 'active' : 'inactive')}
+                                            icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
+                                            checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />} />
+                                    }
+                                    label="Subscription Status"
+                                />
+                            ) : (displayField("Subscription Status", <Chip
+                                label={driverform.values.subscription_status}
+                                sx={{
+                                    backgroundColor:
+                                        driverform.values.subscription_status === 'inactive' ? '#E5565A1A' :
+                                            driverform.values.subscription_status === 'active' ? '#DCFCE7' :
+                                                '#F3F4F6',
+                                    '& .MuiChip-label': {
+                                        textTransform: 'capitalize',
+                                        fontWeight: 500,
+                                        color: driverform.values.subscription_status === 'inactive' ? '#E5565A' :
+                                            driverform.values.subscription_status === 'active' ? '' :
+                                                'black',
+                                    }
+                                }}
+                            />))}
+                            
+
                         </Grid>
                         <Grid size={12}>
                             <Grid container gap={4} sx={{ mt: 1 }}>

@@ -9,6 +9,7 @@ import { toastOption } from "../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
 import {
     Box, Button, Typography, InputLabel, FormControl, FormHelperText, Grid, Paper, Chip,
+    FormControlLabel,
 } from "@mui/material";
 import { BootstrapInput } from "../common/BootstrapInput";
 import CustomSelect from "../common/Custom/CustomSelect";
@@ -40,7 +41,8 @@ const PassangerInformation = () => {
             country: "",
             isArmed: "",
             selfieImage: null,
-            fullImage: null
+            fullImage: null,
+            subscription_status: "",
         },
         validationSchema: vehicleValidation
     })
@@ -253,6 +255,38 @@ const PassangerInformation = () => {
                                     {driverform.touched.email && <FormHelperText error>{driverform.errors.email}</FormHelperText>}
                                 </FormControl>
                             ) : displayField("Email", driverform.values.email)}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                            {editInfo ? (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            name="subscription_status"
+                                            checked={driverform.values.subscription_status === 'active'}
+                                            onChange={(e) => driverform.setFieldValue("subscription_status", e.target.checked ? 'active' : 'inactive')}
+                                            icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
+                                            checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />} />
+                                    }
+                                    label="Subscription Status"
+                                />
+                            ) : (displayField("Subscription Status", <Chip
+                                label={driverform.values.subscription_status}
+                                sx={{
+                                    backgroundColor:
+                                        driverform.values.subscription_status === 'inactive' ? '#E5565A1A' :
+                                            driverform.values.subscription_status === 'active' ? '#DCFCE7' :
+                                                '#F3F4F6',
+                                    '& .MuiChip-label': {
+                                        textTransform: 'capitalize',
+                                        fontWeight: 500,
+                                        color: driverform.values.subscription_status === 'inactive' ? '#E5565A' :
+                                            driverform.values.subscription_status === 'active' ? '' :
+                                                'black',
+                                    }
+                                }}
+                            />))}
+                            
+
                         </Grid>
                         {/* <Grid size={{ xs: 12, sm: 6 }}>
                             {editInfo ? (

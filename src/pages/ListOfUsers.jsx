@@ -4,6 +4,7 @@ import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
     Tooltip,
     TableSortLabel,
+    Chip,
 } from "@mui/material";
 import plus from '../assets/images/plus.svg'
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -261,6 +262,17 @@ const ListOfUsers = () => {
                                             Contact Email
                                         </TableSortLabel>
                                     </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="subscription_status"
+                                            active={sortBy === 'subscription_status'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'subscription_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Subscription Status
+                                        </TableSortLabel>
+                                    </TableCell>
                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -300,6 +312,25 @@ const ListOfUsers = () => {
 
                                                     {user.email || "-"}
 
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: "#4B5563" }}>
+                                                    <Chip
+                                                        label={user.subscription_status}
+                                                        sx={{
+                                                            backgroundColor:
+                                                                user?.subscription_status === 'inactive' ? '#E5565A1A' :
+                                                                    user?.subscription_status === 'active' ? '#DCFCE7' :
+                                                                        '#F3F4F6',
+                                                            '& .MuiChip-label': {
+                                                                textTransform: 'capitalize',
+                                                                fontWeight: 500,
+                                                                color: user?.subscription_status === 'inactive' ? '#E5565A' :
+                                                                    user?.subscription_status === 'active' ? '' :
+                                                                        'black',
+                                                            }
+                                                        }}
+                                                    />
                                                 </TableCell>
 
                                                 <TableCell >

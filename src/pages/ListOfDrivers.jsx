@@ -938,6 +938,17 @@ const ListOfDrivers = () => {
                                             Contact Email
                                         </TableSortLabel>
                                     </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="subscription_status"
+                                            active={sortBy === 'subscription_status'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'subscription_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Subscription Status
+                                        </TableSortLabel>
+                                    </TableCell>
                                     <TableCell
                                         align="center"
                                         sx={{ backgroundColor: "#F9FAFB", borderTopRightRadius: '10px', color: "#4B5563" }}
@@ -983,6 +994,25 @@ const ListOfDrivers = () => {
 
                                                 <TableCell sx={{ color: "#4B5563" }}>
                                                     {driver.email || "-"}
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: "#4B5563" }}>
+                                                    <Chip
+                                                        label={driver.subscription_status}
+                                                        sx={{
+                                                            backgroundColor:
+                                                                driver?.subscription_status === 'inactive' ? '#E5565A1A' :
+                                                                    driver?.subscription_status === 'active' ? '#DCFCE7' :
+                                                                        '#F3F4F6',
+                                                            '& .MuiChip-label': {
+                                                                textTransform: 'capitalize',
+                                                                fontWeight: 500,
+                                                                color: driver?.subscription_status === 'inactive' ? '#E5565A' :
+                                                                    driver?.subscription_status === 'active' ? '' :
+                                                                        'black',
+                                                            }
+                                                        }}
+                                                    />
                                                 </TableCell>
 
                                                 <TableCell>
