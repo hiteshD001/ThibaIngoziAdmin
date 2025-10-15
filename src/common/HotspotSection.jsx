@@ -115,7 +115,7 @@ function HotspotSection({ isMapLoaded }) {
                                             '&:last-child': { borderBottom: 'none' },
                                         }}
                                     >
-                                        <Typography variant="body2" sx={{ flexGrow: 1 }}>{d.address || "N/A"}</Typography>
+                                         <Typography variant="body2" sx={{ flexGrow: 1 }}>{d.address || "N/A"}</Typography>
                                         <Box sx={{
                                             borderRadius: '50%',
                                             padding: '1px',

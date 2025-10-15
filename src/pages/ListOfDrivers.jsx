@@ -1,6 +1,6 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, Tooltip } from "@mui/material";
+import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, Tooltip,Chip } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import payIcon from '../assets/images/payIcon.svg';
@@ -881,6 +881,9 @@ const ListOfDrivers = () => {
                                         <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
                                             Contact Email
                                         </TableCell>
+                                        <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
+                                            Subscription status
+                                        </TableCell>
                                         <TableCell
                                             align="center"
                                             sx={{ backgroundColor: "#F9FAFB", borderTopRightRadius: '10px', color: "#4B5563" }}
@@ -919,6 +922,24 @@ const ListOfDrivers = () => {
 
                                             <TableCell sx={{ color: "#4B5563" }}>
                                                 {driver.email || "-"}
+                                            </TableCell>
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                <Chip
+                                                    label={driver.subscription_status}
+                                                    sx={{
+                                                        backgroundColor:
+                                                            driver.subscription_status === 'inactive' ? '#E5565A1A' :
+                                                                    driver.subscription_status === 'active' ? '#DCFCE7' :
+                                                                        '#F3F4F6',
+                                                        '& .MuiChip-label': {
+                                                            textTransform: 'capitalize',
+                                                            fontWeight: 500,
+                                                            color: driver.subscription_status === 'inactive' ? '#E5565A' :
+                                                                driver.subscription_status === 'active' ? '#F59E0B' :
+                                                                    'black',
+                                                        }
+                                                    }}
+                                                />
                                             </TableCell>
 
                                             <TableCell>

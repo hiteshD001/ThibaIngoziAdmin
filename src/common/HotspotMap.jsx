@@ -4,10 +4,10 @@ import { GoogleMap, useJsApiLoader, OverlayView } from '@react-google-maps/api';
 import { Box, Typography } from '@mui/material';
 
 const containerStyle = {
-    width: '100%',
-    height: '500px',
-    borderRadius: '16px',
-    position: 'relative'
+  width: '100%',
+  height: '500px',
+  borderRadius: '16px',
+  position: 'relative'
 };
 
 const center = {

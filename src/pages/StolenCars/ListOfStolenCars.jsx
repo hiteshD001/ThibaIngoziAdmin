@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem,
+    Button,
     Tooltip,
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -15,53 +16,13 @@ import Loader from "../../common/Loader";
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import ImportSheet from "../../common/ImportSheet";
 import { startOfYear } from "date-fns";
-const StolenCars = [
-    {
-        "_id": 1,
-        "name": 'Mohammad Salem',
-        "location": 'Sandton, Johannesburg Gauteng,2196',
-        "date": '02/05/25',
-        "req_accept": '20',
-        "req_reached": '30',
-        'reportedBy': 'Jane Cooper'
-    },
-    {
-        "_id": 2,
-        "name": 'Mohammad Salem',
-        "location": 'Sandton, Johannesburg Gauteng,2196',
-        "date": '02/05/25',
-        "req_accept": '20',
-        "req_reached": '30',
-        'reportedBy': 'Jane Cooper'
-    },
-    {
-        "_id": 3,
-        "name": 'Mohammad Salem',
-        "location": 'Sandton, Johannesburg Gauteng,2196',
-        "date": '02/05/25',
-        "req_accept": '20',
-        "req_reached": '30',
-        'reportedBy': 'Jane Cooper'
-    },
-    {
-        "_id": 4,
-        "name": 'Mohammad Salem',
-        "location": 'Sandton, Johannesburg Gauteng,2196',
-        "date": '02/05/25',
-        "req_accept": '20',
-        "req_reached": '30',
-        'reportedBy': 'Jane Cooper'
-    },
-    {
-        "_id": 5,
-        "name": 'Mohammad Salem',
-        "location": 'Sandton, Johannesburg Gauteng,2196',
-        "date": '02/05/25',
-        "req_accept": '20',
-        "req_reached": '30',
-        'reportedBy': 'Jane Cooper'
-    },
-]
+import { useGetMissingVehicaleList, usePatchArchivedMissingVehicale } from "../../API Calls/API";
+import moment from "moment/moment";
+import Listtrip from '../../assets/images/Listtrip.svg'
+import delBtn from '../../assets/images/delBtn.svg'
+import { DeleteConfirm } from "../../common/ConfirmationPOPup";
+import { toast } from "react-toastify";
+
 
 const ListOfStolenCars = () => {
     const [popup, setpopup] = useState(false);
@@ -77,7 +38,34 @@ const ListOfStolenCars = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
     const totalUsers = 10;
-    const totalPages = Math.ceil(totalUsers / rowsPerPage);
+    
+    const [confirmation, setconfirmation] = useState("");
+
+
+
+    const missingVehicaleData = useGetMissingVehicaleList(
+        "missingVehicle",
+        currentPage,
+        rowsPerPage,
+        filter,
+        range[0].startDate,
+        range[0].endDate,
+        false,
+    );
+
+    const missingVehicale = missingVehicaleData?.data?.data;
+
+    const totalPages = Math.ceil(missingVehicale?.total / rowsPerPage);
+
+    const achiveMissingvehicale = usePatchArchivedMissingVehicale(
+        () => {
+            toast.success("Person archived successfully!")
+            missingVehicaleData.refetch()
+        },
+        () => toast.error("Failed to archive person.")
+    );
+
+
     return (
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
@@ -133,14 +121,21 @@ const ListOfStolenCars = () => {
                                 icon={calender}
                             />
                             <CustomExportMenu />
+                            <Button
+                                onClick={() => nav('/home/total-stolen-cars/view-archeived-vehicale')}
+                                variant="contained"
+                                sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
+                                startIcon={<img src={ViewBtn} alt="View" />}>
+                                View Archeived
+                            </Button>
                         </Box>
 
                     </Grid>
                 </Grid>
 
-                {StolenCars.length < 0 ? (
+                {missingVehicale?.data.length < 0 ? (
                     <Loader />
-                ) : StolenCars.length > 0 ? (
+                ) : missingVehicale?.data.length > 0 ? (
                     <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
                         <TableContainer >
                             <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', } }}>
@@ -156,40 +151,48 @@ const ListOfStolenCars = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {StolenCars.map((user) => (
+                                    {missingVehicale?.data.map((user) => (
                                         <TableRow key={user._id}>
                                             <TableCell sx={{ color: '#4B5563' }}>
                                                 <Stack direction="row" alignItems="center" gap={1}>
-                                                    {[1, 2].map((item) => (
-                                                        <Grid size={{ xs: 6, sm: 3 }} key={item}>
-                                                            <Box
-                                                                component="img"
-                                                                src={`https://blocks.astratic.com/img/general-img-landscape.png`}
-                                                                alt={`Placeholder ${item}`}
-                                                                sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
-                                                            />
-                                                        </Grid>
-                                                    ))}
+                                                    <Grid size={{ xs: 6, sm: 3 }} key={user?._id}>
+                                                        <Box
+                                                            component="img"
+                                                            src={user?.image_1}
+                                                            alt={`Placeholder ${user?.name}`}
+                                                            sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
+                                                        />
+                                                    </Grid>
+                                                    <Grid size={{ xs: 6, sm: 3 }} key={user?._id}>
+                                                        <Box
+                                                            component="img"
+                                                            src={user?.image_2}
+                                                            alt={`Placeholder ${user?.name}`}
+                                                            sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
+                                                        />
+                                                    </Grid>
                                                 </Stack>
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>
 
-                                                {user.location || "-"}
+                                                {user?.lastSeenLocation || "-"}
 
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>
 
-                                                {user.date}
+                                                {user?.createdAt
+                                                    ? moment(user.createdAt).format('MMM D, YYYY - HH:mm A')
+                                                    : '-'}
 
                                             </TableCell>
                                             <TableCell sx={{ color: 'var(--orange)', textAlign: 'center' }}>
 
-                                                {user.req_reached || "-"}
+                                                {user?.requestReached || "-"}
 
                                             </TableCell>
                                             <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
 
-                                                {user.req_accept || "-"}
+                                                {user.requestAccepted || "-"}
 
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>
@@ -205,6 +208,29 @@ const ListOfStolenCars = () => {
                                                             <img src={ViewBtn} alt="view button" />
                                                         </IconButton>
                                                     </Tooltip>
+                                                     <Tooltip title="Archive" arrow placement="top">
+                                                    <IconButton onClick={() => {
+                                                        achiveMissingvehicale.mutate({
+                                                            id: user?._id,
+                                                            data: { isArchived: true }
+                                                        });
+                                                    }}>
+                                                        <img src={Listtrip} alt="view button" />
+                                                    </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Delete" arrow placement="top">
+                                                    <IconButton onClick={() => setconfirmation(user?._id)}>
+                                                        <img src={delBtn} alt="Delete" />
+                                                    </IconButton>
+                                                    </Tooltip>
+
+                                                    {confirmation === user?._id && (
+                                                        <DeleteConfirm
+                                                            id={user?._id}
+                                                            setconfirmation={setconfirmation}
+                                                            trip="missingVehicle"
+                                                        />
+                                                    )}
                                                 </Box>
                                             </TableCell>
                                         </TableRow>
