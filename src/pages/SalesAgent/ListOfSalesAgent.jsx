@@ -510,8 +510,9 @@ const payoutMutation = armedSosPayout(
                                                                     {sharingId === user?._id ? "Sharing..." : "Share"}
                                                                 </span>
                                                                 <span
-                                                                    onClick={(event) => handlePopup(event, 'payout', 'sales_agent', user)}
-                                                                    className="tbl-gray ml-2 cursor-pointer"
+                                                                    onClick={user.totalUnPaid >= 100 ? (event) => handlePopup(event, 'payout', 'sales_agent', user) : undefined}
+                                                                    className={`tbl-gray ml-2 cursor-pointer${user.totalUnPaid < 100 ? ' disabled' : ''}`}
+                                                                    style={user.totalUnPaid < 100 ? { pointerEvents: 'none', opacity: 0.5 } : {}}
                                                                 >
                                                                     Pay
                                                                 </span>
