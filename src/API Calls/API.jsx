@@ -912,6 +912,7 @@ export const useGetChartData = (company_id, time, notificationType) => {
             start_date: startDate,
             time,
             end_date: endDate,
+            showStatus : true
         };
 
         if (notificationType) {

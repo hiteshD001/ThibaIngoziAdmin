@@ -104,7 +104,6 @@ function HotspotSection({ isMapLoaded }) {
                                 a.timesCalled > b.timesCalled ? -1 : 1
                             )
                                 .map((d, index) => (
-                                    console.log(d),
                                     <Box
                                         key={index}
                                         sx={{
