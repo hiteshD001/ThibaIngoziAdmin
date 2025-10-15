@@ -147,194 +147,182 @@ const Analytics = ({ id, activePage,
         }
     }, [driverList?.data, time]);
 
-
-    const downloadCSV = (data, fileName) => {
-        // Convert JSON → worksheet → CSV
-        const worksheet = XLSX.utils.json_to_sheet(data);
-        const csv = XLSX.utils.sheet_to_csv(worksheet);
-      
-        // Create a blob and trigger download
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `${fileName}.csv`;
-        link.click();
-    };
-
+    const [isLoading, setIsLoading] = useState(false);
     const handleExport = async ({ startDate, endDate, exportFormat, location, category }) => {
-        // Add your export logic here
-        // console.log('Date Range:', startDate);
-        // console.log('Category:', endDate);
-        // console.log('Format:', format);
-        // console.log('1:', location);
-        // setOpen(false);
-        const searchKey = "";
-        const hotspot = await fetchHotspot({startDate, endDate, category});
-        const activeSosData = await fetchActiveSosData({startDate, endDate, category, searchKey, page: 1, limit: 100000});
-        const recentSosResponse = await fetchRecentSosData({startDate, endDate, category, searchKey, page: 1, limit: 100000});
-        const recentSos = recentSosResponse?.items || []; 
-        
-        const TotalData = [
-            { Type: "Total Companies", Count: (companyList.data?.data.totalUsers || 0), Percentage: companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2) },
-            { Type: "Active Users", Count: (driverList?.data?.data.totalActiveDrivers || 0), Percentage: driverList?.data?.data?.activeUsersPercentageFromYesterday?.toFixed(2) },
-            { Type: "Users Active "+timeTitle, Count: activeUser, Percentage: activePercentage },
-        ];
+        try {
+            setIsLoading(true);
+            const searchKey = "";
+            const hotspot = await fetchHotspot({startDate, endDate, category});
+            const activeSosData = await fetchActiveSosData({startDate, endDate, category, searchKey, page: 1, limit: 100000});
+            const recentSosResponse = await fetchRecentSosData({startDate, endDate, category, searchKey, page: 1, limit: 100000});
+            const recentSos = recentSosResponse?.items || []; 
+            
+            const TotalData = [
+                { Type: "Total Companies", Count: (companyList.data?.data.totalUsers || 0), Percentage: companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2) },
+                { Type: "Active Users", Count: (driverList?.data?.data.totalActiveDrivers || 0), Percentage: driverList?.data?.data?.activeUsersPercentageFromYesterday?.toFixed(2) },
+                { Type: "Users Active "+timeTitle, Count: activeUser, Percentage: activePercentage },
+            ];
 
-        const chartDataFinal = chartData?.data?.data;
-        const sosData = [];
-        chartDataFinal.forEach((item) => {
-            sosData.push({
-              Month: item.label,
-              Resolved: item.resolved,
-              Pending: item.pending,
-            });
-        });
-
-        const sosAlertData = [];
-        activeSosData?.map((user) => {
-            sosAlertData.push({
-                Driver: user?.user?.first_name+ ' '+user?.user?.last_name,
-                Company: user?.user?.company_name,
-                Address: user?.address,
-                "Request Reached": user?.req_reach || "0",
-                "Request Accept": user?.req_accept || "0",
-                Type: user?.type?.type || "",
-                Time: moment(user?.createdAt).format("HH:mm:ss"),
-                Status: user?.help_received,
-            })
-        });
-
-        const sosLocationsData = [];
-        hotspot?.map((row) => {
-            sosLocationsData.push({
-                "Location": row?.address,
-                "Latitude": row?.lat,
-                "Longitude": row?.long,
-                "Total Calls": row?.totalCalls,
-            })
-        });
-        
-        const sosClosedData = [];
-        recentSos?.map((row) => {
-            sosClosedData.push({
-                "User Name": row?.user?.first_name+ ' '+row?.user?.last_name,
-                "Company": row?.user?.company_name,
-                "Last Active Status": row?.createdAt,
-                "Start Time Stamp": format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy"),
-                "End Time Stamp": format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy"),
-                "Type": row?.type?.type || "",
-                "Status": row?.help_received,
-            })
-        });
-
-        const autoFitColumns = (data) => {
-            return Object.keys(data[0] || {}).map((key) => ({
-              wch: Math.max(key.length, ...data.map((row) => String(row[key] ?? "NA").length)) + 2,
-            }));
-        };
-
-        if(exportFormat == 'xlsx'){
-            const workbook = XLSX.utils.book_new();
-            const companiesSheet = XLSX.utils.json_to_sheet(TotalData);
-            companiesSheet["!cols"] = autoFitColumns(TotalData);
-            XLSX.utils.book_append_sheet(workbook, companiesSheet, "Totals");
-
-            // Add SOS sheet
-            const sosSheet = XLSX.utils.json_to_sheet(sosData);
-            sosSheet["!cols"] = autoFitColumns(sosData);
-            XLSX.utils.book_append_sheet(workbook, sosSheet, "SOS Requests Over Time");
-
-            // Add SOS Alert sheet
-            const sosAlertSheet = XLSX.utils.json_to_sheet(sosAlertData);
-            sosAlertSheet["!cols"] = autoFitColumns(sosAlertData);
-            XLSX.utils.book_append_sheet(workbook, sosAlertSheet, "Active SOS Alerts");
-
-            const sosLocationsSheet = XLSX.utils.json_to_sheet(sosLocationsData);
-            sosLocationsSheet["!cols"] = autoFitColumns(sosLocationsData);
-            XLSX.utils.book_append_sheet(workbook, sosLocationsSheet, "Top SOS Locations");
-
-            const sosClosedSheet = XLSX.utils.json_to_sheet(sosClosedData);
-            sosClosedSheet["!cols"] = autoFitColumns(sosClosedData);
-            XLSX.utils.book_append_sheet(workbook, sosClosedSheet, "Recently Closed SOS Alerts");
-
-            // Write file
-            XLSX.writeFile(workbook, "Dashboard.xlsx");
-        }
-        if(exportFormat == 'csv'){
-            const convertToCSV = (data) => {
-                if (!data || !data.length) return "";
-                const headers = Object.keys(data[0]);
-                const rows = data.map((obj) => headers.map((h) => JSON.stringify(obj[h] ?? "")).join(","));
-                return [headers.join(","), ...rows].join("\n");
-              };
-              
-              const csvSections = [
-                { title: "Totals", data: TotalData },
-                { title: "SOS Requests Over Time", data: sosData },
-                { title: "Active SOS Alerts", data: sosAlertData },
-                { title: "Top SOS Locations", data: sosLocationsData },
-                { title: "Recently Closed SOS Alerts", data: sosClosedData },
-              ];
-              
-              let finalCSV = "";
-              csvSections.forEach((section, i) => {
-                finalCSV += `\n\n# ${section.title}\n`;
-                finalCSV += convertToCSV(section.data);
-              });
-              
-              const blob = new Blob([finalCSV], { type: "text/csv;charset=utf-8;" });
-              const link = document.createElement("a");
-              link.href = URL.createObjectURL(blob);
-              link.download = "Dashboard.csv";
-              link.click();              
-        }
-        if(exportFormat == 'pdf'){
-            const doc = new jsPDF("p", "mm", "a4");
-            let currentY = 16; // vertical position tracker
-
-            const addSection = (title, data) => {
-                if (!data?.length) return; // skip if no data
-
-                // Add section title
-                doc.setFontSize(14);
-                doc.setTextColor(40);
-                doc.text(title, 14, currentY);
-
-                // Convert JSON → table
-                const columns = Object.keys(data[0] || {}).map((key) => ({
-                    header: key.replace(/_/g, " ").toUpperCase(),
-                    dataKey: key,
-                }));
-
-                autoTable(doc, {
-                    startY: currentY + 6,
-                    head: [columns.map((c) => c.header)],
-                    body: data.map((row) => columns.map((c) => String(row[c.dataKey] ?? "NA"))),
-                    theme: "striped",
-                    headStyles: { fillColor: [54, 123, 224], textColor: 255 },
-                    styles: { fontSize: 9 },
-                    margin: { top: 10 },
-                    didDrawPage: (data) => {
-                        currentY = data.cursor.y + 10;
-                    },
+            const chartDataFinal = chartData?.data?.data;
+            const sosData = [];
+            chartDataFinal.forEach((item) => {
+                sosData.push({
+                Month: item.label,
+                Resolved: item.resolved,
+                Pending: item.pending,
                 });
+            });
 
-                // Add a page break if needed
-                if (currentY > 250) {
-                    doc.addPage();
-                    currentY = 20;
-                } else {
-                    currentY += 10;
-                }
+            const sosAlertData = [];
+            activeSosData?.map((user) => {
+                sosAlertData.push({
+                    Driver: user?.user?.first_name+ ' '+user?.user?.last_name,
+                    Company: user?.user?.company_name,
+                    Address: user?.address,
+                    "Request Reached": user?.req_reach || "0",
+                    "Request Accept": user?.req_accept || "0",
+                    Type: user?.type?.type || "",
+                    Time: moment(user?.createdAt).format("HH:mm:ss"),
+                    Status: user?.help_received,
+                })
+            });
+
+            const sosLocationsData = [];
+            hotspot?.map((row) => {
+                sosLocationsData.push({
+                    "Location": row?.address,
+                    "Latitude": row?.lat,
+                    "Longitude": row?.long,
+                    "Total Calls": row?.totalCalls,
+                })
+            });
+            
+            const sosClosedData = [];
+            recentSos?.map((row) => {
+                sosClosedData.push({
+                    "User Name": row?.user?.first_name+ ' '+row?.user?.last_name,
+                    "Company": row?.user?.company_name,
+                    "Last Active Status": row?.createdAt,
+                    "Start Time Stamp": format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy"),
+                    "End Time Stamp": format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy"),
+                    "Type": row?.type?.type || "",
+                    "Status": row?.help_received,
+                })
+            });
+
+            const autoFitColumns = (data) => {
+                return Object.keys(data[0] || {}).map((key) => ({
+                wch: Math.max(key.length, ...data.map((row) => String(row[key] ?? "NA").length)) + 2,
+                }));
             };
 
-            addSection("Totals", TotalData);
-            addSection("SOS Requests Over Time", sosData);
-            addSection("Active SOS Alerts", sosAlertData);
-            addSection("Top SOS Locations", sosLocationsData);
-            addSection("Recently Closed SOS Alerts", sosClosedData);
-            
-            doc.save("Dashboard_Report.pdf");
+            if(exportFormat == 'xlsx'){
+                const workbook = XLSX.utils.book_new();
+                const companiesSheet = XLSX.utils.json_to_sheet(TotalData);
+                companiesSheet["!cols"] = autoFitColumns(TotalData);
+                XLSX.utils.book_append_sheet(workbook, companiesSheet, "Totals");
+
+                // Add SOS sheet
+                const sosSheet = XLSX.utils.json_to_sheet(sosData);
+                sosSheet["!cols"] = autoFitColumns(sosData);
+                XLSX.utils.book_append_sheet(workbook, sosSheet, "SOS Requests Over Time");
+
+                // Add SOS Alert sheet
+                const sosAlertSheet = XLSX.utils.json_to_sheet(sosAlertData);
+                sosAlertSheet["!cols"] = autoFitColumns(sosAlertData);
+                XLSX.utils.book_append_sheet(workbook, sosAlertSheet, "Active SOS Alerts");
+
+                const sosLocationsSheet = XLSX.utils.json_to_sheet(sosLocationsData);
+                sosLocationsSheet["!cols"] = autoFitColumns(sosLocationsData);
+                XLSX.utils.book_append_sheet(workbook, sosLocationsSheet, "Top SOS Locations");
+
+                const sosClosedSheet = XLSX.utils.json_to_sheet(sosClosedData);
+                sosClosedSheet["!cols"] = autoFitColumns(sosClosedData);
+                XLSX.utils.book_append_sheet(workbook, sosClosedSheet, "Recently Closed SOS Alerts");
+
+                // Write file
+                XLSX.writeFile(workbook, "Dashboard.xlsx");
+            }
+            if(exportFormat == 'csv'){
+                const convertToCSV = (data) => {
+                    if (!data || !data.length) return "";
+                    const headers = Object.keys(data[0]);
+                    const rows = data.map((obj) => headers.map((h) => JSON.stringify(obj[h] ?? "")).join(","));
+                    return [headers.join(","), ...rows].join("\n");
+                };
+                
+                const csvSections = [
+                    { title: "Totals", data: TotalData },
+                    { title: "SOS Requests Over Time", data: sosData },
+                    { title: "Active SOS Alerts", data: sosAlertData },
+                    { title: "Top SOS Locations", data: sosLocationsData },
+                    { title: "Recently Closed SOS Alerts", data: sosClosedData },
+                ];
+                
+                let finalCSV = "";
+                csvSections.forEach((section, i) => {
+                    finalCSV += `\n\n# ${section.title}\n`;
+                    finalCSV += convertToCSV(section.data);
+                });
+                
+                const blob = new Blob([finalCSV], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "Dashboard.csv";
+                link.click();     
+            }
+            if(exportFormat == 'pdf'){
+                const doc = new jsPDF("p", "mm", "a4");
+                let currentY = 16; // vertical position tracker
+
+                const addSection = (title, data) => {
+                    if (!data?.length) return; // skip if no data
+
+                    // Add section title
+                    doc.setFontSize(14);
+                    doc.setTextColor(40);
+                    doc.text(title, 14, currentY);
+
+                    // Convert JSON → table
+                    const columns = Object.keys(data[0] || {}).map((key) => ({
+                        header: key.replace(/_/g, " ").toUpperCase(),
+                        dataKey: key,
+                    }));
+
+                    autoTable(doc, {
+                        startY: currentY + 6,
+                        head: [columns.map((c) => c.header)],
+                        body: data.map((row) => columns.map((c) => String(row[c.dataKey] ?? "NA"))),
+                        theme: "striped",
+                        headStyles: { fillColor: [54, 123, 224], textColor: 255 },
+                        styles: { fontSize: 9 },
+                        margin: { top: 10 },
+                        didDrawPage: (data) => {
+                            currentY = data.cursor.y + 10;
+                        },
+                    });
+
+                    // Add a page break if needed
+                    if (currentY > 250) {
+                        doc.addPage();
+                        currentY = 20;
+                    } else {
+                        currentY += 10;
+                    }
+                };
+
+                addSection("Totals", TotalData);
+                addSection("SOS Requests Over Time", sosData);
+                addSection("Active SOS Alerts", sosAlertData);
+                addSection("Top SOS Locations", sosLocationsData);
+                addSection("Recently Closed SOS Alerts", sosClosedData);
+                
+                doc.save("Dashboard.pdf");
+            }
+        } catch (error) {
+            console.error("Export failed:", error);
+        } finally {
+            setIsLoading(false); // ✅ Trigger loader OFF
         }
     };
 
@@ -380,6 +368,9 @@ const Analytics = ({ id, activePage,
                 </Grid>
 
             </Grid>
+            <div>
+                {isLoading && <Loader />}
+            </div>
             <Box p={2}>
                 <div className="clearfix"></div>
 
