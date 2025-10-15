@@ -17,7 +17,9 @@ export const useGetUserList = (
     filter,
     notification_type,
     startDate,
-    endDate
+    endDate,
+    sortBy,
+    sortOrder
 ) => {
     const nav = useNavigate();
 
@@ -31,7 +33,9 @@ export const useGetUserList = (
                 company_id,
                 notification_type,
                 startDate,
-                endDate
+                endDate,
+                sortBy,
+                sortOrder
             },
         });
     };
@@ -47,9 +51,10 @@ export const useGetUserList = (
             notification_type,
             startDate,
             endDate,
+            sortBy,
+            sortOrder
         ],
         queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
         placeholderData: keepPreviousData,
         retry: false,
     });
@@ -394,21 +399,20 @@ export const useDeleteSosAmount = (onSuccess, onError) => {
 
 
 // trip
-export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, endDate,archived) => {
+export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, sortBy, sortOrder) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userTrip`, {
             params: {
-                page, limit, filter, startDate, endDate,archived
+                page, limit, filter, startDate, endDate, archived, sortBy, sortOrder
             },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate,archived],
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder],
         queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
         retry: false,
     });
 
@@ -448,19 +452,18 @@ export const useDeleteUserTrip = (onSuccess, onError) => {
 };
 
 //meetingLink trip
-export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter, startDate, endDate,archived) => {
+export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, sortBy, sortOrder) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userMeetingTrip`, {
-            params: { page, limit, filter, startDate, endDate,archived },
+            params: { page, limit, filter, startDate, endDate, archived, sortBy, sortOrder },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate,archived],
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder],
         queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
         retry: false,
     });
 
@@ -501,19 +504,18 @@ export const useDeleteUserMeetingTripTrip = (onSuccess, onError) => {
 
 // missing person
 
-export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, startDate, endDate,archived,country,province,city,suburb) => {
+export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson`, {
-            params: { page, limit, filter, startDate, endDate,archived,country,province,city,suburb },
+            params: { page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate,archived,country,province,city,suburb],
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder],
         queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
         retry: false,
     });
 
@@ -524,7 +526,7 @@ export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, start
     return res;
 };
 
-export const useGetMissingPersonById = (key,id) => {
+export const useGetMissingPersonById = (key, id) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
@@ -616,19 +618,18 @@ export const usePutMissingPerson = (onSuccess, onError) => {
 
 // missing vehicale
 
-export const useGetMissingVehicaleList =  (key, page = 1, limit = 10, filter, startDate, endDate,archived,country,province,city,suburb) => {
+export const useGetMissingVehicaleList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingVehicle`, {
-            params: { page, limit, filter, startDate, endDate,archived,country,province,city,suburb },
+            params: { page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate,archived,country,province,city,suburb],
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder],
         queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
         retry: false,
     });
 
@@ -691,7 +692,7 @@ export const useDeleteMissingVehicale = (onSuccess, onError) => {
     return mutation;
 }
 
-export const useDeleteMissingVehicaleById = (key,id) => {
+export const useDeleteMissingVehicaleById = (key, id) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
@@ -838,19 +839,18 @@ export const useGetUser = (userId) => {
 
 // recent driver list
 
-export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, searchKey, type) => {
+export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, searchKey, type, sortBy, sortOrder) => {
     const queryFn = async () => {
         return await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`, {
-            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit
+            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder
         }
         );
     };
 
     const res = useQuery({
-        queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type],
+        queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder],
         queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
         keepPreviousData: true,
     });
 
@@ -860,24 +860,24 @@ export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, search
 // bulk upload sales agent using excel file
 export const useBulkUploadSalesAgent = (onSuccess, onError) => {
     return useMutation({
-      mutationFn: async (data) => {
-        try {
-          const res = await apiClient.post(
-            `${import.meta.env.VITE_BASEURL}/influencer/bulk-upload`,
-            data
-          );
-  
-          return res.data;
-        } catch (error) {
-          console.error("Upload error details:", error.response?.data || error);
-          throw error;
-        }
-      },
-      onSuccess,
-      onError,
+        mutationFn: async (data) => {
+            try {
+                const res = await apiClient.post(
+                    `${import.meta.env.VITE_BASEURL}/influencer/bulk-upload`,
+                    data
+                );
+
+                return res.data;
+            } catch (error) {
+                console.error("Upload error details:", error.response?.data || error);
+                throw error;
+            }
+        },
+        onSuccess,
+        onError,
     });
-  };
-  
+};
+
 
 
 
@@ -912,7 +912,7 @@ export const useGetChartData = (company_id, time, notificationType) => {
             start_date: startDate,
             time,
             end_date: endDate,
-            showStatus : true
+            showStatus: true
         };
 
         if (notificationType) {
@@ -951,20 +951,19 @@ export const useGetChartData = (company_id, time, notificationType) => {
 
 // get active sos 
 
-export const useGetActiveSosData = (page = 1, limit = 10, startDate, endDate, searchKey, type) => {
+export const useGetActiveSosData = (page = 1, limit = 10, startDate, endDate, searchKey, type, sortBy, sortOrder) => {
 
     const queryFn = async () => {
         return await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/location/active/sos/data`, {
-            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit
+            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder
         }
         );
     };
 
     const res = useQuery({
-        queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type],
+        queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder],
         queryFn: queryFn,
-        refetchInterval: 1000,
         staleTime: 15 * 60 * 1000,
     });
 
@@ -1313,52 +1312,52 @@ export const fetchActiveSosData = async ({
     type = "all",
     page = 1,
     limit = 100000
-  }) => {
+}) => {
     try {
-      const response = await apiClient.post(
-        `${import.meta.env.VITE_BASEURL}/location/active/sos/data`,
-        {
-          startDate,
-          endDate,
-          searchKey,
-          type: type === "all" ? "" : type,
-          page,
-          limit
-        }
-      );
-      return response.data?.data || []; // return array of SOS records
+        const response = await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/location/active/sos/data`,
+            {
+                startDate,
+                endDate,
+                searchKey,
+                type: type === "all" ? "" : type,
+                page,
+                limit
+            }
+        );
+        return response.data?.data || []; // return array of SOS records
     } catch (error) {
-      console.error("Error fetching Active SOS data:", error);
-      return [];
+        console.error("Error fetching Active SOS data:", error);
+        return [];
     }
-  };
-  
-  // Fetch filtered Recent SOS data
-  export const fetchRecentSosData = async ({
+};
+
+// Fetch filtered Recent SOS data
+export const fetchRecentSosData = async ({
     startDate,
     endDate,
     searchKey = "",
     type = "all",
     page = 1,
     limit = 100000
-  }) => {
+}) => {
     try {
         console.log(type);
-      const response = await apiClient.post(
-        `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`,
-        {
-          startDate,
-          endDate,
-          searchKey,
-          type: type === "all" ? "" : type,
-          page,
-          limit
-        }
-      );
-      return response?.data || []; // return array of SOS records
+        const response = await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`,
+            {
+                startDate,
+                endDate,
+                searchKey,
+                type: type === "all" ? "" : type,
+                page,
+                limit
+            }
+        );
+        return response?.data || []; // return array of SOS records
     } catch (error) {
-      console.error("Error fetching Recent SOS data:", error);
-      return [];
+        console.error("Error fetching Recent SOS data:", error);
+        return [];
     }
 };
 
@@ -1366,7 +1365,7 @@ export const fetchHotspot = async ({
     startDate,
     endDate,
     type = "all"
-  }) => {
+}) => {
     try {
         const params = {};
         params.startDate = startDate;
@@ -1374,16 +1373,16 @@ export const fetchHotspot = async ({
         if (type) {
             params.notificationType = type === "all" ? "" : type;
         }
-      const response = await apiClient.get(
-        `${import.meta.env.VITE_BASEURL}/location/hotspot`,
-        {
-            params
-        }
-      );
-      console.log(type, "type");
-      return response?.data || []; // return array of SOS records
+        const response = await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/hotspot`,
+            {
+                params
+            }
+        );
+        console.log(type, "type");
+        return response?.data || []; // return array of SOS records
     } catch (error) {
-      console.error("Error fetching Recent SOS data:", error);
-      return [];
+        console.error("Error fetching Recent SOS data:", error);
+        return [];
     }
 };

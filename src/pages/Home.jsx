@@ -8,7 +8,8 @@ import {
 } from "../API Calls/API";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, FormControl, InputLabel,
-    Tooltip
+    Tooltip,
+    TableSortLabel
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -32,6 +33,9 @@ import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaLocationDot } from "react-icons/fa6";
+import arrowup from '../assets/images/arrowup.svg';
+import arrowdown from '../assets/images/arrowdown.svg';
+import arrownuteral from '../assets/images/arrownuteral.svg';
 
 
 
@@ -74,12 +78,39 @@ const Home = ({ isMapLoaded }) => {
     const startDateSos = rangeSos[0].startDate.toISOString();
     const endDateSos = rangeSos[0].endDate.toISOString();
 
+    // Sort
+    const [sortBy, setSortBy] = useState("first_name");
+    const [sortOrder, setSortOrder] = useState("asc");
+
+    const [sortBy2, setSortBy2] = useState("first_name");
+    const [sortOrder2, setSortOrder2] = useState("asc");
+
+    const changeSortOrder = (e) => {
+        const field = e.target.id;
+        if (field !== sortBy) {
+            setSortBy(field);
+            setSortOrder("asc");
+        } else {
+            setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+        }
+    }
+
+    const changeSortOrder2 = (e) => {
+        const field = e.target.id;
+        if (field !== sortBy2) {
+            setSortBy2(field);
+            setSortOrder2("asc");
+        } else {
+            setSortOrder2(p => p === 'asc' ? 'desc' : 'asc')
+        }
+    }
+
     const nav = useNavigate();
     const userId = localStorage.getItem("userID");
     const role = localStorage.getItem("role");
 
-    const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification);
-    const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification);
+    const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
+    const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
     const activeUserList = activeSos?.data?.data?.data
 
     // const activeSOS = useGetActiveSOS();
@@ -243,187 +274,272 @@ const Home = ({ isMapLoaded }) => {
                         </Grid>
                     </Grid>
 
-                    {activeUserList?.length > 0 ? (
-                        <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
-                            <TableContainer >
-                                <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
-                                    <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
-                                        <TableRow >
-                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Driver</TableCell>
-                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company</TableCell>
-                                            <TableCell sx={{
-                                                backgroundColor: '#F9FAFB',
-                                                color: '#4B5563',
-                                            }}>Address</TableCell>
-                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Request reached</TableCell>
-                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Request Accept</TableCell>
-                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Type</TableCell>
-                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Time</TableCell>
-                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
-                                            <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
+                    {/* {activeUserList?.length > 0 ? ( */}
+                    <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                        <TableContainer >
+                            <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
+
+                                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                    <TableRow >
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                            <TableSortLabel
+                                                id="first_name"
+                                                active={sortBy2 === 'first_name'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'first_name' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Driver
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="company_name"
+                                                active={sortBy2 === 'company_name'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'company_name' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Company
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="address"
+                                                active={sortBy2 === 'address'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'address' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Address
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="req_reach"
+                                                active={sortBy2 === 'req_reach'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'req_reach' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Request reached
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="req_accept"
+                                                active={sortBy2 === 'req_accept'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'req_accept' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Request Accept
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="type"
+                                                active={sortBy2 === 'type'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'type' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Type
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="createdAt"
+                                                active={sortBy2 === 'createdAt'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'createdAt' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Time
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
+                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
+                                    </TableRow>
+                                </TableHead>
+
+                                <TableBody>
+                                    {activeSos.isFetching ?
+                                        <TableRow>
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={9} align="center">
+                                                <Loader />
+                                            </TableCell>
                                         </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {activeUserList?.map((user) => (
-                                            <TableRow key={user._id}>
-                                                <TableCell sx={{ color: '#4B5563' }}>
-                                                    {
-                                                        user?.user?.role === "driver" ? (
-                                                            <Link to={`/home/total-drivers/driver-information/${user?.user?._id}`} className="link">
-                                                                <Stack direction="row" alignItems="center" gap={1}>
-                                                                    <Avatar
-                                                                        src={
-                                                                            user?.user
-                                                                                ?.selfieImage ||
-                                                                            nouser
-                                                                        }
-                                                                        sx={{ '&:hover': { textDecoration: 'none' } }}
-                                                                        alt="User"
-                                                                    />
+                                        : (activeUserList?.length > 0 ?
+                                            activeUserList?.map((user) => (
+                                                <TableRow key={user._id}>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {
+                                                            user?.user?.role === "driver" ? (
+                                                                <Link to={`/home/total-drivers/driver-information/${user?.user?._id}`} className="link">
+                                                                    <Stack direction="row" alignItems="center" gap={1}>
+                                                                        <Avatar
+                                                                            src={
+                                                                                user?.user
+                                                                                    ?.selfieImage ||
+                                                                                nouser
+                                                                            }
+                                                                            sx={{ '&:hover': { textDecoration: 'none' } }}
+                                                                            alt="User"
+                                                                        />
 
-                                                                    {user?.user?.first_name || ''} {user?.user?.last_name || ''}
-                                                                </Stack>
-                                                            </Link>) : (
-                                                            <Link to={`/home/total-users/user-information/${user?.user?._id}`} className="link">
-                                                                <Stack direction="row" alignItems="center" gap={1}>
-                                                                    <Avatar
-                                                                        src={
-                                                                            user?.user
-                                                                                ?.selfieImage ||
-                                                                            nouser
-                                                                        }
-                                                                        alt="User"
-                                                                    />
+                                                                        {user?.user?.first_name || ''} {user?.user?.last_name || ''}
+                                                                    </Stack>
+                                                                </Link>) : (
+                                                                <Link to={`/home/total-users/user-information/${user?.user?._id}`} className="link">
+                                                                    <Stack direction="row" alignItems="center" gap={1}>
+                                                                        <Avatar
+                                                                            src={
+                                                                                user?.user
+                                                                                    ?.selfieImage ||
+                                                                                nouser
+                                                                            }
+                                                                            alt="User"
+                                                                        />
 
-                                                                    {user?.user?.first_name || ''} {user?.user?.last_name || ''}
-                                                                </Stack>
-                                                            </Link>
-                                                        )
+                                                                        {user?.user?.first_name || ''} {user?.user?.last_name || ''}
+                                                                    </Stack>
+                                                                </Link>
+                                                            )
 
-                                                    }
+                                                        }
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {user?.user?.company_name}
+                                                    </TableCell>
+                                                    <TableCell sx={{
+                                                        color: '#4B5563',
+                                                    }}>
+                                                        {user?.address}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {user?.req_reach || "0"}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {user?.req_accept || "0"}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
+                                                        {user?.type?.type || "-"}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {moment(user?.createdAt).format('HH:mm:ss')}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
+                                                        {!user?.help_received &&
+                                                            <div className="select-container">
+                                                                <select
+                                                                    name="help_received"
+                                                                    className="my-custom-select"
+                                                                    onChange={(e) => {
+                                                                        setStatus(e.target.value);
+                                                                        setStatusUpdate(true);
+                                                                        setSelectedId(row._id);
+                                                                    }}
+                                                                >
+                                                                    <option value="" hidden> Select </option>
+                                                                    <option value="help_received"> Help Received </option>
+                                                                    <option value="cancel"> Cancel </option>
+                                                                </select>
+                                                            </div>
+                                                        }
+                                                    </TableCell>
+                                                    <TableCell >
+                                                        <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                            <Tooltip title="View" arrow placement="top">
+                                                                <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${user?._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`)}>
+                                                                    <img src={ViewBtn} alt="view button" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                            :
+                                            <TableRow>
+                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={9} align="center">
+                                                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                        No data found
+                                                    </Typography>
                                                 </TableCell>
-                                                <TableCell sx={{ color: '#4B5563' }}>
-                                                    {user?.user?.company_name}
-                                                </TableCell>
-                                                <TableCell sx={{
-                                                    color: '#4B5563',
-                                                }}>
-                                                    {user?.address}
-                                                </TableCell>
-                                                <TableCell sx={{ color: '#4B5563' }}>
-                                                    {user?.req_reach || "0"}
-                                                </TableCell>
-                                                <TableCell sx={{ color: '#4B5563' }}>
-                                                    {user?.req_accept || "0"}
-                                                </TableCell>
-                                                <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
-                                                    {user?.type?.type || "-"}
-                                                </TableCell>
-                                                <TableCell sx={{ color: '#4B5563' }}>
-                                                    {moment(user?.createdAt).format('HH:mm:ss')}
-                                                </TableCell>
-                                                <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
-                                                    {!user?.help_received &&
-                                                        <div className="select-container">
-                                                            <select
-                                                                name="help_received"
-                                                                className="my-custom-select"
-                                                                onChange={(e) => {
-                                                                    setStatus(e.target.value);
-                                                                    setStatusUpdate(true);
-                                                                    setSelectedId(row._id);
-                                                                }}
-                                                            >
-                                                                <option value="" hidden> Select </option>
-                                                                <option value="help_received"> Help Received </option>
-                                                                <option value="cancel"> Cancel </option>
-                                                            </select>
-                                                        </div>
-                                                    }
-                                                </TableCell>
-                                                <TableCell >
-                                                    <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                        <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${user?._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`)}>
-                                                                <img src={ViewBtn} alt="view button" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </Box>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                            </TableRow>)
+                                    }
+                                </TableBody>
+                            </Table>
 
-                            </TableContainer>
-                            <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
-                                <Grid>
-                                    <Typography variant="body2">
-                                        Rows per page:&nbsp;
-                                        <Select
-                                            size="small"
-                                            sx={{
+                        </TableContainer>
+
+                        {activeUserList?.length > 0 && !activeSos.isFetching && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                            <Grid>
+                                <Typography variant="body2">
+                                    Rows per page:&nbsp;
+                                    <Select
+                                        size="small"
+                                        sx={{
+                                            border: 'none',
+                                            boxShadow: 'none',
+                                            outline: 'none',
+                                            '& .MuiOutlinedInput-notchedOutline': {
                                                 border: 'none',
+                                            },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '& .MuiOutlinedInput-root': {
                                                 boxShadow: 'none',
                                                 outline: 'none',
-                                                '& .MuiOutlinedInput-notchedOutline': {
-                                                    border: 'none',
-                                                },
-                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                                    border: 'none',
-                                                },
-                                                '& .MuiOutlinedInput-root': {
-                                                    boxShadow: 'none',
-                                                    outline: 'none',
-                                                },
-                                                '& .MuiSelect-select': {
-                                                    outline: 'none',
-                                                },
-                                            }}
-                                            value={activeLimit}
-                                            onChange={(e) => {
-                                                setActiveLimit(Number(e.target.value));
-                                                setActivePage(1);
-                                            }}
-                                        >
-                                            {[5, 10, 15, 20].map((num) => (
-                                                <MenuItem key={num} value={num}>
-                                                    {num}
-                                                </MenuItem>
-                                            ))}
-                                        </Select>
-                                    </Typography>
-                                </Grid>
-                                <Grid>
-                                    <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
-                                        <Typography variant="body2">
-                                            {activePage} / {totalActivePages}
-                                        </Typography>
-                                        <IconButton
-                                            disabled={activePage === 1}
-                                            onClick={() => setActivePage((prev) => prev - 1)}
-                                        >
-                                            <NavigateBeforeIcon fontSize="small" sx={{
-                                                color: activePage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
-                                            }} />
-                                        </IconButton>
-                                        <IconButton
-                                            disabled={activePage === totalActivePages}
-                                            onClick={() => setActivePage((prev) => prev + 1)}
-                                        >
-                                            <NavigateNextIcon fontSize="small" />
-                                        </IconButton>
-                                    </Box>
-                                </Grid>
+                                            },
+                                            '& .MuiSelect-select': {
+                                                outline: 'none',
+                                            },
+                                        }}
+                                        value={activeLimit}
+                                        onChange={(e) => {
+                                            setActiveLimit(Number(e.target.value));
+                                            setActivePage(1);
+                                        }}
+                                    >
+                                        {[5, 10, 15, 20].map((num) => (
+                                            <MenuItem key={num} value={num}>
+                                                {num}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Typography>
                             </Grid>
-                        </Box>
-                    ) : (
-                        <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
-                            No data found
-                        </Typography>
-                    )}
+                            <Grid>
+                                <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                    <Typography variant="body2">
+                                        {activePage} / {totalActivePages}
+                                    </Typography>
+                                    <IconButton
+                                        disabled={activePage === 1}
+                                        onClick={() => setActivePage((prev) => prev - 1)}
+                                    >
+                                        <NavigateBeforeIcon fontSize="small" sx={{
+                                            color: activePage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
+                                        }} />
+                                    </IconButton>
+                                    <IconButton
+                                        disabled={activePage === totalActivePages}
+                                        onClick={() => setActivePage((prev) => prev + 1)}
+                                    >
+                                        <NavigateNextIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+                        </Grid>}
+                    </Box>
                 </Paper>
+
+
                 <HotspotSection isMapLoaded={isMapLoaded} />
+
+
                 {/* recently closed sos */}
                 <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 2, padding: 2, borderRadius: '10px' }}>
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
@@ -491,174 +607,245 @@ const Home = ({ isMapLoaded }) => {
 
                         </Grid>
                     </Grid>
-                    {
-                        isFetching ? (
-                            <Loader />) :
-                            recentSos?.data?.items?.length > 0 ? (
-                                <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
-                                    <TableContainer >
-                                        <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
-                                            <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
-                                                <TableRow >
-                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>User Name</TableCell>
-                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company</TableCell>
-                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Last Active Status</TableCell>
-                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Start Time Stamp</TableCell>
-                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>End Time Stamp</TableCell>
-                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Type</TableCell>
-                                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
-                                                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Action</TableCell>
+                    <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                        <TableContainer >
+                            <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
+
+                                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                    <TableRow >
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                            <TableSortLabel
+                                                id="first_name"
+                                                active={sortBy === 'first_name'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                User Name
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="company_name"
+                                                active={sortBy === 'company_name'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'company_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Company
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="address"
+                                                active={sortBy === 'address'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'address' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Last Active Status
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="createdAt"
+                                                active={sortBy === 'createdAt'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Start Time Stamp
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="updatedAt"
+                                                active={sortBy === 'updatedAt'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'updatedAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                End Time Stamp
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="type"
+                                                active={sortBy === 'type'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'type' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Type
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            Status
+                                        </TableCell>
+                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Action</TableCell>
+                                    </TableRow>
+                                </TableHead>
+
+                                <TableBody>
+                                    {isFetching ?
+                                        <TableRow>
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                                <Loader />
+                                            </TableCell>
+                                        </TableRow>
+                                        : (recentSos?.data?.items?.length > 0 ?
+                                            recentSos?.data?.items?.map((row) => (
+                                                <TableRow key={row?._id}>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {
+                                                            row.user?.role === "driver" ? (
+                                                                <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link">
+                                                                    <Stack direction="row" alignItems="center" gap={1}>
+
+                                                                        <Avatar
+                                                                            src={
+                                                                                row?.user
+                                                                                    ?.selfieImage ||
+                                                                                nouser
+                                                                            }
+                                                                            alt="User"
+                                                                        />
+
+                                                                        {row?.user?.first_name || ''} {row?.user?.last_name || ''}
+                                                                    </Stack>
+
+                                                                </Link>) : (
+                                                                <Link to={`/home/total-users/user-information/${row.user?._id}`} className="link">
+                                                                    <Stack direction="row" alignItems="center" gap={1}>
+
+                                                                        <Avatar
+                                                                            src={
+                                                                                row?.user
+                                                                                    ?.selfieImage ||
+                                                                                nouser
+                                                                            }
+                                                                            alt="User"
+                                                                        />
+
+                                                                        {row?.user?.first_name || ''} {row?.user?.last_name || ''}
+                                                                    </Stack>
+                                                                </Link>
+                                                            )
+                                                        }
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {row?.user?.company_name}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+
+                                                        {row?.address}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
+                                                        {row?.type?.type}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {row?.help_received}
+                                                    </TableCell>
+                                                    <TableCell >
+                                                        <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                            <Tooltip title="View" arrow placement="top">
+                                                                <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user?._id}`)}>
+                                                                    <img src={ViewBtn} alt="view button" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+                                                    </TableCell>
                                                 </TableRow>
-                                            </TableHead>
-                                            <TableBody>
-                                                {recentSos?.data?.items?.map((row) => (
-                                                    <TableRow key={row?._id}>
-                                                        <TableCell sx={{ color: '#4B5563' }}>
-                                                            {
-                                                                row.user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link">
-                                                                        <Stack direction="row" alignItems="center" gap={1}>
+                                            ))
+                                            :
+                                            <TableRow>
+                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                        No data found
+                                                    </Typography>
+                                                </TableCell>
+                                            </TableRow>)
+                                    }
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
 
-                                                                            <Avatar
-                                                                                src={
-                                                                                    row?.user
-                                                                                        ?.selfieImage ||
-                                                                                    nouser
-                                                                                }
-                                                                                alt="User"
-                                                                            />
-
-                                                                            {row?.user?.first_name || ''} {row?.user?.last_name || ''}
-                                                                        </Stack>
-
-                                                                    </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${row.user._id}`} className="link">
-                                                                        <Stack direction="row" alignItems="center" gap={1}>
-
-                                                                            <Avatar
-                                                                                src={
-                                                                                    row?.user
-                                                                                        ?.selfieImage ||
-                                                                                    nouser
-                                                                                }
-                                                                                alt="User"
-                                                                            />
-
-                                                                            {row?.user?.first_name || ''} {row?.user?.last_name || ''}
-                                                                        </Stack>
-                                                                    </Link>
-                                                                )
-                                                            }
-                                                        </TableCell>
-                                                        <TableCell sx={{ color: '#4B5563' }}>
-                                                            {row?.user?.company_name}
-                                                        </TableCell>
-                                                        <TableCell sx={{ color: '#4B5563' }}>
-
-                                                            {row?.address}
-                                                        </TableCell>
-                                                        <TableCell sx={{ color: '#4B5563' }}>
-                                                            {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
-                                                        </TableCell>
-                                                        <TableCell sx={{ color: '#4B5563' }}>
-                                                            {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
-                                                        </TableCell>
-                                                        <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
-                                                            {row?.type.type}
-                                                        </TableCell>
-                                                        <TableCell sx={{ color: '#4B5563' }}>
-                                                            {row?.help_received}
-                                                        </TableCell>
-                                                        <TableCell >
-                                                            <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                                <Tooltip title="View" arrow placement="top">
-                                                                    <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user?._id}`)}>
-                                                                        <img src={ViewBtn} alt="view button" />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            </Box>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-
-                                    </TableContainer>
-                                    <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
-                                        <Grid>
-                                            <Typography variant="body2">
-                                                Rows per page:&nbsp;
-                                                <Select
-                                                    size="small"
-                                                    sx={{
-                                                        border: 'none',
-                                                        boxShadow: 'none',
-                                                        outline: 'none',
-                                                        '& .MuiOutlinedInput-notchedOutline': {
-                                                            border: 'none',
-                                                        },
-                                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                                            border: 'none',
-                                                        },
-                                                        '& .MuiOutlinedInput-root': {
-                                                            boxShadow: 'none',
-                                                            outline: 'none',
-                                                        },
-                                                        '& .MuiSelect-select': {
-                                                            outline: 'none',
-                                                        },
-                                                    }}
-                                                    value={recentLimit}
-                                                    onChange={(e) => {
-                                                        setRecentLimit(Number(e.target.value));
-                                                        setRecentPage(1);
-                                                    }}
-                                                >
-                                                    {[5, 10, 15, 20].map((num) => (
-                                                        <MenuItem key={num} value={num}>
-                                                            {num}
-                                                        </MenuItem>
-                                                    ))}
-                                                </Select>
-                                            </Typography>
-                                        </Grid>
-                                        <Grid>
-                                            <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
-                                                <Typography variant="body2">
-                                                    {recentPage} / {totalRecentPages}
-                                                </Typography>
-                                                <IconButton
-                                                    disabled={recentPage === 1}
-                                                    onClick={() => setRecentPage((prev) => prev - 1)}
-                                                >
-                                                    <NavigateBeforeIcon fontSize="small" sx={{
-                                                        color: recentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
-                                                    }} />
-                                                </IconButton>
-                                                <IconButton
-                                                    disabled={recentPage === totalRecentPages}
-                                                    onClick={() => setRecentPage((prev) => prev + 1)}
-                                                >
-                                                    <NavigateNextIcon fontSize="small" />
-                                                </IconButton>
-                                            </Box>
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                            ) : (
-                                <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
-                                    No data found
+                        {recentSos?.data?.items?.length > 0 && !isFetching && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                            <Grid>
+                                <Typography variant="body2">
+                                    Rows per page:&nbsp;
+                                    <Select
+                                        size="small"
+                                        sx={{
+                                            border: 'none',
+                                            boxShadow: 'none',
+                                            outline: 'none',
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '& .MuiOutlinedInput-root': {
+                                                boxShadow: 'none',
+                                                outline: 'none',
+                                            },
+                                            '& .MuiSelect-select': {
+                                                outline: 'none',
+                                            },
+                                        }}
+                                        value={recentLimit}
+                                        onChange={(e) => {
+                                            setRecentLimit(Number(e.target.value));
+                                            setRecentPage(1);
+                                        }}
+                                    >
+                                        {[5, 10, 15, 20].map((num) => (
+                                            <MenuItem key={num} value={num}>
+                                                {num}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
                                 </Typography>
-                            )}
+                            </Grid>
+                            <Grid>
+                                <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                    <Typography variant="body2">
+                                        {recentPage} / {totalRecentPages}
+                                    </Typography>
+                                    <IconButton
+                                        disabled={recentPage === 1}
+                                        onClick={() => setRecentPage((prev) => prev - 1)}
+                                    >
+                                        <NavigateBeforeIcon fontSize="small" sx={{
+                                            color: recentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
+                                        }} />
+                                    </IconButton>
+                                    <IconButton
+                                        disabled={recentPage === totalRecentPages}
+                                        onClick={() => setRecentPage((prev) => prev + 1)}
+                                    >
+                                        <NavigateNextIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+                        </Grid>}
+                    </Box>
                 </Paper>
-            </Box>
+            </Box >
             {statusUpdate && (
                 <SOSStatusUpdate
                     handleCancel={handleCancel}
                     handleUpdate={handleUpdate}
                 />
             )}
-        </Box>
+        </Box >
     );
 };
 

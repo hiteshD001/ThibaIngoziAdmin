@@ -1,6 +1,6 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, Tooltip,Chip } from "@mui/material";
+import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, Tooltip, TableSortLabel, Chip } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import payIcon from '../assets/images/payIcon.svg';
@@ -51,6 +51,10 @@ import apiClient from "../API Calls/APIClient";
 import search from "../assets/images/search.svg";
 import nouser from "../assets/images/NoUser.png";
 
+import arrowup from '../assets/images/arrowup.svg';
+import arrowdown from '../assets/images/arrowdown.svg';
+import arrownuteral from '../assets/images/arrownuteral.svg';
+
 const ListOfDrivers = () => {
     const [edit, setedit] = useState(false);
     const [isArmedLocal, setIsArmedLocal] = useState(false);
@@ -77,6 +81,20 @@ const ListOfDrivers = () => {
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
 
+    // Sort 1
+    const [sortBy, setSortBy] = useState("first_name");
+    const [sortOrder, setSortOrder] = useState("asc");
+
+    const changeSortOrder = (e) => {
+        const field = e.target.id;
+        if (field !== sortBy) {
+            setSortBy(field);
+            setSortOrder("asc");
+        } else {
+            setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+        }
+    }
+
     const companyInfo = useGetUser(params.id);
     const driverList = useGetUserList(
         "driver list",
@@ -87,7 +105,9 @@ const ListOfDrivers = () => {
         filter,
         "",
         startDate,
-        endDate
+        endDate,
+        sortBy,
+        sortOrder
     );
     const getArmedSOS = useGetArmedSoS();
     const securityList = useGetSecurityList();
@@ -664,10 +684,10 @@ const ListOfDrivers = () => {
                                 </Typography>
 
                                 <Box>
-                                    {GrpservicesList.map((group, groupIdx) => (
+                                    {GrpservicesList.map((group) => (
                                         <Box key={group.label} mb={2}>
                                             <FormGroup row>
-                                                {group.options.map((service, idx) => {
+                                                {group.options.map((service) => {
                                                     const isChecked = CompanyForm.values.services?.includes(service.value);
 
                                                     return (
@@ -851,213 +871,240 @@ const ListOfDrivers = () => {
                 </Grid>
 
                 {/* Table / Loader / Empty */}
-                {driverList.isFetching ? (
-                    <Loader />
-                ) : driverList.data?.data.users?.length > 0 ? (
-                    <Box
-                        sx={{
-                            px: { xs: 0, md: 2 },
-                            pt: { xs: 0, md: 3 },
-                            backgroundColor: "#FFFFFF",
-                            borderRadius: "10px",
-                        }}
-                    >
-                        <TableContainer>
-                            <Table sx={{ "& .MuiTableCell-root": { fontSize: "15px" } }}>
-                                <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
-                                    <TableRow>
-                                        <TableCell sx={{ backgroundColor: "#F9FAFB", borderTopLeftRadius: '10px', color: "#4B5563" }}>
-                                            Driver
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563", width: '10%' }}>
-                                            Driver ID
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
-                                            Company
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
-                                            Contact No.
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
-                                            Contact Email
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
-                                            Subscription status
-                                        </TableCell>
-                                        <TableCell
-                                            align="center"
-                                            sx={{ backgroundColor: "#F9FAFB", borderTopRightRadius: '10px', color: "#4B5563" }}
+                <Box
+                    sx={{
+                        px: { xs: 0, md: 2 },
+                        pt: { xs: 0, md: 3 },
+                        backgroundColor: "#FFFFFF",
+                        borderRadius: "10px",
+                    }}
+                >
+                    <TableContainer>
+                        <Table sx={{ "& .MuiTableCell-root": { fontSize: "15px" } }}>
+                            <TableHead sx={{ backgroundColor: "#f5f5f5" }}>
+                                <TableRow>
+                                    <TableCell sx={{ backgroundColor: "#F9FAFB", borderTopLeftRadius: '10px', color: "#4B5563" }}>
+                                        <TableSortLabel
+                                            id="first_name"
+                                            active={sortBy === 'first_name'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
-                                            Actions
+                                            Driver
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563", width: '10%' }}>
+                                        <TableSortLabel
+                                            id="passport_no"
+                                            active={sortBy === 'passport_no'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'passport_no' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Driver ID
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
+                                        <TableSortLabel
+                                            id="company_name"
+                                            active={sortBy === 'company_name'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'company_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Company
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
+                                        <TableSortLabel
+                                            id="mobile_no_country_code"
+                                            active={sortBy === 'mobile_no_country_code'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'mobile_no_country_code' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Contact No.
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
+                                        <TableSortLabel
+                                            id="email"
+                                            active={sortBy === 'email'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'email' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Contact Email
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell
+                                        align="center"
+                                        sx={{ backgroundColor: "#F9FAFB", borderTopRightRadius: '10px', color: "#4B5563" }}
+                                    >
+                                        Actions
+                                    </TableCell>
+                                </TableRow>
+                            </TableHead>
+
+                            <TableBody>
+                                {driverList.isFetching ?
+                                    <TableRow>
+                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={6} align="center">
+                                            <Loader />
                                         </TableCell>
                                     </TableRow>
-                                </TableHead>
-
-                                <TableBody>
-                                    {driverList?.data?.data?.users?.map((driver) => (
-                                        <TableRow key={driver._id}>
-                                            <TableCell sx={{ color: "#4B5563" }}>
-                                                <Stack direction="row" alignItems="center" gap={1.5}>
-                                                    <Avatar
-                                                        src={driver?.selfieImage || nouser}
-                                                        alt="driver"
-                                                        sx={{ width: 32, height: 32 }}
-                                                    />
-                                                    {driver.first_name} {driver.last_name}
-
-                                                </Stack>
-                                            </TableCell>
-
-                                            <TableCell sx={{ color: "#4B5563" }}>
-                                                {driver?.passport_no || "-"}
-                                            </TableCell>
-
-                                            <TableCell sx={{ color: "#4B5563" }}>
-                                                {driver.company_name || "-"}
-                                            </TableCell>
-
-                                            <TableCell sx={{ color: "#4B5563" }}>
-                                                {`${driver?.mobile_no_country_code ?? ""}${driver?.mobile_no ?? ""}` || "-"}
-                                            </TableCell>
-
-                                            <TableCell sx={{ color: "#4B5563" }}>
-                                                {driver.email || "-"}
-                                            </TableCell>
-                                            <TableCell sx={{ color: "#4B5563" }}>
-                                                <Chip
-                                                    label={driver.subscription_status}
-                                                    sx={{
-                                                        backgroundColor:
-                                                            driver.subscription_status === 'inactive' ? '#E5565A1A' :
-                                                                    driver.subscription_status === 'active' ? '#DCFCE7' :
-                                                                        '#F3F4F6',
-                                                        '& .MuiChip-label': {
-                                                            textTransform: 'capitalize',
-                                                            fontWeight: 500,
-                                                            color: driver.subscription_status === 'inactive' ? '#E5565A' :
-                                                                driver.subscription_status === 'active' ? '#F59E0B' :
-                                                                    'black',
-                                                        }
-                                                    }}
-                                                />
-                                            </TableCell>
-
-                                            <TableCell>
-                                                <Box
-                                                    align="center"
-                                                    sx={{ display: "flex", flexDirection: "row", gap: 0 }}
-                                                >
-                                                    <Tooltip title="View" arrow placement="top">
-                                                        <IconButton onClick={() =>
-                                                            nav(`/home/total-drivers/driver-information/${driver._id}`)
-                                                        }>
-                                                            <img src={ViewBtn} alt="view button" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Delete" arrow placement="top">
-                                                        <IconButton onClick={() => setconfirmation(driver._id)}>
-                                                            <img src={delBtn} alt="delete button" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Payout" arrow placement="top">
-                                                        <IconButton onClick={() =>
-                                                            nav(`/home/total-drivers`)
-                                                        }>
-                                                            <img src={driverPayoutIcon} alt="view button" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    {confirmation === driver._id && (
-                                                        <DeleteConfirm
-                                                            id={driver._id}
-                                                            setconfirmation={setconfirmation}
+                                    : (driverList.data?.data.users?.length > 0 ?
+                                        driverList?.data?.data?.users?.map((driver) => (
+                                            <TableRow key={driver._id}>
+                                                <TableCell sx={{ color: "#4B5563" }}>
+                                                    <Stack direction="row" alignItems="center" gap={1.5}>
+                                                        <Avatar
+                                                            src={driver?.selfieImage || nouser}
+                                                            alt="driver"
+                                                            sx={{ width: 32, height: 32 }}
                                                         />
-                                                    )}
+                                                        {driver.first_name} {driver.last_name}
 
-                                                </Box>
+                                                    </Stack>
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: "#4B5563" }}>
+                                                    {driver?.passport_no || "-"}
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: "#4B5563" }}>
+                                                    {driver.company_name || "-"}
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: "#4B5563" }}>
+                                                    {`${driver?.mobile_no_country_code ?? ""}${driver?.mobile_no ?? ""}` || "-"}
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: "#4B5563" }}>
+                                                    {driver.email || "-"}
+                                                </TableCell>
+
+                                                <TableCell>
+                                                    <Box
+                                                        align="center"
+                                                        sx={{ display: "flex", flexDirection: "row", gap: 0 }}
+                                                    >
+                                                        <Tooltip title="View" arrow placement="top">
+                                                            <IconButton onClick={() =>
+                                                                nav(`/home/total-drivers/driver-information/${driver._id}`)
+                                                            }>
+                                                                <img src={ViewBtn} alt="view button" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Delete" arrow placement="top">
+                                                            <IconButton onClick={() => setconfirmation(driver._id)}>
+                                                                <img src={delBtn} alt="delete button" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Payout" arrow placement="top">
+                                                            <IconButton onClick={() =>
+                                                                nav(`/home/total-drivers`)
+                                                            }>
+                                                                <img src={driverPayoutIcon} alt="view button" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        {confirmation === driver._id && (
+                                                            <DeleteConfirm
+                                                                id={driver._id}
+                                                                setconfirmation={setconfirmation}
+                                                            />
+                                                        )}
+
+                                                    </Box>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                        :
+                                        <TableRow>
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={6} align="center">
+                                                <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                    No data found
+                                                </Typography>
                                             </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+                                        </TableRow>)
+                                }
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
 
-                        {/* Pagination */}
-                        <Grid
-                            container
-                            sx={{ px: { xs: 0, sm: 3 } }}
-                            justifyContent="space-between"
-                            alignItems="center"
-                            mt={2}
-                        >
-                            <Grid >
-                                <Typography variant="body2">
-                                    Rows per page:&nbsp;
-                                    <MuiSelect
-                                        size="small"
-                                        sx={{
+                    {/* Pagination */}
+                    {!driverList.isFetching && driverList.data?.data.users?.length > 0 && <Grid
+                        container
+                        sx={{ px: { xs: 0, sm: 3 } }}
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mt={2}
+                    >
+                        <Grid >
+                            <Typography variant="body2">
+                                Rows per page:&nbsp;
+                                <MuiSelect
+                                    size="small"
+                                    sx={{
+                                        border: "none",
+                                        boxShadow: "none",
+                                        outline: "none",
+                                        "& .MuiOutlinedInput-notchedOutline": {
                                             border: "none",
+                                        },
+                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                            border: "none",
+                                        },
+                                        "& .MuiOutlinedInput-root": {
                                             boxShadow: "none",
                                             outline: "none",
-                                            "& .MuiOutlinedInput-notchedOutline": {
-                                                border: "none",
-                                            },
-                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                                                border: "none",
-                                            },
-                                            "& .MuiOutlinedInput-root": {
-                                                boxShadow: "none",
-                                                outline: "none",
-                                            },
-                                            "& .MuiSelect-select": {
-                                                outline: "none",
-                                            },
-                                        }}
-                                        value={rowsPerPage}
-                                        onChange={(e) => {
-                                            setRowsPerPage(Number(e.target.value));
-                                            setpage(1);
-                                        }}
-                                    >
-                                        {[5, 10, 15, 20].map((num) => (
-                                            <MenuItem key={num} value={num}>
-                                                {num}
-                                            </MenuItem>
-                                        ))}
-                                    </MuiSelect>
-                                </Typography>
-                            </Grid>
-
-                            <Grid>
-                                <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
-                                    <Typography variant="body2">
-                                        {page} / {totalPages}
-                                    </Typography>
-                                    <IconButton
-                                        disabled={page === 1}
-                                        onClick={() => setpage((prev) => prev - 1)}
-                                    >
-                                        <NavigateBeforeIcon
-                                            fontSize="small"
-                                            sx={{
-                                                color: page === 1 ? "#BDBDBD" : "#1976d2",
-                                            }}
-                                        />
-                                    </IconButton>
-                                    <IconButton
-                                        disabled={page === totalPages}
-                                        onClick={() => setpage((prev) => prev + 1)}
-                                    >
-                                        <NavigateNextIcon fontSize="small" />
-                                    </IconButton>
-                                </Box>
-                            </Grid>
+                                        },
+                                        "& .MuiSelect-select": {
+                                            outline: "none",
+                                        },
+                                    }}
+                                    value={rowsPerPage}
+                                    onChange={(e) => {
+                                        setRowsPerPage(Number(e.target.value));
+                                        setpage(1);
+                                    }}
+                                >
+                                    {[5, 10, 15, 20].map((num) => (
+                                        <MenuItem key={num} value={num}>
+                                            {num}
+                                        </MenuItem>
+                                    ))}
+                                </MuiSelect>
+                            </Typography>
                         </Grid>
-                    </Box>
-                ) : (
-                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
-                        No data found
-                    </Typography>
-                )}
+
+                        <Grid>
+                            <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                <Typography variant="body2">
+                                    {page} / {totalPages}
+                                </Typography>
+                                <IconButton
+                                    disabled={page === 1}
+                                    onClick={() => setpage((prev) => prev - 1)}
+                                >
+                                    <NavigateBeforeIcon
+                                        fontSize="small"
+                                        sx={{
+                                            color: page === 1 ? "#BDBDBD" : "#1976d2",
+                                        }}
+                                    />
+                                </IconButton>
+                                <IconButton
+                                    disabled={page === totalPages}
+                                    onClick={() => setpage((prev) => prev + 1)}
+                                >
+                                    <NavigateNextIcon fontSize="small" />
+                                </IconButton>
+                            </Box>
+                        </Grid>
+                    </Grid>}
+                </Box>
             </Paper>
 
             {popup && <ImportSheet setpopup={setpopup} type="driver" />}

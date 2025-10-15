@@ -4,6 +4,7 @@ import {
     Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem,
     Button,
     Tooltip,
+    TableSortLabel,
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -16,6 +17,10 @@ import Loader from "../../common/Loader";
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import ImportSheet from "../../common/ImportSheet";
 import { startOfYear } from "date-fns";
+import arrowup from '../../assets/images/arrowup.svg';
+import arrowdown from '../../assets/images/arrowdown.svg';
+import arrownuteral from '../../assets/images/arrownuteral.svg';
+
 import { useGetMissingVehicaleList, usePatchArchivedMissingVehicale } from "../../API Calls/API";
 import moment from "moment/moment";
 import Listtrip from '../../assets/images/Listtrip.svg'
@@ -38,10 +43,22 @@ const ListOfStolenCars = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
     const totalUsers = 10;
-    
+
     const [confirmation, setconfirmation] = useState("");
 
+    // Sort 1
+    const [sortBy, setSortBy] = useState("lastSeenLocation");
+    const [sortOrder, setSortOrder] = useState("asc");
 
+    const changeSortOrder = (e) => {
+        const field = e.target.id;
+        if (field !== sortBy) {
+            setSortBy(field);
+            setSortOrder("asc");
+        } else {
+            setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+        }
+    }
 
     const missingVehicaleData = useGetMissingVehicaleList(
         "missingVehicle",
@@ -51,6 +68,9 @@ const ListOfStolenCars = () => {
         range[0].startDate,
         range[0].endDate,
         false,
+        "", "", "", "",
+        sortBy,
+        sortOrder
     );
 
     const missingVehicale = missingVehicaleData?.data?.data;
@@ -64,7 +84,6 @@ const ListOfStolenCars = () => {
         },
         () => toast.error("Failed to archive person.")
     );
-
 
     return (
         <Box p={2}>
@@ -133,181 +152,244 @@ const ListOfStolenCars = () => {
                     </Grid>
                 </Grid>
 
-                {missingVehicale?.data.length < 0 ? (
-                    <Loader />
-                ) : missingVehicale?.data.length > 0 ? (
-                    <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
-                        <TableContainer >
-                            <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', } }}>
-                                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
-                                    <TableRow >
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Images</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Last Seen Location</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Date</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>Request Reached</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>Request Accepted</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Reported by</TableCell>
-                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                    <TableContainer >
+                        <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', } }}>
+
+                            <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                <TableRow >
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                        Images
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="lastSeenLocation"
+                                            active={sortBy === 'lastSeenLocation'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'lastSeenLocation' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Last Seen Location
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="createdAt"
+                                            active={sortBy === 'createdAt'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Date
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>
+                                        <TableSortLabel
+                                            id="requestReached"
+                                            active={sortBy === 'requestReached'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'requestReached' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Request Reached
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>
+                                        <TableSortLabel
+                                            id="requestAccepted"
+                                            active={sortBy === 'requestAccepted'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'requestAccepted' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Request Accepted
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="reportedBy"
+                                            active={sortBy === 'reportedBy'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'reportedBy' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Reported by
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+
+                            <TableBody>
+                                {missingVehicaleData.isFetching ?
+                                    <TableRow>
+                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={6} align="center">
+                                            <Loader />
+                                        </TableCell>
                                     </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {missingVehicale?.data.map((user) => (
-                                        <TableRow key={user._id}>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                <Stack direction="row" alignItems="center" gap={1}>
-                                                    <Grid size={{ xs: 6, sm: 3 }} key={user?._id}>
-                                                        <Box
-                                                            component="img"
-                                                            src={user?.image_1}
-                                                            alt={`Placeholder ${user?.name}`}
-                                                            sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
-                                                        />
-                                                    </Grid>
-                                                    <Grid size={{ xs: 6, sm: 3 }} key={user?._id}>
-                                                        <Box
-                                                            component="img"
-                                                            src={user?.image_2}
-                                                            alt={`Placeholder ${user?.name}`}
-                                                            sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
-                                                        />
-                                                    </Grid>
-                                                </Stack>
+                                    : (missingVehicale?.data.length > 0 ?
+                                        missingVehicale?.data.map((user) => (
+                                            <TableRow key={user._id}>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    <Stack direction="row" alignItems="center" gap={1}>
+                                                        <Grid size={{ xs: 6, sm: 3 }} key={user?._id}>
+                                                            <Box
+                                                                component="img"
+                                                                src={user?.image_1}
+                                                                alt={`Placeholder ${user?.name}`}
+                                                                sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
+                                                            />
+                                                        </Grid>
+                                                        <Grid size={{ xs: 6, sm: 3 }} key={user?._id}>
+                                                            <Box
+                                                                component="img"
+                                                                src={user?.image_2}
+                                                                alt={`Placeholder ${user?.name}`}
+                                                                sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
+                                                            />
+                                                        </Grid>
+                                                    </Stack>
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+
+                                                    {user?.lastSeenLocation || "-"}
+
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+
+                                                    {user?.createdAt
+                                                        ? moment(user.createdAt).format('MMM D, YYYY - HH:mm A')
+                                                        : '-'}
+
+                                                </TableCell>
+                                                <TableCell sx={{ color: 'var(--orange)', textAlign: 'center' }}>
+
+                                                    {user?.requestReached || "-"}
+
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
+
+                                                    {user.requestAccepted || "-"}
+
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+
+                                                    {user.reportedBy || "-"}
+
+                                                </TableCell>
+
+                                                <TableCell >
+                                                    <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                        <Tooltip title="View" arrow placement="top">
+                                                            <IconButton onClick={() => nav(`/home/total-stolen-cars/stolen-car/${user._id}`)}>
+                                                                <img src={ViewBtn} alt="view button" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Archive" arrow placement="top">
+                                                            <IconButton onClick={() => {
+                                                                achiveMissingvehicale.mutate({
+                                                                    id: user?._id,
+                                                                    data: { isArchived: true }
+                                                                });
+                                                            }}>
+                                                                <img src={Listtrip} alt="view button" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Delete" arrow placement="top">
+                                                            <IconButton onClick={() => setconfirmation(user?._id)}>
+                                                                <img src={delBtn} alt="Delete" />
+                                                            </IconButton>
+                                                        </Tooltip>
+
+                                                        {confirmation === user?._id && (
+                                                            <DeleteConfirm
+                                                                id={user?._id}
+                                                                setconfirmation={setconfirmation}
+                                                                trip="missingVehicle"
+                                                            />
+                                                        )}
+                                                    </Box>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                        :
+                                        <TableRow>
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={6} align="center">
+                                                <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                    No data found
+                                                </Typography>
                                             </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
+                                        </TableRow>)
+                                }
+                            </TableBody>
+                        </Table>
 
-                                                {user?.lastSeenLocation || "-"}
+                    </TableContainer>
 
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-
-                                                {user?.createdAt
-                                                    ? moment(user.createdAt).format('MMM D, YYYY - HH:mm A')
-                                                    : '-'}
-
-                                            </TableCell>
-                                            <TableCell sx={{ color: 'var(--orange)', textAlign: 'center' }}>
-
-                                                {user?.requestReached || "-"}
-
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
-
-                                                {user.requestAccepted || "-"}
-
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-
-                                                {user.reportedBy || "-"}
-
-                                            </TableCell>
-
-                                            <TableCell >
-                                                <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                    <Tooltip title="View" arrow placement="top">
-                                                        <IconButton onClick={() => nav(`/home/total-stolen-cars/stolen-car/${user._id}`)}>
-                                                            <img src={ViewBtn} alt="view button" />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                     <Tooltip title="Archive" arrow placement="top">
-                                                    <IconButton onClick={() => {
-                                                        achiveMissingvehicale.mutate({
-                                                            id: user?._id,
-                                                            data: { isArchived: true }
-                                                        });
-                                                    }}>
-                                                        <img src={Listtrip} alt="view button" />
-                                                    </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Delete" arrow placement="top">
-                                                    <IconButton onClick={() => setconfirmation(user?._id)}>
-                                                        <img src={delBtn} alt="Delete" />
-                                                    </IconButton>
-                                                    </Tooltip>
-
-                                                    {confirmation === user?._id && (
-                                                        <DeleteConfirm
-                                                            id={user?._id}
-                                                            setconfirmation={setconfirmation}
-                                                            trip="missingVehicle"
-                                                        />
-                                                    )}
-                                                </Box>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-
-                        </TableContainer>
-                        <Grid container sx={{ px: { xs: 0, sm: 3 } }} justifyContent="space-between" alignItems="center" mt={2}>
-                            <Grid>
-                                <Typography variant="body2">
-                                    Rows per page:&nbsp;
-                                    <Select
-                                        size="small"
-                                        sx={{
+                    {!missingVehicaleData.isFetching && missingVehicale?.data.length > 0 && <Grid container sx={{ px: { xs: 0, sm: 3 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                        <Grid>
+                            <Typography variant="body2">
+                                Rows per page:&nbsp;
+                                <Select
+                                    size="small"
+                                    sx={{
+                                        border: 'none',
+                                        boxShadow: 'none',
+                                        outline: 'none',
+                                        '& .MuiOutlinedInput-notchedOutline': {
                                             border: 'none',
+                                        },
+                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                            border: 'none',
+                                        },
+                                        '& .MuiOutlinedInput-root': {
                                             boxShadow: 'none',
                                             outline: 'none',
-                                            '& .MuiOutlinedInput-notchedOutline': {
-                                                border: 'none',
-                                            },
-                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                                border: 'none',
-                                            },
-                                            '& .MuiOutlinedInput-root': {
-                                                boxShadow: 'none',
-                                                outline: 'none',
-                                            },
-                                            '& .MuiSelect-select': {
-                                                outline: 'none',
-                                            },
-                                        }}
-                                        value={rowsPerPage}
-                                        onChange={(e) => {
-                                            setRowsPerPage(Number(e.target.value));
-                                            setCurrentPage(1);
-                                        }}
-                                    >
-                                        {[5, 10, 15, 20].map((num) => (
-                                            <MenuItem key={num} value={num}>
-                                                {num}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </Typography>
-                            </Grid>
-                            <Grid>
-                                <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
-                                    <Typography variant="body2">
-                                        {currentPage} / {totalPages}
-                                    </Typography>
-                                    <IconButton
-                                        disabled={currentPage === 1}
-                                        onClick={() => setCurrentPage((prev) => prev - 1)}
-                                    >
-                                        <NavigateBeforeIcon fontSize="small" sx={{
-                                            color: currentPage === 1 ? '#BDBDBD' : '#1976d2'
-                                        }} />
-                                    </IconButton>
-                                    <IconButton
-                                        disabled={currentPage === totalPages}
-                                        onClick={() => setCurrentPage((prev) => prev + 1)}
-                                    >
-                                        <NavigateNextIcon fontSize="small" />
-                                    </IconButton>
-                                </Box>
-                            </Grid>
+                                        },
+                                        '& .MuiSelect-select': {
+                                            outline: 'none',
+                                        },
+                                    }}
+                                    value={rowsPerPage}
+                                    onChange={(e) => {
+                                        setRowsPerPage(Number(e.target.value));
+                                        setCurrentPage(1);
+                                    }}
+                                >
+                                    {[5, 10, 15, 20].map((num) => (
+                                        <MenuItem key={num} value={num}>
+                                            {num}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </Typography>
                         </Grid>
-                    </Box>
-                ) : (
-                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
-                        No data found
-                    </Typography>
-                )}
-            </Paper>
+                        <Grid>
+                            <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                <Typography variant="body2">
+                                    {currentPage} / {totalPages}
+                                </Typography>
+                                <IconButton
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage((prev) => prev - 1)}
+                                >
+                                    <NavigateBeforeIcon fontSize="small" sx={{
+                                        color: currentPage === 1 ? '#BDBDBD' : '#1976d2'
+                                    }} />
+                                </IconButton>
+                                <IconButton
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                                >
+                                    <NavigateNextIcon fontSize="small" />
+                                </IconButton>
+                            </Box>
+                        </Grid>
+                    </Grid>}
+                </Box>
+            </Paper >
             {popup && <ImportSheet setpopup={setpopup} type="user" />}
-        </Box>
+        </Box >
     );
 };
 
