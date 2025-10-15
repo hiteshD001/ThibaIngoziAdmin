@@ -715,7 +715,7 @@ const Home = ({ isMapLoaded }) => {
                                                                     </Stack>
 
                                                                 </Link>) : (
-                                                                <Link to={`/home/total-users/user-information/${row.user?._id}`} className="link">
+                                                                <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link">
                                                                     <Stack direction="row" alignItems="center" gap={1}>
 
                                                                         <Avatar
