@@ -82,13 +82,13 @@ function HotspotMap({ hotspots, isMapLoaded }) {
                 }}
             >
                 <Typography sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#ef4444' }} /> High (71+)
+                    <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#ef4444' }} /> High Frequency (71+)
                 </Typography>
                 <Typography sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#f97316' }} /> Medium (31–70)
+                    <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#f97316' }} /> Medium Frequency (31–70)
                 </Typography>
                 <Typography sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#eab308' }} /> Low (0–30)
+                    <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#eab308' }} /> Low Frequency (0–30)
                 </Typography>
             </Box>
         </Box>
