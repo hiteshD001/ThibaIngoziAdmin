@@ -1167,3 +1167,87 @@ export const useChangePassword = (onSuccess, onError) => {
 
     return mutation;
 }
+
+
+// Export Dashboard
+export const fetchActiveSosData = async ({
+    startDate,
+    endDate,
+    searchKey = "",
+    type = "all",
+    page = 1,
+    limit = 100000
+  }) => {
+    try {
+      const response = await apiClient.post(
+        `${import.meta.env.VITE_BASEURL}/location/active/sos/data`,
+        {
+          startDate,
+          endDate,
+          searchKey,
+          type: type === "all" ? "" : type,
+          page,
+          limit
+        }
+      );
+      return response.data?.data || []; // return array of SOS records
+    } catch (error) {
+      console.error("Error fetching Active SOS data:", error);
+      return [];
+    }
+  };
+  
+  // Fetch filtered Recent SOS data
+  export const fetchRecentSosData = async ({
+    startDate,
+    endDate,
+    searchKey = "",
+    type = "all",
+    page = 1,
+    limit = 100000
+  }) => {
+    try {
+        console.log(type);
+      const response = await apiClient.post(
+        `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`,
+        {
+          startDate,
+          endDate,
+          searchKey,
+          type: type === "all" ? "" : type,
+          page,
+          limit
+        }
+      );
+      return response?.data || []; // return array of SOS records
+    } catch (error) {
+      console.error("Error fetching Recent SOS data:", error);
+      return [];
+    }
+};
+
+export const fetchHotspot = async ({
+    startDate,
+    endDate,
+    type = "all"
+  }) => {
+    try {
+        const params = {};
+        params.startDate = startDate;
+        params.endDate = endDate
+        if (type) {
+            params.notificationType = type === "all" ? "" : type;
+        }
+      const response = await apiClient.get(
+        `${import.meta.env.VITE_BASEURL}/location/hotspot`,
+        {
+            params
+        }
+      );
+      console.log(type, "type");
+      return response?.data || []; // return array of SOS records
+    } catch (error) {
+      console.error("Error fetching Recent SOS data:", error);
+      return [];
+    }
+};

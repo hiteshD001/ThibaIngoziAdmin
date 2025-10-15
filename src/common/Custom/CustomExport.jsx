@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import {
+    useGetNotificationType,
+} from "../../API Calls/API";
+import {
     Box,
     Typography,
     Select,
@@ -34,8 +37,8 @@ const CustomExportMenu = ({ role, onExport }) => {
         }
     ]);
     const [location, setLocation] = useState('select');
-    const [category, setCategory] = useState('select');
-    const [format, setFormat] = useState('pdf');
+    const [category, setCategory] = useState('all');
+    const [exportFormat, setFormat] = useState('pdf');
 
     const handleClick = (event) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
@@ -43,9 +46,11 @@ const CustomExportMenu = ({ role, onExport }) => {
     const handleExport = () => {
         const startDate = range[0].startDate.toISOString();
         const endDate = range[0].endDate.toISOString();
-        onExport({ startDate, endDate, format });
+        onExport({ startDate, endDate, exportFormat, location, category });
         setAnchorEl(null);
     };
+
+    const notificationTypes = useGetNotificationType();
 
     return (
         <>
@@ -143,10 +148,12 @@ const CustomExportMenu = ({ role, onExport }) => {
                                             },
                                         }}
                                     >
-                                        <MenuItem value="select">Select Category</MenuItem>
-                                        <MenuItem value="Accident">Accident</MenuItem>
-                                        <MenuItem value="Fire">Fire</MenuItem>
-                                        <MenuItem value="Medical">Medical</MenuItem>
+                                        <MenuItem value="all">All Categories</MenuItem>
+                                        {notificationTypes.data?.data?.map((type) => (
+                                            <MenuItem key={type._id} value={type._id}>
+                                                {type.type}
+                                            </MenuItem>
+                                        ))}
                                     </Select>
                                 </FormControl>
                             )}
@@ -177,7 +184,7 @@ const CustomExportMenu = ({ role, onExport }) => {
                                         }}
                                         control={
                                             <Checkbox
-                                                checked={format === "xlsx"}
+                                                checked={exportFormat === "xlsx"}
                                                 onChange={() => setFormat("xlsx")}
                                                 icon={<img src={UncheckedIcon2} alt='uncheckedIcon' />}
                                                 checkedIcon={<img src={checkboxIcon2} alt='checkIcon' />}
@@ -207,7 +214,7 @@ const CustomExportMenu = ({ role, onExport }) => {
                                         }}
                                         control={
                                             <Checkbox
-                                                checked={format === "pdf"}
+                                                checked={exportFormat === "pdf"}
                                                 onChange={() => setFormat("pdf")}
                                                 icon={<img src={UncheckedIcon2} alt='uncheckedIcon' />}
                                                 checkedIcon={<img src={checkboxIcon2} alt='checkIcon' />}
@@ -238,7 +245,7 @@ const CustomExportMenu = ({ role, onExport }) => {
                                         }}
                                         control={
                                             <Checkbox
-                                                checked={format === "csv"}
+                                                checked={exportFormat === "csv"}
                                                 onChange={() => setFormat("csv")}
                                                 icon={<img src={UncheckedIcon2} alt='uncheckedIcon' />}
                                                 checkedIcon={<img src={checkboxIcon2} alt='checkIcon' />}

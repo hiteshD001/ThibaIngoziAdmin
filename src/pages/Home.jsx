@@ -162,7 +162,18 @@ const Home = ({ isMapLoaded }) => {
 
     return (
         <Box>
-            <Analytics id={role !== "super_admin" ? userId : null} />
+            <Analytics
+                id={role !== "super_admin" ? userId : null}
+                activePage={activePage}
+                activeLimit={activeLimit}
+                startDateSos={startDateSos}
+                endDateSos={endDateSos}
+                filter={filter}
+                startDate={startDate}
+                endDate={endDate}
+                recentFilter={recentFilter}
+                recentNotification={recentNotification} />
+
             <Box p={2}>
                 {/* active sos */}
                 <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
