@@ -508,15 +508,18 @@ const Home = ({ isMapLoaded }) => {
                                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Type</TableCell>
                                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
                                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Action</TableCell>
+                                                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}></TableCell>
+
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
                                                 {recentSos?.data?.items?.map((row) => (
+                                                    console.log(row?.otherUser),
                                                     <TableRow key={row?._id}>
                                                         <TableCell sx={{ color: '#4B5563' }}>
                                                             {
-                                                                row.user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link">
+                                                                row?.user?.role === "driver" ? (
+                                                                    <Link to={`/home/total-drivers/driver-information/${row?.user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
 
                                                                             <Avatar
@@ -532,7 +535,7 @@ const Home = ({ isMapLoaded }) => {
                                                                         </Stack>
 
                                                                     </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${row.user._id}`} className="link">
+                                                                    <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
 
                                                                             <Avatar
@@ -558,13 +561,13 @@ const Home = ({ isMapLoaded }) => {
                                                             {row?.address}
                                                         </TableCell>
                                                         <TableCell sx={{ color: '#4B5563' }}>
-                                                            {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                            {row?.createdAt ? format(new Date(row.createdAt), "HH:mm:ss - dd/MM/yyyy") : "N/A"}
                                                         </TableCell>
                                                         <TableCell sx={{ color: '#4B5563' }}>
-                                                            {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                            {row?.updatedAt ? format(new Date(row.updatedAt), "HH:mm:ss - dd/MM/yyyy") : "N/A"}
                                                         </TableCell>
                                                         <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
-                                                            {row?.type.type}
+                                                            {row?.type?.type || "-"}
                                                         </TableCell>
                                                         <TableCell sx={{ color: '#4B5563' }}>
                                                             {row?.help_received}
@@ -578,6 +581,32 @@ const Home = ({ isMapLoaded }) => {
                                                                 </Tooltip>
                                                             </Box>
                                                         </TableCell>
+                                                        {row?.type?.type === "linked_sos" && (
+                                                            <TableCell >
+                                                            <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                                <Tooltip title="Other User" arrow placement="top">
+                                                                    <Button
+                                                                        variant="contained"
+                                                                        color="primary"
+                                                                        // startIcon={<VisibilityIcon />}
+                                                                        sx={{
+                                                                            textTransform: 'none',
+                                                                            fontWeight: 500,
+                                                                            borderRadius: '8px',
+                                                                            whiteSpace: 'nowrap',
+                                                                            padding: '6px 12px',
+                                                                            backgroundColor: '#1976d2', // MUI primary blue
+                                                                            '&:hover': { backgroundColor: '#1565c0' }
+                                                                        }}
+                                                                        onClick={() => nav(`total-drivers/driver-information/${row?.otherUser?._id}`)}
+                                                                    >
+                                                                        Other User
+                                                                    </Button>
+                                                                </Tooltip>
+                                                            </Box>
+                                                        </TableCell>
+                                                        )}
+                                                        
                                                     </TableRow>
                                                 ))}
                                             </TableBody>
