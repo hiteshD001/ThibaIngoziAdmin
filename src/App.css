@@ -1,37 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 /* styles.css */
 :root {
     --Blue: #367BE0;
-    --orange:#F97316;
+    --orange: #F97316;
     --secondary-color: #6c757d;
     --light-gray: #E5E7EB;
-   --icon-gray:rgb(175, 179, 189);
-    --font-gray:#4B5563;
+    --icon-gray: rgb(175, 179, 189);
+    --font-gray: #4B5563;
     --heading-font: 'Poppins', sans-serif;
 }
+
 * {
     font-family: "Montserrat", sans-serif;
     font-style: normal;
 }
-.link{
+
+.link {
     display: flex;
     flex-direction: row;
     gap: 5px;
     text-decoration: none;
     color: #000000;
 }
+
 .link2 {
     text-decoration: none;
     color: var(--Blue);
 }
-.link2:hover{
+
+.link2:hover {
     padding-bottom: 1;
     text-decoration: underline;
 }
-.link:hover{
+
+.link:hover {
     padding-bottom: 1;
     text-decoration: underline;
 }
+
 .login-page {
     background-color: #1376BC;
     min-height: 100vh;
@@ -203,13 +210,15 @@ input[type="checkbox"] {
     /* position: fixed; */
     z-index: 1050;
 
-    &::-webkit-scrollbar{
-        display:none;
+    &::-webkit-scrollbar {
+        display: none;
     }
 }
+
 .sidebar.show {
     transform: translateX(0);
 }
+
 .sidebar .logo {
     text-align: center;
     padding: 10px 0 20px 0;
@@ -217,6 +226,7 @@ input[type="checkbox"] {
     margin-top: 15px;
     /* margin-left: 40px; */
 }
+
 .w-45 {
     width: 45%;
 }
@@ -271,9 +281,11 @@ input[type="checkbox"] {
     padding-top: 10px;
     list-style-type: none;
 }
-.sidebar ul li{
+
+.sidebar ul li {
     padding-block: 5px;
 }
+
 .sidebar ul li span {
     font-size: 15px;
     font-weight: 500;
@@ -438,20 +450,23 @@ header {
     background: #e3f5ff;
     margin-bottom: 30px;
 }
-.dash-counter.orange{
+
+.dash-counter.orange {
     /* display: flex; */
     align-items: flex-start;
     justify-content: space-between;
     flex-direction: row;
     background-color: #FFF3E5;
 }
-.dash-counter.blue{
+
+.dash-counter.blue {
     /* display: flex; */
-        align-items: flex-start;
-        justify-content: space-between;
-        flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-direction: row;
     background-color: #E9EFFF;
 }
+
 .dash-counter.green {
     /* display: flex; */
     align-items: flex-start;
@@ -459,6 +474,7 @@ header {
     flex-direction: row;
     background-color: #EAF8EC;
 }
+
 .dash-counter.gray {
     background: #e5ecf6;
 }
@@ -466,11 +482,11 @@ header {
 .percentage-green {
     font-family: Montserrat;
     font-weight: 500;
-   font-style: Medium;
-   font-size: 16px;
-   line-height: 20px;
-   letter-spacing: 0%;
-   color:  #33B647;
+    font-style: Medium;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: 0%;
+    color: #33B647;
 
 }
 
@@ -533,40 +549,42 @@ header {
 .select-container.open::after {
     content: '▲';
 }
-.MuiFormControlLabel-label.Mui-disabled{
-    color:black !important;
+
+.MuiFormControlLabel-label.Mui-disabled {
+    color: black !important;
 }
- .css-1dybbl5-MuiChip-label {
-     color: #27ae60;
- }
+
+.css-1dybbl5-MuiChip-label {
+    color: #27ae60;
+}
 
 
- .chip-ended .MuiChip-label {
-     color: #367BE0;
-     font-weight: 500;
- }
+.chip-ended .MuiChip-label {
+    color: #367BE0;
+    font-weight: 500;
+}
 
- .chip-started .MuiChip-label {
-     color: #166534;
-     font-weight: 500;
- }
+.chip-started .MuiChip-label {
+    color: #166534;
+    font-weight: 500;
+}
 
- .chip-flagged .MuiChip-label {
-     color: #B26A00;
-     font-weight: 500;
- }
+.chip-flagged .MuiChip-label {
+    color: #B26A00;
+    font-weight: 500;
+}
 
- .chip-default .MuiChip-label {
-     color: #4B5563;
-     font-weight: 500;
- }
+.chip-default .MuiChip-label {
+    color: #4B5563;
+    font-weight: 500;
+}
 
 .requests-chart {
     background: white;
     padding: 30px 50px 50px 50px;
     border-radius: 16px;
     margin-bottom: 30px;
-    height:550px;
+    height: 550px;
 }
 
 .chart-heading h3 {
@@ -693,9 +711,10 @@ table#example {
     vertical-align: middle;
     /* line-break:anywhere; */
 }
-.table{
+
+.table {
     min-width: 600px;
-    --bs-table-bg:transparent!important;
+    --bs-table-bg: transparent !important;
 }
 
 .theme-table table thead {
@@ -751,9 +770,11 @@ table#example {
     margin-right: 6px;
     cursor: pointer;
 }
+
 .MuiButtonBase-root.MuiCheckbox-root.Mui-checked .MuiSvgIcon-root {
     fill: #367BE01A;
 }
+
 .theme-table table tr td .tbl-gray:hover {
     opacity: 0.8;
 }
@@ -764,7 +785,8 @@ table#example {
     justify-content: space-between;
     gap: 10px;
 }
-.tbl-filter .input-group{
+
+.tbl-filter .input-group {
     width: 60%;
 }
 
@@ -838,7 +860,7 @@ table#example {
     justify-content: space-between;
     width: 85%;
     background: #fff;
-    overflow-x:auto;
+    overflow-x: auto;
     scrollbar-width: thin;
     scrollbar-color: #888 transparent;
     -ms-overflow-style: auto;
@@ -846,8 +868,8 @@ table#example {
 
 .comapny-det2 {
     overflow-x: auto;
-    align-items: start!important;
-    justify-content:flex-start!important;
+    align-items: start !important;
+    justify-content: flex-start !important;
     scrollbar-width: thin;
     scrollbar-color: #888 transparent;
     -ms-overflow-style: auto;
@@ -858,6 +880,7 @@ table#example {
     min-width: 25%;
     position: relative;
 }
+
 .comapny-det .c-info::after {
     content: "";
     position: absolute;
@@ -920,8 +943,9 @@ table#example {
     line-height: 18px;
     color: rgb(28 28 28 / 40%);
 }
-.comapny-det .c-pay3{
-    width: auto!important;
+
+.comapny-det .c-pay3 {
+    width: auto !important;
 }
 
 .comapny-det .c-ser p {
@@ -931,12 +955,14 @@ table#example {
     line-height: 28px;
     /* line-break: anywhere; */
 }
-.comapny-det .c-pay{
+
+.comapny-det .c-pay {
     display: flex;
     flex-direction: column;
 }
+
 .comapny-det .c-pay2 {
-    gap:25px;
+    gap: 25px;
     display: flex;
     flex-direction: row;
 }
@@ -986,10 +1012,11 @@ table#example {
     width: 33%;
 }
 
-.vehicle-contianer{
+.vehicle-contianer {
     max-height: 200px;
 }
-.vehicle-img{
+
+.vehicle-img {
     width: 100%;
     height: 100%;
 }
@@ -1341,13 +1368,15 @@ button.Cancel-btn:hover {
 .custom-file-input label:hover {
     background-color: #495057;
 }
+
 .custom-file-input input:disabled+label {
     background-color: #6c757d;
     cursor: not-allowed;
     opacity: 0.6;
 }
+
 .img-preview-container {
-    display: flex!important;
+    display: flex !important;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -1359,14 +1388,16 @@ button.Cancel-btn:hover {
     width: 100%;
     object-fit: cover;
 }
-.comapny-det .c-info2{
-display: flex;
-justify-content: center;
-align-items: center;
-min-width: 18%;
-min-height: 60px;
-position: relative;
+
+.comapny-det .c-info2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 18%;
+    min-height: 60px;
+    position: relative;
 }
+
 .comapny-det .c-info2::after {
     content: "";
     position: absolute;
@@ -1376,13 +1407,14 @@ position: relative;
     height: 80%;
     background-color: #d9d9d9;
 }
-.form-checkbox{
+
+.form-checkbox {
     height: 60px;
-    border-radius: 12px!important;
+    border-radius: 12px !important;
     margin-bottom: 30px;
     box-shadow: none !important;
     outline: none !important;
-    display: flex!important;
+    display: flex !important;
     align-items: center;
     gap: 8px;
 }
@@ -1391,28 +1423,41 @@ position: relative;
     background-color: var(--bs-secondary-bg) !important;
     opacity: 1 !important;
 }
+
 .form-check-input:focus {
-    border-color: #dee2e6!important;
+    border-color: #dee2e6 !important;
     box-shadow: none !important;
 }
-.form-check-input{
+
+.form-check-input {
     cursor: pointer;
     outline: none;
-    margin-top: 1px!important;
+    margin-top: 1px !important;
 }
 
-.form-check-label{
+.form-check-label {
     font-size: 1rem;
 }
-.form-checkbox:has(.form-check-input:disabled) .form-check-label{
+
+.form-checkbox:has(.form-check-input:disabled) .form-check-label {
     opacity: 1;
 }
 
 .placeholder-gray::placeholder {
-    color: #ADAEBC!important;
+    color: #ADAEBC !important;
     /* Bootstrap's default gray */
     opacity: 1;
     /* Ensures full visibility */
+}
+
+.MuiTooltip-tooltip {
+    background-color: #000 !important;
+    color: #fff;
+    font-size: 0.875rem;
+}
+
+.MuiTooltip-arrow {
+    color: #000 !important;
 }
 
 
@@ -1423,7 +1468,8 @@ position: relative;
     .theme-table table tr td {
         padding: 12px 10px !important;
     }
-    .img-preview-container {    
+
+    .img-preview-container {
         min-height: 200px;
     }
 }
@@ -1492,9 +1538,11 @@ position: relative;
     .comapny-det .c-info {
         width: 100%;
     }
+
     .comapny-det .c-info::after {
         display: none;
     }
+
     .comapny-det .c-info2 {
         width: 100%;
     }
@@ -1502,10 +1550,12 @@ position: relative;
     .saveform {
         text-align: center;
     }
+
     .img-preview-container {
-       height: 300px;
+        height: 300px;
     }
-    .mt-responsive{
+
+    .mt-responsive {
         margin-top: 20px;
     }
 }

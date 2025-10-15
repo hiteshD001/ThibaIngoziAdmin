@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
-  Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, MenuItem, Chip
+  Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, MenuItem, Chip,
+  Tooltip
 } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
@@ -28,7 +29,7 @@ const ListOfViewArcheived = () => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filter, setFilter] = useState("");
-  const [archived,setArchived] = useState(true)
+  const [archived, setArchived] = useState(true)
   const [range, setRange] = useState([
     {
       startDate: startOfYear(new Date()),
@@ -39,24 +40,24 @@ const ListOfViewArcheived = () => {
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate,archived);
+  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate, archived);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
 
 
-   const updateTripMutation = usePutUserTrip(
-      (id,data) => {  
-           toast.success("User Unarchived Successfully")
-           trip.refetch();
+  const updateTripMutation = usePutUserTrip(
+    (id, data) => {
+      toast.success("User Unarchived Successfully")
+      trip.refetch();
 
-      },
-      (error) => {
-          console.error('Error updating trip:', error);
-      }
+    },
+    (error) => {
+      console.error('Error updating trip:', error);
+    }
   );
 
-  
+
 
   const getChipStyle = (status) => {
     switch (status) {
@@ -201,7 +202,7 @@ const ListOfViewArcheived = () => {
                 icon={calender}
               />
               <CustomExportMenu onExport={handleExport} />
-              
+
             </Box>
           </Grid>
         </Grid>
@@ -273,18 +274,24 @@ const ListOfViewArcheived = () => {
                             display: 'flex',
                             flexDirection: 'row',
                           }}>
-                            <IconButton onClick={() => nav(`/home/total-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)}>
-                              <img src={ViewBtn} alt="View" />
-                            </IconButton>
-                            <IconButton onClick={() => updateTripMutation.mutate({
-                              id: data._id,
-                              data: { isArchived: false }
-                            })}>
-                              <img src={Listtrip} alt="view button" />
-                            </IconButton>
-                            <IconButton onClick={() => setConfirmation(data._id)}>
-                              <img src={delBtn} alt="Delete" />
-                            </IconButton>
+                            <Tooltip title="View" arrow placement="top">
+                              <IconButton onClick={() => nav(`/home/total-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)}>
+                                <img src={ViewBtn} alt="View" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Archive" arrow placement="top">
+                              <IconButton onClick={() => updateTripMutation.mutate({
+                                id: data._id,
+                                data: { isArchived: false }
+                              })}>
+                                <img src={Listtrip} alt="view button" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete" arrow placement="top">
+                              <IconButton onClick={() => setConfirmation(data._id)}>
+                                <img src={delBtn} alt="Delete" />
+                              </IconButton>
+                            </Tooltip>
                           </Box>
                           {confirmation === data._id && (
                             <DeleteConfirm id={data._id} setconfirmation={setConfirmation} trip="trip" />

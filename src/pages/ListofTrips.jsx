@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
-  Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, MenuItem, Chip
+  Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, MenuItem, Chip,
+  Tooltip
 } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import { format } from "date-fns";
@@ -28,7 +29,7 @@ const ListOfTrips = () => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filter, setFilter] = useState("");
-   const [archived,setArchived] = useState(false)
+  const [archived, setArchived] = useState(false)
   const [range, setRange] = useState([
     {
       startDate: startOfYear(new Date()),
@@ -39,29 +40,29 @@ const ListOfTrips = () => {
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate,archived);
+  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate, archived);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
 
   const Data = {
-    "isArchived" : true
+    "isArchived": true
   }
 
   const updateTripMutation = usePutUserTrip(
-    (id,data) => {
-      
-        console.log('Trip updated successfully:', Data);
+    (id, data) => {
 
-         toast.success("User Archived Successfully")
+      console.log('Trip updated successfully:', Data);
 
-         trip.refetch();
+      toast.success("User Archived Successfully")
+
+      trip.refetch();
 
     },
     (error) => {
-        console.error('Error updating trip:', error);
+      console.error('Error updating trip:', error);
     }
-);
+  );
 
   const getChipStyle = (status) => {
     switch (status) {
@@ -206,9 +207,9 @@ const ListOfTrips = () => {
                 icon={calender}
               />
               <CustomExportMenu onExport={handleExport} />
-              <Button 
+              <Button
                 onClick={() => nav('/home/total-linked-trips/view-archeived')}
-                variant="contained" 
+                variant="contained"
                 sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
                 startIcon={<img src={ViewBtn} alt="View" />}>
                 View Archeived
@@ -284,20 +285,26 @@ const ListOfTrips = () => {
                             display: 'flex',
                             flexDirection: 'row',
                           }}>
-                            <IconButton onClick={() => nav(`/home/total-linked-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)}>
-                              <img src={ViewBtn} alt="View" />
-                            </IconButton>
-                            <IconButton onClick={() => {
-                             updateTripMutation.mutate({
-                              id: data._id,
-                              data: { isArchived: true }
-                            });
-                            }}>
-                              <img src={Listtrip} alt="view button" />
-                            </IconButton>
-                            <IconButton onClick={() => setConfirmation(data._id)}>
-                              <img src={delBtn} alt="Delete" />
-                            </IconButton>
+                            <Tooltip title="VIew" arrow placement="top">
+                              <IconButton onClick={() => nav(`/home/total-linked-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)}>
+                                <img src={ViewBtn} alt="View" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Archive" arrow placement="top">
+                              <IconButton onClick={() => {
+                                updateTripMutation.mutate({
+                                  id: data._id,
+                                  data: { isArchived: true }
+                                });
+                              }}>
+                                <img src={Listtrip} alt="view button" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete" arrow placement="top">
+                              <IconButton onClick={() => setConfirmation(data._id)}>
+                                <img src={delBtn} alt="Delete" />
+                              </IconButton>
+                            </Tooltip>
                           </Box>
                           {confirmation === data._id && (
                             <DeleteConfirm id={data._id} setconfirmation={setConfirmation} trip="trip" />

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useGetChartData, useGetUserList, useGetNotificationType } from "../API Calls/API";
 import {
-    Grid, Typography, Select, Box, TextField, InputAdornment, MenuItem, FormControl, InputLabel, IconButton, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Stack, Avatar, Chip, Paper
+    Grid, Typography, Select, Box, TextField, InputAdornment, MenuItem, FormControl, InputLabel, IconButton, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Stack, Avatar, Chip, Paper,
+    Tooltip
 } from "@mui/material";
 import search from '../assets/images/search.svg';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -419,9 +420,11 @@ const Report = ({ id }) => {
 
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                            <IconButton onClick={() => nav(`/home/reports`)}>
-                                                                <img src={ViewBtn} alt="view button" />
-                                                            </IconButton>
+                                                            <Tooltip title="View" arrow placement="top">
+                                                                <IconButton onClick={() => nav(`/home/reports`)}>
+                                                                    <img src={ViewBtn} alt="view button" />
+                                                                </IconButton>
+                                                            </Tooltip>
                                                         </Box>
 
 

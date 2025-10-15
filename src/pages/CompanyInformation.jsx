@@ -1,6 +1,6 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, FormControl, InputLabel } from "@mui/material";
+import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, FormControl, InputLabel, Tooltip } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import HotspotSection from "../common/HotspotSection";
@@ -920,9 +920,11 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                            <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user?._id}`)}>
-                                                                <img src={ViewBtn} alt="view button" />
-                                                            </IconButton>
+                                                            <Tooltip title="View" arrow placement="top">
+                                                                <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user?._id}`)}>
+                                                                    <img src={ViewBtn} alt="view button" />
+                                                                </IconButton>
+                                                            </Tooltip>
                                                         </Box>
                                                     </TableCell>
                                                 </TableRow>
@@ -1146,14 +1148,18 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                                     align="center"
                                                     sx={{ display: "flex", flexDirection: "row", gap: 1 }}
                                                 >
-                                                    <IconButton onClick={() =>
-                                                        nav(`/home/total-drivers/driver-information/${driver._id}`)
-                                                    }>
-                                                        <img src={ViewBtn} alt="view button" />
-                                                    </IconButton>
-                                                    <IconButton onClick={() => setconfirmation(driver._id)}>
-                                                        <img src={delBtn} alt="delete button" />
-                                                    </IconButton>
+                                                    <Tooltip title="View" arrow placement="top">
+                                                        <IconButton onClick={() =>
+                                                            nav(`/home/total-drivers/driver-information/${driver._id}`)
+                                                        }>
+                                                            <img src={ViewBtn} alt="view button" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Delete" arrow placement="top">
+                                                        <IconButton onClick={() => setconfirmation(driver._id)}>
+                                                            <img src={delBtn} alt="delete button" />
+                                                        </IconButton>
+                                                    </Tooltip>
                                                     {confirmation === driver._id && (
                                                         <DeleteConfirm
                                                             id={driver._id}
@@ -1365,12 +1371,16 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
                                             <TableCell >
                                                 <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                    <IconButton onClick={() => nav(`/home/total-users/user-information/${user._id}`)}>
-                                                        <img src={ViewBtn} alt="view button" />
-                                                    </IconButton>
-                                                    <IconButton onClick={() => setconfirmation(user._id)}>
-                                                        <img src={delBtn} alt="delete button" />
-                                                    </IconButton>
+                                                    <Tooltip title="View" arrow placement="top">
+                                                        <IconButton onClick={() => nav(`/home/total-users/user-information/${user._id}`)}>
+                                                            <img src={ViewBtn} alt="view button" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip title="Delete" arrow placement="top">
+                                                        <IconButton onClick={() => setconfirmation(user._id)}>
+                                                            <img src={delBtn} alt="delete button" />
+                                                        </IconButton>
+                                                    </Tooltip>
                                                     {confirmation === user._id && (
                                                         <DeleteConfirm id={user._id} setconfirmation={setconfirmation} />
                                                     )}

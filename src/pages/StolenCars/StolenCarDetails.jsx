@@ -1,6 +1,7 @@
 import React from 'react';
 import {
-    Box, Typography, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, Stack, Button, Chip
+    Box, Typography, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, Stack, Button, Chip,
+    Tooltip
 } from "@mui/material";
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import WhiteTick from '../../assets/images/WhiteTick.svg'
@@ -238,9 +239,11 @@ const StolenCarDetails = () => {
 
                                             <TableCell >
                                                 <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                    <IconButton onClick={() => nav(`/home/total-stolen-cars/stolen-car/${user._id}`)}>
-                                                        <img src={ViewBtn} alt="view button" />
-                                                    </IconButton>
+                                                    <Tooltip title="View" arrow placement="top">
+                                                        <IconButton onClick={() => nav(`/home/total-stolen-cars/stolen-car/${user._id}`)}>
+                                                            <img src={ViewBtn} alt="view button" />
+                                                        </IconButton>
+                                                    </Tooltip>
                                                 </Box>
                                             </TableCell>
                                         </TableRow>

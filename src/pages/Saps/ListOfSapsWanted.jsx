@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useGetChartData, useGetUserList, useGetNotificationType } from "../../API Calls/API";
 import {
-    Grid, Typography, Select, Box, TextField, InputAdornment, MenuItem, FormControl, InputLabel, IconButton, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Stack, Avatar, Chip, Paper, Button, Menu
+    Grid, Typography, Select, Box, TextField, InputAdornment, MenuItem, FormControl, InputLabel, IconButton, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Stack, Avatar, Chip, Paper, Button, Menu,
+    Tooltip
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import plus from '../../assets/images/plus.svg'
@@ -788,12 +789,16 @@ const ListOfSapsWanted = () => {
                                                     </TableCell>
                                                     <TableCell>
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                                                            <IconButton onClick={() => nav(`/home/total-saps-wanted`)}>
-                                                                <img src={ViewBtn} alt="view button" />
-                                                            </IconButton>
-                                                            <IconButton onClick={() => setconfirmation(user._id)}>
-                                                                <img src={delBtn} alt="delete button" />
-                                                            </IconButton>
+                                                            <Tooltip title="View" arrow placement="top">
+                                                                <IconButton onClick={() => nav(`/home/total-saps-wanted`)}>
+                                                                    <img src={ViewBtn} alt="view button" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title="Delete" arrow placement="top">
+                                                                <IconButton onClick={() => setconfirmation(user._id)}>
+                                                                    <img src={delBtn} alt="delete button" />
+                                                                </IconButton>
+                                                            </Tooltip>
 
                                                         </Box>
                                                     </TableCell>

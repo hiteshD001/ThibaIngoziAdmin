@@ -1,6 +1,7 @@
 import React from 'react';
 import {
-    Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, Button
+    Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, Button,
+    Tooltip
 } from '@mui/material';
 import nouser from "../../assets/images/NoUser.png";
 import ViewBtn from '../../assets/images/ViewBtn.svg'
@@ -258,9 +259,11 @@ const MissingPersonDetails = () => {
 
                                             <TableCell >
                                                 <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                    <IconButton onClick={() => nav(`/home/total-missing-person/person-information/${user._id}`)}>
-                                                        <img src={ViewBtn} alt="view button" />
-                                                    </IconButton>
+                                                    <Tooltip title="View" arrow placement="top">
+                                                        <IconButton onClick={() => nav(`/home/total-missing-person/person-information/${user._id}`)}>
+                                                            <img src={ViewBtn} alt="view button" />
+                                                        </IconButton>
+                                                    </Tooltip>
                                                 </Box>
                                             </TableCell>
                                         </TableRow>

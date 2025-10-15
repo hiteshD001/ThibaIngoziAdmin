@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem,
+    Tooltip,
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -199,9 +200,11 @@ const ListOfStolenCars = () => {
 
                                             <TableCell >
                                                 <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                    <IconButton onClick={() => nav(`/home/total-stolen-cars/stolen-car/${user._id}`)}>
-                                                        <img src={ViewBtn} alt="view button" />
-                                                    </IconButton>
+                                                    <Tooltip title="View" arrow placement="top">
+                                                        <IconButton onClick={() => nav(`/home/total-stolen-cars/stolen-car/${user._id}`)}>
+                                                            <img src={ViewBtn} alt="view button" />
+                                                        </IconButton>
+                                                    </Tooltip>
                                                 </Box>
                                             </TableCell>
                                         </TableRow>
