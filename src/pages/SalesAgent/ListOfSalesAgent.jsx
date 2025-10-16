@@ -509,13 +509,24 @@ const payoutMutation = armedSosPayout(
                                                                 >
                                                                     {sharingId === user?._id ? "Sharing..." : "Share"}
                                                                 </span>
-                                                                <span
-                                                                    onClick={user.totalUnPaid >= 100 ? (event) => handlePopup(event, 'payout', 'sales_agent', user) : undefined}
-                                                                    className={`tbl-gray ml-2 cursor-pointer${user.totalUnPaid < 100 ? ' disabled' : ''}`}
-                                                                    style={user.totalUnPaid < 100 ? { pointerEvents: 'none', opacity: 0.5 } : {}}
-                                                                >
-                                                                    Pay
-                                                                </span>
+                                                                {
+                                                                    (() => {
+                                                                        const unpaid = Number(user.totalUnPaid) || 0;
+                                                                        const MIN_ZAR = 10; // disable pay when unpaid < 10 ZAR
+                                                                        const disabled = unpaid < MIN_ZAR;
+
+                                                                        return (
+                                                                            <span
+                                                                                onClick={!disabled ? (event) => handlePopup(event, 'payout', 'sales_agent', user) : undefined}
+                                                                                className={`tbl-gray ml-2 cursor-pointer${disabled ? ' disabled' : ''}`}
+                                                                                style={disabled ? { pointerEvents: 'none', opacity: 0.5 } : {}}
+                                                                                title={disabled ? `Requires at least R ${MIN_ZAR} unpaid` : 'Pay'}
+                                                                            >
+                                                                                Pay
+                                                                            </span>
+                                                                        );
+                                                                    })()
+                                                                }
                                                                 <span
                                                                     // onClick={() => deleteAgent(user._id)}
                                                                     onClick={() => setconfirmation(user._id)}
