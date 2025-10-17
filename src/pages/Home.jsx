@@ -360,6 +360,7 @@ const Home = ({ isMapLoaded }) => {
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
+                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>    </TableCell>
                                     </TableRow>
                                 </TableHead>
 
@@ -457,6 +458,37 @@ const Home = ({ isMapLoaded }) => {
                                                             </Tooltip>
                                                         </Box>
                                                     </TableCell>
+                                                     {user?.type?.type === "linked_sos" ? (
+                                                        <TableCell>
+                                                            <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
+                                                                <Tooltip title="Other User" arrow placement="top">
+                                                                    <Button
+                                                                        variant="contained"
+                                                                        sx={{
+                                                                            display: "flex",
+                                                                            alignItems: "center",
+                                                                            gap: "6px",
+                                                                            textTransform: "none",
+                                                                            fontWeight: 500,
+                                                                            fontSize: "14px",
+                                                                            color: "#fff",
+                                                                            backgroundColor: "#1E73E8", // same as your image blue
+                                                                            borderRadius: "8px",
+                                                                            padding: "6px 14px",
+                                                                            whiteSpace: "nowrap",
+                                                                            minWidth: "auto",
+                                                                            "&:hover": { backgroundColor: "#1864c7" },
+                                                                        }}
+                                                                        onClick={() =>
+                                                                            nav(`total-drivers/driver-information/${user?.otherUser?._id}`)
+                                                                        }
+                                                                    >
+                                                                        Other User
+                                                                    </Button>
+                                                                </Tooltip>
+                                                            </Box>
+                                                        </TableCell>
+                                                    ) : null}
                                                 </TableRow>
                                             ))
                                             :
@@ -705,6 +737,7 @@ const Home = ({ isMapLoaded }) => {
                                             Status
                                         </TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Action</TableCell>
+                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>                         </TableCell>
                                     </TableRow>
                                 </TableHead>
 
@@ -717,6 +750,7 @@ const Home = ({ isMapLoaded }) => {
                                         </TableRow>
                                         : (recentSos?.data?.items?.length > 0 ?
                                             recentSos?.data?.items?.map((row) => (
+                                                console.log("row", row),
                                                 <TableRow key={row?._id}>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
@@ -789,6 +823,37 @@ const Home = ({ isMapLoaded }) => {
                                                             </Tooltip>
                                                         </Box>
                                                     </TableCell>
+                                                    {row?.type?.type === "linked_sos" ? (
+                                                        <TableCell>
+                                                            <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
+                                                                <Tooltip title="Other User" arrow placement="top">
+                                                                    <Button
+                                                                        variant="contained"
+                                                                        sx={{
+                                                                            display: "flex",
+                                                                            alignItems: "center",
+                                                                            gap: "6px",
+                                                                            textTransform: "none",
+                                                                            fontWeight: 500,
+                                                                            fontSize: "14px",
+                                                                            color: "#fff",
+                                                                            backgroundColor: "#1E73E8", // same as your image blue
+                                                                            borderRadius: "8px",
+                                                                            padding: "6px 14px",
+                                                                            whiteSpace: "nowrap",
+                                                                            minWidth: "auto",
+                                                                            "&:hover": { backgroundColor: "#1864c7" },
+                                                                        }}
+                                                                        onClick={() =>
+                                                                            nav(`total-drivers/driver-information/${row?.otherUser?._id}`)
+                                                                        }
+                                                                    >
+                                                                        Other User
+                                                                    </Button>
+                                                                </Tooltip>
+                                                            </Box>
+                                                        </TableCell>
+                                                    ) : null}
                                                 </TableRow>
                                             ))
                                             :
