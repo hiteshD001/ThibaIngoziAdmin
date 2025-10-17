@@ -333,7 +333,7 @@ const Home = ({ isMapLoaded }) => {
                                                 onClick={changeSortOrder2}
                                                 IconComponent={() => <img src={sortBy2 === 'req_accept' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                             >
-                                                Request Accept
+                                                Request Accepted
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
@@ -417,10 +417,10 @@ const Home = ({ isMapLoaded }) => {
                                                     }}>
                                                         {user?.address}
                                                     </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                    <TableCell sx={{ color: '#01C971' }}>
                                                         {user?.req_reach || "0"}
                                                     </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                    <TableCell sx={{ color: 'var(--orange)' }}>
                                                         {user?.req_accept || "0"}
                                                     </TableCell>
                                                     <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>

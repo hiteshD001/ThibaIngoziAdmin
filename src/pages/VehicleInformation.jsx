@@ -1587,7 +1587,7 @@ const VehicleInformation = () => {
                         </Typography>
 
                         <Typography variant="h5" sx={{ fontWeight: 500 }}>
-                            ${driverform.data?.data.totalDriverAmount || 0}
+                            R{driverform.data?.data.totalDriverAmount || 0}
                         </Typography>
                     </Box>
 
