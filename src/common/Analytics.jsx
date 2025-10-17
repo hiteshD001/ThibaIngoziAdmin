@@ -148,11 +148,12 @@ const Analytics = ({ id, activePage,
     }, [driverList?.data, time]);
 
     const [isLoading, setIsLoading] = useState(false);
-    const handleExport = async ({ startDate, endDate, exportFormat, location, category }) => {
+    const handleExport = async ({ startDate, endDate, exportFormat, province, category }) => {
         try {
             setIsLoading(true);
+            console.log(startDate, endDate, exportFormat, province, category, "*****");
             const searchKey = "";
-            const hotspot = await fetchHotspot({startDate, endDate, category});
+            const hotspot = await fetchHotspot({startDate, endDate, category, province});
             const activeSosData = await fetchActiveSosData({startDate, endDate, category, searchKey, page: 1, limit: 100000});
             const recentSosResponse = await fetchRecentSosData({startDate, endDate, category, searchKey, page: 1, limit: 100000});
             const recentSos = recentSosResponse?.items || []; 

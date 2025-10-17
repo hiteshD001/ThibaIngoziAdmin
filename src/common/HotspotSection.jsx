@@ -9,8 +9,12 @@ import {
     FormControl,
     InputLabel,
     Paper,
-    Divider
+    Divider,
+    Accordion,
+    AccordionSummary,
+    AccordionDetails
 } from '@mui/material';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { FaLocationDot } from 'react-icons/fa6'; // Updated to fa6 for newer icons if available
 import { useNavigate } from 'react-router-dom';
 
@@ -54,7 +58,35 @@ function HotspotSection({ isMapLoaded }) {
             <Loader /> {/* Use your actual Loader component here */}
         </Box>
     );
+    const groupHotspotsByProvince = (data = []) => {
+        const grouped = {};
+      
+        data?.forEach((item) => {
+          const provinceId = item?.province?._id || "unknown";
+          // console.log(groupedHotspots);
+          if (!grouped[provinceId]) {
+            grouped[provinceId] = {
+              province: item?.province?.province_name,
+              locations: [],
+            };
+          }
+      
+          grouped[provinceId].locations.push({
+            lat: item.lat,
+            long: item.long,
+            address: item.address,
+            totalCalls: item.totalCalls,
+          });
+        });
+      
+        return Object.values(grouped);
+    };
+    const groupedHotspots = groupHotspotsByProvince(hotspot?.data?.data);
 
+    const [expanded, setExpanded] = useState(null); // Track which accordion is open
+    const handleAccordionChange = (panel) => (_, isExpanded) => {
+      setExpanded(isExpanded ? panel : null);
+    };
     return (
         <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
             <Grid container spacing={3}>
@@ -94,54 +126,130 @@ function HotspotSection({ isMapLoaded }) {
                     <Typography variant="h6" fontWeight={500} gutterBottom>
                         Top Sos Locations
                     </Typography>
-                    <Box sx={{ maxHeight: 'calc(100vh - 390px)', overflowY: 'auto' }}>
+                    <Box sx={{ maxHeight: 'calc(100vh - 265px)', overflowY: 'auto' }}>
                         {hotspot.isFetching ? (
                             <CustomLoader />
                         ) : hotspot?.data?.data?.length === 0 ? (
                             <Typography sx={{ mt: 2 }}>No data Found</Typography>
                         ) : (
-                            hotspot?.data?.data?.sort((a, b) =>
-                                a.timesCalled > b.timesCalled ? -1 : 1
-                            )
-                                .map((d, index) => (
+                          groupedHotspots.map((group, index) => {
+                            const panelId = `panel-${index}`;
+                            return (
+                              <Accordion
+                                key={panelId}
+                                expanded={expanded === panelId}
+                                onChange={handleAccordionChange(panelId)}
+                              >
+                                <AccordionSummary
+                                  expandIcon={<ExpandMoreIcon />}
+                                  sx={{
+                                    backgroundColor: "#f7f9fc",
+                                    borderBottom: "1px solid #eee",
+                                    "& .MuiAccordionSummary-content": {
+                                      alignItems: "center",
+                                      justifyContent: "space-between",
+                                    },
+                                  }}
+                                >
+                                  <Box display="flex" alignItems="center" gap={1}>
+                                    <Typography variant="subtitle1" fontWeight="bold">
+                                      {group?.province || "Unknown Province"}
+                                    </Typography>
+                                  </Box>
+                                  <Typography variant="body2" sx={{ color: "#666" }}>
+                                    {group.locations.length} Locations
+                                  </Typography>
+                                </AccordionSummary>
+                    
+                                <AccordionDetails>
+                                  {group.locations.map((d, i) => (
                                     <Box
-                                        key={index}
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            padding: 1,
-                                            borderBottom: '1px solid #eee',
-                                            '&:last-child': { borderBottom: 'none' },
-                                        }}
+                                      key={i}
+                                      sx={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        padding: 1,
+                                        borderBottom: "1px solid #eee",
+                                        "&:last-child": { borderBottom: "none" },
+                                      }}
                                     >
-                                         <Typography variant="body2" sx={{ flexGrow: 1 }}>{d.address || "N/A"}</Typography>
-                                        <Box sx={{
-                                            borderRadius: '50%',
-                                            padding: '1px',
-                                            height: '35px',
-                                            display: 'flex',
-                                            minWidth: '35px',
-                                            justifyContent: 'center', alignItems: 'center', cursor: 'pointer', fontWeight: 'bold', backgroundColor: (d.timesCalled || 0) > 70 ? '#E5565A26' : '#F9731626',
-                                        }} onClick={() =>
-                                            nav(
-                                                `/home/hotspot/location?lat=${d.lat}&long=${d.long}`
-                                            )
-                                        }>
-                                            <Typography variant="body2" sx={{ mx: 1, fontWeight: 'bold', color: (d.timesCalled || 0) > 70 ? 'red' : 'orange', }}>{d.timesCalled || 0}</Typography>
-
-                                        </Box>
-
-                                        {/* <FaLocationDot
-                                            style={{ cursor: 'pointer', color: 'primary' }}
-                                            onClick={() =>
-                                                nav(
-                                                    `/home/hotspot/location?lat=${d.lat}&long=${d.long}`
-                                                )
-                                            }
-                                        /> */}
+                                      <Typography
+                                        variant="body2"
+                                        sx={{ flexGrow: 1, pr: 2, color: "#333" }}
+                                      >
+                                        {d.address || "N/A"}
+                                      </Typography>
+                    
+                                      <Box
+                                        sx={{
+                                          borderRadius: "50%",
+                                          padding: "1px",
+                                          height: "35px",
+                                          display: "flex",
+                                          minWidth: "35px",
+                                          justifyContent: "center",
+                                          alignItems: "center",
+                                          cursor: "pointer",
+                                          fontWeight: "bold",
+                                          backgroundColor:
+                                            (d.totalCalls || 0) > 70 ? "#E5565A26" : "#F9731626",
+                                        }}
+                                        onClick={() =>
+                                          nav(`/home/hotspot/location?lat=${d.lat}&long=${d.long}`)
+                                        }
+                                      >
+                                        <Typography
+                                          variant="body2"
+                                          sx={{
+                                            mx: 1,
+                                            fontWeight: "bold",
+                                            color: (d.totalCalls || 0) > 70 ? "red" : "orange",
+                                          }}
+                                        >
+                                          {d.totalCalls || 0}
+                                        </Typography>
+                                      </Box>
                                     </Box>
-                                ))
+                                  ))}
+                                </AccordionDetails>
+                              </Accordion>
+                            );
+                          })
+
+                            // hotspot?.data?.data?.sort((a, b) =>
+                            //     a.timesCalled > b.timesCalled ? -1 : 1
+                            // )
+                            //     .map((d, index) => (
+                            //         <Box
+                            //             key={index}
+                            //             sx={{
+                            //                 display: 'flex',
+                            //                 justifyContent: 'space-between',
+                            //                 alignItems: 'center',
+                            //                 padding: 1,
+                            //                 borderBottom: '1px solid #eee',
+                            //                 '&:last-child': { borderBottom: 'none' },
+                            //             }}
+                            //         >
+                            //              <Typography variant="body2" sx={{ flexGrow: 1 }}>{d.address || "N/A"}</Typography>
+                            //             <Box sx={{
+                            //                 borderRadius: '50%',
+                            //                 padding: '1px',
+                            //                 height: '35px',
+                            //                 display: 'flex',
+                            //                 minWidth: '35px',
+                            //                 justifyContent: 'center', alignItems: 'center', cursor: 'pointer', fontWeight: 'bold', backgroundColor: (d.timesCalled || 0) > 70 ? '#E5565A26' : '#F9731626',
+                            //             }} onClick={() =>
+                            //                 nav(
+                            //                     `/home/hotspot/location?lat=${d.lat}&long=${d.long}`
+                            //                 )
+                            //             }>
+                            //                 <Typography variant="body2" sx={{ mx: 1, fontWeight: 'bold', color: (d.timesCalled || 0) > 70 ? 'red' : 'orange', }}>{d.timesCalled || 0}</Typography>
+
+                            //             </Box>
+                            //         </Box>
+                            //     ))
                         )}
                     </Box>
                 </Grid>

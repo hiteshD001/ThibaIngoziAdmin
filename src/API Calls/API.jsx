@@ -1364,7 +1364,8 @@ export const fetchRecentSosData = async ({
 export const fetchHotspot = async ({
     startDate,
     endDate,
-    type = "all"
+    type = "all",
+    province = "all"
 }) => {
     try {
         const params = {};
@@ -1373,16 +1374,37 @@ export const fetchHotspot = async ({
         if (type) {
             params.notificationType = type === "all" ? "" : type;
         }
+        if (province) {
+            params.province = province === "all" ? "" : province;
+        }
         const response = await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/location/hotspot`,
             {
                 params
             }
         );
-        console.log(type, "type");
         return response?.data || []; // return array of SOS records
     } catch (error) {
         console.error("Error fetching Recent SOS data:", error);
         return [];
     }
 };
+
+// get list of Province
+export const fetchProvince = () => {
+    const queryFn = async () => {
+      const res = await apiClient.get(`${import.meta.env.VITE_BASEURL}/province`);
+      return res.data; // ✅ usually you'd want only the response data
+    };
+  
+    const res = useQuery({
+      queryKey: ["Province List"],
+      queryFn,
+      staleTime: 15 * 60 * 1000, // 15 minutes
+      enabled: true, // ✅ use true to allow fetching; Boolean() is always false
+      retry: false,
+    });
+  
+    return res;
+};
+  

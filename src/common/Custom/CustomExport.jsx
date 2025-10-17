@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-    useGetNotificationType,
+    useGetNotificationType, fetchProvince
 } from "../../API Calls/API";
 import {
     Box,
@@ -36,7 +36,7 @@ const CustomExportMenu = ({ role, onExport }) => {
             key: 'selection'
         }
     ]);
-    const [location, setLocation] = useState('select');
+    const [province, setProvince] = useState('all');
     const [category, setCategory] = useState('all');
     const [exportFormat, setFormat] = useState('pdf');
 
@@ -44,14 +44,15 @@ const CustomExportMenu = ({ role, onExport }) => {
     const handleClose = () => setAnchorEl(null);
 
     const handleExport = () => {
+        console.log(province, "province4444")
         const startDate = range[0].startDate.toISOString();
         const endDate = range[0].endDate.toISOString();
-        onExport({ startDate, endDate, exportFormat, location, category });
+        onExport({ startDate, endDate, exportFormat, province, category });
         setAnchorEl(null);
     };
 
     const notificationTypes = useGetNotificationType();
-
+    const provincelist = fetchProvince();
     return (
         <>
             <Button
@@ -120,18 +121,20 @@ const CustomExportMenu = ({ role, onExport }) => {
                             role === 'dashboard' && (<FormControl fullWidth size="small" >
                                 <label style={{ marginBottom: 5 }}>Select Location Filters</label>
                                 <Select
-                                    value={location}
-                                    onChange={(e) => setLocation(e.target.value)}
+                                    value={province}
+                                    onChange={(e) => setProvince(e.target.value)}
                                     sx={{
                                         '& fieldset': {
                                             border: '1px solid var(--light-gray)',
                                         },
                                     }}
                                 >
-                                    <MenuItem value="select">Select Location</MenuItem>
-                                    <MenuItem value="North">North West</MenuItem>
-                                    <MenuItem value="Western Cape">Western Cape</MenuItem>
-                                    <MenuItem value="Free State">Free State</MenuItem>
+                                    <MenuItem value="all">All Location</MenuItem>
+                                    {provincelist?.data?.data?.map((type) => (
+                                        <MenuItem key={type._id} value={type._id}>
+                                            {type.province_name}
+                                        </MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>)
                         }
