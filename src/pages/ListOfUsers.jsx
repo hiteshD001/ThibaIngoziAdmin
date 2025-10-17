@@ -293,7 +293,7 @@ const ListOfUsers = () => {
                                             onClick={changeSortOrder}
                                             IconComponent={() => <img src={sortBy === 'subscription_end_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
-                                           Tag Diconnection
+                                           Tag Disconnection
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>

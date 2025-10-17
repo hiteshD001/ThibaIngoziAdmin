@@ -949,6 +949,29 @@ const ListOfDrivers = () => {
                                             Subscription Status
                                         </TableSortLabel>
                                     </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="subscription_start_date"
+                                            active={sortBy === 'subscription_start_date'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'subscription_start_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+
+                                        >
+                                            Tag Connection
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="subscription_end_date"
+                                            active={sortBy === 'subscription_end_date'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'subscription_end_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Tag Disconnection
+                                        </TableSortLabel>
+                                    </TableCell>
                                     <TableCell
                                         align="center"
                                         sx={{ backgroundColor: "#F9FAFB", borderTopRightRadius: '10px', color: "#4B5563" }}
@@ -961,7 +984,7 @@ const ListOfDrivers = () => {
                             <TableBody>
                                 {driverList.isFetching ?
                                     <TableRow>
-                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={6} align="center">
+                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
                                             <Loader />
                                         </TableCell>
                                     </TableRow>
@@ -1015,6 +1038,14 @@ const ListOfDrivers = () => {
                                                     />
                                                 </TableCell>
 
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {driver.subscription_start_date || "15:10:20 - 06/07/2025"}
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {driver.subscription_end_date || "15:10:20 - 06/07/2025"}
+                                                </TableCell>
+
                                                 <TableCell>
                                                     <Box
                                                         align="center"
@@ -1052,7 +1083,7 @@ const ListOfDrivers = () => {
                                         ))
                                         :
                                         <TableRow>
-                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={6} align="center">
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
                                                 <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                                                     No data found
                                                 </Typography>

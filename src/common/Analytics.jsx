@@ -68,7 +68,7 @@ const Analytics = ({ id, activePage,
 
 
     const hotspot = useGetHotspot(time, id, selectedNotification);
-    const chartData = useGetChartData(id, time, selectedNotification);
+    const chartData = useGetChartData(id, time, range, selectedNotification);
 
     // console.log("chartData", chartData?.data?.data)
 
@@ -97,11 +97,11 @@ const Analytics = ({ id, activePage,
     let arrow = null; // Default: no arrow
 
     if (activePercentage > lastActivePercentage) {
-      arrow = <FaArrowUpLong color="green" />;
+        arrow = <FaArrowUpLong color="green" />;
     } else if (activePercentage < lastActivePercentage) {
-      arrow = <FaArrowDownLong color="red" />;
+        arrow = <FaArrowDownLong color="red" />;
     } else {
-      arrow = null; 
+        arrow = null;
     }
 
     useEffect(() => {
@@ -161,23 +161,23 @@ const Analytics = ({ id, activePage,
             const TotalData = [
                 { Type: "Total Companies", Count: (companyList.data?.data.totalUsers || 0), Percentage: companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2) },
                 { Type: "Active Users", Count: (driverList?.data?.data.totalActiveDrivers || 0), Percentage: driverList?.data?.data?.activeUsersPercentageFromYesterday?.toFixed(2) },
-                { Type: "Users Active "+timeTitle, Count: activeUser, Percentage: activePercentage },
+                { Type: "Users Active " + timeTitle, Count: activeUser, Percentage: activePercentage },
             ];
 
             const chartDataFinal = chartData?.data?.data;
             const sosData = [];
             chartDataFinal.forEach((item) => {
                 sosData.push({
-                Month: item.label,
-                Resolved: item.resolved,
-                Pending: item.pending,
+                    Month: item.label,
+                    Resolved: item.resolved,
+                    Pending: item.pending,
                 });
             });
 
             const sosAlertData = [];
             activeSosData?.map((user) => {
                 sosAlertData.push({
-                    Driver: user?.user?.first_name+ ' '+user?.user?.last_name,
+                    Driver: user?.user?.first_name + ' ' + user?.user?.last_name,
                     Company: user?.user?.company_name,
                     Address: user?.address,
                     "Request Reached": user?.req_reach || "0",
@@ -197,11 +197,11 @@ const Analytics = ({ id, activePage,
                     "Total Calls": row?.totalCalls,
                 })
             });
-            
+
             const sosClosedData = [];
             recentSos?.map((row) => {
                 sosClosedData.push({
-                    "User Name": row?.user?.first_name+ ' '+row?.user?.last_name,
+                    "User Name": row?.user?.first_name + ' ' + row?.user?.last_name,
                     "Company": row?.user?.company_name,
                     "Last Active Status": row?.createdAt,
                     "Start Time Stamp": format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy"),
@@ -213,11 +213,11 @@ const Analytics = ({ id, activePage,
 
             const autoFitColumns = (data) => {
                 return Object.keys(data[0] || {}).map((key) => ({
-                wch: Math.max(key.length, ...data.map((row) => String(row[key] ?? "NA").length)) + 2,
+                    wch: Math.max(key.length, ...data.map((row) => String(row[key] ?? "NA").length)) + 2,
                 }));
             };
 
-            if(exportFormat == 'xlsx'){
+            if (exportFormat == 'xlsx') {
                 const workbook = XLSX.utils.book_new();
                 const companiesSheet = XLSX.utils.json_to_sheet(TotalData);
                 companiesSheet["!cols"] = autoFitColumns(TotalData);
@@ -244,14 +244,14 @@ const Analytics = ({ id, activePage,
                 // Write file
                 XLSX.writeFile(workbook, "Dashboard.xlsx");
             }
-            if(exportFormat == 'csv'){
+            if (exportFormat == 'csv') {
                 const convertToCSV = (data) => {
                     if (!data || !data.length) return "";
                     const headers = Object.keys(data[0]);
                     const rows = data.map((obj) => headers.map((h) => JSON.stringify(obj[h] ?? "")).join(","));
                     return [headers.join(","), ...rows].join("\n");
                 };
-                
+
                 const csvSections = [
                     { title: "Totals", data: TotalData },
                     { title: "SOS Requests Over Time", data: sosData },
@@ -259,20 +259,20 @@ const Analytics = ({ id, activePage,
                     { title: "Top SOS Locations", data: sosLocationsData },
                     { title: "Recently Closed SOS Alerts", data: sosClosedData },
                 ];
-                
+
                 let finalCSV = "";
                 csvSections.forEach((section, i) => {
                     finalCSV += `\n\n# ${section.title}\n`;
                     finalCSV += convertToCSV(section.data);
                 });
-                
+
                 const blob = new Blob([finalCSV], { type: "text/csv;charset=utf-8;" });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
                 link.download = "Dashboard.csv";
-                link.click();     
+                link.click();
             }
-            if(exportFormat == 'pdf'){
+            if (exportFormat == 'pdf') {
                 const doc = new jsPDF("p", "mm", "a4");
                 let currentY = 16; // vertical position tracker
 
@@ -317,7 +317,7 @@ const Analytics = ({ id, activePage,
                 addSection("Active SOS Alerts", sosAlertData);
                 addSection("Top SOS Locations", sosLocationsData);
                 addSection("Recently Closed SOS Alerts", sosClosedData);
-                
+
                 doc.save("Dashboard.pdf");
             }
         } catch (error) {
@@ -438,7 +438,7 @@ const Analytics = ({ id, activePage,
                                 <div className="d-flex gap-2">
                                     <div className="percentage-green">
                                         {arrow} {activePercentage?.toFixed(2)}%
-                                        
+
                                     </div>
                                     <span>from {timeTitle}</span>
 

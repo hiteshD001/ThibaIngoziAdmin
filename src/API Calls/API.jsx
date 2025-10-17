@@ -843,7 +843,7 @@ export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, search
     const queryFn = async () => {
         return await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`, {
-            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder
+            page, limit, startDate, endDate, searchKey, type: type === 'all' ? "" : type, sortBy, sortOrder
         }
         );
     };
@@ -901,7 +901,7 @@ export const useGetActiveSOS = () => {
 
 
 // get chart data
-export const useGetChartData = (company_id, time, notificationType) => {
+export const useGetChartData = (company_id, time, range, notificationType) => {
 
     const queryFn = async () => {
         const currentYear = new Date().getFullYear();
@@ -910,8 +910,10 @@ export const useGetChartData = (company_id, time, notificationType) => {
 
         const params = {
             start_date: startDate,
+            // start_date: range[0]?.startDate,
             time,
             end_date: endDate,
+            // end_date: range[0]?.endDate,
             showStatus: true
         };
 
