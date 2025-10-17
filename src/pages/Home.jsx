@@ -417,10 +417,10 @@ const Home = ({ isMapLoaded }) => {
                                                     }}>
                                                         {user?.address}
                                                     </TableCell>
-                                                    <TableCell sx={{ color: '#01C971' }}>
+                                                    <TableCell sx={{ color: 'var(--orange)' }}>
                                                         {user?.req_reach || "0"}
                                                     </TableCell>
-                                                    <TableCell sx={{ color: 'var(--orange)' }}>
+                                                    <TableCell sx={{ color: '#01C971' }}>
                                                         {user?.req_accept || "0"}
                                                     </TableCell>
                                                     <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
@@ -648,6 +648,28 @@ const Home = ({ isMapLoaded }) => {
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             <TableSortLabel
+                                                id="req_reach"
+                                                active={sortBy === 'req_reach'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'req_reach' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Request reached
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="req_accept"
+                                                active={sortBy === 'req_accept'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'req_accept' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >
+                                                Request Accepted
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
                                                 id="createdAt"
                                                 active={sortBy === 'createdAt'}
                                                 direction={sortOrder}
@@ -689,7 +711,7 @@ const Home = ({ isMapLoaded }) => {
                                 <TableBody>
                                     {isFetching ?
                                         <TableRow>
-                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={7} align="center">
                                                 <Loader />
                                             </TableCell>
                                         </TableRow>
@@ -740,6 +762,12 @@ const Home = ({ isMapLoaded }) => {
 
                                                         {row?.address}
                                                     </TableCell>
+                                                    <TableCell sx={{ color: 'var(--orange)' }}>
+                                                        {row?.req_reach || "0"}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#01C971' }}>
+                                                        {row?.req_accept || "0"}
+                                                    </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
                                                     </TableCell>
@@ -765,7 +793,7 @@ const Home = ({ isMapLoaded }) => {
                                             ))
                                             :
                                             <TableRow>
-                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={7} align="center">
                                                     <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                                                         No data found
                                                     </Typography>

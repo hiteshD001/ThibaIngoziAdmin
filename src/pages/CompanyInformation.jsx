@@ -132,8 +132,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
     // react queries
     const companyInfo = useGetUser(params.id);
     const { data: recentSos, isFetching, refetch } = useGetRecentSOS(pagination.recentSos.page, pagination.recentSos.rowsPerPage, "", "", "", "", sortBy, sortOrder);
-    const driverList = useGetUserList("driver list", "driver", params.id, pagination.driver.page, pagination.driver.rowsPerPage, filter, "", "", "", sortBy3, sortOrder3);
-    const userList = useGetUserList("user list", "passanger", params.id, pagination.user.page, pagination.user.rowsPerPage, filter, "", "", "", sortBy2, sortOrder2);
+    const driverList = useGetUserList("driver list", "driver", params.id, pagination.driver.page, pagination.driver.rowsPerPage, filter, "", "", "", sortBy2, sortOrder2);
+    const userList = useGetUserList("user list", "passanger", params.id, pagination.user.page, pagination.user.rowsPerPage, filter, "", "", "", sortBy3, sortOrder3);
     const notificationTypes = useGetNotificationType();
     const getArmedSOS = useGetArmedSoS();
     const securityList = useGetSecurityList();
@@ -953,6 +953,28 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
+                                            id="req_reach"
+                                            active={sortBy === 'req_reach'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'req_reach' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Request reached
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="req_accept"
+                                            active={sortBy === 'req_accept'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'req_accept' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Request Accepted
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
                                             id="createdAt"
                                             active={sortBy === 'createdAt'}
                                             direction={sortOrder}
@@ -980,7 +1002,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             <TableBody>
                                 {isFetching ?
                                     <TableRow>
-                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={6} align="center">
+                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
                                             <Loader />
                                         </TableCell>
                                     </TableRow>
@@ -1010,6 +1032,14 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
                                                     {row?.address}
                                                 </TableCell>
+                                                <TableCell sx={{ color: 'var(--orange)' }}>
+                                                    {/* {row?.req_reach || "0"} */}
+                                                    5
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#01C971' }}>
+                                                    {/* {row?.req_accept || "0"} */}
+                                                    0
+                                                </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </TableCell>
@@ -1030,7 +1060,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         ))
                                         :
                                         <TableRow>
-                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={6} align="center">
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
                                                 <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                                                     No data found
                                                 </Typography>
@@ -1244,6 +1274,29 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                             Contact Email
                                         </TableSortLabel>
                                     </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="subscription_start_date"
+                                            active={sortBy2 === 'subscription_start_date'}
+                                            direction={sortOrder2}
+                                            onClick={changeSortOrder2}
+                                            IconComponent={() => <img src={sortBy2 === 'subscription_start_date' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+
+                                        >
+                                            Tag Connection
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="subscription_end_date"
+                                            active={sortBy2 === 'subscription_end_date'}
+                                            direction={sortOrder2}
+                                            onClick={changeSortOrder2}
+                                            IconComponent={() => <img src={sortBy2 === 'subscription_end_date' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Tag Disconnection
+                                        </TableSortLabel>
+                                    </TableCell>
                                     <TableCell
                                         align="center"
                                         sx={{ backgroundColor: "#F9FAFB", borderTopRightRadius: '10px', color: "#4B5563" }}
@@ -1256,7 +1309,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             <TableBody>
                                 {driverList.isFetching ?
                                     <TableRow>
-                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={6} align="center">
+                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
                                             <Loader />
                                         </TableCell>
                                     </TableRow>
@@ -1290,6 +1343,14 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                                     {driver.email || "-"}
                                                 </TableCell>
 
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {driver.subscription_start_date || "15:10:20 - 06/07/2025"}
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {driver.subscription_end_date || "15:10:20 - 06/07/2025"}
+                                                </TableCell>
+
                                                 <TableCell>
                                                     <Box
                                                         align="center"
@@ -1320,7 +1381,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         ))
                                         :
                                         <TableRow>
-                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={6} align="center">
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
                                                 <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                                                     No data found
                                                 </Typography>
@@ -1533,12 +1594,6 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
                                             <Loader />
                                         </TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>User</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Company</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Contact No.</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Contact Email</TableCell>
-                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Subscription status</TableCell>
-                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                     </TableRow>
                                     : (userList.data?.data.users?.length > 0 ?
                                         userList.data?.data.users.map((user) => (
