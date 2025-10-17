@@ -101,7 +101,7 @@ function HotspotSection({ isMapLoaded }) {
                             <Typography sx={{ mt: 2 }}>No data Found</Typography>
                         ) : (
                             hotspot?.data?.data?.sort((a, b) =>
-                                a.timesCalled > b.timesCalled ? -1 : 1
+                                a.totalCalls > b.totalCalls ? -1 : 1
                             )
                                 .map((d, index) => (
                                     <Box
@@ -122,13 +122,13 @@ function HotspotSection({ isMapLoaded }) {
                                             height: '35px',
                                             display: 'flex',
                                             minWidth: '35px',
-                                            justifyContent: 'center', alignItems: 'center', cursor: 'pointer', fontWeight: 'bold', backgroundColor: (d.timesCalled || 0) > 70 ? '#E5565A26' : '#F9731626',
+                                            justifyContent: 'center', alignItems: 'center', cursor: 'pointer', fontWeight: 'bold', backgroundColor: (d.totalCalls || 0) > 70 ? '#E5565A26' : '#F9731626',
                                         }} onClick={() =>
                                             nav(
                                                 `/home/hotspot/location?lat=${d.lat}&long=${d.long}`
                                             )
                                         }>
-                                            <Typography variant="body2" sx={{ mx: 1, fontWeight: 'bold', color: (d.timesCalled || 0) > 70 ? 'red' : 'orange', }}>{d.timesCalled || 0}</Typography>
+                                            <Typography variant="body2" sx={{ mx: 1, fontWeight: 'bold', color: (d.totalCalls || 0) > 70 ? 'red' : 'orange', }}>{d.totalCalls || 0}</Typography>
 
                                         </Box>
 
