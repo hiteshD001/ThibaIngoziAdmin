@@ -901,21 +901,15 @@ export const useGetActiveSOS = () => {
 
 
 // get chart data
-export const useGetChartData = (company_id, time, range, notificationType) => {
-
+export const useGetChartData = (company_id, time, startDate, endDate, notificationType) => {
     const queryFn = async () => {
-        const currentYear = new Date().getFullYear();
-        const startDate = `${currentYear}-01-01`;
-        const endDate = `${currentYear}-12-31`;
-
         const params = {
-            start_date: startDate,
-            // start_date: range[0]?.startDate,
             time,
-            end_date: endDate,
-            // end_date: range[0]?.endDate,
+            startDate,
+            endDate,
             showStatus: true
         };
+
 
         if (notificationType) {
             params.type = notificationType === "all" ? "" : notificationType;
@@ -933,7 +927,7 @@ export const useGetChartData = (company_id, time, range, notificationType) => {
     };
 
     const res = useQuery({
-        queryKey: ["chartData", notificationType, company_id, time], // Re-fetch when notificationType changes
+        queryKey: ["chartData", notificationType, company_id, time, startDate, endDate], // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });

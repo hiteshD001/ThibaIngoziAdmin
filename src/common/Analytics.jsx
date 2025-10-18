@@ -66,9 +66,32 @@ const Analytics = ({ id, activePage,
     const companyList = useGetUserList("company list", "company");
     const [selected, setSelected] = useState('today');
 
+    console.log("range",range)
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    
+
 
     const hotspot = useGetHotspot(time, id, selectedNotification);
-    const chartData = useGetChartData(id, time, range, selectedNotification);
+    const chartData = useGetChartData(id, time,startDate,endDate, selectedNotification);
+
+    useEffect(()=>{
+        if(range.startDate && range.endDate){
+            settime("")
+            
+        }else{
+            settime("today")
+            // Set default range if not set
+            if (!range[0]?.startDate || !range[0]?.endDate) {
+                setRange([{
+                    startDate: startOfYear(new Date()),
+                    endDate: new Date(),
+                    key: 'selection'
+                }]);
+            }
+        }
+    },[range])
+
 
     // console.log("chartData", chartData?.data?.data)
 
