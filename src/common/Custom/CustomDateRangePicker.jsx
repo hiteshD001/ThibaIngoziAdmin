@@ -59,7 +59,7 @@ const CustomDateRangePicker = ({
                     >
                         {icon && <img src={icon} alt="calendar" style={{ marginRight: 4 }} />}
                         <Typography variant="body2" sx={{ textTransform: 'none' }}>
-                            {`${format(value[0].startDate, 'dd MMM yy')} - ${format(value[0].endDate, 'dd MMM yy')}`}
+                            {`${value[0].startDate ? format(value[0].startDate, 'dd MMM yy') : "Start"} - ${value[0].endDate ? format(value[0].endDate, 'dd MMM yy') : "End"}`}
                         </Typography>
                     </Button>
 

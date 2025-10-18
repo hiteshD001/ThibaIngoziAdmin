@@ -11,7 +11,8 @@ const TimeFilter = ({ selected, onApply }) => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
     <FormControl size="small">
-      <Select value={selected} onChange={handleChange} sx={{ minWidth: 150 }}>
+      <Select value={selected} onChange={handleChange} sx={{ minWidth: 150 }} displayEmpty>
+        <MenuItem value="" disabled>Select</MenuItem>
         <MenuItem value="today">Today</MenuItem>
         <MenuItem value="yesterday">Yesterday</MenuItem>
         <MenuItem value="this_week">This Week</MenuItem>

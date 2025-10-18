@@ -53,8 +53,10 @@ const Analytics = ({ id, activePage,
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [range, setRange] = useState([
         {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
+            startDate: null,
+            endDate: null,
+            // startDate: startOfYear(new Date()),
+            // endDate: new Date(),
             key: 'selection'
         }
     ]);
@@ -67,29 +69,30 @@ const Analytics = ({ id, activePage,
     const [selected, setSelected] = useState('today');
 
     console.log("range",range)
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+    // const [startDate, setStartDate] = useState("");
+    // const [endDate, setEndDate] = useState("");
     
 
 
     const hotspot = useGetHotspot(time, id, selectedNotification);
-    const chartData = useGetChartData(id, time,startDate,endDate, selectedNotification);
+    const chartData = useGetChartData(id, time,range[0]?.startDate,range[0]?.endDate, selectedNotification);
 
     useEffect(()=>{
-        if(range.startDate && range.endDate){
+        if(range[0]?.startDate && range[0]?.endDate){
             settime("")
             
-        }else{
-            settime("today")
-            // Set default range if not set
-            if (!range[0]?.startDate || !range[0]?.endDate) {
-                setRange([{
-                    startDate: startOfYear(new Date()),
-                    endDate: new Date(),
-                    key: 'selection'
-                }]);
-            }
         }
+        // else{
+        //     settime("today")
+        //     // Set default range if not set
+        //     if (!range[0]?.startDate || !range[0]?.endDate) {
+        //         setRange([{
+        //             startDate: startOfYear(new Date()),
+        //             endDate: new Date(),
+        //             key: 'selection'
+        //         }]);
+        //     }
+        // }
     },[range])
 
 
@@ -372,7 +375,14 @@ const Analytics = ({ id, activePage,
                         <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
                             <TimeFilter
                                 selected={time}          // current selected time
-                                onApply={(value) => settime(value)}
+                                onApply={(value) => {
+                                    settime(value)
+                                    setRange([{
+                                        startDate: null,
+                                        endDate: null,
+                                        key: 'selection'
+                                    }])
+                                }}
                             />
                             {/* <CustomFilter onApply={handleFilterApply} /> */}
 
