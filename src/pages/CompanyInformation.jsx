@@ -202,10 +202,10 @@ const CompanyInformation = ({ isMapLoaded }) => {
                 isPaymentToken: user.isPaymentToken || false,
                 isEnrollToken: user.isEnrollToken || false,
                 services:
-                    user.services?.filter((s) => s.serviceId?.isService).map((s) => s.serviceId._id) ||
+                    user.services?.filter((s) => s.serviceId?.isService).map((s) => s.serviceId?._id) ||
                     [],
                 securityCompany:
-                    user.securityCompany?.map((item) => item.securityCompanyId._id) || [],
+                    user.securityCompany?.map((item) => item.securityCompanyId?._id) || [],
             });
 
             const filteredServices = user.services?.filter((s) => s.serviceId?.isService);
@@ -214,7 +214,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                 if (!acc[type]) acc[type] = [];
                 acc[type].push({
                     label: s.serviceId.type,
-                    value: s.serviceId._id,
+                    value: s.serviceId?._id,
                 });
                 return acc;
             }, {});
@@ -229,7 +229,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
     // security companies options
     const securityCompanyOptions = securityList?.data?.data?.company?.map((item) => ({
         label: item.company_name,
-        value: item._id,
+        value: item?._id,
     })) || [];
 
     // Company services options
@@ -241,7 +241,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                     label: "Services",
                     options: filteredServices.map((service) => ({
                         label: service.type,
-                        value: service._id,
+                        value: service?._id,
                         color: service.bgColor,
                         icon: service.icon
                     })),
@@ -284,7 +284,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
             const { result, message } = parseXmlResponse(res.data);
             if (result === "Success") {
                 payoutUpdateMutation.mutate({
-                    user_id: companyInfo.data.data.user._id,
+                    user_id: companyInfo.data.data.user?._id,
                     type: selectedPayoutType,
                     amount: PayoutForm.values.amount,
                 });
@@ -895,7 +895,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                 >
                                     <MenuItem value="all">All Categories</MenuItem>
                                     {notificationTypes?.data?.data?.map((type) => (
-                                        <MenuItem key={type._id} value={type._id}>
+                                        <MenuItem key={type?._id} value={type?._id}>
                                             {type.type}
                                         </MenuItem>
                                     ))}
@@ -1315,7 +1315,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     </TableRow>
                                     : (driverList.data?.data.users?.length > 0 ?
                                         driverList?.data?.data?.users?.map((driver) => (
-                                            <TableRow key={driver._id}>
+                                            <TableRow key={driver?._id}>
                                                 <TableCell sx={{ color: "#4B5563" }}>
                                                     <Stack direction="row" alignItems="center" gap={1.5}>
                                                         <Avatar
@@ -1358,19 +1358,19 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                                     >
                                                         <Tooltip title="View" arrow placement="top">
                                                             <IconButton onClick={() =>
-                                                                nav(`/home/total-drivers/driver-information/${driver._id}`)
+                                                                nav(`/home/total-drivers/driver-information/${driver?._id}`)
                                                             }>
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
                                                         <Tooltip title="Delete" arrow placement="top">
-                                                            <IconButton onClick={() => setconfirmation(driver._id)}>
+                                                            <IconButton onClick={() => setconfirmation(driver?._id)}>
                                                                 <img src={delBtn} alt="delete button" />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        {confirmation === driver._id && (
+                                                        {confirmation === driver?._id && (
                                                             <DeleteConfirm
-                                                                id={driver._id}
+                                                                id={driver?._id}
                                                                 setconfirmation={setconfirmation}
                                                             />
                                                         )}
@@ -1597,7 +1597,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     </TableRow>
                                     : (userList.data?.data.users?.length > 0 ?
                                         userList.data?.data.users.map((user) => (
-                                            <TableRow key={user._id}>
+                                            <TableRow key={user?._id}>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Stack direction="row" alignItems="center" gap={1}>
                                                         <Avatar
@@ -1628,17 +1628,17 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`/home/total-users/user-information/${user._id}`)}>
+                                                            <IconButton onClick={() => nav(`/home/total-users/user-information/${user?._id}`)}>
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
                                                         <Tooltip title="Delete" arrow placement="top">
-                                                            <IconButton onClick={() => setconfirmation(user._id)}>
+                                                            <IconButton onClick={() => setconfirmation(user?._id)}>
                                                                 <img src={delBtn} alt="delete button" />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        {confirmation === user._id && (
-                                                            <DeleteConfirm id={user._id} setconfirmation={setconfirmation} />
+                                                        {confirmation === user?._id && (
+                                                            <DeleteConfirm id={user?._id} setconfirmation={setconfirmation} />
                                                         )}
                                                     </Box>
 
