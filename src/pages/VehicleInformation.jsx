@@ -85,6 +85,9 @@ const VehicleInformation = () => {
             account_holder_name: "",
             bankId: "",
             subscription_status: "",
+            EnrollStartDate: "",
+            paymentDate: "",
+            EnrollType: ""
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
@@ -658,6 +661,18 @@ const VehicleInformation = () => {
                             
 
                         </Grid>
+                        
+                        {/* Enrolment Information Row */}
+                        <Grid size={{ xs: 12, sm: 4, md: 4 }}>
+                            {displayField("Start Enrolment", driverform.values.EnrollStartDate ? new Date(driverform.values.EnrollStartDate).toLocaleDateString() : 'N/A')}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 4, md: 4 }}>
+                            {displayField("End Enrolment", driverform.values.paymentDate ? new Date(driverform.values.paymentDate).toLocaleDateString() : 'N/A')}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 4, md: 4 }}>
+                            {displayField("Enrolment Type", driverform.values.EnrollType || 'N/A')}
+                        </Grid>
+
                         <Grid size={12}>
                             <Grid container gap={4} sx={{ mt: 1 }}>
                                 <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
@@ -1612,24 +1627,19 @@ export default VehicleInformation;
 
 const setdriverformvalues = ({ ...props }) => {
     const { form, data } = props;
-
     let newdata = {};
-
     Object.keys(form.values).forEach((key) => {
-        if (key === "images") {
-            newdata = {
-                ...newdata,
-                [key]: Array.from(
-                    { length: 5 },
-                    (_, i) => data?.[`image_${i + 1}`] || null
-                ).filter(Boolean),
-            };
-
-        } else if (key === 'company_id') {
+        if (key === 'images') {
+            newdata = { ...newdata, [key]: Array.from({ length: 5 }, (_, i) => data?.[`image_${i + 1}`] || null).filter(Boolean) };
+        }
+        else if (key === 'company_id') {
             newdata = { ...newdata, [key]: data?.company_id?._id ?? '' };
+        } else if (key === 'EnrollStartDate' || key === 'paymentDate' || key === 'EnrollType') {
+            // Handle enrolment fields
+            newdata = { ...newdata, [key]: data?.[key] || '' };
         } else {
-            newdata = { ...newdata, [key]: data?.[key] ?? "" };
+            newdata = { ...newdata, [key]: data?.[key] ?? '' };
         }
     });
-    form.setValues(newdata);
+    form.setValues(newdata)
 };

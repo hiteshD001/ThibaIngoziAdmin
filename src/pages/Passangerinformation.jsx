@@ -43,6 +43,9 @@ const PassangerInformation = () => {
             selfieImage: null,
             fullImage: null,
             subscription_status: "",
+            EnrollStartDate: "",
+            paymentDate: "",
+            EnrollType: ""
         },
         validationSchema: vehicleValidation
     })
@@ -288,6 +291,18 @@ const PassangerInformation = () => {
                             
 
                         </Grid>
+                        
+                        {/* Enrolment Information Row */}
+                        <Grid size={{ xs: 12, sm: 4, md: 4 }}>
+                            {displayField("Start Enrolment", driverform.values.EnrollStartDate ? new Date(driverform.values.EnrollStartDate).toLocaleDateString() : 'N/A')}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 4, md: 4 }}>
+                            {displayField("End Enrolment", driverform.values.paymentDate ? new Date(driverform.values.paymentDate).toLocaleDateString() : 'N/A')}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 4, md: 4 }}>
+                            {displayField("Enrolment Type", driverform.values.EnrollType || 'N/A')}
+                        </Grid>
+                        
                         {/* <Grid size={{ xs: 12, sm: 6 }}>
                             {editInfo ? (
                                 <FormControl variant="standard" fullWidth >
@@ -726,6 +741,9 @@ const setdriverformvalues = ({ ...props }) => {
         }
         else if (key === 'company_id') {
             newdata = { ...newdata, [key]: data?.company_id?._id ?? '' };
+        } else if (key === 'EnrollStartDate' || key === 'paymentDate' || key === 'EnrollType') {
+            // Handle enrolment fields
+            newdata = { ...newdata, [key]: data?.[key] || '' };
         } else {
             newdata = { ...newdata, [key]: data?.[key] ?? '' };
         }
