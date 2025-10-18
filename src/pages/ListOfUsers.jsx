@@ -357,11 +357,11 @@ const ListOfUsers = () => {
                                                 </TableCell>
 
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    {user.subscription_start_date || "-"}
+                                                    {user.tag_connection || "-"}
                                                 </TableCell>
 
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    {user.subscription_end_date || ""}
+                                                    {user.tag_disconnection || "-"}
                                                 </TableCell>
 
                                                 <TableCell >

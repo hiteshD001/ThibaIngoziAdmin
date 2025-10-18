@@ -1039,11 +1039,11 @@ const ListOfDrivers = () => {
                                                 </TableCell>
 
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    {driver.subscription_start_date || "-"}
+                                                    {driver.tag_connection || "-"}
                                                 </TableCell>
 
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    {driver.subscription_end_date || "-"}
+                                                    {driver.tag_disconnection || "-"}
                                                 </TableCell>
 
                                                 <TableCell>
