@@ -71,6 +71,7 @@ const ListOfDrivers = () => {
     const [GrpservicesList, setGrpservicesList] = useState([]);
     const [payPopup, setPopup] = useState("");
     const [selectedPayoutType, setSelectedPayoutType] = useState("");
+    const [selectedDriver, setSelectedDriver] = useState(null);
     const [range, setRange] = useState([
         {
             startDate: startOfYear(new Date()),
@@ -239,8 +240,11 @@ const ListOfDrivers = () => {
         (res) => {
             const { result, message } = parseXmlResponse(res.data);
             if (result === "Success") {
+                // Use selectedDriver._id if available, otherwise use company user id
+                const userId = selectedDriver?._id || companyInfo.data.data.user._id;
+                
                 payoutUpdateMutation.mutate({
-                    user_id: companyInfo.data.data.user._id,
+                    user_id: userId,
                     type: selectedPayoutType,
                     amount: PayoutForm.values.amount,
                 });
@@ -258,10 +262,15 @@ const ListOfDrivers = () => {
     );
 
     const payoutUpdateMutation = payoutUserUpdate(
-        (res) => {
+        () => {
             toast.success("payment successful");
+            // Invalidate queries to refresh data
+            client.invalidateQueries(["driver list"]);
+            if (params.id) {
+                client.invalidateQueries(["user", params.id]);
+            }
         },
-        (err) => {
+        () => {
             toast.error("payment failed");
         }
     );
@@ -270,27 +279,49 @@ const ListOfDrivers = () => {
         payoutMutation.mutate(PayoutForm.values);
     };
 
-    const handlePopup = (event, type, payoutType) => {
+    const handlePopup = (event, type, payoutType, driverData = null) => {
         event.stopPropagation();
-        const isCompany = payoutType === "company";
-        const selectedAmount = isCompany
-            ? companyInfo.data?.data.totalCompanyAmount
-            : companyInfo.data?.data.totalDriverAmount;
+        console.log(driverData,"driverData")
+        // If driverData is provided, use individual driver info
+        if (driverData) {
+            console.log(driverData.bankId?.branchCode,"driverData.bankId?.branchCode")
+            PayoutForm.setValues({
+                firstName: driverData.first_name || "",
+                surname: driverData.last_name || "",
+                branchCode: driverData?.branchCode || "",
+                accountNumber: driverData.accountNumber || "",
+                customerCode: driverData.customerCode || "",
+                amount: driverData.driverAmount || 10,
+                bankId: driverData.bankId || "",
+            });
+            setSelectedDriver(driverData);
+        } else {
+            // Use company-level data
+            console.log(companyInfo.data?.data.user.bankId?.branchCode,"companyInfo.data?.data.user.bankId?.branchCode")
+            const isCompany = payoutType === "company";
+            const selectedAmount = isCompany
+                ? companyInfo.data?.data.totalCompanyAmount
+                : companyInfo.data?.data.totalDriverAmount;
 
-        PayoutForm.setValues({
-            firstName: companyInfo.data?.data.user?.first_name || "",
-            surname: companyInfo.data?.data.user?.last_name || "",
-            branchCode: companyInfo.data?.data.user.bankId?.branch_code || "",
-            accountNumber: companyInfo.data?.data.user?.accountNumber || "",
-            customerCode: companyInfo.data?.data.user?.customerCode || "",
-            amount: selectedAmount || 0,
-        });
+            PayoutForm.setValues({
+                firstName: companyInfo.data?.data.user?.first_name || "",
+                surname: companyInfo.data?.data.user?.last_name || "",
+                branchCode: companyInfo.data?.data.user.bankId?.branch_code || "",
+                accountNumber: companyInfo.data?.data.user?.accountNumber || "",
+                customerCode: companyInfo.data?.data.user?.customerCode || "",
+                amount: selectedAmount || 0,
+            });
+            setSelectedDriver(null);
+        }
 
         setPopup(type);
         setSelectedPayoutType(payoutType);
     };
 
-    const closePopup = () => setPopup("");
+    const closePopup = () => {
+        setPopup("");
+        setSelectedDriver(null);
+    };
 
     const renderPopup = () => {
         switch (payPopup) {
@@ -1064,11 +1095,10 @@ const ListOfDrivers = () => {
                                                             </IconButton>
                                                         </Tooltip>
                                                         <Tooltip title="Payout" arrow placement="top">
-                                                            <IconButton onClick={() =>
-                                                                nav(`/home/total-drivers`)
+                                                            <IconButton onClick={(event) => 
+                                                                handlePopup(event, "payout", "driver", driver)
                                                             }>
-                                                                <img src={driverPayoutIcon} alt="view button" />
-                                                                 {renderPopup()}
+                                                                <img src={driverPayoutIcon} alt="payout button" />
                                                             </IconButton>
                                                         </Tooltip>
                                                         {confirmation === driver._id && (
@@ -1170,6 +1200,7 @@ const ListOfDrivers = () => {
             </Paper>
 
             {popup && <ImportSheet setpopup={setpopup} type="driver" />}
+            {renderPopup()}
         </Box>
     );
 };
