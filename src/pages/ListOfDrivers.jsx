@@ -726,17 +726,21 @@ const ListOfDrivers = () => {
                                                             {driver.email}
                                                         </td>
                                                         <td>
-                                                            <span
-                                                                onClick={() => setconfirmation(driver._id)}
-                                                                className="tbl-gray"
-                                                            >
-                                                                Delete
-                                                            </span>
-                                                            {confirmation === driver._id && (
-                                                                <DeleteConfirm
-                                                                    id={driver._id}
-                                                                    setconfirmation={setconfirmation}
-                                                                />
+                                                            {role !== "company" && (
+                                                                <>
+                                                                    <span
+                                                                        onClick={() => setconfirmation(driver._id)}
+                                                                        className="tbl-gray"
+                                                                    >
+                                                                        Delete
+                                                                    </span>
+                                                                    {confirmation === driver._id && (
+                                                                        <DeleteConfirm
+                                                                            id={driver._id}
+                                                                            setconfirmation={setconfirmation}
+                                                                        />
+                                                                    )}
+                                                                </>
                                                             )}
                                                             <span
                                                                 onClick={() =>

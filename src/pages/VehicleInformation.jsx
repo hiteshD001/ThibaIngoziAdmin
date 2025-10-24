@@ -1244,13 +1244,15 @@ const VehicleInformation = () => {
                                     Save
                                 </button>
                             ) : (
-                                <button
-                                    onClick={() => setedit(true)}
-                                    className="btn btn-dark"
-                                    disabled={CompanyId !== driverform.values.company_id && role !== 'super_admin'}
-                                >
-                                    Edit
-                                </button>
+                                role !== "company" && (
+                                    <button
+                                        onClick={() => setedit(true)}
+                                        className="btn btn-dark"
+                                        disabled={CompanyId !== driverform.values.company_id && role !== 'super_admin'}
+                                    >
+                                        Edit
+                                    </button>
+                                )
                             )}
                         </div>
                     </div>
