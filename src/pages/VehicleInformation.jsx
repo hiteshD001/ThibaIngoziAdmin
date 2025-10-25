@@ -1244,7 +1244,7 @@ const VehicleInformation = () => {
                                     Save
                                 </button>
                             ) : (
-                                role !== "company" && (
+                                // role !== "company" && (
                                     <button
                                         onClick={() => setedit(true)}
                                         className="btn btn-dark"
@@ -1252,7 +1252,7 @@ const VehicleInformation = () => {
                                     >
                                         Edit
                                     </button>
-                                )
+                                // )
                             )}
                         </div>
                     </div>
