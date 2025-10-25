@@ -1089,11 +1089,13 @@ const ListOfDrivers = () => {
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        <Tooltip title="Delete" arrow placement="top">
-                                                            <IconButton onClick={() => setconfirmation(driver._id)}>
-                                                                <img src={delBtn} alt="delete button" />
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                        {role !== 'company' && (
+                                                            <Tooltip title="Delete" arrow placement="top">
+                                                                <IconButton onClick={() => setconfirmation(driver._id)}>
+                                                                    <img src={delBtn} alt="delete button" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        )}  
                                                         <Tooltip title="Payout" arrow placement="top">
                                                             <IconButton onClick={(event) => 
                                                                 handlePopup(event, "payout", "driver", driver)

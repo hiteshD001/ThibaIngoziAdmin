@@ -771,7 +771,7 @@ const VehicleInformation = () => {
                         </Grid>
                         <Grid size={12}>
                             <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
-                                {editInfo ? (
+                                {editInfo  ? (
                                     <>
                                         <Button
                                             variant="contained"
@@ -795,13 +795,15 @@ const VehicleInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditInfo(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== "company" && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditInfo(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -951,13 +953,15 @@ const VehicleInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditAddress(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== "company" && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditAddress(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -1133,13 +1137,15 @@ const VehicleInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditEmergency(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== "company" && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditEmergency(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -1407,19 +1413,21 @@ const VehicleInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => {
-                                            if (!vehicleForm.values.vehicle_id) {
-                                                toast.error("No vehicle found.");
-                                                return;
-                                            }
-                                            setEditVehicle(true);
-                                        }}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== "company" && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => {
+                                                if (!vehicleForm.values.vehicle_id) {
+                                                    toast.error("No vehicle found.");
+                                                    return;
+                                                }
+                                                setEditVehicle(true);
+                                            }}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
