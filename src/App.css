@@ -449,30 +449,31 @@ header {
     border-radius: 16px;
     background: #e3f5ff;
     margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
 }
 
 .dash-counter.orange {
-    /* display: flex; */
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-direction: row;
     background-color: #FFF3E5;
 }
 
+.dash-counter.orange2 {
+    background-color: #EA580C1A;
+}
+
 .dash-counter.blue {
-    /* display: flex; */
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-direction: row;
     background-color: #E9EFFF;
 }
 
 .dash-counter.green {
-    /* display: flex; */
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-direction: row;
     background-color: #EAF8EC;
+}
+
+.dash-counter.green2 {
+    background-color: #0D94881A;
+
 }
 
 .dash-counter.gray {
@@ -496,7 +497,7 @@ header {
 
 .dash-counter span {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     line-height: 20px;
     margin-bottom: 10px;
     display: block;
@@ -504,8 +505,8 @@ header {
 }
 
 .dash-counter h3 {
-    font-size: 24px;
-    font-weight: 600;
+    font-size: 40px;
+    font-weight: 700;
     line-height: 36px;
     text-align: left;
     color: #1c1c1c;

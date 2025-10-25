@@ -1,7 +1,7 @@
 import { useEffect, useState, useLayoutEffect } from "react"
 import Select from "react-select";
 import { useNavigate, useParams } from "react-router-dom"
-import { Grid, Typography, Box, FormControl, InputLabel, Button, FormHelperText } from "@mui/material";
+import { Grid, Typography, Box, FormControl, InputLabel, Button, FormHelperText, Paper } from "@mui/material";
 import { useFormik } from "formik"
 import { sales_agent_e } from "../../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query"
@@ -209,7 +209,7 @@ const AgentInformation = () => {
     // console.log('test',UserInfo.data?.data?.data)
     return (
         <Box p={2}>
-            <Box elevation={0} sx={{ p: 3, borderRadius: '16px', mb: 3, backgroundColor: '#f7f9fb' }}>
+            <Paper elevation={0} sx={{ p: 3, borderRadius: '10px', mb: 3 }}>
                 <Typography variant="h6" gutterBottom fontWeight={600}>
                     Profile Information
                 </Typography>
@@ -572,7 +572,7 @@ const AgentInformation = () => {
                     </Grid>
                 </form>
 
-            </Box>
+            </Paper>
             <div className="theme-table" style={{ marginTop: '20px' }}>
                 <div className="tab-heading">
                     <div className="count">
@@ -706,7 +706,7 @@ const AgentInformation = () => {
                                 <div className="tab-heading">
                                     <div className="count">
                                         <h3>Tie Users</h3>
-                                        <p>{UserInfo?.data?.data?.data?.tieUserData.length || 0}</p>
+                                        <p>{UserInfo?.data?.data?.data?.tieUserData?.length || 0}</p>
                                     </div>
                                     {/* <button
                                             onClick={() => setTieData(false)}

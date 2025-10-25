@@ -68,19 +68,19 @@ const Analytics = ({ id, activePage,
     const companyList = useGetUserList("company list", "company");
     const [selected, setSelected] = useState('today');
 
-    console.log("range",range)
+    console.log("range", range)
     // const [startDate, setStartDate] = useState("");
     // const [endDate, setEndDate] = useState("");
-    
+
 
 
     const hotspot = useGetHotspot(time, id, selectedNotification);
-    const chartData = useGetChartData(id, time,range[0]?.startDate,range[0]?.endDate, selectedNotification);
+    const chartData = useGetChartData(id, time, range[0]?.startDate, range[0]?.endDate, selectedNotification);
 
-    useEffect(()=>{
-        if(range[0]?.startDate && range[0]?.endDate){
+    useEffect(() => {
+        if (range[0]?.startDate && range[0]?.endDate) {
             settime("")
-            
+
         }
         // else{
         //     settime("today")
@@ -93,7 +93,7 @@ const Analytics = ({ id, activePage,
         //         }]);
         //     }
         // }
-    },[range])
+    }, [range])
 
 
     // console.log("chartData", chartData?.data?.data)
@@ -179,11 +179,11 @@ const Analytics = ({ id, activePage,
             setIsLoading(true);
             console.log(startDate, endDate, exportFormat, province, category, "*****");
             const searchKey = "";
-            const hotspot = await fetchHotspot({startDate, endDate, category, province});
-            const activeSosData = await fetchActiveSosData({startDate, endDate, category, searchKey, page: 1, limit: 100000});
-            const recentSosResponse = await fetchRecentSosData({startDate, endDate, category, searchKey, page: 1, limit: 100000});
-            const recentSos = recentSosResponse?.items || []; 
-            
+            const hotspot = await fetchHotspot({ startDate, endDate, category, province });
+            const activeSosData = await fetchActiveSosData({ startDate, endDate, category, searchKey, page: 1, limit: 100000 });
+            const recentSosResponse = await fetchRecentSosData({ startDate, endDate, category, searchKey, page: 1, limit: 100000 });
+            const recentSos = recentSosResponse?.items || [];
+
             const TotalData = [
                 { Type: "Total Companies", Count: (companyList.data?.data.totalUsers || 0), Percentage: companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2) },
                 { Type: "Active Users", Count: (driverList?.data?.data.totalActiveDrivers || 0), Percentage: driverList?.data?.data?.activeUsersPercentageFromYesterday?.toFixed(2) },
@@ -412,7 +412,7 @@ const Analytics = ({ id, activePage,
                     <div className="row px-2 ">
                         <div className="col-md-4 ">
                             <div className="dash-counter orange ">
-                                <div className=" flex-column">
+                                <div className="flex-column">
                                     <div className="d-flex justify-content-between  w-100 ">
                                         <div className="">
                                             <span>Total Companies</span>
@@ -421,13 +421,14 @@ const Analytics = ({ id, activePage,
                                         <img src={div} alt="dash-counter" />
 
                                     </div>
-                                    <div className="">
-                                        <div className="d-flex gap-2">
-                                            <div className="percentage-green">
-                                                {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} %
-                                            </div>
-                                            <span> from last month</span>
+                                </div>
+
+                                <div className="">
+                                    <div className="d-flex gap-2">
+                                        <div className="percentage-green">
+                                            {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} %
                                         </div>
+                                        <span> from last month</span>
                                     </div>
                                 </div>
                             </div>

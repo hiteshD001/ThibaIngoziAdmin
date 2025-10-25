@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
-import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale } from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useState } from "react";
@@ -94,6 +94,53 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
           Yes
         </Button>
 
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export const DeleteSalesAgent = ({ id, setconfirmation }) => {
+  const client = useQueryClient();
+
+  const onSuccess = () => {
+    toast.success("Delete Sos Amount Successfully.");
+    client.invalidateQueries("ArmedSOSAmount List");
+    setconfirmation("");
+  }
+  const onError = (error) => {
+    toast.error(error.response.data.message || "Something went Wrong", toastOption)
+  }
+
+
+  const deleteagent = useDeleteSalesAgent(onSuccess, onError)
+
+  return (
+    <Dialog open={true} onClose={() => setconfirmation("")} maxWidth="xs" fullWidth>
+      <DialogTitle sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+        <img src={DeleteIcon} alt="DeleteIcon" />
+        Delete
+      </DialogTitle>
+      <DialogContent>
+        <Typography>Are you sure you want to delete this?</Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button variant="outlined" onClick={() => setconfirmation("")} sx={{ borderRadius: '8px', color: 'black', border: '1px solid rgb(175, 179, 189)' }}>
+          No
+        </Button>
+        <Button
+          variant="contained"
+          color="error"
+          disabled={deleteagent.isPending}
+          onClick={() => deleteagent.mutate(id)}
+          sx={{
+            backgroundColor: '#EB5757',
+            borderRadius: '8px',
+            opacity: deleteagent.isPending ? 0.5 : 1,
+            cursor: deleteagent.isPending ? "not-allowed" : "pointer"
+          }}
+        >
+          Yes
+        </Button>
       </DialogActions>
     </Dialog>
   );
