@@ -45,6 +45,7 @@ const ListOfTrips = () => {
   // Sort 1
   const [sortBy, setSortBy] = useState("first_name");
   const [sortOrder, setSortOrder] = useState("asc");
+  const role = localStorage.getItem("role");
 
   const changeSortOrder = (e) => {
     const field = e.target.id;
@@ -56,10 +57,13 @@ const ListOfTrips = () => {
     }
   }
 
+  // Determine companyId based on role
+  const companyId = role === 'company' ? localStorage.getItem("userID") : null;
+
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate, archived, sortBy, sortOrder);
+  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate, archived, sortBy, sortOrder, companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
