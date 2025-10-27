@@ -177,11 +177,18 @@ export const Companyadmin_menulist = () => {
 
         },
         {
-            id: "total-sos-amount",
-            name: "Armed Sos Amount",
-            path: "/home/total-sos-amount",
-            image: ArmedSos,
-            company: "Sos Information"
+            id: "total-linked-trips",
+            name: "Total Linked Trips",
+            path: "/home/total-linked-trips",
+            image: Trip,
+            company: "User Information"
+        },
+        {
+            id: "total-meeting-links",
+            name: "Total Meeting Links",
+            path: "/home/total-meeting-links",
+            image: MeetingLink,
+            company: "User Information"
         },
         // {
         //     id: "total-armed-sos",

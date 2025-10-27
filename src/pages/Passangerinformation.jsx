@@ -443,13 +443,15 @@ const PassangerInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditInfo(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== 'company' && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditInfo(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -598,13 +600,15 @@ const PassangerInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditAddress(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== 'company' && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditAddress(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -712,13 +716,15 @@ const PassangerInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditEmergency(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== 'company' && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditEmergency(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>

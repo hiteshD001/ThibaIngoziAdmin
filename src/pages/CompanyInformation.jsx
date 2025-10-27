@@ -1061,7 +1061,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         :
                                         <TableRow>
                                             <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
-                                                <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                <Typography justifyContent="start" alignItems="start"  color="text.secondary" sx={{ mt: 2 }}>
                                                     No data found
                                                 </Typography>
                                             </TableCell>

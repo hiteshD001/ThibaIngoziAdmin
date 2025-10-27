@@ -303,7 +303,7 @@ const ListOfUsers = () => {
                             <TableBody>
                                 {UserList.isFetching ?
                                     <TableRow>
-                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
                                             <Loader />
                                         </TableCell>
                                     </TableRow>
@@ -371,11 +371,14 @@ const ListOfUsers = () => {
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
+                                                        { role !== 'company' && (
                                                         <Tooltip title="Delete" arrow placement="top">
                                                             <IconButton onClick={() => setconfirmation(user._id)}>
                                                                 <img src={delBtn} alt="delete button" />
                                                             </IconButton>
                                                         </Tooltip>
+                                                        )}
+                                                       
                                                         {confirmation === user._id && (
                                                             <DeleteConfirm id={user._id} setconfirmation={setconfirmation} />
                                                         )}
@@ -387,8 +390,8 @@ const ListOfUsers = () => {
                                         ))
                                         :
                                         <TableRow>
-                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
-                                                <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
+                                                <Typography justifyContent="center" alignItems="center" color="text.secondary" sx={{ mt: 2 }}>
                                                     No data found
                                                 </Typography>
                                             </TableCell>

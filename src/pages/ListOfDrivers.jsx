@@ -694,9 +694,11 @@ const ListOfDrivers = () => {
 
                                 </Box>
                             ) : (
-                                <Button variant="contained" sx={{ width: 120, height: 45, borderRadius: '10px', backgroundColor: 'var(--Blue)' }} onClick={() => setedit(true)}>
-                                    Edit
-                                </Button>
+                                role !== 'company' && (
+                                    <Button variant="contained" sx={{ width: 120, height: 45, borderRadius: '10px', backgroundColor: 'var(--Blue)' }} onClick={() => setedit(true)}>
+                                        Edit
+                                    </Button>
+                                )
                             )}
                         </Box>
                     </Paper>

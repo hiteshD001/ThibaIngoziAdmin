@@ -565,13 +565,15 @@ const Profile = () => {
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    variant="contained"
-                    sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                    onClick={() => setedit(true)}
-                  >
-                    Edit
-                  </Button>
+                  role !== 'company' && (
+                    <Button
+                      variant="contained"
+                      sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                      onClick={() => setedit(true)}
+                    >
+                      Edit
+                    </Button>
+                  )
                 )}
               </Box>
             </Grid>

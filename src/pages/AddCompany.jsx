@@ -5,7 +5,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineDown, AiOutlineUp } from 
 import { useFormik } from "formik";
 import { companyValidation } from "../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType, useGetCityList } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType, useGetCityList, useGetBanksList } from "../API Calls/API";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { toast } from "react-toastify";
