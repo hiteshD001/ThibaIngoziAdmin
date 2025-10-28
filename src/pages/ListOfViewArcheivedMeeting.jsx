@@ -46,6 +46,8 @@ const ListOfMeetingLinkTrips = () => {
   // Sort 1
   const [sortBy, setSortBy] = useState("first_name");
   const [sortOrder, setSortOrder] = useState("asc");
+  const role = localStorage.getItem("role");
+  const companyId = role === 'company' ? localStorage.getItem("userID") : null;
 
   const changeSortOrder = (e) => {
     const field = e.target.id;
@@ -60,7 +62,7 @@ const ListOfMeetingLinkTrips = () => {
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter, startDate, endDate, isArchived, sortBy, sortOrder);
+  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter, startDate, endDate, isArchived, sortBy, sortOrder,companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalMeetingLinkTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
