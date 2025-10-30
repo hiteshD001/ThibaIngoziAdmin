@@ -339,7 +339,8 @@ const ListOfDrivers = () => {
     }, [CompanyForm.values.isArmed]);
 
 
-    const handleExport = async ({ startDate, endDate, format }) => {
+    const handleExport = async ({ startDate, endDate, exportFormat }) => {
+        const user = companyInfo.data?.data?.user;
         try {
             const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
                 params: {
@@ -365,49 +366,80 @@ const ListOfDrivers = () => {
                 "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
                 "Contact Email": user.email || ''
             }));
-
-            if (format === "xlsx") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const exportedByValue = user.role === 'company' ? user.company_name : 'Super Admin';
+            if (exportFormat === "xlsx") {
+                const workbook = XLSX.utils.book_new();
+            
+                // Add "Exported By" row
+                const headerRow = [["Exported By", exportedByValue], []]; // blank row after header
+            
+                // Prepare data with header row
+                const worksheetData = [
+                    ...headerRow,
+                    Object.keys(exportData[0] || {}),
+                    ...exportData.map(obj => Object.values(obj))
+                ];
+            
+                const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+            
+                // Auto-fit columns
                 const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
                     wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
                 }));
                 worksheet['!cols'] = columnWidths;
-                const workbook = XLSX.utils.book_new();
+            
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
                 XLSX.writeFile(workbook, "Drivers_List.xlsx");
             }
-            else if (format === "csv") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const csv = XLSX.utils.sheet_to_csv(worksheet);
+            
+            else if (exportFormat === "csv") {            
+                // Convert data to CSV
+                const headers = Object.keys(exportData[0] || {});
+                const csvRows = exportData.map(row =>
+                    headers.map(h => JSON.stringify(row[h] ?? '')).join(',')
+                );
+                const csv = `Exported By,${exportedByValue}\n\n${headers.join(',')}\n${csvRows.join('\n')}`;
+            
+                // Download file
                 const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'driver_list.csv';
+                link.download = 'Drivers_List.csv';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             }
-            else if (format === "pdf") {
+            
+            else if (exportFormat === "pdf") {
                 const doc = new jsPDF();
+                // Header
+                doc.setFontSize(14);
                 doc.text('Driver List', 14, 16);
+            
+                // Exported By
+                doc.setFontSize(10);
+                doc.text(`Exported By: ${exportedByValue}`, 14, 24);
+            
+                // Table
                 autoTable(doc, {
+                    startY: 30,
                     head: [['Driver', 'Driver ID', 'Company', 'Contact No.', 'Contact Email']],
                     body: allUsers.map(user => [
-                        `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
-                        user.passport_no ?? 'NA',
-                        user.company_name ?? 'NA',
-                        user?.email ?? 'NA',
-                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
-                        user.email ?? 'NA'
+                        `${user.first_name || ''} ${user.last_name || ''}` || 'NA',
+                        user.passport_no || 'NA',
+                        user.company_name || 'NA',
+                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` || 'NA',
+                        user.email || 'NA'
                     ]),
-                    startY: 20,
                     theme: 'striped',
-                    headStyles: { fillColor: '#367BE0' },
-                    margin: { top: 20 },
+                    headStyles: { fillColor: [54, 123, 224], textColor: 255 },
                     styles: { fontSize: 10 },
+                    margin: { top: 20 },
                 });
+            
                 doc.save("Drivers_List.pdf");
             }
+            
 
         } catch (err) {
             console.error("Error exporting data:", err);

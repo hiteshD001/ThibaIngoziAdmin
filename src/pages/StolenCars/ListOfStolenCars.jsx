@@ -21,13 +21,17 @@ import arrowup from '../../assets/images/arrowup.svg';
 import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 
-import { useGetMissingVehicaleList, usePatchArchivedMissingVehicale } from "../../API Calls/API";
+import { useGetUser, useGetMissingVehicaleList, usePatchArchivedMissingVehicale } from "../../API Calls/API";
 import moment from "moment/moment";
 import Listtrip from '../../assets/images/Listtrip.svg'
 import delBtn from '../../assets/images/delBtn.svg'
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import { toast } from "react-toastify";
-
+import apiClient from "../../API Calls/APIClient";
+import { format } from "date-fns";
+import jsPDF from 'jspdf';
+import { autoTable } from 'jspdf-autotable'
+import * as XLSX from 'xlsx';
 
 const ListOfStolenCars = () => {
     const [popup, setpopup] = useState(false);
@@ -85,6 +89,112 @@ const ListOfStolenCars = () => {
         () => toast.error("Failed to archive person.")
     );
 
+    let loginUser = useGetUser(localStorage.getItem("userID"));
+    loginUser = loginUser?.data?.data?.user;
+    const handleExport = async ({ startDate, endDate, exportFormat: fileFormat }) => {
+        try {
+        const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingVehicle`, {
+            params: {
+                page: 1,
+                limit: 10000,
+                filter: "",
+                startDate,
+                endDate,
+            },
+        });
+
+        const allUsers = data?.data || [];
+        if (!allUsers.length) {
+            toast.warning("No Stolen Cars data found.");
+            return;
+        }
+
+        const exportData = allUsers.map(user => ({
+            "Last Seen Location": user.lastSeenLocation || '',
+            "Date": format(user.date, "HH:mm:ss - dd/MM/yyyy") || '',
+            "Request Reached": user.requestReached || '',
+            "Request Accepted": user.requestAccepted || '',
+            "Reported By": user.reportedBy || '',
+        }));
+        const exportedByValue = loginUser.role === 'company' ? loginUser.company_name : 'Super Admin';
+        if (fileFormat === "xlsx") {
+            const workbook = XLSX.utils.book_new();
+
+            // Header row for Exported By
+            const headerRow = [["Exported By", exportedByValue], []]; // blank row after header
+
+            // Prepare sheet data
+            const worksheetData = [
+                ...headerRow,
+                Object.keys(exportData[0] || {}),
+                ...exportData.map(obj => Object.values(obj))
+            ];
+
+            const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+            // Auto-fit columns
+            const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+            }));
+            worksheet['!cols'] = columnWidths;
+
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Stolen_Cars_List");
+            XLSX.writeFile(workbook, "Stolen_Cars_List.xlsx");
+        }
+
+        else if (fileFormat === "csv") {
+            const headers = Object.keys(exportData[0] || {});
+            const csvRows = exportData.map(row =>
+                headers.map(h => JSON.stringify(row[h] ?? '')).join(',')
+            );
+
+            const csv = `Exported By,${exportedByValue}\n\n${headers.join(',')}\n${csvRows.join('\n')}`;
+
+            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'Stolen_Cars_List.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        else if (fileFormat === "pdf") {
+            const doc = new jsPDF();
+
+            // Title
+            doc.setFontSize(14);
+            doc.text('Stolen Cars List', 14, 16);
+
+            // Exported By line
+            doc.setFontSize(10);
+            doc.text(`Exported By: ${exportedByValue}`, 14, 24);
+
+            // Table
+            autoTable(doc, {
+                startY: 30,
+                head: [["Last Seen Location", "Date", "Request Reached", "Request Accepted", "Reported By"]],
+                body: allUsers.map(user => [
+                    user.lastSeenLocation || '',format(user.date, "HH:mm:ss - dd/MM/yyyy") || '',
+                    user.requestReached || '',
+                    user.requestAccepted || '',
+                    user.reportedBy || '',
+                ]),
+                theme: 'striped',
+                headStyles: { fillColor: [54, 123, 224], textColor: 255 },
+                styles: { fontSize: 10 },
+                margin: { top: 20 },
+            });
+
+            doc.save("Stolen_Cars_List.pdf");
+        }
+
+        } catch (err) {
+        console.error("Error exporting data:", err);
+        toast.error("Export failed.");
+        }
+    };
+
     return (
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
@@ -139,7 +249,7 @@ const ListOfStolenCars = () => {
                                 onChange={setRange}
                                 icon={calender}
                             />
-                            <CustomExportMenu />
+                            <CustomExportMenu onExport={handleExport} />
                             <Button
                                 onClick={() => nav('/home/total-stolen-cars/view-archeived-vehicale')}
                                 variant="contained"

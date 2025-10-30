@@ -11,7 +11,7 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import search from '../assets/images/search.svg';
 import whiteplus from '../assets/images/whiteplus.svg';
-import { useGetUserList } from "../API Calls/API";
+import { useGetUser, useGetUserList } from "../API Calls/API";
 import Loader from "../common/Loader";
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
@@ -73,7 +73,10 @@ const ListOfUsers = () => {
     const totalUsers = UserList.data?.data?.totalUsers || 0;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
 
-    const handleExport = async ({ startDate, endDate, format }) => {
+    let loginUser = useGetUser(localStorage.getItem("userID"));
+    loginUser = loginUser?.data?.data?.user;
+    const handleExport = async ({ startDate, endDate, exportFormat }) => {
+        let format = exportFormat;
         try {
             const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
                 params: {
@@ -99,45 +102,76 @@ const ListOfUsers = () => {
                 "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
                 "Contact Email": user.email || ''
             }));
-
+            const exportedByValue = loginUser.role === 'company' ? loginUser.company_name : 'Super Admin';
             if (format === "xlsx") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const workbook = XLSX.utils.book_new();
+
+                // Add "Exported By" header row
+                const headerRow = [["Exported By", exportedByValue], []]; // blank row after header
+
+                // Prepare sheet data with header
+                const worksheetData = [
+                    ...headerRow,
+                    Object.keys(exportData[0] || {}),
+                    ...exportData.map(obj => Object.values(obj))
+                ];
+
+                const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+                // Auto-fit column widths
                 const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
                     wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
                 }));
                 worksheet['!cols'] = columnWidths;
-                const workbook = XLSX.utils.book_new();
+
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
                 XLSX.writeFile(workbook, "User_List.xlsx");
             }
+
             else if (format === "csv") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const csv = XLSX.utils.sheet_to_csv(worksheet);
+                // Add "Exported By" header to CSV
+                const headers = Object.keys(exportData[0] || {});
+                const csvRows = exportData.map(row =>
+                    headers.map(h => JSON.stringify(row[h] ?? '')).join(',')
+                );
+                const csv = `Exported By,${exportedByValue}\n\n${headers.join(',')}\n${csvRows.join('\n')}`;
+
                 const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'user_list.csv';
+                link.download = 'User_List.csv';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             }
+
             else if (format === "pdf") {
                 const doc = new jsPDF();
+
+                // Title
+                doc.setFontSize(14);
                 doc.text('User List', 14, 16);
+
+                // Exported By line
+                doc.setFontSize(10);
+                doc.text(`Exported By: ${exportedByValue}`, 14, 24);
+
+                // Add user data as table
                 autoTable(doc, {
+                    startY: 30,
                     head: [['User', 'Company Name', 'Contact No.', 'Contact Email']],
                     body: allUsers.map(user => [
-                        `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
-                        user.company_name ?? 'NA',
-                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
-                        user.email ?? 'NA'
+                        `${user.first_name || ''} ${user.last_name || ''}` || 'NA',
+                        user.company_name || 'NA',
+                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` || 'NA',
+                        user.email || 'NA'
                     ]),
-                    startY: 20,
                     theme: 'striped',
-                    headStyles: { fillColor: '#367BE0' },
-                    margin: { top: 20 },
+                    headStyles: { fillColor: [54, 123, 224], textColor: 255 },
                     styles: { fontSize: 10 },
+                    margin: { top: 20 },
                 });
+
                 doc.save("User_List.pdf");
             }
 
