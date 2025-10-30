@@ -10,10 +10,12 @@ import PhoneInput from "react-phone-input-2"
 import {
     Box, Button, Typography, InputLabel, FormControl, FormHelperText, Grid, Paper, Chip,
     FormControlLabel,
+    Checkbox,
 } from "@mui/material";
 import { BootstrapInput } from "../common/BootstrapInput";
 import CustomSelect from "../common/Custom/CustomSelect";
 import GrayPlus from '../assets/images/GrayPlus.svg'
+import SingleImagePreview from "../common/SingleImagePreview"
 
 const PassangerInformation = () => {
     const [editInfo, setEditInfo] = useState(false);
@@ -21,6 +23,11 @@ const PassangerInformation = () => {
     const [editEmergency, setEditEmergency] = useState(false);
     const [role] = useState(localStorage.getItem("role"));
     const CompanyId = localStorage.getItem("userID");
+    const [previewImage, setPreviewImage] = useState({
+        open: false,
+        src: '',
+        label: ''
+    });
     const params = useParams();
     const client = useQueryClient()
 
@@ -69,6 +76,20 @@ const PassangerInformation = () => {
         mutate({ id: params.id, data: formData })
     }
 
+    const handleImageClick = (src, label) => {
+        if (src) {
+            setPreviewImage({
+                open: true,
+                src: src instanceof File ? URL.createObjectURL(src) : src,
+                label: label
+            });
+        }
+    };
+
+    const handleClosePreview = () => {
+        setPreviewImage(prev => ({ ...prev, open: false }));
+    };
+
     const emergencyform = useFormik({
         initialValues: {
             emergency_contact_1_contact: "",
@@ -116,6 +137,12 @@ const PassangerInformation = () => {
         </Box>
     );
     return (
+          <>
+            <SingleImagePreview
+                show={previewImage.open}
+                onClose={handleClosePreview}
+                image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
+            />
         <Box p={2}>
 
             {/* user information */}
@@ -288,10 +315,10 @@ const PassangerInformation = () => {
                                     }
                                 }}
                             />))}
-                            
+
 
                         </Grid>
-                        
+
                         {/* Enrolment Information Row */}
                         <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                             {displayField("Start Enrolment", driverform.values.EnrollStartDate ? new Date(driverform.values.EnrollStartDate).toLocaleDateString() : 'N/A')}
@@ -302,7 +329,7 @@ const PassangerInformation = () => {
                         <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                             {displayField("Enrolment Type", driverform.values.EnrollType || 'N/A')}
                         </Grid>
-                        
+
                         {/* <Grid size={{ xs: 12, sm: 6 }}>
                             {editInfo ? (
                                 <FormControl variant="standard" fullWidth >
@@ -358,7 +385,8 @@ const PassangerInformation = () => {
                                             <img
                                                 src={driverform.values.selfieImage}
                                                 alt="Selfie"
-                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
+                                                 onClick={() => handleImageClick(driverform.values.selfieImage, 'Selfie Image')}
                                             />
                                         ) : (<><img src={GrayPlus} alt="gray plus" />
                                             <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
@@ -403,7 +431,9 @@ const PassangerInformation = () => {
                                             <img
                                                 src={driverform.values.fullImage}
                                                 alt="Full Image"
-                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
+                                                onClick={() => handleImageClick(driverform.values.fullImage, 'Full Image')}
+                                                
                                             />
                                         ) : (<><img src={GrayPlus} alt="gray plus" />
                                             <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
@@ -412,6 +442,53 @@ const PassangerInformation = () => {
 
                                     </Box>
                                     {driverform.touched.fullImage && driverform.errors.fullImage && (
+                                        <FormHelperText error>{driverform.errors.fullImage}</FormHelperText>
+                                    )}
+                                </Grid>
+                                <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
+                                    <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>Verification Selfie Image</label>
+                                    <Box
+                                        sx={{
+                                            border: '2px dashed #E0E3E7',
+                                            borderRadius: '12px',
+                                            minHeight: 180,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: editInfo ? 'pointer' : 'not-allowed',
+                                            position: 'relative',
+                                            background: '#fafbfc'
+                                        }}
+                                        component="label"
+                                    >
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            hidden
+                                            name="verificationSelfieImage"
+                                            disabled={!editInfo}
+                                            onChange={e => driverform.setFieldValue('verificationSelfieImage', e.currentTarget.files[0])}
+                                        />
+                                        {driverform.values.verificationSelfieImage instanceof File ? (
+                                            <img
+                                                src={URL.createObjectURL(driverform.values.verificationSelfieImage)}
+                                                alt="Full Preview"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                            />
+                                        ) : driverform.values.verificationSelfieImage ? (
+                                            <img
+                                                src={driverform.values.verificationSelfieImage}
+                                                alt="verification Selfie Image"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                            />
+                                        ) : (<><img src={GrayPlus} alt="gray plus" />
+                                            <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
+                                        )
+                                        }
+
+                                    </Box>
+                                    {driverform.touched.verificationSelfieImage && driverform.errors.verificationSelfieImage && (
                                         <FormHelperText error>{driverform.errors.fullImage}</FormHelperText>
                                     )}
                                 </Grid>
@@ -733,6 +810,7 @@ const PassangerInformation = () => {
             </Paper>
 
         </Box>
+      </>
     )
 }
 
