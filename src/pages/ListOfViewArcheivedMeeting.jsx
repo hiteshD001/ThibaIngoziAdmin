@@ -375,13 +375,16 @@ const ListOfMeetingLinkTrips = () => {
                                   <img src={Listtrip} alt="view button" />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Delete" arrow placement="top">
+                              {role !== 'company' && (
+                                <Tooltip title="Delete" arrow placement="top">
                                 <IconButton
                                   onClick={() => setConfirmation(data._id)}
                                 >
                                   <img src={delBtn} alt="delete button" />
                                 </IconButton>
                               </Tooltip>
+                              )}
+                              
 
                             </Box>
                             {confirmation === data._id && (

@@ -374,11 +374,14 @@ const ListOfViewArcheived = () => {
                                   <img src={Listtrip} alt="view button" />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Delete" arrow placement="top">
+                              {role !== 'company' &&(
+                                <Tooltip title="Delete" arrow placement="top">
                                 <IconButton onClick={() => setConfirmation(data._id)}>
                                   <img src={delBtn} alt="Delete" />
                                 </IconButton>
                               </Tooltip>
+                              )}
+                              
                             </Box>
                             {confirmation === data._id && (
                               <DeleteConfirm id={data._id} setconfirmation={setConfirmation} trip="trip" />
