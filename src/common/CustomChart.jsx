@@ -27,7 +27,7 @@ const CustomChart = ({ ...props }) => {
     const resolved = props?.data?.map(item => item.resolved);
     const pending = props?.data?.map(item => item.pending);
     const labels = props?.data?.map(item => item.label);
-    console.log(labels);
+    // console.log(labels);
 
     const data = {
         labels: labels,
