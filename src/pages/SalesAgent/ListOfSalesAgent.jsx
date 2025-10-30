@@ -187,29 +187,44 @@ const ListOfSalesAgent = () => {
         return { result, message };
     };
 
-    const payoutMutation = armedSosPayout(
-        (res) => {
-            const { result, message } = parseXmlResponse(res.data);
+const payoutMutation = armedSosPayout(
+  (res) => {
+    console.log("🔍 payout API raw response:", res.data);
 
-            if (result === "Success") {
-                payoutUpdateMutation.mutate({
-                    user_id: vehicleInfo?.data?.data?.user._id,
-                    type: selectedPayoutType,
-                    amount: PayoutForm.values.amount,
-                });
-                toast.success('Payment successful');
-                closePopup();
-            } else {
-                toast.error(message || 'Payment failed');
-                console.error("Payment Error:", message);
-            }
-        },
+    let result, message;
 
-        (err) => {
-            toast.error('payment failed')
-            console.error("Error!", err);
-        }
-    );
+    // Case 1: XML response
+    if (typeof res.data === "string" && res.data.trim().startsWith("<")) {
+      const parsed = parseXmlResponse(res.data);
+      result = parsed.result;
+      message = parsed.message;
+    }
+    // Case 2: JSON response
+    else if (typeof res.data === "object") {
+      result = res.data?.result || res.data?.status || "Success";
+      message = res.data?.message || res.data?.title || "";
+    }
+
+    if (String(result).toLowerCase() === "success") {
+      payoutUpdateMutation.mutate({
+        user_id: PayoutForm.values.customerCode || "", // safer than vehicleInfo
+        type: selectedPayoutType,
+        amount: PayoutForm.values.amount,
+      });
+      toast.success("Payment successful ✅");
+      closePopup();
+    } else {
+      toast.error(message || "Payment failed ❌");
+      console.error("Payment Error:", message, "Raw result:", result);
+    }
+  },
+  (err) => {
+    toast.error("Payment failed ❌");
+    console.error("Error!", err);
+  }
+);
+
+
 
     const payoutUpdateMutation = payoutUserUpdate(
         (res) => {
@@ -225,22 +240,23 @@ const ListOfSalesAgent = () => {
     };
 
 
-    const handlePopup = (event, type, payoutType) => {
+    const handlePopup = (event, type, payoutType, agent) => {
         event.stopPropagation();
-        PayoutForm.setValues({
-            firstName: agentList?.first_name || "",
-            surname: agentList?.last_name || "",
-            branchCode: agentList?.bankId?.branch_code || "",
-            accountNumber: agentList?.accountNumber || "",
-            customerCode: agentList?.customerCode || "",
-            amount: agentList?.totalUnPaid || 0,
-        });
+        if (agent) {
+            PayoutForm.setValues({
+                firstName: agent.first_name || "",
+                surname: agent.last_name || "",
+                branchCode: agent.bankId?.branch_code || "",
+                accountNumber: agent.accountNumber || "",
+                customerCode: agent._id || "",
+                amount: agent.totalUnPaid || 0,
+            });
+        }
         setPopup(type);
         setSelectedPayoutType(payoutType);
     };
 
-    const closePopup = (event) => {
-        // event.stopPropagation();
+    const closePopup = () => {
         setPopup('')
     }
     const renderPopup = () => {
@@ -493,12 +509,24 @@ const ListOfSalesAgent = () => {
                                                                 >
                                                                     {sharingId === user?._id ? "Sharing..." : "Share"}
                                                                 </span>
-                                                                <span
-                                                                    onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
-                                                                    className="tbl-gray ml-2 cursor-pointer"
-                                                                >
-                                                                    Pay
-                                                                </span>
+                                                                {
+                                                                    (() => {
+                                                                        const unpaid = Number(user.totalUnPaid) || 0;
+                                                                        const MIN_ZAR = 10; // disable pay when unpaid < 10 ZAR
+                                                                        const disabled = unpaid < MIN_ZAR;
+
+                                                                        return (
+                                                                            <span
+                                                                                onClick={!disabled ? (event) => handlePopup(event, 'payout', 'sales_agent', user) : undefined}
+                                                                                className={`tbl-gray ml-2 cursor-pointer${disabled ? ' disabled' : ''}`}
+                                                                                style={disabled ? { pointerEvents: 'none', opacity: 0.5 } : {}}
+                                                                                title={disabled ? `Requires at least R ${MIN_ZAR} unpaid` : 'Pay'}
+                                                                            >
+                                                                                Pay
+                                                                            </span>
+                                                                        );
+                                                                    })()
+                                                                }
                                                                 <span
                                                                     // onClick={() => deleteAgent(user._id)}
                                                                     onClick={() => setconfirmation(user._id)}
