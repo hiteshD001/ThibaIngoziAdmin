@@ -253,11 +253,11 @@ const ListOfUsers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="address"
-                                            active={sortBy === 'address'}
+                                            id="email"
+                                            active={sortBy === 'email'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'address' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'email' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Contact Email
                                         </TableSortLabel>
