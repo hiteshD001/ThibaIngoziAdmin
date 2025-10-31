@@ -662,8 +662,8 @@ const VehicleInformation = () => {
                                     control={
                                         <Checkbox
                                             name="subscription_status"
-                                            checked={driverform.values.subscription_status === 'active'}
-                                            onChange={(e) => driverform.setFieldValue("subscription_status", e.target.checked ? 'active' : 'inactive')}
+                                            checked={driverform.values.isEnroll}
+                                            onChange={(e) => driverform.setFieldValue("isEnroll", e.target.checked ? 'active' : 'inactive')}
                                             icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
                                             checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />} />
                                     }
