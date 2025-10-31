@@ -373,18 +373,13 @@ const ListOfUsers = () => {
 
                                                 <TableCell sx={{ color: "#4B5563" }}>
                                                     <Chip
-                                                        label={user.subscription_status}
+                                                        label={user.isEnroll ? "active" : "inactive"}
                                                         sx={{
-                                                            backgroundColor:
-                                                                user?.subscription_status === 'inactive' ? '#E5565A1A' :
-                                                                    user?.subscription_status === 'active' ? '#DCFCE7' :
-                                                                        '#F3F4F6',
+                                                             backgroundColor: user?.isEnroll ? '#DCFCE7' : '#E5565A1A',
                                                             '& .MuiChip-label': {
                                                                 textTransform: 'capitalize',
                                                                 fontWeight: 500,
-                                                                color: user?.subscription_status === 'inactive' ? '#E5565A' :
-                                                                    user?.subscription_status === 'active' ? '' :
-                                                                        'black',
+                                                                color: user?.isEnroll ? '#15803D' : '#E5565A',
                                                             }
                                                         }}
                                                     />

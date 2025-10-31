@@ -1021,7 +1021,6 @@ const ListOfDrivers = () => {
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
                                             IconComponent={() => <img src={sortBy === 'subscription_start_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-
                                         >
                                             Tag Connection
                                         </TableSortLabel>
@@ -1086,18 +1085,13 @@ const ListOfDrivers = () => {
 
                                                 <TableCell sx={{ color: "#4B5563" }}>
                                                     <Chip
-                                                        label={driver.subscription_status}
+                                                        label={driver.isEnroll ? "active" : "inactive"}
                                                         sx={{
-                                                            backgroundColor:
-                                                                driver?.subscription_status === 'inactive' ? '#E5565A1A' :
-                                                                    driver?.subscription_status === 'active' ? '#DCFCE7' :
-                                                                        '#F3F4F6',
+                                                             backgroundColor: driver?.isEnroll ? '#DCFCE7' : '#E5565A1A',
                                                             '& .MuiChip-label': {
                                                                 textTransform: 'capitalize',
                                                                 fontWeight: 500,
-                                                                color: driver?.subscription_status === 'inactive' ? '#E5565A' :
-                                                                    driver?.subscription_status === 'active' ? '' :
-                                                                        'black',
+                                                                color: driver?.isEnroll ? '#15803D' : '#E5565A',
                                                             }
                                                         }}
                                                     />
