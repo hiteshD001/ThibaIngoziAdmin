@@ -1396,7 +1396,9 @@ const VehicleInformation = () => {
                                                             maxHeight: 200,
                                                             maxWidth: '100%',
                                                             borderRadius: 4,
+                                                            cursor : 'pointer'
                                                         }}
+                                                        onClick={() => handleImageClick(vehicleForm.values.images[index], item.label)}
                                                     />
                                                 ) : (
                                                     <Box textAlign="center">
