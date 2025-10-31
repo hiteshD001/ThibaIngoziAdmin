@@ -21,79 +21,101 @@ ChartJS.register(
     Legend
 );
 
+
+
 const CustomChart = ({ ...props }) => {
+    const resolved = props?.data?.map(item => item.resolved);
+    const pending = props?.data?.map(item => item.pending);
+    const labels = props?.data?.map(item => item.label);
+    // console.log(labels);
+
     const data = {
-        labels: props && props.data ? props.data.map(item => item.label) :["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        labels: labels,
+
         datasets: [
             {
-                label: "Month",
-                borderColor: "#A8C5DA",
-                pointBorderColor: "#A8C5DA",
-                pointBackgroundColor: "#A8C5DA",
-                pointHoverBackgroundColor: "#A8C5DA",
-                pointHoverBorderColor: "#A8C5DA",
-                pointBorderWidth: 1,
-                pointHoverRadius: 1,
-                pointHoverBorderWidth: 1,
-                pointRadius: 3,
+                label: "Resolved",
+                data: resolved,
+                borderColor: "#367BE0",
+                backgroundColor: "#367BE0",
+                pointBorderColor: "#367BE0",
+                pointBackgroundColor: "#367BE0",
                 fill: false,
-                borderWidth: 4,
-                tension: 0.3,
-                // eslint-disable-next-line react/prop-types
-                data: props && props.data ? props.data.map(item => item.count) : props.data,
+                borderWidth: 3,
+                tension: 0,
+                pointRadius: 4,
             },
-            // {
-            //     label: "Year",
-            //     borderColor: "#1C1C1C",
-            //     pointBorderColor: "#1C1C1C",
-            //     pointBackgroundColor: "#1C1C1C",
-            //     pointHoverBackgroundColor: "#1C1C1C",
-            //     pointHoverBorderColor: "#1C1C1C",
-            //     pointBorderWidth: 1,
-            //     pointHoverRadius: 1,
-            //     pointHoverBorderWidth: 1,
-            //     pointRadius: 3,
-            //     fill: false,
-            //     borderWidth: 4,
-            //     tension: 0.3,
-            //     data: props.data2
-            // },
+            {
+                label: "Pending",
+                data: pending,
+                borderColor: "#F97316",
+                backgroundColor: "#F97316",
+                pointBorderColor: "#F97316",
+                pointBackgroundColor: "#F97316",
+                fill: false,
+                borderWidth: 3,
+                tension: 0,
+                pointRadius: 4,
+            }
         ],
     };
 
     const options = {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
-                position: "top",
+                position: "bottom",
+                labels: {
+                    boxWidth: 8,
+                    boxHeight: 8,
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                    padding: 20,
+                    color: "#374151",
+                    font: {
+                        size: 14,
+                        family: 'Arial',
+                        weight: '500',
+                    }
+                }
             },
         },
         scales: {
             y: {
                 beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Number of Alerts',
+                    color: '#111',
+                    font: {
+                        size: 14,
+                    }
+                },
                 ticks: {
-                    fontColor: "rgba(0,0,0,0.5)",
-                    fontStyle: "bold",
-                    beginAtZero: true,
-                    stepSize: 10,
-                    padding: 20,
+                    color: "rgba(0,0,0,0.7)",
+                    stepSize: 1,
+                    padding: 10,
                 },
                 grid: {
-                    drawTicks: false,
-                    display: false,
-                },
+                    display: true,
+                    drawBorder: false,
+                    drawOnChartArea: true,
+                    drawTicks: true,
+                    color: "#E5E7EB"
+                }
             },
             x: {
                 grid: {
-                    zeroLineColor: "transparent",
+                    display: false
                 },
                 ticks: {
-                    padding: 20,
-                    fontColor: "rgba(0,0,0,0.5)",
-                    fontStyle: "bold",
-                },
-            },
-        },
+                    color: "#4B5563"
+                }
+            }
+        }
     };
+
 
     return <Line data={data} options={options} />;
 };

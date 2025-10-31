@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useGetCompanyList, useChangePassword } from "../API Calls/API";
-
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 
 import { useFormik } from "formik";
 import { changePasswordValidation } from "../common/FormValidation";
-
+import CustomSelect from "../common/Custom/CustomSelect";
 import "../css/reset-password.css";
+import { BootstrapInput } from "../common/BootstrapInput";
+import { Box, Paper, Grid, FormControl, InputLabel, IconButton, Button, Typography } from "@mui/material";
 
 const ChangePassword = () => {
-    const [showpass, setshowpass] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const [showconfirmpass, setshowconfirmpass] = useState(false);
     const [p] = useSearchParams()
     const [resetSuccessful, setResetSuccessful] = useState(false);
@@ -47,64 +49,112 @@ const ChangePassword = () => {
     );
 
     return (
-        <div className="reset-container changePass-container">
-            <div className="wrapper">
-                <h2>Change Password</h2>
-                <form className="form" onSubmit={changePasswordForm.handleSubmit}>
-                    <span style={{ marginBottom: '5px', marginLeft: '6px' }}>
-                        <select
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '90vh' }}>
+            <Paper
+                elevation={3}
+                sx={{ backgroundColor: "rgb(253, 253, 253)", p: 4, maxWidth: 500, borderRadius: "10px" }}
+            >
+                <Grid container spacing={3}>
+                    <Grid size={12}>
+                        <Typography textAlign={'center'} variant="h6" fontWeight={550} color="initial">
+                            Change Password
+                        </Typography>
+                    </Grid>
+                    <Grid size={{ xs: 12 }}>
+                        <CustomSelect
+                            label="Select Company"
                             name="company_id"
-                            className="form-control"
                             value={changePasswordForm.values.company_id}
                             onChange={changePasswordForm.handleChange}
-                            required
-                            style={{ paddingBlock: '10px' }}
-                        >
-                            <option value="">Select Company</option>
-                            {companyList.data?.data.users.map((user) => (
-                                <option key={user._id} value={user._id}>
-                                    {user.company_name}
-                                </option>
-                            ))}
-                        </select>
-                        {changePasswordForm.touched.company_id && <p className="err">{changePasswordForm.errors.company_id}</p>}
-                    </span>
-                    <span>
-                        <input
-                            name="newPassword"
-                            type={showpass ? "text" : "password"}
-                            placeholder="New Password"
-                            value={changePasswordForm.values.newPassword}
-                            onChange={changePasswordForm.handleChange}
+                            options={companyList.data?.data.users.map(user => ({
+                                value: user._id,
+                                label: user.company_name
+                            })) || []}
+                            error={changePasswordForm.errors.company_id}
+                            helperText={changePasswordForm.errors.company_id}
                         />
-                        <i
-                            onClick={() => setshowpass(!showpass)}
-                            className={`fa ${showpass ? "fa-eye" : "fa-eye-slash"} showpass-icon`}
-                        />
-                        {changePasswordForm.touched.newPassword && <p className="err">{changePasswordForm.errors.newPassword}</p>}
-                    </span>
-                    <span>
-                        <input
-                            name="confirmPassword"
-                            type={showconfirmpass ? "text" : "password"}
-                            placeholder="Confirm new password"
-                            value={changePasswordForm.values.confirmPassword}
-                            onChange={changePasswordForm.handleChange}
-                        />
-                        <i
-                            onClick={() => setshowconfirmpass(!showconfirmpass)}
-                            className={`fa ${showconfirmpass ? "fa-eye" : "fa-eye-slash"} showpass-icon`}
-                        />
-                        {changePasswordForm.touched.confirmPassword && <p className="err">{changePasswordForm.errors.confirmPassword}</p>}
-                    </span>
-                    <button disabled={changePassword.isPending} className={`button ${changePassword.isPending && "load"}`} type="submit">
-                        Submit
-                    </button>
-                </form>
+                    </Grid>
+                    <Grid size={{ xs: 12 }}>
+                        <FormControl variant="standard" fullWidth sx={{ position: 'relative' }}>
+                            <InputLabel shrink htmlFor="newPassword" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                New Password
+                            </InputLabel>
 
-                {/* <footer>© 2025 Thiba Ingozi</footer> */}
-            </div>
-        </div>
+                            <BootstrapInput
+                                id="newPassword"
+                                name="newPassword"
+                                placeholder="Enter New Password"
+                                type={showPassword ? "text" : "password"}
+                                value={changePasswordForm.values.newPassword}
+                                onChange={changePasswordForm.handleChange}
+                                style={{ paddingRight: 0 }}
+                            />
+                            <IconButton
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: 'absolute',
+                                    right: 8,
+                                    top: '70%',
+                                    transform: 'translateY(-50%)',
+                                    padding: 0,
+                                    zIndex: 2
+                                }}
+                                tabIndex={-1}
+                            >
+                                {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                            </IconButton>
+
+                            {changePasswordForm.touched.password && <div style={{ color: 'red', fontSize: 12 }}>{changePasswordForm.errors.password}</div>}
+                        </FormControl>
+                    </Grid>
+                    <Grid size={{ xs: 12 }}>
+                        <FormControl variant="standard" fullWidth sx={{ position: 'relative' }}>
+                            <InputLabel shrink htmlFor="confirmPassword" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                Confirm Password
+                            </InputLabel>
+
+                            <BootstrapInput
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                placeholder="Confirm new password"
+                                type={showconfirmpass ? "text" : "password"}
+                                value={changePasswordForm.values.confirmPassword}
+                                onChange={changePasswordForm.handleChange}
+                                style={{ paddingRight: 0 }}
+                            />
+                            <IconButton
+                                onClick={() => setshowconfirmpass(!showconfirmpass)}
+                                style={{
+                                    position: 'absolute',
+                                    right: 8,
+                                    top: '70%',
+                                    transform: 'translateY(-50%)',
+                                    padding: 0,
+                                    zIndex: 2
+                                }}
+                                tabIndex={-1}
+                            >
+                                {showconfirmpass ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                            </IconButton>
+
+                            {changePasswordForm.touched.password && <div style={{ color: 'red', fontSize: 12 }}>{changePasswordForm.errors.password}</div>}
+                        </FormControl>
+                    </Grid>
+
+                    <Grid size={12}>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={changePassword.isPending}
+                            sx={{ width: '100%', height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                        >
+                            {changePassword.isPending ? <Loader color="white" /> : "Submit"}
+                        </Button>
+                    </Grid>
+                </Grid>
+            </Paper>
+        </Box>
+
     );
 };
 

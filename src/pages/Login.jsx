@@ -1,11 +1,5 @@
-import log_1 from "../assets/images/logo-1.png";
-import {
-    FormControl,
-    FormLabel,
-    RadioGroup,
-    FormControlLabel,
-    Radio
-} from "@mui/material";
+import logo3 from "../assets/images/logo3.svg";
+
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { loginValidation_salesAgent } from "../common/FormValidation";
@@ -28,18 +22,10 @@ export const Login = () => {
         initialValues: {
             email: "",
             password: "",
-            fcm_token: "fcm_token",
-            role: "sales_agent",
         },
         validationSchema: loginValidation_salesAgent,
         onSubmit: (values) => {
-            let payload = { ...values };
-
-            // ❌ remove role if not sales_agent
-            if (values.role !== "sales_agent") {
-                delete payload.role;
-            }
-            loginfn.mutate(payload);
+            loginfn.mutate(values);
         },
     });
 
@@ -53,12 +39,13 @@ export const Login = () => {
         localStorage.setItem('currentlat', res.data.user.current_lat)
         localStorage.setItem('currentlong', res.data.user.current_long)
         localStorage.setItem("userID", res.data.user._id);
-        res.data.user.role ? localStorage.setItem("role", res.data.user.role) : localStorage.setItem('role', 'sales_agent');
-        if(res.data.user.role){
-            nav("/home");
-        } else {
-           nav('/sales-home') 
-        }
+        localStorage.setItem("userName", res.data.user.first_name + " " + res.data.user.last_name);
+        localStorage.setItem("role", res.data.user.role);
+        localStorage.setItem("selfiImage", res.data.user.selfieImage);
+        localStorage.setItem("contact_name", res.data.user.contact_name);
+
+
+        nav("/home");
     };
 
     const loginfn = useUserLogin(onSuccess, onError);
@@ -67,51 +54,44 @@ export const Login = () => {
         <div className="login-page">
             <div className="container">
                 <div className="row">
-                    <div className="col-lg-8 col-md-10 offset-lg-2 offset-md-1">
-                        <div className="login-box">
+                    <div className="col-md-12  d-flex justify-content-center align-items-center">
+                        <div className="login-box shadow p-4 rounded bg-white col-sm-12 col-md-8 col-lg-5">
                             <div className="login-logo">
-                                <img src={log_1} alt="logo" />
+                                <img src={logo3} alt="logo" />
                             </div>
-                            <h1 className="text-center">Sign In</h1>
+                            <h6 className="text-center  mb-4"
+                                style={{ color: "#4B5563", fontWeight: 400 }}>Log in to stay safe and connected</h6>
                             <form onSubmit={loginForm.handleSubmit}>
-                                <FormControl component="fieldset" className="my-3">
-                                    <FormLabel component="legend">Select Role</FormLabel>
-                                    <RadioGroup
-                                        row
-                                        name="role"
-                                        value={loginForm.values.role}
+                                <div className="mb-0">
+                                    <label htmlFor="email" style={{ paddingLeft: '5px', fontWeight: 500 }} className="form-label text-dark">
+                                        Email or Username
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="email"
+                                        name="email"
+                                        value={loginForm.values.email}
                                         onChange={loginForm.handleChange}
-                                    >
-                                        <FormControlLabel
-                                            value="sales_agent"
-                                            control={<Radio />}
-                                            label="Sales Agent"
-                                        />
-                                        <FormControlLabel
-                                            value="super_admin"
-                                            control={<Radio />}
-                                            label="Super Admin / Company Admin"
-                                        />
-                                    </RadioGroup>
-                                </FormControl>
-                                <input
-                                    type="text"
-                                    name="email"
-                                    value={loginForm.values.email}
-                                    onChange={loginForm.handleChange}
-                                    className="form-control"
-                                    placeholder="Email"
-                                />
-                                {loginForm.touched.email && <p className="err">{loginForm.errors.email}</p>}
+                                        className="form-control placeholder-gray"
+                                        placeholder="Enter your email or username"
+                                    />
+
+                                    {loginForm.touched.email && (
+                                        <p className="err">{loginForm.errors.email}</p>
+                                    )}
+                                </div>
 
                                 <div className="password-field">
+                                    <label htmlFor="password" style={{ paddingLeft: '5px', fontWeight: 500 }} className="form-label text-dark">
+                                        Password
+                                    </label>
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         name="password"
                                         value={loginForm.values.password}
                                         onChange={loginForm.handleChange}
-                                        className="form-control"
-                                        placeholder="Password"
+                                        className="form-control placeholder-gray"
+                                        placeholder="Enter your password"
                                     />
                                     <span onClick={togglePasswordVisibility} className="password-toggle-icon">
                                         {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -119,15 +99,19 @@ export const Login = () => {
                                 </div>
                                 {loginForm.touched.password && <p className="err">{loginForm.errors.password}</p>}
 
-                                {/* <div className="forgotpwd text-end">
+                                <div className="forgotpwd text-end">
                                     <a href="#">Forgot Password?</a>
-                                </div> */}
+                                </div>
 
-
-
-                                <button disabled={loginfn.isPending} type="submit" className="btn btn-dark d-block">
-                                    {loginfn.isPending ? <Loader color="white" /> : "Sign In"}
+                                <button
+                                    disabled={loginfn.isPending}
+                                    type="submit"
+                                    className="btn btn-primary d-block w-100"
+                                    style={{ backgroundColor: '#367BE0', fontWeight: 700 }}
+                                >
+                                    {loginfn.isPending ? <Loader color="white" /> : "Log In"}
                                 </button>
+
 
                                 {/* <div className="keep-signed">
                                     <input type="checkbox" id="signin" />
@@ -136,11 +120,11 @@ export const Login = () => {
                             </form>
                         </div>
                     </div>
-                    <div className="col-md-12 text-center">
+                    {/* <div className="col-md-12 text-center">
                         <div className="copyright">
                             <p>&copy; 2025 Thiba Ingozi</p>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>

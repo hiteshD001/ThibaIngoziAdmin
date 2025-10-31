@@ -15,7 +15,11 @@ export const useGetUserList = (
     page,
     limit,
     filter,
-    notification_type
+    notification_type,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder
 ) => {
     const nav = useNavigate();
 
@@ -28,6 +32,10 @@ export const useGetUserList = (
                 filter,
                 company_id,
                 notification_type,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder
             },
         });
     };
@@ -41,9 +49,12 @@ export const useGetUserList = (
             limit,
             filter,
             notification_type,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder
         ],
         queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
         placeholderData: keepPreviousData,
         retry: false,
     });
@@ -238,7 +249,46 @@ export const useGetArmedSoS = () => {
     return res;
 };
 
+// vehicle update id
+export const useUpdateVehicle = (onSucess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/vehicle/${id}`,
+            data
+        );
+    };
+
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+
+    return res;
+}
+// vehicle type
+export const useGetVehicleTypeList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/vehicleType`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ['vehicleType'],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+}
+
 // armed sos amount
+
 export const useCreateSosAmount = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(
@@ -346,20 +396,24 @@ export const useDeleteSosAmount = (onSuccess, onError) => {
     return mutation
 }
 
+
+
 // trip
-export const useGetTripList = (key, page = 1, limit = 10, filter) => {
+export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, sortBy, sortOrder,companyId) => {
     const nav = useNavigate();
+    
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userTrip`, {
-            params: { page, limit, filter },
+            params: {
+                page, limit, filter, startDate, endDate, archived, sortBy, sortOrder,companyId
+            },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter],
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder,companyId],
         queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
         retry: false,
     });
 
@@ -369,6 +423,18 @@ export const useGetTripList = (key, page = 1, limit = 10, filter) => {
     }
     return res;
 };
+
+export const usePutUserTrip = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/userTrip/${id}`, data)
+    }
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    })
+    return mutation
+}
 
 export const useDeleteUserTrip = (onSuccess, onError) => {
     const mutationFn = async (id) => {
@@ -387,19 +453,18 @@ export const useDeleteUserTrip = (onSuccess, onError) => {
 };
 
 //meetingLink trip
-export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter) => {
+export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, sortBy, sortOrder,companyId) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userMeetingTrip`, {
-            params: { page, limit, filter },
+            params: { page, limit, filter, startDate, endDate, archived, sortBy, sortOrder,companyId },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter],
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder,companyId],
         queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
         retry: false,
     });
 
@@ -409,6 +474,18 @@ export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter) => 
     }
     return res;
 };
+
+export const useUpdateUserMeetingTripTrip = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/userMeetingTrip/${id}`, data)
+    }
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    })
+    return mutation
+}
 
 export const useDeleteUserMeetingTripTrip = (onSuccess, onError) => {
     const mutationFn = async (id) => {
@@ -426,6 +503,238 @@ export const useDeleteUserMeetingTripTrip = (onSuccess, onError) => {
     return mutation;
 };
 
+// missing person
+
+export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson`, {
+            params: { page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder],
+        queryFn: queryFn,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetMissingPersonById = (key, id) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson/${id}`);
+    };
+
+    const res = useQuery({
+        queryKey: [key, id],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useDeleteMissingPerson = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/missingPerson/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const usePatchArchivedMissingPerson = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        console.log(data)
+        return await apiClient.patch(
+            `${import.meta.env.VITE_BASEURL}/missingPerson/archive/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const usePatchUnArchivedMissingPerson = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        console.log(data)
+        return await apiClient.patch(
+            `${import.meta.env.VITE_BASEURL}/missingPerson/unarchive/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const usePutMissingPerson = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/missingPerson/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+// missing vehicale
+
+export const useGetMissingVehicaleList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingVehicle`, {
+            params: { page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder],
+        queryFn: queryFn,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const usePatchArchivedMissingVehicale = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        console.log(data)
+        return await apiClient.patch(
+            `${import.meta.env.VITE_BASEURL}/missingVehicle/archive/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const usePatchUnArchivedMissingVehicale = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        console.log(data)
+        return await apiClient.patch(
+            `${import.meta.env.VITE_BASEURL}/missingVehicle/unarchive/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useDeleteMissingVehicale = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/missingVehicle/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useDeleteMissingVehicaleById = (key, id) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingVehicle/${id}`);
+    };
+
+    const res = useQuery({
+        queryKey: [key, id],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const usePutMissingVehicale = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/missingVehicle/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+
+
+
+
 // get list of Province
 export const useGetProvinceList = (id) => {
     const queryFn = async (queryId) => {
@@ -436,6 +745,25 @@ export const useGetProvinceList = (id) => {
 
     const res = useQuery({
         queryKey: ["Province List", id],
+        queryFn: () => queryFn(id),
+        staleTime: 15 * 60 * 1000,
+        enabled: Boolean(id),
+        retry: false,
+    });
+
+    return res;
+};
+
+// get list of city
+export const useGetCityList = (id) => {
+    const queryFn = async (queryId) => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/city?province_id=${queryId}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["City List", id],
         queryFn: () => queryFn(id),
         staleTime: 15 * 60 * 1000,
         enabled: Boolean(id),
@@ -510,126 +838,21 @@ export const useGetUser = (userId) => {
     return res;
 };
 
-// get all sales agent
-export const useGetSalesAgent = (page = 1, limit = 10, filter, startDate, endDate) => {
-    const navigate = useNavigate();
-    const res = useQuery({
-        queryKey: ['salesAgent', page, limit, filter, startDate, endDate],
-        queryFn: async () =>
-            apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer`, {
-                params: { page, limit, filter, startDate, endDate }
-            }),
-        staleTime: 15 * 60 * 1000,
-        retry: false,
-        onError: (error) => {
-            console.log(error)
-        },
-    });
-    return res;
-};
-// add sales agent
-export const useCreateSalesAgent = (onSuccess, onError) => {
-    const mutationFn = async (data) => {
-
-        return await apiClient.post(
-            `${import.meta.env.VITE_BASEURL}/influencer`,
-            JSON.stringify(data),  
-            {
-                headers: {
-                    "Content-Type": "application/json",  
-                },
-            }
-        );
-    };
-
-    const mutation = useMutation({
-        mutationFn,
-        onSuccess,
-        onError,
-    });
-
-    return mutation;
-};
-
-
-
-
-
-// get sales agent by id 
-export const useGetAgent = (id) => {
-    const res = useQuery({
-        queryKey: ['agent', id],
-        queryFn: async () =>
-            apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer/byId/${id}`),
-        staleTime: Infinity,
-        enabled: id !== undefined,
-        onError: (error) => {
-            console.log(error)
-        },
-    });
-    return res;
-};
-// update sales agent by id
-export const useUpdateSalesAgent = (onSucess, onError) => {
-    const mutationFn = async ({ id, data }) => {
-        return await apiClient.put(
-            `${import.meta.env.VITE_BASEURL}/influencer/updateById/${id}`,
-            data
-        );
-    };
-    const res = useMutation({
-        mutationFn: mutationFn,
-        onSuccess: () => onSucess(),
-        onError: (err) => onError(err),
-    });
-    return res;
-};
-
-// sales agent delete by id
-
-// sales agent delete by id
-export const useDeleteSalesAgent = (onSuccess, onError) => {
-
-    const mutationFn = async (id) => {
-        return await apiClient.delete(
-            `${import.meta.env.VITE_BASEURL}/influencer/deleteById/${id}`
-        );
-    };
-
-    const mutation = useMutation({
-        mutationFn,
-        onSuccess,
-        onError,
-    });
-
-    return mutation;
-};
-
-// sales agent details share 
-export const useShareAgent = (onSuccess, onError) => {
-    return useMutation({
-        mutationFn: async ({ id, email }) => {
-            const { data } = await apiClient.post(
-                `${import.meta.env.VITE_BASEURL}/influencer/share/details/${id}`, { email }
-            );
-            return data;
-        },
-        onSuccess,
-        onError,
-    });
-};
 // recent driver list
-export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
+
+export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, searchKey, type, sortBy, sortOrder) => {
     const queryFn = async () => {
-        return await apiClient.get(
-            `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations?page=${page}&limit=${limit}`
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`, {
+            page, limit, startDate, endDate, searchKey, type: type === 'all' ? "" : type, sortBy, sortOrder
+        }
         );
     };
 
     const res = useQuery({
-        queryKey: ["recentSOS", page, limit],
+        queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder],
         queryFn: queryFn,
-        staleTime: 15 * 60 * 1000,
+        keepPreviousData: true,
     });
 
     return res;
@@ -638,24 +861,24 @@ export const useGetRecentSOS = ({ page = 1, limit = 20 }) => {
 // bulk upload sales agent using excel file
 export const useBulkUploadSalesAgent = (onSuccess, onError) => {
     return useMutation({
-      mutationFn: async (data) => {
-        try {
-          const res = await apiClient.post(
-            `${import.meta.env.VITE_BASEURL}/influencer/bulk-upload`,
-            data
-          );
-  
-          return res.data;
-        } catch (error) {
-          console.error("Upload error details:", error.response?.data || error);
-          throw error;
-        }
-      },
-      onSuccess,
-      onError,
+        mutationFn: async (data) => {
+            try {
+                const res = await apiClient.post(
+                    `${import.meta.env.VITE_BASEURL}/influencer/bulk-upload`,
+                    data
+                );
+
+                return res.data;
+            } catch (error) {
+                console.error("Upload error details:", error.response?.data || error);
+                throw error;
+            }
+        },
+        onSuccess,
+        onError,
     });
-  };
-  
+};
+
 
 
 
@@ -679,19 +902,15 @@ export const useGetActiveSOS = () => {
 
 
 // get chart data
-export const useGetChartData = (company_id, time, notificationType) => {
-    const [chartData, setChartData] = useState(new Array(12).fill(0));
-
+export const useGetChartData = (company_id, time, startDate, endDate, notificationType) => {
     const queryFn = async () => {
-        const currentYear = new Date().getFullYear();
-        const startDate = `${currentYear}-01-01`;
-        const endDate = `${currentYear}-12-31`;
-
         const params = {
-            start_date: startDate,
             time,
-            end_date: endDate,
+            startDate,
+            endDate,
+            showStatus: true
         };
+
 
         if (notificationType) {
             params.type = notificationType === "all" ? "" : notificationType;
@@ -709,7 +928,7 @@ export const useGetChartData = (company_id, time, notificationType) => {
     };
 
     const res = useQuery({
-        queryKey: ["chartData", notificationType, company_id, time], // Re-fetch when notificationType changes
+        queryKey: ["chartData", notificationType, company_id, time, startDate, endDate], // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -724,65 +943,36 @@ export const useGetChartData = (company_id, time, notificationType) => {
     //     }
     // }, [res.data]);
 
-    return res.data?.data;
+    return res;
 };
 
 // get active sos 
-export const useGetActiveSosData = () => {
+
+export const useGetActiveSosData = (page = 1, limit = 10, startDate, endDate, searchKey, type, sortBy, sortOrder) => {
+
     const queryFn = async () => {
-        return await apiClient.get(
-            `${import.meta.env.VITE_BASEURL}/location/active/sos/data`
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/location/active/sos/data`, {
+            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder
+        }
         );
     };
 
     const res = useQuery({
-        queryKey: [],
-        queryFn: queryFn,
-        refetchInterval: 1000,
-        staleTime: 15 * 60 * 1000,
-    });
-
-    return res.data?.data?.data;
-}
-// get active armed sos 
-export const useGetActiveArmedData = () => {
-    const queryFn = async () => {
-        return await apiClient.get(
-            `${import.meta.env.VITE_BASEURL}/location/active/armed/data`
-        );
-    };
-
-    const res = useQuery({
-        queryKey: ['armedSos'],
-        queryFn: queryFn,
-        refetchInterval: 1000,
-        staleTime: 15 * 60 * 1000,
-    });
-
-    return res.data;
-}
-// get recent armed sos
-export const useGetRecentArmedSOS = (page = 1, limit = 20) => {
-    const queryFn = async () => {
-        return await apiClient.get(
-            `${import.meta.env.VITE_BASEURL}/location/recentClose/armed/data?page=${page}&limit=${limit}`
-        );
-    };
-
-    const res = useQuery({
-        queryKey: ["recentArmedSos", page, limit],
+        queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
 
     return res;
-};
+}
+
 // get hotspot
-export const useGetHotspot = (type, company_id, notificationType) => {
+
+export const useGetHotspot = (startDate, endDate, company_id, notificationType) => {
     const params = {};
-    if (type) {
-        params.type = type;
-    }
+    params.startDate = startDate;
+    params.endDate = endDate
     if (notificationType) {
         params.notificationType = notificationType === "all" ? "" : notificationType;
     }
@@ -799,7 +989,7 @@ export const useGetHotspot = (type, company_id, notificationType) => {
     };
 
     const res = useQuery({
-        queryKey: ["hotspot", type, notificationType], // Add notificationType to the query key
+        queryKey: ["hotspot", startDate, endDate, company_id, notificationType], // Add notificationType to the query key
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         placeholderData: [],
@@ -1109,3 +1299,109 @@ export const useChangePassword = (onSuccess, onError) => {
 
     return mutation;
 }
+
+
+// Export Dashboard
+export const fetchActiveSosData = async ({
+    startDate,
+    endDate,
+    searchKey = "",
+    type = "all",
+    page = 1,
+    limit = 100000
+}) => {
+    try {
+        const response = await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/location/active/sos/data`,
+            {
+                startDate,
+                endDate,
+                searchKey,
+                type: type === "all" ? "" : type,
+                page,
+                limit
+            }
+        );
+        return response.data?.data || []; // return array of SOS records
+    } catch (error) {
+        console.error("Error fetching Active SOS data:", error);
+        return [];
+    }
+};
+
+// Fetch filtered Recent SOS data
+export const fetchRecentSosData = async ({
+    startDate,
+    endDate,
+    searchKey = "",
+    type = "all",
+    page = 1,
+    limit = 100000
+}) => {
+    try {
+        console.log(type);
+        const response = await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`,
+            {
+                startDate,
+                endDate,
+                searchKey,
+                type: type === "all" ? "" : type,
+                page,
+                limit
+            }
+        );
+        return response?.data || []; // return array of SOS records
+    } catch (error) {
+        console.error("Error fetching Recent SOS data:", error);
+        return [];
+    }
+};
+
+export const fetchHotspot = async ({
+    startDate,
+    endDate,
+    type = "all",
+    province = "all"
+}) => {
+    try {
+        const params = {};
+        params.startDate = startDate;
+        params.endDate = endDate
+        if (type) {
+            params.notificationType = type === "all" ? "" : type;
+        }
+        if (province) {
+            params.province = province === "all" ? "" : province;
+        }
+        const response = await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/hotspot`,
+            {
+                params
+            }
+        );
+        return response?.data || []; // return array of SOS records
+    } catch (error) {
+        console.error("Error fetching Recent SOS data:", error);
+        return [];
+    }
+};
+
+// get list of Province
+export const fetchProvince = () => {
+    const queryFn = async () => {
+      const res = await apiClient.get(`${import.meta.env.VITE_BASEURL}/province`);
+      return res.data; // ✅ usually you'd want only the response data
+    };
+  
+    const res = useQuery({
+      queryKey: ["Province List"],
+      queryFn,
+      staleTime: 15 * 60 * 1000, // 15 minutes
+      enabled: true, // ✅ use true to allow fetching; Boolean() is always false
+      retry: false,
+    });
+  
+    return res;
+};
+  

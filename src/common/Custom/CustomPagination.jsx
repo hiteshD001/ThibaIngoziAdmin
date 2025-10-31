@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Prev from "../assets/images/left.png";
-import Next from "../assets/images/right.png";
+import Prev from "../../assets/images/left.png";
+import Next from "../../assets/images/right.png";
 const CustomPagination = ({
     page,
     setPage,
@@ -72,7 +72,6 @@ const styles = {
     select: {
         padding: "4px 8px",
         borderRadius: "4px",
-        backgroundColor: "#f9f9f9",
         border: 'none'
     },
     total: {
@@ -89,7 +88,7 @@ const styles = {
         padding: "4px 10px",
         // borderRadius: "4px",
         border: "none",
-        backgroundColor: "#f9f9f9",
+        backgroundColor: "white",
         cursor: "pointer",
     },
     navIcon: {

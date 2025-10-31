@@ -1,244 +1,505 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
-import { useGetUser, useGetUserList, useUpdateUser } from "../API Calls/API";
-import { useQueryClient } from "@tanstack/react-query"
-import Prev from "../assets/images/left.png";
-import Next from "../assets/images/right.png";
-import nouser from "../assets/images/NoUser.png";
-import search from "../assets/images/search.png";
-import icon from "../assets/images/icon.png";
-import apiClient from "../API Calls/APIClient";
-import * as XLSX from 'xlsx';
-import 'jspdf-autotable';
-import { toast } from "react-toastify";
+import {
+    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
+    Tooltip,
+    TableSortLabel,
+    Chip,
+} from "@mui/material";
+import plus from '../assets/images/plus.svg'
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import search from '../assets/images/search.svg';
+import whiteplus from '../assets/images/whiteplus.svg';
+import { useGetUser, useGetUserList } from "../API Calls/API";
 import Loader from "../common/Loader";
+import ViewBtn from '../assets/images/ViewBtn.svg'
+import delBtn from '../assets/images/delBtn.svg'
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
+import nouser from "../assets/images/NoUser.png";
+import CustomExportMenu from '../common/Custom/CustomExport'
+import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
+import calender from '../assets/images/calender.svg';
+import jsPDF from 'jspdf';
+import { autoTable } from 'jspdf-autotable'
+import * as XLSX from 'xlsx';
+import { toast } from "react-toastify";
+import apiClient from '../API Calls/APIClient'
+import { startOfYear } from "date-fns";
+import arrowup from '../assets/images/arrowup.svg';
+import arrowdown from '../assets/images/arrowdown.svg';
+import arrownuteral from '../assets/images/arrownuteral.svg';
+
 
 const ListOfUsers = () => {
-    const [popup, setpopup] = useState(false)
+    const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const [page, setpage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
-    let companyId = localStorage.getItem('userID')
+    let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;
+    const [range, setRange] = useState([
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+    const startDate = range[0].startDate.toISOString();
+    const endDate = range[0].endDate.toISOString();
 
-    const notification_type = "677534649c3a99e13dcd7456"
-    const UserList = useGetUserList("user list", "passanger", paramId, page, 10, filter)
+    // Sort 1
+    const [sortBy, setSortBy] = useState("first_name");
+    const [sortOrder, setSortOrder] = useState("asc");
 
-    const fetchAllUsers = async () => {
+    const changeSortOrder = (e) => {
+        const field = e.target.id;
+        if (field !== sortBy) {
+            setSortBy(field);
+            setSortOrder("asc");
+        } else {
+            setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+        }
+    }
+
+    const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, filter, "", startDate, endDate, sortBy, sortOrder);
+    const totalUsers = UserList.data?.data?.totalUsers || 0;
+    const totalPages = Math.ceil(totalUsers / rowsPerPage);
+
+    let loginUser = useGetUser(localStorage.getItem("userID"));
+    loginUser = loginUser?.data?.data?.user;
+    const handleExport = async ({ startDate, endDate, exportFormat }) => {
+        let format = exportFormat;
         try {
-            const response = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
                 params: {
                     role: "passanger",
                     page: 1,
                     limit: 10000,
-                    filter,
+                    filter: "",
                     company_id: paramId,
+                    startDate,
+                    endDate,
                 },
             });
-            return response?.data?.users || [];
-        } catch (error) {
-            console.error("Error fetching all User data for export:", error);
-            toast.error("Failed to fetch User data.");
-            return [];
+
+            const allUsers = data?.users || [];
+            if (!allUsers.length) {
+                toast.warning("No User data found for this period.");
+                return;
+            }
+
+            const exportData = allUsers.map(user => ({
+                "User": `${user.first_name || ''} ${user.last_name || ''}` || '',
+                "Company Name": user.company_name || '',
+                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+                "Contact Email": user.email || ''
+            }));
+            const exportedByValue = loginUser.role === 'company' ? loginUser.company_name : 'Super Admin';
+            if (format === "xlsx") {
+                const workbook = XLSX.utils.book_new();
+
+                // Add "Exported By" header row
+                const headerRow = [["Exported By", exportedByValue], []]; // blank row after header
+
+                // Prepare sheet data with header
+                const worksheetData = [
+                    ...headerRow,
+                    Object.keys(exportData[0] || {}),
+                    ...exportData.map(obj => Object.values(obj))
+                ];
+
+                const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+                // Auto-fit column widths
+                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+                }));
+                worksheet['!cols'] = columnWidths;
+
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+                XLSX.writeFile(workbook, "User_List.xlsx");
+            }
+
+            else if (format === "csv") {
+                // Add "Exported By" header to CSV
+                const headers = Object.keys(exportData[0] || {});
+                const csvRows = exportData.map(row =>
+                    headers.map(h => JSON.stringify(row[h] ?? '')).join(',')
+                );
+                const csv = `Exported By,${exportedByValue}\n\n${headers.join(',')}\n${csvRows.join('\n')}`;
+
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'User_List.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            else if (format === "pdf") {
+                const doc = new jsPDF();
+
+                // Title
+                doc.setFontSize(14);
+                doc.text('User List', 14, 16);
+
+                // Exported By line
+                doc.setFontSize(10);
+                doc.text(`Exported By: ${exportedByValue}`, 14, 24);
+
+                // Add user data as table
+                autoTable(doc, {
+                    startY: 30,
+                    head: [['User', 'Company Name', 'Contact No.', 'Contact Email']],
+                    body: allUsers.map(user => [
+                        `${user.first_name || ''} ${user.last_name || ''}` || 'NA',
+                        user.company_name || 'NA',
+                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` || 'NA',
+                        user.email || 'NA'
+                    ]),
+                    theme: 'striped',
+                    headStyles: { fillColor: [54, 123, 224], textColor: 255 },
+                    styles: { fontSize: 10 },
+                    margin: { top: 20 },
+                });
+
+                doc.save("User_List.pdf");
+            }
+
+        } catch (err) {
+            console.error("Error exporting data:", err);
+            toast.error("Export failed.");
         }
-    };
-
-    const handleExport = async () => {
-        setIsExporting(true);
-        const allUsers = await fetchAllUsers();
-        setIsExporting(false);
-
-        if (!allUsers || allUsers.length === 0) {
-            toast.warning("No User data to export.");
-            return;
-        }
-
-        const fileName = "Users_List";
-
-        // Prepare data for export
-        const exportData = allUsers.map(user => ({
-            "userName": `${user.first_name || ''} ${user.last_name || ''}`,
-            "Company": user.company_name || '',
-            "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
-            "Contact Email": user.email || ''
-        }));
-
-        // Create worksheet
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-        // Set column widths dynamically
-        const columnWidths = Object.keys(exportData[0]).map((key) => ({
-            wch: Math.max(
-                key.length,
-                ...exportData.map((row) => String(row[key] || '').length)
-            ) + 2,
-        }));
-        worksheet['!cols'] = columnWidths;
-
-        // Create workbook and add the worksheet
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, fileName);
-
-        // Trigger download
-        XLSX.writeFile(workbook, `${fileName}.xlsx`);
     };
     return (
-        <div className="container-fluid">
-            <div className="row">
-                <div className="col-md-12">
-                    <div className="theme-table">
-                        <div className="tab-heading">
-                            <div className="count">
-                                <h3>{role === 'sales_agent' ? 'Total Sales' : 'Total Users'}</h3>
-                                <p>{UserList.isSuccess && UserList.data?.data.totalUsers || 0}</p>
-                            </div>
-                            <div className="tbl-filter">
-                                <div className="input-group">
-                                    <span className="input-group-text">
-                                        <img src={search} />
-                                    </span>
-                                    <input
-                                        type="text"
-                                        value={filter}
-                                        onChange={(e) => setfilter(e.target.value)}
-                                        className="form-control"
-                                        placeholder="Search"
-                                    />
-                                    <span className="input-group-text">
-                                        <img src={icon} />
-                                    </span>
-                                </div>
-                                <button
-                                    onClick={() => nav("/home/total-users/add-user")}
-                                    className="btn btn-primary"
-                                >
-                                    + Add User
-                                </button>
-                                <button className="btn btn-primary" onClick={handleExport}
-                                    disabled={isExporting}>
-                                    {isExporting ? 'Exporting...' : '+ Export Sheet'}
-                                </button>
-                                <button className="btn btn-primary" onClick={() => setpopup(true)}>
-                                    + Import Sheet
-                                </button>
-                            </div>
-                        </div>
-                        {UserList.isFetching ? (
-                            <Loader />
-                        ) : (
-                            <>
-                                {UserList.data?.data.users ? (
-                                    <>
-                                        <table
-                                            id="example"
-                                            className="table table-striped nowrap"
-                                            style={{ width: "100%" }}
+        <Box p={2}>
+            <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
+                <Grid container justifyContent="space-between" alignItems="center" mb={2}>
+                    <Grid size={{ xs: 12, lg: 2.5 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                        <Typography variant="h6" fontWeight={590}>Total Users</Typography>
+                        <Typography variant="h6" fontWeight={550}>
+                            {UserList.isSuccess ? UserList.data?.data.totalUsers : 0}
+                        </Typography>
+                    </Grid>
+                    <Grid size={{ xs: 12, lg: 9.5 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
+
+                        <TextField
+                            variant="outlined"
+                            placeholder="Search"
+                            value={filter}
+                            onChange={(e) => setfilter(e.target.value)}
+                            fullWidth
+                            sx={{
+                                width: '100%',
+                                height: '40px',
+                                borderRadius: '8px',
+                                '& .MuiInputBase-root': {
+                                    height: '40px',
+                                    fontSize: '14px',
+                                },
+                                '& .MuiOutlinedInput-input': {
+                                    padding: '10px 14px',
+                                },
+                            }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <img src={search} alt="search icon" />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                        <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+                            <CustomDateRangePicker
+                                value={range}
+                                onChange={setRange}
+                                icon={calender}
+                            />
+                            <CustomExportMenu onExport={handleExport} />
+                            <Button
+                                startIcon={<img src={plus} alt="plus icon" />}
+                                variant="outlined" size="small" sx={{ height: '40px', width: '150px', borderRadius: '8px' }}
+                                onClick={() => setpopup(true)}
+
+                            >
+                                Import Sheet
+                            </Button>
+                            <Button
+                                variant="contained"
+                                sx={{ height: '40px', width: '150px', borderRadius: '8px' }}
+                                onClick={() => nav("/home/total-users/add-user")}
+                                startIcon={<img src={whiteplus} alt='white plus' />}
+                            >
+                                Add User
+                            </Button>
+
+                        </Box>
+
+                    </Grid>
+                </Grid>
+
+                <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                    <TableContainer >
+                        <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
+                            <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                <TableRow >
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                        <TableSortLabel
+                                            id="first_name"
+                                            active={sortBy === 'first_name'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
-                                            <thead>
-                                                <tr>
+                                            User
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="company_name"
+                                            active={sortBy === 'company_name'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'company_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Company
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="mobile_no_country_code"
+                                            active={sortBy === 'mobile_no_country_code'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'mobile_no_country_code' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Contact No.
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="email"
+                                            active={sortBy === 'email'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'email' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Contact Email
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="subscription_status"
+                                            active={sortBy === 'subscription_status'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'subscription_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            Subscription Status
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="subscription_start_date"
+                                            active={sortBy === 'subscription_start_date'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'subscription_start_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            
+                                        >
+                                            Tag Connection
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="subscription_end_date"
+                                            active={sortBy === 'subscription_end_date'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'subscription_end_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                           Tag Disconnection
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
 
-                                                    <th>User</th>
-                                                    <th>Company</th>
-                                                    {/* <th>Email</th> */}
-                                                    <th>Contact No.</th>
-                                                    <th>Contact Email</th>
-                                                    <th>&nbsp;</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {UserList?.data && UserList.data?.data?.users?.map((user) => (
-                                                    <tr key={user._id}>
+                            <TableBody>
+                                {UserList.isFetching ?
+                                    <TableRow>
+                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
+                                            <Loader />
+                                        </TableCell>
+                                    </TableRow>
+                                    : (UserList.data?.data.users?.length > 0 ?
+                                        UserList.data?.data.users.map((user) => (
+                                            <TableRow key={user._id}>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    <Stack direction="row" alignItems="center" gap={1}>
+                                                        <Avatar
+                                                            src={user?.selfieImage || nouser}
+                                                            alt="User"
+                                                        />
 
-                                                        <td>
-                                                            <div
-                                                                className={
-                                                                    (!user.first_name && !user.last_name) ? "prof nodata" : "prof"
-                                                                }
-                                                            >
-                                                                <img
-                                                                    className="profilepicture"
-                                                                    src={
-                                                                        user.selfieImage
-                                                                            ? user.selfieImage
-                                                                            : nouser
-                                                                    }
-                                                                />
-                                                                {user.first_name} {user.last_name}
-                                                            </div>
-                                                        </td>
-                                                        <td className={!user.company_name ? "companynamenodata" : ""}>
-                                                            {user.company_name}
-                                                        </td>
-                                                        <td className={!user?.mobile_no ? "nodata" : ""}>
-                                                            {`${user?.mobile_no_country_code ?? ''}${user?.mobile_no ?? ''}`}
-                                                        </td>
-                                                        <td className={!user.email ? "nodata" : ""}>
-                                                            {user.email}
-                                                        </td>
-                                                        <td>
-                                                            <span
-                                                                onClick={() => setconfirmation(user._id)}
-                                                                className="tbl-gray"
-                                                            >
-                                                                Delete
-                                                            </span>
-                                                            {confirmation === user._id && (
-                                                                <DeleteConfirm
-                                                                    id={user._id}
-                                                                    setconfirmation={setconfirmation}
-                                                                />
-                                                            )}
-                                                            <span
-                                                                onClick={() =>
-                                                                    nav(
-                                                                        `/home/total-users/user-information/${user._id}`
-                                                                    )
-                                                                }
-                                                                className="tbl-btn"
-                                                            >
-                                                                view
-                                                            </span>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                        <div className="pagiation">
-                                            <div className="pagiation-left">
-                                                <button
-                                                    disabled={page === 1}
-                                                    onClick={() => setpage((p) => p - 1)}
-                                                >
-                                                    <img src={Prev} /> Prev
-                                                </button>
-                                            </div>
-                                            <div className="pagiation-right">
-                                                <button
-                                                    disabled={page === UserList.data?.data.totalPages}
-                                                    onClick={() => setpage((p) => p + 1)}
-                                                >
-                                                    Next <img src={Next} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <p className="no-data-found">No data found</p>
-                                )}
-                            </>
-                        )}
-                    </div>
-                </div>
-            </div>
+                                                        {user.first_name} {user.last_name}
+
+                                                    </Stack>
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+
+                                                    {user.company_name || "-"}
+
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+
+                                                    {`${user?.mobile_no_country_code ?? ""}${user?.mobile_no ?? "-"}`}
+
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+
+                                                    {user.email || "-"}
+
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: "#4B5563" }}>
+                                                    <Chip
+                                                        label={user.subscription_status}
+                                                        sx={{
+                                                            backgroundColor:
+                                                                user?.subscription_status === 'inactive' ? '#E5565A1A' :
+                                                                    user?.subscription_status === 'active' ? '#DCFCE7' :
+                                                                        '#F3F4F6',
+                                                            '& .MuiChip-label': {
+                                                                textTransform: 'capitalize',
+                                                                fontWeight: 500,
+                                                                color: user?.subscription_status === 'inactive' ? '#E5565A' :
+                                                                    user?.subscription_status === 'active' ? '' :
+                                                                        'black',
+                                                            }
+                                                        }}
+                                                    />
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {user.tag_connection || "-"}
+                                                </TableCell>
+
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {user.tag_disconnection || "-"}
+                                                </TableCell>
+
+                                                <TableCell >
+                                                    <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                        <Tooltip title="View" arrow placement="top">
+                                                            <IconButton onClick={() => nav(`/home/total-users/user-information/${user._id}`)}>
+                                                                <img src={ViewBtn} alt="view button" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        { role !== 'company' && (
+                                                        <Tooltip title="Delete" arrow placement="top">
+                                                            <IconButton onClick={() => setconfirmation(user._id)}>
+                                                                <img src={delBtn} alt="delete button" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        )}
+                                                       
+                                                        {confirmation === user._id && (
+                                                            <DeleteConfirm id={user._id} setconfirmation={setconfirmation} />
+                                                        )}
+                                                    </Box>
+
+
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                        :
+                                        <TableRow>
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
+                                                <Typography justifyContent="center" alignItems="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                    No data found
+                                                </Typography>
+                                            </TableCell>
+                                        </TableRow>)
+                                }
+                            </TableBody>
+                        </Table>
+
+                    </TableContainer>
+
+                    {!UserList.isFetching && UserList.data?.data.users?.length > 0 && <Grid container sx={{ px: { xs: 0, sm: 3 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                        <Grid>
+                            <Typography variant="body2">
+                                Rows per page:&nbsp;
+                                <Select
+                                    size="small"
+                                    sx={{
+                                        border: 'none',
+                                        boxShadow: 'none',
+                                        outline: 'none',
+                                        '& .MuiOutlinedInput-notchedOutline': {
+                                            border: 'none',
+                                        },
+                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                            border: 'none',
+                                        },
+                                        '& .MuiOutlinedInput-root': {
+                                            boxShadow: 'none',
+                                            outline: 'none',
+                                        },
+                                        '& .MuiSelect-select': {
+                                            outline: 'none',
+                                        },
+                                    }}
+                                    value={rowsPerPage}
+                                    onChange={(e) => {
+                                        setRowsPerPage(Number(e.target.value));
+                                        setCurrentPage(1);
+                                    }}
+                                >
+                                    {[5, 10, 15, 20].map((num) => (
+                                        <MenuItem key={num} value={num}>
+                                            {num}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </Typography>
+                        </Grid>
+                        <Grid>
+                            <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                <Typography variant="body2">
+                                    {currentPage} / {totalPages}
+                                </Typography>
+                                <IconButton
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage((prev) => prev - 1)}
+                                >
+                                    <NavigateBeforeIcon fontSize="small" sx={{
+                                        color: currentPage === 1 ? '#BDBDBD' : '#1976d2'
+                                    }} />
+                                </IconButton>
+                                <IconButton
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                                >
+                                    <NavigateNextIcon fontSize="small" />
+                                </IconButton>
+                            </Box>
+                        </Grid>
+                    </Grid>}
+                </Box>
+            </Paper>
             {popup && <ImportSheet setpopup={setpopup} type="user" />}
-        </div>
+        </Box>
     );
 };
 

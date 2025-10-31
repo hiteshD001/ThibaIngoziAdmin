@@ -41,7 +41,6 @@ export const WebSocketProvider = ({ ...props }) => {
                 if (data.length === 0) {
                     setActiveUserList([]);
                 } else if (data.type === "pong") {
-                    console.log("Pong received");
                 } else {
                     setActiveUserList(() => [...data]);
                 }

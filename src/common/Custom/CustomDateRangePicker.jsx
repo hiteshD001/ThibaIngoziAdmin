@@ -7,7 +7,6 @@ import {
     Typography,
     Popper,
 } from '@mui/material';
-import calender from '../../assets/images/calender.svg'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { DateRange } from 'react-date-range';
 import { format } from 'date-fns';
@@ -18,8 +17,9 @@ import { startOfYear } from "date-fns";
 const CustomDateRangePicker = ({
     value,
     onChange,
-    borderColor = 'black',
+    borderColor = 'rgb(175, 179, 189)',
     buttonLabel = 'Select Date Range',
+    icon,
     buttonSx = {},
 }) => {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -44,22 +44,22 @@ const CustomDateRangePicker = ({
                         variant="outlined"
                         sx={{
                             height: '40px',
-                            width: '210px !important',
+                            width: '230px',
                             borderRadius: '8px',
-                            p: '8px !important',
+                            borderWidth: '1px',
                             justifyContent: 'space-between',
-                            backgroundColor: 'transparent !important',
-                            border: '1px solid black !important',
+                            borderColor: borderColor,
+                            borderStyle: 'solid',
                             '&:hover': {
                                 borderColor: borderColor,
                             },
                             ...buttonSx,
                         }}
-                        endIcon={<ExpandMoreIcon sx={{ color: '#878787' }} />}
+                        endIcon={<ExpandMoreIcon />}
                     >
-                        <img src={calender} alt="calendar" style={{ marginRight: 4 }} />
-                        <Typography variant="body2" sx={{ textTransform: 'none', color: '#878787', backgroundColor: 'transparent !important', border: 'none !important', padding: '0!important', fontSize: '14px !important' }}>
-                            {`${format(value[0].startDate, 'dd MMM yy')} - ${format(value[0].endDate, 'dd MMM yy')}`}
+                        {icon && <img src={icon} alt="calendar" style={{ marginRight: 4 }} />}
+                        <Typography variant="body2" sx={{ textTransform: 'none' }}>
+                            {`${value[0].startDate ? format(value[0].startDate, 'dd MMM yy') : "Start"} - ${value[0].endDate ? format(value[0].endDate, 'dd MMM yy') : "End"}`}
                         </Typography>
                     </Button>
 
@@ -71,7 +71,7 @@ const CustomDateRangePicker = ({
                     >
                         <Box sx={{ boxShadow: 3, borderRadius: 2, gap: 3, display: 'flex', flexDirection: 'row', backgroundColor: 'white', p: 2 }}>
                             {/* Quick Select Options */}
-                            {/* <Box display="flex" flexDirection={'column'} justifyContent={'space-between'} flexWrap="wrap" gap={1} mb={2}>
+                            <Box display="flex" flexDirection={'column'} justifyContent={'space-between'} flexWrap="wrap" gap={1} mb={2}>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     {[
                                         { label: "Last Week", days: 7 },
@@ -110,7 +110,7 @@ const CustomDateRangePicker = ({
                                 >
                                     Reset
                                 </Button>
-                            </Box> */}
+                            </Box>
 
                             {/* Calendar Picker */}
                             <DateRange
