@@ -52,7 +52,8 @@ const PassangerInformation = () => {
             subscription_status: "",
             EnrollStartDate: "",
             paymentDate: "",
-            EnrollType: ""
+            EnrollType: "",
+            isEnroll: ''
         },
         validationSchema: vehicleValidation
     })
@@ -292,26 +293,21 @@ const PassangerInformation = () => {
                                     control={
                                         <Checkbox
                                             name="subscription_status"
-                                            checked={driverform.values.subscription_status === 'active'}
-                                            onChange={(e) => driverform.setFieldValue("subscription_status", e.target.checked ? 'active' : 'inactive')}
+                                            checked={driverform.values.isEnroll}
+                                            onChange={(e) => driverform.setFieldValue("isEnroll", e.target.checked ? 'active' : 'inactive')}
                                             icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
                                             checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />} />
                                     }
                                     label="Subscription Status"
                                 />
                             ) : (displayField("Subscription Status", <Chip
-                                label={driverform.values.subscription_status}
+                                label={driverform.values.isEnroll ? "Active" : "Inactive"}
                                 sx={{
-                                    backgroundColor:
-                                        driverform.values.subscription_status === 'inactive' ? '#E5565A1A' :
-                                            driverform.values.subscription_status === 'active' ? '#DCFCE7' :
-                                                '#F3F4F6',
+                                    backgroundColor: driverform.values.isEnroll ? '#DCFCE7' : '#E5565A1A',
                                     '& .MuiChip-label': {
                                         textTransform: 'capitalize',
                                         fontWeight: 500,
-                                        color: driverform.values.subscription_status === 'inactive' ? '#E5565A' :
-                                            driverform.values.subscription_status === 'active' ? '' :
-                                                'black',
+                                        color: driverform.values.isEnroll ? '#15803D' : '#E5565A',
                                     }
                                 }}
                             />))}
