@@ -10,10 +10,15 @@ const containerStyle = {
   position: 'relative'
 };
 
+// const center = {
+//     lat: 23.0225,
+//     lng: 72.5714,
+// };
 const center = {
-    lat: 23.0225,
-    lng: 72.5714,
+    lat: -30.5595,
+    lng: 22.9375,
 };
+
 
 const getColor = (count) => {
     if (count > 71) return '#ef4444'; // red
@@ -32,7 +37,7 @@ function HotspotMap({ hotspots, isMapLoaded }) {
             <GoogleMap
                 mapContainerStyle={containerStyle}
                 center={center}
-                zoom={10}
+                zoom={6}
                 onLoad={onLoad}
                 onUnmount={onUnmount}
                 options={{
