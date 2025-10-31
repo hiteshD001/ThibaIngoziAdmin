@@ -240,12 +240,12 @@ const AddSapsMember = () => {
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <FormControl variant="standard" fullWidth >
                                 <InputLabel shrink htmlFor="id_no" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                    ID No
+                                    ID/Passport Number
                                 </InputLabel>
                                 <BootstrapInput
                                     id="id_no"
                                     name="id_no"
-                                    placeholder="Enter ID No."
+                                    placeholder="Enter ID/Passport Number."
                                     value={UserForm.values.id_no}
                                     onChange={UserForm.handleChange}
                                 />

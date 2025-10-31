@@ -334,19 +334,19 @@ const PassangerInformation = () => {
                             {editInfo ? (
                                 <FormControl variant="standard" fullWidth >
                                     <InputLabel shrink htmlFor="id_no" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        ID No
+                                        ID/Passport Number
                                     </InputLabel>
                                     <BootstrapInput
                                         id="id_no"
                                         name="id_no"
-                                        placeholder="ID No."
+                                        placeholder="ID/Passport Number."
                                         value={driverform.values.id_no}
                                         onChange={driverform.handleChange}
 
                                     />
                                     {driverform.touched.id_no && <FormHelperText error>{driverform.errors.id_no}</FormHelperText>}
                                 </FormControl>
-                            ) : displayField("ID No", driverform.values.id_no)}
+                            ) : displayField("ID/Passport Number", driverform.values.id_no)}
                         </Grid> */}
                         <Grid size={12}>
                             <Grid container gap={4} sx={{ mt: 1 }}>
