@@ -53,7 +53,8 @@ const PassangerInformation = () => {
             EnrollStartDate: "",
             paymentDate: "",
             EnrollType: "",
-            isEnroll: ''
+            isEnroll: '',
+            verificationSelfieImage: null,
         },
         validationSchema: vehicleValidation
     })
@@ -485,7 +486,7 @@ const PassangerInformation = () => {
 
                                     </Box>
                                     {driverform.touched.verificationSelfieImage && driverform.errors.verificationSelfieImage && (
-                                        <FormHelperText error>{driverform.errors.fullImage}</FormHelperText>
+                                        <FormHelperText error>{driverform.errors.verificationSelfieImage}</FormHelperText>
                                     )}
                                 </Grid>
                             </Grid>
