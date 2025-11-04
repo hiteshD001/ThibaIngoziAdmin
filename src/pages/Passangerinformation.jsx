@@ -475,12 +475,14 @@ const PassangerInformation = () => {
                                                 src={URL.createObjectURL(driverform.values.verificationSelfieImage)}
                                                 alt="Full Preview"
                                                 style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                onClick={() => handleImageClick(driverform.values.verificationSelfieImage, "verificationSelfieImage")}
                                             />
                                         ) : driverform.values.verificationSelfieImage ? (
                                             <img
                                                 src={driverform.values.verificationSelfieImage}
                                                 alt="verification Selfie Image"
-                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8,cursor: 'pointer' }}
+                                                onClick={() => handleImageClick(driverform.values.verificationSelfieImage, "verificationSelfieImage")}
                                             />
                                         ) : (<><img src={GrayPlus} alt="gray plus" />
                                             <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>

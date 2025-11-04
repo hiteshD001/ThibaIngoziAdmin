@@ -94,7 +94,8 @@ const VehicleInformation = () => {
             EnrollStartDate: "",
             paymentDate: "",
             EnrollType: "",
-            isEnroll:""
+            isEnroll:"",
+            verificationSelfieImage: null,
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
