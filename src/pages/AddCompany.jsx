@@ -69,7 +69,7 @@ const AddCompany = () => {
 						values[key]?.forEach(id => {
 							formData.append("securityCompany[]", id);
 						});
-					}else if(key === 'accountHolderName'){
+					} else if (key === 'accountHolderName') {
 						formData.append("account_holder_name", values[key]);
 					} else {
 						formData.append(key, values[key]);
@@ -803,6 +803,7 @@ const AddCompany = () => {
 									id="customerCode"
 									name="customerCode"
 									placeholder="customerCode"
+									readOnly
 									value={companyForm.values.customerCode}
 									onChange={companyForm.handleChange}
 								/>
@@ -825,7 +826,26 @@ const AddCompany = () => {
 							</FormControl>
 						</Grid>
 						<Grid size={{ xs: 12, sm: 6 }}>
-							<FormControl variant="standard" fullWidth>
+							<CustomSelect
+								label="Bank Id"
+								name="bankId"
+								value={companyForm.values.bankId}
+								onChange={(e) => {
+									const selectedBank = bankList?.find(bank => bank._id === e.target.value);
+									companyForm.setValues({
+										...companyForm.values,
+										bankId: e.target.value,
+										customerCode: selectedBank?.branch_code || ''
+									});
+								}}
+								options={bankList?.map(bank => ({
+									value: bank._id,
+									label: bank.bank_name
+								})) || []}
+								error={companyForm.errors.bankId && companyForm.touched.bankId}
+								helperText={companyForm.errors.bankId}
+							/>
+							{/* <FormControl variant="standard" fullWidth>
 								<InputLabel shrink htmlFor="postal_code" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
 									Bank Id
 								</InputLabel>
@@ -837,7 +857,7 @@ const AddCompany = () => {
 									onChange={companyForm.handleChange}
 								/>
 								{companyForm.touched.bankId && <div style={{ color: 'red', fontSize: 12 }}>{companyForm.errors.bankId}</div>}
-							</FormControl>
+							</FormControl> */}
 						</Grid>
 						<Grid size={{ xs: 12, sm: 6 }}>
 							<FormControl variant="standard" fullWidth>

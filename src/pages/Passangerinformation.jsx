@@ -16,6 +16,8 @@ import { BootstrapInput } from "../common/BootstrapInput";
 import CustomSelect from "../common/Custom/CustomSelect";
 import GrayPlus from '../assets/images/GrayPlus.svg'
 import SingleImagePreview from "../common/SingleImagePreview"
+import uncheckedIcon from '../assets/images/UnChecked.svg'
+import checkedboxIcon from '../assets/images/checkboxIcon.svg'
 
 const PassangerInformation = () => {
     const [editInfo, setEditInfo] = useState(false);
@@ -290,17 +292,18 @@ const PassangerInformation = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
                             {editInfo ? (
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            name="subscription_status"
-                                            checked={driverform.values.isEnroll}
-                                            onChange={(e) => driverform.setFieldValue("isEnroll", e.target.checked ? 'active' : 'inactive')}
-                                            icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
-                                            checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />} />
-                                    }
-                                    label="Subscription Status"
-                                />
+                                // <FormControlLabel
+                                //     control={
+                                //         <Checkbox
+                                //             name="subscription_status"
+                                //             checked={driverform.values.isEnroll}
+                                //             onChange={(e) => driverform.setFieldValue("isEnroll", e.target.checked ? 'active' : 'inactive')}
+                                //             icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
+                                //             checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />} />
+                                //     }
+                                //     label="Subscription Status"
+                                // />
+                                <></>
                             ) : (displayField("Subscription Status", <Chip
                                 label={driverform.values.isEnroll ? "Active" : "Inactive"}
                                 sx={{
