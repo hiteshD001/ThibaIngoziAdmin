@@ -342,7 +342,7 @@ const ListOfViewArcheivedMissingVehicale = () => {
                                         setCurrentPage(1);
                                     }}
                                 >
-                                    {[5, 10, 15, 20].map((num) => (
+                                    {[5, 10, 15, 20,50,100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>

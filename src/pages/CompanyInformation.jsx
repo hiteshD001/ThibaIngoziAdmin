@@ -1108,7 +1108,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         updatePagination("recentSos", "page", 1); // Reset to first page
                                     }}
                                 >
-                                    {[5, 10, 15, 20].map((num) => (
+                                    {[5, 10, 15, 20,50,100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
@@ -1429,7 +1429,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         updatePagination("driver", "page", 1); // Reset to first page
                                     }}
                                 >
-                                    {[5, 10, 15, 20].map((num) => (
+                                    {[5, 10, 15, 20,50,100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
@@ -1696,7 +1696,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         updatePagination("user", "page", 1); // Reset to first page
                                     }}
                                 >
-                                    {[5, 10, 15, 20].map((num) => (
+                                    {[5, 10, 15, 20,50,100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
