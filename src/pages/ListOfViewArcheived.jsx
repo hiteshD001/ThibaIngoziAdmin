@@ -420,7 +420,7 @@ const ListOfViewArcheived = () => {
                     '& .MuiSelect-select': { padding: '4px 10px' },
                   }}
                 >
-                  {[5, 10, 15, 20].map((num) => (
+                  {[5, 10, 15, 20,50,100].map((num) => (
                     <MenuItem key={num} value={num}>{num}</MenuItem>
                   ))}
                 </Select>
