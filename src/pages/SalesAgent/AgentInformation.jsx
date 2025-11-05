@@ -1,31 +1,53 @@
-import { useEffect, useState, useLayoutEffect } from "react"
-import Select from "react-select";
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Grid, Typography, Box, FormControl, InputLabel, Button, FormHelperText, Paper } from "@mui/material";
+import { Grid, Select, Typography, Box, FormControl, InputLabel, Button, FormHelperText, TextField, Table, TableBody, InputAdornment, TableContainer, TableHead, TableRow, TableCell, TableSortLabel, MenuItem, IconButton } from "@mui/material";
 import { useFormik } from "formik"
 import { sales_agent_e } from "../../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query"
 import { useGetAgent, useUpdateSalesAgent, useGetBanksList, useGetUserByInfluncer, armedSosPayout, payoutUserUpdate } from "../../API Calls/API"
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { toast } from "react-toastify"
 import { QRCodeCanvas } from "qrcode.react";
 import { toastOption } from "../../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
 import PayoutPopup from "../../common/Popup";
-import Prev from "../../assets/images/left.png";
-import Next from "../../assets/images/right.png";
 import nouser from "../../assets/images/NoUser.png";
 import Loader from "../../common/Loader";
 import { startOfYear } from "date-fns";
 import { BootstrapInput } from "../../common/BootstrapInput";
 import calender from '../../assets/images/calender.svg';
 import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
+import sales1 from '../../assets/images/sales1.svg'
+import search from "../../assets/images/search.svg";
+import sa5 from '../../assets/images/sa5.svg'
+import sa3 from '../../assets/images/sa3.svg'
+import sales4 from '../../assets/images/sales4.svg'
+import sales2 from '../../assets/images/sales2.svg'
+import sales3 from '../../assets/images/sales3.svg'
+import sales5 from '../../assets/images/sales5.svg'
+import sales6 from '../../assets/images/sales6.svg'
+import arrowup from '../../assets/images/arrowup.svg';
+import arrowdown from '../../assets/images/arrowdown.svg';
+import arrownuteral from '../../assets/images/arrownuteral.svg';
+import payIcon from '../../assets/images/payIcon.svg';
+import CustomExportMenu from '../../common/Custom/CustomExport'
+import apiClient from '../../API Calls/APIClient'
+import CustomSelect from '../../common/Custom/CustomSelect'
+
+
+
+
+
+
 const AgentInformation = () => {
     const [edit, setEdit] = useState(false)
     // const [role] = useState(localStorage.getItem("role"));
     const nav = useNavigate();
-    const [banksList, setbanksList] = useState([])
     const params = useParams();
     const [page, setpage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
     const client = useQueryClient()
     const bankslist = useGetBanksList()
@@ -33,11 +55,18 @@ const AgentInformation = () => {
     const [selectedPayoutType, setSelectedPayoutType] = useState('');
     const [tieUsers, setTieUsers] = useState([]);
     const [tieData, setTieData] = useState(true)
-
-
-
-    console.log("tieUsers", tieUsers);
-
+    const [sortBy, setSortBy] = useState("first_name");
+    const [sortOrder, setSortOrder] = useState("asc");
+    const changeSortOrder = (e) => {
+        const field = e.target.id;
+        if (field !== sortBy) {
+            setSortBy(field);
+            setSortOrder("asc");
+        } else {
+            setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+        }
+    }
+    // console.log("tieUsers", tieUsers);
     const agentForm = useFormik({
         initialValues: {
             referralCode: "",
@@ -72,6 +101,8 @@ const AgentInformation = () => {
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
     const driverList = useGetUserByInfluncer(page, 10, startDate, endDate, params.id)
+    const totalUsers = driverList.data?.data?.data?.influencersData || 0;
+    const totalPages = Math.ceil(totalUsers / rowsPerPage);
     // console.log('test',driverList.data?.data?.data?.influencersData)
     const UserInfo = useGetAgent(params.id)
     const onSuccess = () => {
@@ -95,23 +126,6 @@ const AgentInformation = () => {
             setAgentformvalues({ form: agentForm, data: UserInfo.data?.data?.data })
         }
     }, [UserInfo.data])
-    useLayoutEffect(() => {
-        if (Array.isArray(bankslist)) {
-            const filteredServices = bankslist.filter(service => service);
-
-            const groupedOptions = [
-                {
-                    label: "Banks",
-                    options: filteredServices.map((service) => ({
-                        label: service.bank_name,
-                        value: service._id,
-                    })),
-                }
-            ];
-
-            setbanksList(groupedOptions);
-        }
-    }, [bankslist]);
     const displayField = (label, value) => (
         <Box mb={3}>
             <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>{label}</Typography>
@@ -207,68 +221,262 @@ const AgentInformation = () => {
         }
     };
     // console.log('test',UserInfo.data?.data?.data)
+
+    const handleExport = async ({ startDate, endDate, format }) => {
+        try {
+            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+                params: {
+                    role: "passanger",
+                    page: 1,
+                    limit: 10000,
+                    filter: "",
+                    company_id: paramId,
+                    startDate,
+                    endDate,
+                },
+            });
+
+            const allUsers = data?.users || [];
+            if (!allUsers.length) {
+                toast.warning("No User data found for this period.");
+                return;
+            }
+
+            const exportData = allUsers.map(user => ({
+                "User": `${user.first_name || ''} ${user.last_name || ''}` || '',
+                "Company Name": user.company_name || '',
+                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+                "Contact Email": user.email || ''
+            }));
+
+            if (format === "xlsx") {
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+                }));
+                worksheet['!cols'] = columnWidths;
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+                XLSX.writeFile(workbook, "User_List.xlsx");
+            }
+            else if (format === "csv") {
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const csv = XLSX.utils.sheet_to_csv(worksheet);
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'user_list.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            else if (format === "pdf") {
+                const doc = new jsPDF();
+                doc.text('User List', 14, 16);
+                autoTable(doc, {
+                    head: [['User', 'Company Name', 'Contact No.', 'Contact Email']],
+                    body: allUsers.map(user => [
+                        `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
+                        user.company_name ?? 'NA',
+                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
+                        user.email ?? 'NA'
+                    ]),
+                    startY: 20,
+                    theme: 'striped',
+                    headStyles: { fillColor: '#367BE0' },
+                    margin: { top: 20 },
+                    styles: { fontSize: 10 },
+                });
+                doc.save("User_List.pdf");
+            }
+
+        } catch (err) {
+            console.error("Error exporting data:", err);
+            toast.error("Export failed.");
+        }
+    };
+
+    console.log(agentForm.values.bankId)
     return (
         <Box p={2}>
-            <Paper elevation={0} sx={{ p: 3, borderRadius: '10px', mb: 3 }}>
-                <Typography variant="h6" gutterBottom fontWeight={600}>
-                    Profile Information
-                </Typography>
-                <div className="row">
-                    <div className="col-md-4">
-                        <div className="dash-counter">
-                            <span>Total Earned Commission</span>
-                            <h3>R {UserInfo.data?.data?.data.totalCommission || 0}</h3>
-                        </div>
-                    </div>
-                    <div className="col-md-4">
-                        <div className="dash-counter">
-                            <span>Total Unpaid Commission</span>
-                            <h3>R {UserInfo.data?.data?.data.totalUnPaid || 0}</h3>
-                        </div>
-                    </div>
-                    <div className="col-md-4">
-                        <div className="dash-counter">
-                            <span>My Total Users</span>
-                            <h3>{UserInfo.data?.data?.data?.user_id.length || 0}</h3>
-                        </div>
-                    </div>
-                    <div className="col-md-4">
-                        <div className="dash-counter">
-                            <span>Total Earned Amount</span>
-                            <h3>R {UserInfo.data?.data?.data?.totalEarnedAmount || 0}</h3>
-                        </div>
-                    </div>
-                    <div className="col-md-4">
-                        <div className="dash-counter">
-                            <span>Total Commission Earned(30%)</span>
-                            <h3>R {UserInfo.data?.data?.data?.commissionEarned || 0}</h3>
-                        </div>
-                    </div>
-                    <div className="col-md-4">
-                        <div className="dash-counter">
-                            <span>Performance Level</span>
-                            <h3>{UserInfo.data?.data?.data?.performanceLevel || 0}</h3>
-                        </div>
-                    </div>
-                    <div className="col-md-4">
-                        <div className="dash-counter">
-                            <span>Tie</span>
-                            <h3>{UserInfo.data?.data?.data?.tie || 0}</h3>
-                        </div>
-                    </div>
-
-                    <div className="col-md-4">
-                        <div className="dash-counter">
-                            <span>Total Sales Agent Users</span>
-                            <h3>{UserInfo.data?.data?.data?.grandTotalUsers || 0}</h3>
-                        </div>
-                    </div>
-                </div>
+            <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#EFF6FF', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Earned Commission</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    R {UserInfo.data?.data?.data.totalCommission || 0}
+                                </Typography>
+                                <div className="d-flex gap-2 align-items-center">
+                                    <div className="percentage-green">
+                                        ↑ 2%
+                                    </div>
+                                    <span> from last month</span>
+                                </div>
+                            </Box>
+                            <Box>
+                                <img src={sales1} alt="Sales Agent 1" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#EA580C1A', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Unpaid Commission</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    R {UserInfo.data?.data?.data.totalUnPaid || 0}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#4B5563' }}>
+                                    No pending payments
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sa5} alt="Sales Agent 2" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#EAF8EC', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>My Total Users</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    {UserInfo.data?.data?.data?.user_id.length || 0}
+                                </Typography>
+                                <div className="d-flex gap-2 align-items-center">
+                                    <div className="percentage-green">
+                                        ↑ 2%
+                                    </div>
+                                    <span> this month</span>
+                                </div>
+                            </Box>
+                            <Box>
+                                <img src={sa3} alt="Sales Agent 3" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#FB8C001A', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Earned Amount</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    R {UserInfo.data?.data?.data?.totalEarnedAmount || 0}
+                                </Typography>
+                                <div className="d-flex gap-2 align-items-center">
+                                    <div className="percentage-green">
+                                        ↑ 1%
+                                    </div>
+                                    <span> from last month</span>
+                                </div>
+                            </Box>
+                            <Box>
+                                <img src={sales4} alt="Sales Agent 4" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#0D94881A', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Commission Earned(30%)</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    R {UserInfo.data?.data?.data?.commissionEarned || 0}
+                                </Typography>
+                                <div className="d-flex gap-2 align-items-center">
+                                    <div className="percentage-green">
+                                        ↑ 1%
+                                    </div>
+                                    <span> from last month</span>
+                                </div>
+                            </Box>
+                            <Box>
+                                <img src={sales2} alt="Sales Agent 5" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#F59E0B1A', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Performance Level</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    {UserInfo.data?.data?.data?.performanceLevel || 0}
+                                </Typography>
+                                <Typography variant="body1" sx={{ color: '#F59E0B' }}>
+                                    Level 1 Performer
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sales3} alt="Sales Agent 6" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#6B72801A', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Tie</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    {UserInfo.data?.data?.data?.tie || 0}
+                                </Typography>
+                                <Typography variant="body1" sx={{ color: '#4B5563' }}>
+                                    No linked users
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sales5} alt="Sales Agent 7" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#367BE01A', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Sales Agent Users</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    {UserInfo.data?.data?.data?.grandTotalUsers || 0}
+                                </Typography>
+                                <div className="d-flex gap-2 align-items-center">
+                                    <div className="percentage-green">
+                                        ↑ 1%
+                                    </div>
+                                    <span> from last month</span>
+                                </div>
+                            </Box>
+                            <Box>
+                                <img src={sales6} alt="Sales Agent 8" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+            </Grid>
+            {/* profile infromation */}
+            <Box sx={{ backgroundColor: "rgb(253, 253, 253)", p: 3, borderRadius: '10px', boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mb: 3, mt: 3 }}>
                 <form>
                     <Grid container spacing={edit ? 3 : 1}>
-                        <Grid size={12}>
-                            <Typography variant="h6" gutterBottom fontWeight={600}>
-                                Basic Information
+                        <Grid size={12} sx={{
+                            borderBottom: "1px solid #E5E7EB",
+                            display: "inline-block",
+                            paddingBottom: "4px",
+                            marginBottom: "20px"
+                        }}>
+                            <Typography
+                                variant="h6"
+                                gutterBottom
+                                fontWeight={600}
+
+                            >
+                                Profile Information
                             </Typography>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
@@ -479,46 +687,26 @@ const AgentInformation = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                             {edit ? (
-                                <FormControl variant="standard" fullWidth >
-                                    <label style={{ marginBottom: 0 }}>Bank ID</label>
-                                    <Select
-                                        name="bankId"
-                                        options={banksList}
-                                        placeholder="Select Bank"
-                                        classNamePrefix="select"
-                                        // className="form-control"
-                                        value={banksList
-                                            .flatMap((group) => group.options)
-                                            .find((option) => option.value == agentForm?.values?.bankId)}
-                                        onChange={(selectedOption) => {
-                                            agentForm.setFieldValue("bankId", selectedOption?.value || "");
-                                        }}
-                                        styles={{
-                                            control: (base, state) => ({
-                                                ...base,
-                                                minHeight: "45px",   // 👈 decrease container height
-                                                height: "45px",
-                                            }),
-                                            option: (base, state) => ({
-                                                ...base,
-                                                backgroundColor: state.isSelected
-                                                    ? "white"
-                                                    : state.isFocused
-                                                        ? "#e6e6e6"
-                                                        : "white",
-                                                color: "black",
-                                            }),
-                                            valueContainer: (base) => ({
-                                                ...base,
-                                                padding: "0 10px",   // 👈 tighter padding
-                                                height: "45px",
-                                                maxHeight: "38px",
-                                                overflowY: "auto",
-                                            }),
-                                        }}
-                                    />
-                                    {agentForm.touched.bankId && <FormHelperText error>{agentForm.errors.bankId}</FormHelperText>}
-                                </FormControl>
+                                <CustomSelect
+                                    label="Bank Id"
+                                    name="bankId"
+                                    value={agentForm.values.bankId}
+                                    onChange={(e) => {
+                                        const selectedBank = bankslist?.find(bank => bank._id === e.target.value);
+                                        agentForm.setValues({
+                                            ...agentForm.values,
+                                            bankId: e.target.value,
+                                            customerCode: selectedBank?.branch_code || ''
+                                        });
+                                    }}
+                                    options={bankslist?.map(bank => ({
+                                        value: bank._id,
+                                        label: bank.bank_name
+                                    })) || []}
+                                    error={agentForm.errors.bankId && agentForm.touched.bankId}
+                                    helperText={agentForm.errors.bankId}
+                                />
+
                             ) : displayField("Bank ID", agentForm.values.bankId)}
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
@@ -542,20 +730,20 @@ const AgentInformation = () => {
                                 {edit ? (
                                     <>
                                         <Button
+                                            variant="outlined"
+                                            sx={{ width: 130, height: 48, borderRadius: '8px', color: '#878787', fontSize: '16px', fontWeight: 400, border: '1px solid #D1D5DB' }}
+                                            onClick={handleCancel}
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
                                             variant="contained"
-                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            sx={{ width: 130, height: 48, borderRadius: '8px', color: 'white', backgroundColor: 'var(--Blue)', fontSize: '16px', fontWeight: 400, }}
                                             onClick={() => {
                                                 agentForm.handleSubmit()
                                             }}
                                         >
                                             Save
-                                        </Button>
-                                        <Button
-                                            variant="outlined"
-                                            sx={{ width: 130, height: 48, borderRadius: '10px', border: '1px solid black', color: 'black' }}
-                                            onClick={handleCancel}
-                                        >
-                                            Cancel
                                         </Button>
                                     </>
                                 ) : (
@@ -571,9 +759,9 @@ const AgentInformation = () => {
                         </Grid>
                     </Grid>
                 </form>
+            </Box>
 
-            </Paper>
-            <div className="theme-table" style={{ marginTop: '20px' }}>
+            {/* <div className="theme-table" style={{ marginTop: '20px' }}>
                 <div className="tab-heading">
                     <div className="count">
                         <h3>Total Users</h3>
@@ -585,20 +773,6 @@ const AgentInformation = () => {
                             onChange={setRange}
                             icon={calender}
                         />
-                        {/* <button
-                                    onClick={() => nav("/home/total-drivers/add-driver")}
-                                    className="btn btn-primary"
-                                >
-                                    + Add Driver
-                                </button>
-                                <button className="btn btn-primary" onClick={handleExport}
-                                    disabled={isExportingDrivers}>
-                                    {isExportingDrivers ? 'Exporting...' : '+ Export Sheet'}
-                                </button> */}
-
-                        {/* <button className="btn btn-primary" onClick={() => setpopup(true)}>
-                                    + Import Sheet
-                                </button> */}
                     </div>
                 </div>
                 {driverList.isFetching ? (
@@ -695,146 +869,511 @@ const AgentInformation = () => {
                     </>
                 )}
 
-            </div>
+            </div> */}
 
+            <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px' }}>
+                <Grid container justifyContent="space-between" alignItems="center" p={2}>
+                    <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                        <Typography variant="h6" fontWeight={590} sx={{ pl: 2 }}>Total Users</Typography>
+                        <Typography variant="body2" sx={{ p: 0.8, borderRadius: '50px', color: '#4B5563', backgroundColor: '#F3F4F6' }}>{driverList.isSuccess && driverList.data?.data?.data?.influencersData?.length || 0} total</Typography>
+                    </Grid>
+                    <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
 
-            {tieData && (
-                <div className="container-fluid">
-                    <div className="row">
-                        <div className="col-md-12">
-                            <div className="theme-table">
-                                <div className="tab-heading">
-                                    <div className="count">
-                                        <h3>Tie Users</h3>
-                                        <p>{UserInfo?.data?.data?.data?.tieUserData?.length || 0}</p>
-                                    </div>
-                                    {/* <button
-                                            onClick={() => setTieData(false)}
-                                            className="btn btn-dark"
-                                        >
-                                            close
-                                        </button> */}
-                                </div>
+                        <TextField
+                            variant="outlined"
+                            placeholder="Search"
+                            value={filter}
+                            onChange={(e) => setfilter(e.target.value)}
+                            fullWidth
+                            sx={{
+                                width: '100%',
+                                height: '40px',
+                                borderRadius: '8px',
+                                '& .MuiInputBase-root': {
+                                    height: '40px',
+                                    fontSize: '14px',
+                                },
+                                '& .MuiOutlinedInput-input': {
+                                    padding: '10px 14px',
+                                },
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'var(--light-gray)',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'var(--light-gray)',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'var(--light-gray)',
+                                    },
+                                },
+                            }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <img src={search} alt="search icon" />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                        <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
+                            <CustomExportMenu onExport={handleExport} />
+                            <CustomDateRangePicker
+                                value={range}
+                                onChange={setRange}
+                                icon={calender}
+                            />
+                        </Box>
 
+                    </Grid>
+                </Grid>
+                {driverList.data?.data?.data?.influencersData ? (
+                    <>
+                        <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                            <TableContainer >
+                                <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
+                                    <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                        <TableRow >
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                                <TableSortLabel
+                                                    id="first_name"
+                                                    active={sortBy === 'first_name'}
+                                                    direction={sortOrder}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >
+                                                    User
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                                <TableSortLabel
+                                                    id="id_no"
+                                                    active={sortBy === 'id_no'}
+                                                    direction={sortOrder}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortBy === 'id_no' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >
+                                                    Driver ID
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                                <TableSortLabel
+                                                    id="company_name"
+                                                    active={sortBy === 'company_name'}
+                                                    direction={sortOrder}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortBy === 'company_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >
+                                                    Company
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                                <TableSortLabel
+                                                    id="mobile_no_country_code"
+                                                    active={sortBy === 'mobile_no_country_code'}
+                                                    direction={sortOrder}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortBy === 'mobile_no_country_code' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >
+                                                    Contact No.
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                                <TableSortLabel
+                                                    id="address"
+                                                    active={sortBy === 'address'}
+                                                    direction={sortOrder}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortBy === 'address' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >
+                                                    Contact Email
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                                        </TableRow>
+                                    </TableHead>
 
-                                {tieUsers ? (
-                                    <>
-                                        <div
-                                            style={{
-                                                width: "100%",
-                                                overflowX: "auto",
-                                                overflowY: "hidden",
+                                    <TableBody>
+                                        {driverList.isFetching ?
+                                            <TableRow>
+                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                                    <Loader />
+                                                </TableCell>
+                                            </TableRow>
+                                            : (driverList.data?.data?.data?.influencersData?.length > 0 ?
+                                                driverList.data?.data?.data?.influencersData?.map((user) => (
+                                                    <TableRow key={user._id}>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            <Stack direction="row" alignItems="center" gap={1}>
+                                                                <Avatar
+                                                                    src={user?.selfieImage || nouser}
+                                                                    alt="User"
+                                                                />
+                                                                {user.first_name} {user.last_name}
+                                                            </Stack>
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {user.id_no || "-"}
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {user.company_name || "-"}
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {`${user?.mobile_no_country_code ?? ""}${user?.mobile_no ?? "-"}`}
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {user.email || "-"}
+                                                        </TableCell>
+                                                        <TableCell >
+                                                            <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                                <Tooltip title="View" arrow placement="top">
+                                                                    <IconButton onClick={() => nav(`/home/total-users/user-information/${user._id}`)}>
+                                                                        <img src={ViewBtn} alt="view button" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </Box>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
+                                                :
+                                                <TableRow>
+                                                    <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                                        <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                            No data found
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>)
+                                        }
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <Grid container sx={{ px: { xs: 1, sm: 3 }, pb: 2 }} justifyContent="space-between" alignItems="center" mt={2}>
+                                <Grid>
+                                    <Box display="flex" alignItems="center">
+                                        <Typography variant="body2">
+                                            Rows per page:&nbsp;
+                                        </Typography>
+                                        <Select
+                                            size="small"
+                                            sx={{
+                                                border: 'none',
+                                                boxShadow: 'none',
+                                                outline: 'none',
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    border: 'none',
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    border: 'none',
+                                                },
+                                                '& .MuiOutlinedInput-root': {
+                                                    boxShadow: 'none',
+                                                    outline: 'none',
+                                                },
+                                                '& .MuiSelect-select': {
+                                                    outline: 'none',
+                                                },
+                                            }}
+                                            value={rowsPerPage}
+                                            onChange={(e) => {
+                                                setRowsPerPage(Number(e.target.value));
+                                                setCurrentPage(1);
                                             }}
                                         >
-                                            <table
-                                                id="example"
-                                                className="table table-striped nowrap"
-                                                style={{ width: "100%" }}
-                                            >
-                                                <thead>
-                                                    <tr>
-                                                        <th>No</th>
-                                                        <th>Name</th>
-                                                        <th>Users</th>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {UserInfo?.data?.data?.data?.tieUserData?.map((user, index) => (
-                                                        <tr key={user._id}>
-                                                            <td>
+                                            {[5, 10, 15, 20].map((num) => (
+                                                <MenuItem key={num} value={num}>
+                                                    {num}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </Box>
+                                </Grid>
+                                <Grid>
+                                    <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                        <Typography variant="body2">
+                                            {currentPage} / {totalPages}
+                                        </Typography>
+                                        <IconButton
+                                            disabled={currentPage === 1}
+                                            onClick={() => setCurrentPage((prev) => prev - 1)}
+                                        >
+                                            <NavigateBeforeIcon fontSize="small" />
+                                        </IconButton>
+                                        <IconButton
+                                            disabled={currentPage === totalPages}
+                                            onClick={() => setCurrentPage((prev) => prev + 1)}
+                                        >
+                                            <NavigateNextIcon fontSize="small" />
+                                        </IconButton>
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                        </Box>
+
+                    </>
+                ) : (
+                    <Typography align="center" color="text.secondary" sx={{ mt: 2, p: 2 }}>
+                        No data found
+                    </Typography>
+                )}
+            </Box>
+
+            {tieData && (
+                <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px' }}>
+                    <Grid container justifyContent="space-between" alignItems="center" p={2}>
+                        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                            <Typography variant="h6" fontWeight={590} sx={{ pl: 2 }}>Tie Users</Typography>
+                            <Typography variant="body2" sx={{ p: 0.8, borderRadius: '50px', color: '#4B5563', backgroundColor: '#F3F4F6' }}>{UserInfo?.data?.data?.data?.tieUserData?.length || 0} total</Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+                            <TextField
+                                variant="outlined"
+                                placeholder="Search"
+                                value={filter}
+                                onChange={(e) => setfilter(e.target.value)}
+                                fullWidth
+                                sx={{
+                                    width: '100%',
+                                    height: '40px',
+                                    borderRadius: '8px',
+                                    '& .MuiInputBase-root': {
+                                        height: '40px',
+                                        fontSize: '14px',
+                                    },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '10px 14px',
+                                    },
+                                    '& .MuiOutlinedInput-root': {
+                                        '& fieldset': {
+                                            borderColor: 'var(--light-gray)',
+                                        },
+                                        '&:hover fieldset': {
+                                            borderColor: 'var(--light-gray)',
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: 'var(--light-gray)',
+                                        },
+                                    },
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <img src={search} alt="search icon" />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
+                                <CustomExportMenu onExport={handleExport} />
+                                <CustomDateRangePicker
+                                    value={range}
+                                    onChange={setRange}
+                                    icon={calender}
+                                />
+                            </Box>
+
+                        </Grid>
+                    </Grid>
+                    {UserInfo?.data?.data?.data?.tieUserData?.length > 0 ? (
+                        <>
+                            <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                                <TableContainer >
+                                    <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
+                                        <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                            <TableRow >
+                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                                    <TableSortLabel
+                                                        id="index"
+                                                        active={sortBy === 'index'}
+                                                        direction={sortOrder}
+                                                        onClick={changeSortOrder}
+                                                        IconComponent={() => <img src={sortBy === 'index' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    >
+                                                        No.
+                                                    </TableSortLabel>
+                                                </TableCell>
+                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                                    <TableSortLabel
+                                                        id="first_name"
+                                                        active={sortBy === 'first_name'}
+                                                        direction={sortOrder}
+                                                        onClick={changeSortOrder}
+                                                        IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    >
+                                                        Name
+                                                    </TableSortLabel>
+                                                </TableCell>
+                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                                    <TableSortLabel
+                                                        id="salesCount"
+                                                        active={sortBy === 'salesCount'}
+                                                        direction={sortOrder}
+                                                        onClick={changeSortOrder}
+                                                        IconComponent={() => <img src={sortBy === 'salesCount' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    >
+                                                        Users
+                                                    </TableSortLabel>
+                                                </TableCell>
+
+
+                                                <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+
+                                        <TableBody>
+                                            {UserInfo?.isFetching ?
+                                                <TableRow>
+                                                    <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                                        <Loader />
+                                                    </TableCell>
+                                                </TableRow>
+                                                : (
+                                                    UserInfo?.data?.data?.data?.tieUserData?.map((user, index) => (
+                                                        <TableRow key={user._id}>
+                                                            <TableCell sx={{ color: '#4B5563' }}>
                                                                 {index + 1}
-                                                            </td>
-
-                                                            <td>
-                                                                <div
-                                                                    className={
-                                                                        (!user.name) ? "prof nodata" : "prof"
-                                                                    }
-                                                                >
-                                                                    {/* <img
-                                                                    className="profilepicture"
-                                                                    src={
-                                                                        user.selfieImage
-                                                                            ? user.selfieImage
-                                                                            : nouser
-                                                                    }
-                                                                /> */}
-                                                                    {user.name}
-                                                                </div>
-                                                            </td>
-
-                                                            <td>
-                                                                {user.salesCount}
-                                                            </td>
-
-                                                            <td>
-                                                                <span
-                                                                    onClick={() => {
-                                                                        nav(
-                                                                            `/home/total-sales-agent/agent-information/${user._id}`
-                                                                        )
-                                                                    }
-
-                                                                    }
-                                                                    className="tbl-btn"
-                                                                    style={{ marginRight: "10px" }}
-                                                                >
-                                                                    view
-                                                                </span>
-                                                            </td>
-
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-
-                                        </div>
-                                        <div className="pagiation">
-                                            <div className="pagiation-left">
-                                                <button
-                                                    disabled={page === 1}
-                                                    onClick={() => setpage((p) => p - 1)}
-                                                >
-                                                    {/* <img src={Prev} /> Prev */}
-                                                </button>
-                                            </div>
-                                            <div className="pagiation-right">
-                                                <button
-                                                    // disabled={page === UserList?.data?.data?.data?.totalPages}
-                                                    onClick={() => setpage((p) => p + 1)}
-                                                >
-                                                    {/* Next <img src={Next} /> */}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <p className="no-data-found">No data found</p>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                                            </TableCell>
+                                                            <TableCell sx={{ color: '#4B5563' }}>
+                                                                <Stack direction="row" alignItems="center" gap={1}>
+                                                                    <Avatar
+                                                                        src={user?.selfieImage || nouser}
+                                                                        alt="User"
+                                                                    />
+                                                                    {user.first_name} {user.last_name}
+                                                                </Stack>
+                                                            </TableCell>
+                                                            <TableCell sx={{ color: '#4B5563' }}>
+                                                                {user.user.salesCount || "-"}
+                                                            </TableCell>
+                                                            <TableCell >
+                                                                <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                                    <Tooltip title="View" arrow placement="top">
+                                                                        <IconButton onClick={() => nav(`/home/total-sales-agent/agent-information/${user._id}`)}>
+                                                                            <img src={ViewBtn} alt="view button" />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                </Box>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    )))
+                                            }
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                                <Grid container sx={{ px: { xs: 1, sm: 3 }, pb: 2 }} justifyContent="space-between" alignItems="center" mt={2}>
+                                    <Grid>
+                                        <Box display="flex" alignItems="center">
+                                            <Typography variant="body2">
+                                                Rows per page:&nbsp;
+                                            </Typography>
+                                            <Select
+                                                size="small"
+                                                sx={{
+                                                    border: 'none',
+                                                    boxShadow: 'none',
+                                                    outline: 'none',
+                                                    '& .MuiOutlinedInput-notchedOutline': {
+                                                        border: 'none',
+                                                    },
+                                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                        border: 'none',
+                                                    },
+                                                    '& .MuiOutlinedInput-root': {
+                                                        boxShadow: 'none',
+                                                        outline: 'none',
+                                                    },
+                                                    '& .MuiSelect-select': {
+                                                        outline: 'none',
+                                                    },
+                                                }}
+                                                value={rowsPerPage}
+                                                onChange={(e) => {
+                                                    setRowsPerPage(Number(e.target.value));
+                                                    setCurrentPage(1);
+                                                }}
+                                            >
+                                                {[5, 10, 15, 20].map((num) => (
+                                                    <MenuItem key={num} value={num}>
+                                                        {num}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </Box>
+                                    </Grid>
+                                    <Grid>
+                                        <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                            <Typography variant="body2">
+                                                {currentPage} / {totalPages}
+                                            </Typography>
+                                            <IconButton
+                                                disabled={currentPage === 1}
+                                                onClick={() => setCurrentPage((prev) => prev - 1)}
+                                            >
+                                                <NavigateBeforeIcon fontSize="small" />
+                                            </IconButton>
+                                            <IconButton
+                                                disabled={currentPage === totalPages}
+                                                onClick={() => setCurrentPage((prev) => prev + 1)}
+                                            >
+                                                <NavigateNextIcon fontSize="small" />
+                                            </IconButton>
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                            </Box>
+                        </>
+                    ) : (
+                        <Typography align="center" color="text.secondary" sx={{ mt: 2, p: 2 }}>
+                            No data found
+                        </Typography>
+                    )}
+                </Box>
             )}
 
-
-            <div className="theme-table payout-section">
-                <div className="payout-info">
-                    <div className="tab-heading">
-                        <h3>Payout</h3>
-                    </div>
-                    <h4 className="payout-amount">Amount:R {UserInfo.data?.data?.data.totalUnPaid || 0}</h4>
-                </div>
-                <button
-                    className="btn btn-primary"
-                    onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
-                // disabled={edit}
+            {/* payout module */}
+            <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px', p: 2 }}>
+                <Box sx={{ borderBottom: '1px solid #E5E7EB' }}>
+                    <Typography variant="h6" gutterBottom fontWeight={550}>
+                        Payout
+                    </Typography>
+                </Box>
+                <Box
+                    sx={{
+                        p: 2,
+                        mt: 3,
+                        borderRadius: 2,
+                        border: '1px solid #E5E7EB',
+                        backgroundColor: "#F9FAFB",
+                        display: "flex",
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexDirection: "row",
+                        gap: 2,
+                        width: "100%",
+                    }}
                 >
-                    Pay
-                </button>
-                {renderPopup()}
-            </div>
+                    <Box>
+                        <Typography variant="body1" mb={1} sx={{ color: 'var(--font-gray)' }} fontWeight={500}>
+                            Total Amount
+                        </Typography>
+
+                        <Typography variant="h5" sx={{ fontWeight: 500 }}>
+                            R {UserInfo.data?.data?.data.totalUnPaid || 0}
+                        </Typography>
+                    </Box>
+
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
+                        sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
+                    >
+                        <img src={payIcon} alt="payIcon" />
+                        Pay Driver
+                    </Button>
+
+                    {renderPopup()}
+                </Box>
+            </Box>
         </Box>
     )
 }
@@ -851,9 +1390,6 @@ const setAgentformvalues = ({ ...props }) => {
             newdata = { ...newdata, [key]: Array.from({ length: 5 }, (_, i) => data?.[`image_${i + 1}`] || null).filter(Boolean) };
         } else if (key === 'company_id') {
             newdata = { ...newdata, [key]: data?.company_id?._id ?? '' };
-        } else if (key === 'bankId') {
-            // Handle bankId - extract just the ID from the bank object
-            newdata = { ...newdata, [key]: data?.bankId?._id ?? '' };
         } else {
             newdata = { ...newdata, [key]: data?.[key] ?? '' };
         }
