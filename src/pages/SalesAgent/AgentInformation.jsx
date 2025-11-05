@@ -1368,7 +1368,7 @@ const AgentInformation = () => {
                         sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
                     >
                         <img src={payIcon} alt="payIcon" />
-                        Pay Driver
+                        Pay
                     </Button>
 
                     {renderPopup()}
