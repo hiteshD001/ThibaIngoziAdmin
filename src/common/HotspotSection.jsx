@@ -62,7 +62,9 @@ function HotspotSection({ isMapLoaded }) {
         const grouped = {};
       
         data?.forEach((item) => {
-          const provinceId = item?.province?._id || "unknown";
+          const provinceId = item?.province?._id || "";
+          if (!provinceId) return;
+          
           // console.log(groupedHotspots);
           if (!grouped[provinceId]) {
             grouped[provinceId] = {
