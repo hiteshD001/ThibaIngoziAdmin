@@ -726,9 +726,9 @@ table#example {
     padding: 12px 8px !important;
 }
 
-* {
+/* * {
     color: #1c1c1c;
-}
+} */
 
 .table-striped>tbody>tr:nth-of-type(odd) {
     --bs-table-accent-bg: #f7f9fb;

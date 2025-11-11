@@ -38,7 +38,12 @@ import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
-
+const copyButtonStyles = {
+    color: '#4285F4 !important',
+    cursor: 'pointer',
+    padding: '4px',
+    borderRadius: '4px',
+};
 
 const Home = ({ isMapLoaded }) => {
     // filters
@@ -114,6 +119,7 @@ const Home = ({ isMapLoaded }) => {
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
     const activeUserList = activeSos?.data?.data?.data
+
 
 
     // const activeSOS = useGetActiveSOS();
@@ -434,14 +440,18 @@ const Home = ({ isMapLoaded }) => {
                                                     }} >
                                                         {user?.address} 
 
-                                                        {/* <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                            <IconButton onClick={() => {
-                                                                setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.user?._id}`);
-                                                                handleCopy();
-                                                            }} className="sosCopyBtn">
-                                                                <ContentCopyIcon fontSize="medium" className="sosCopyBtn"/>
+                                                        <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                            <IconButton 
+                                                                onClick={() => {
+                                                                    setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?._id}`);
+                                                                    handleCopy();
+                                                                }}
+                                                                sx={copyButtonStyles}
+                                                                aria-label="copy address"
+                                                            >
+                                                                <ContentCopyIcon fontSize="medium" />
                                                             </IconButton>
-                                                        </Tooltip> */}
+                                                        </Tooltip>
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
                                                         {user?.req_reach || "0"}
@@ -817,9 +827,26 @@ const Home = ({ isMapLoaded }) => {
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {row?.user?.company_name}
                                                     </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                    <TableCell sx={{
+                                                        color: '#4B5563',
+                                                        display: 'flex',           
+                                                        alignItems: 'center',      
+                                                        justifyContent: 'space-between'
+                                                    }} >
+                                                        {row?.address} 
 
-                                                        {row?.address}
+                                                        <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                            <IconButton 
+                                                                onClick={() => {
+                                                                    setTextToCopy(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?._id}`);
+                                                                    handleCopy();
+                                                                }}
+                                                                sx={copyButtonStyles}
+                                                                aria-label="copy address"
+                                                            >
+                                                                <ContentCopyIcon fontSize="medium" />
+                                                            </IconButton>
+                                                        </Tooltip>
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
                                                         {row?.req_reach || "0"}
