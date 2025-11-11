@@ -36,6 +36,7 @@ import { FaLocationDot } from "react-icons/fa6";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 
 
@@ -79,11 +80,11 @@ const Home = ({ isMapLoaded }) => {
     const endDateSos = rangeSos[0].endDate.toISOString();
 
     // Sort
-    const [sortBy, setSortBy] = useState("first_name");
-    const [sortOrder, setSortOrder] = useState("asc");
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
 
-    const [sortBy2, setSortBy2] = useState("first_name");
-    const [sortOrder2, setSortOrder2] = useState("asc");
+    const [sortBy2, setSortBy2] = useState("createdAt");
+    const [sortOrder2, setSortOrder2] = useState("desc");
 
     const changeSortOrder = (e) => {
         const field = e.target.id;
@@ -100,6 +101,7 @@ const Home = ({ isMapLoaded }) => {
         if (field !== sortBy2) {
             setSortBy2(field);
             setSortOrder2("asc");
+            
         } else {
             setSortOrder2(p => p === 'asc' ? 'desc' : 'asc')
         }
@@ -112,6 +114,7 @@ const Home = ({ isMapLoaded }) => {
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
     const activeUserList = activeSos?.data?.data?.data
+
 
     // const activeSOS = useGetActiveSOS();
 
@@ -134,6 +137,16 @@ const Home = ({ isMapLoaded }) => {
     const handleRecentNotificationChange = (e) => {
         setRecentNotification(e.target.value)
     }
+
+    const [textToCopy,setTextToCopy] = useState('')
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(textToCopy);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
     // useEffect(() => {
     //     if (notificationTypes.data?.data.length > 0 && !selectedNotification) {
     //         setSelectedNotification(notificationTypes.data?.data[0]?._id);
@@ -415,8 +428,20 @@ const Home = ({ isMapLoaded }) => {
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
-                                                    }}>
-                                                        {user?.address}
+                                                        display: 'flex',           
+                                                        alignItems: 'center',      
+                                                        justifyContent: 'space-between'
+                                                    }} >
+                                                        {user?.address} 
+
+                                                        {/* <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                            <IconButton onClick={() => {
+                                                                setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.user?._id}`);
+                                                                handleCopy();
+                                                            }} className="sosCopyBtn">
+                                                                <ContentCopyIcon fontSize="medium" className="sosCopyBtn"/>
+                                                            </IconButton>
+                                                        </Tooltip> */}
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
                                                         {user?.req_reach || "0"}
