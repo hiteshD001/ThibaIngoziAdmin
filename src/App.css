@@ -733,7 +733,12 @@ table#example {
     color: #4285F4 !important;
 }
 
-.css-1umw9bq-MuiSvgIcon-root {
+.css-1umw9bq-MuiSvgIcon-root,  .css-q7mezt{
+   color: #1c1c1c;
+}
+ 
+
+.css-q7mezt {
     color: #1c1c1c;
 }
 
