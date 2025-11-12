@@ -726,9 +726,12 @@ table#example {
     padding: 12px 8px !important;
 }
 
-/* * {
-    color: #1c1c1c;
-} */
+
+
+
+.copy-btn  {
+    color: #4285F4 !important;
+}
 
 .css-1umw9bq-MuiSvgIcon-root {
     color: #1c1c1c;

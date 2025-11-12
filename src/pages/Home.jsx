@@ -436,7 +436,8 @@ const Home = ({ isMapLoaded }) => {
                                                         color: '#4B5563',
                                                         display: 'flex',           
                                                         alignItems: 'center',      
-                                                        justifyContent: 'space-between'
+                                                        justifyContent: 'space-between',
+                                                        
                                                     }} >
                                                         {user?.address} 
 
@@ -449,7 +450,7 @@ const Home = ({ isMapLoaded }) => {
                                                                 sx={copyButtonStyles}
                                                                 aria-label="copy address"
                                                             >
-                                                                <ContentCopyIcon fontSize="medium" />
+                                                                <ContentCopyIcon fontSize="medium"  className="copy-btn"/>
                                                             </IconButton>
                                                         </Tooltip>
                                                     </TableCell>
@@ -844,7 +845,7 @@ const Home = ({ isMapLoaded }) => {
                                                                 sx={copyButtonStyles}
                                                                 aria-label="copy address"
                                                             >
-                                                                <ContentCopyIcon fontSize="medium" />
+                                                                <ContentCopyIcon fontSize="medium" className="copy-btn" />
                                                             </IconButton>
                                                         </Tooltip>
                                                     </TableCell>
