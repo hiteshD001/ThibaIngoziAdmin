@@ -445,7 +445,7 @@ const Home = ({ isMapLoaded }) => {
                                                             <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
                                                                 <IconButton
                                                                     onClick={() => {
-                                                                        setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?._id}`);
+                                                                        setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks[0]?._id}`);
                                                                         handleCopy();
                                                                     }}
                                                                     sx={copyButtonStyles}
@@ -843,7 +843,7 @@ const Home = ({ isMapLoaded }) => {
                                                             <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
                                                                 <IconButton
                                                                     onClick={() => {
-                                                                        setTextToCopy(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?._id}`);
+                                                                        setTextToCopy(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?.deepLinks._id}`);
                                                                         handleCopy();
                                                                     }}
                                                                     sx={copyButtonStyles}
