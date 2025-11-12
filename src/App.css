@@ -730,6 +730,10 @@ table#example {
     color: #1c1c1c;
 } */
 
+.css-1umw9bq-MuiSvgIcon-root {
+    color: #1c1c1c;
+}
+
 .table-striped>tbody>tr:nth-of-type(odd) {
     --bs-table-accent-bg: #f7f9fb;
     color: #1c1c1c;
