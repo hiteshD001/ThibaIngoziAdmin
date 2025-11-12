@@ -106,7 +106,7 @@ const Home = ({ isMapLoaded }) => {
         if (field !== sortBy2) {
             setSortBy2(field);
             setSortOrder2("asc");
-            
+
         } else {
             setSortOrder2(p => p === 'asc' ? 'desc' : 'asc')
         }
@@ -144,15 +144,15 @@ const Home = ({ isMapLoaded }) => {
         setRecentNotification(e.target.value)
     }
 
-    const [textToCopy,setTextToCopy] = useState('')
+    const [textToCopy, setTextToCopy] = useState('')
 
-  const [copied, setCopied] = useState(false);
+    const [copied, setCopied] = useState(false);
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(textToCopy);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    const handleCopy = async () => {
+        await navigator.clipboard.writeText(textToCopy);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
     // useEffect(() => {
     //     if (notificationTypes.data?.data.length > 0 && !selectedNotification) {
     //         setSelectedNotification(notificationTypes.data?.data[0]?._id);
@@ -434,15 +434,15 @@ const Home = ({ isMapLoaded }) => {
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
-                                                        display: 'flex',           
-                                                        alignItems: 'center',      
+                                                        display: 'flex',
+                                                        alignItems: 'center',
                                                         justifyContent: 'space-between',
-                                                        
+
                                                     }} >
-                                                        {user?.address} 
+                                                        {user?.address}
 
                                                         <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                            <IconButton 
+                                                            <IconButton
                                                                 onClick={() => {
                                                                     setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?._id}`);
                                                                     handleCopy();
@@ -450,7 +450,7 @@ const Home = ({ isMapLoaded }) => {
                                                                 sx={copyButtonStyles}
                                                                 aria-label="copy address"
                                                             >
-                                                                <ContentCopyIcon fontSize="medium"  className="copy-btn"/>
+                                                                <ContentCopyIcon fontSize="medium" className="copy-btn" />
                                                             </IconButton>
                                                         </Tooltip>
                                                     </TableCell>
@@ -494,7 +494,7 @@ const Home = ({ isMapLoaded }) => {
                                                             </Tooltip>
                                                         </Box>
                                                     </TableCell>
-                                                     {user?.type?.type === "linked_sos" ? (
+                                                    {user?.type?.type === "linked_sos" ? (
                                                         <TableCell>
                                                             <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
                                                                 <Tooltip title="Other User" arrow placement="top">
@@ -571,7 +571,7 @@ const Home = ({ isMapLoaded }) => {
                                             setActivePage(1);
                                         }}
                                     >
-                                        {[5, 10, 15, 20,50,100].map((num) => (
+                                        {[5, 10, 15, 20, 50, 100].map((num) => (
                                             <MenuItem key={num} value={num}>
                                                 {num}
                                             </MenuItem>
@@ -830,24 +830,27 @@ const Home = ({ isMapLoaded }) => {
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
-                                                        display: 'flex',           
-                                                        alignItems: 'center',      
-                                                        justifyContent: 'space-between'
                                                     }} >
-                                                        {row?.address} 
+                                                        <Box sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between'
+                                                        }}>
+                                                            {row?.address}
 
-                                                        <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                            <IconButton 
-                                                                onClick={() => {
-                                                                    setTextToCopy(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?._id}`);
-                                                                    handleCopy();
-                                                                }}
-                                                                sx={copyButtonStyles}
-                                                                aria-label="copy address"
-                                                            >
-                                                                <ContentCopyIcon fontSize="medium" className="copy-btn" />
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                <IconButton
+                                                                    onClick={() => {
+                                                                        setTextToCopy(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?._id}`);
+                                                                        handleCopy();
+                                                                    }}
+                                                                    sx={copyButtonStyles}
+                                                                    aria-label="copy address"
+                                                                >
+                                                                    <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
                                                         {row?.req_reach || "0"}
@@ -952,7 +955,7 @@ const Home = ({ isMapLoaded }) => {
                                             setRecentPage(1);
                                         }}
                                     >
-                                        {[5, 10, 15, 20,50,100].map((num) => (
+                                        {[5, 10, 15, 20, 50, 100].map((num) => (
                                             <MenuItem key={num} value={num}>
                                                 {num}
                                             </MenuItem>
