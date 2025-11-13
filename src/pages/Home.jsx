@@ -36,8 +36,14 @@ import { FaLocationDot } from "react-icons/fa6";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
-
+const copyButtonStyles = {
+    color: '#4285F4 !important',
+    cursor: 'pointer',
+    padding: '4px',
+    borderRadius: '4px',
+};
 
 const Home = ({ isMapLoaded }) => {
     // filters
@@ -79,11 +85,11 @@ const Home = ({ isMapLoaded }) => {
     const endDateSos = rangeSos[0].endDate.toISOString();
 
     // Sort
-    const [sortBy, setSortBy] = useState("first_name");
-    const [sortOrder, setSortOrder] = useState("asc");
+    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortOrder, setSortOrder] = useState("desc");
 
-    const [sortBy2, setSortBy2] = useState("first_name");
-    const [sortOrder2, setSortOrder2] = useState("asc");
+    const [sortBy2, setSortBy2] = useState("createdAt");
+    const [sortOrder2, setSortOrder2] = useState("desc");
 
     const changeSortOrder = (e) => {
         const field = e.target.id;
@@ -100,6 +106,7 @@ const Home = ({ isMapLoaded }) => {
         if (field !== sortBy2) {
             setSortBy2(field);
             setSortOrder2("asc");
+
         } else {
             setSortOrder2(p => p === 'asc' ? 'desc' : 'asc')
         }
@@ -112,6 +119,8 @@ const Home = ({ isMapLoaded }) => {
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
     const activeUserList = activeSos?.data?.data?.data
+
+
 
     // const activeSOS = useGetActiveSOS();
 
@@ -134,6 +143,16 @@ const Home = ({ isMapLoaded }) => {
     const handleRecentNotificationChange = (e) => {
         setRecentNotification(e.target.value)
     }
+
+    const [textToCopy, setTextToCopy] = useState('')
+
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async () => {
+        await navigator.clipboard.writeText(textToCopy);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
     // useEffect(() => {
     //     if (notificationTypes.data?.data.length > 0 && !selectedNotification) {
     //         setSelectedNotification(notificationTypes.data?.data[0]?._id);
@@ -415,8 +434,27 @@ const Home = ({ isMapLoaded }) => {
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
-                                                    }}>
-                                                        {user?.address}
+                                                    }} >
+                                                        <Box sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between',
+                                                        }}>
+                                                            {user?.address}
+
+                                                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                <IconButton
+                                                                    onClick={() => {
+                                                                        setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks[0]?._id}`);
+                                                                        handleCopy();
+                                                                    }}
+                                                                    sx={copyButtonStyles}
+                                                                    aria-label="copy address"
+                                                                >
+                                                                    <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
                                                         {user?.req_reach || "0"}
@@ -458,7 +496,7 @@ const Home = ({ isMapLoaded }) => {
                                                             </Tooltip>
                                                         </Box>
                                                     </TableCell>
-                                                     {user?.type?.type === "linked_sos" ? (
+                                                    {user?.type?.type === "linked_sos" ? (
                                                         <TableCell>
                                                             <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
                                                                 <Tooltip title="Other User" arrow placement="top">
@@ -535,7 +573,7 @@ const Home = ({ isMapLoaded }) => {
                                             setActivePage(1);
                                         }}
                                     >
-                                        {[5, 10, 15, 20,50,100].map((num) => (
+                                        {[5, 10, 15, 20, 50, 100].map((num) => (
                                             <MenuItem key={num} value={num}>
                                                 {num}
                                             </MenuItem>
@@ -792,9 +830,29 @@ const Home = ({ isMapLoaded }) => {
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {row?.user?.company_name}
                                                     </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                    <TableCell sx={{
+                                                        color: '#4B5563',
+                                                    }} >
+                                                        <Box sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between'
+                                                        }}>
+                                                            {row?.address}
 
-                                                        {row?.address}
+                                                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                <IconButton
+                                                                    onClick={() => {
+                                                                        setTextToCopy(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?.deepLinks._id}`);
+                                                                        handleCopy();
+                                                                    }}
+                                                                    sx={copyButtonStyles}
+                                                                    aria-label="copy address"
+                                                                >
+                                                                    <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
                                                         {row?.req_reach || "0"}
@@ -899,7 +957,7 @@ const Home = ({ isMapLoaded }) => {
                                             setRecentPage(1);
                                         }}
                                     >
-                                        {[5, 10, 15, 20,50,100].map((num) => (
+                                        {[5, 10, 15, 20, 50, 100].map((num) => (
                                             <MenuItem key={num} value={num}>
                                                 {num}
                                             </MenuItem>
