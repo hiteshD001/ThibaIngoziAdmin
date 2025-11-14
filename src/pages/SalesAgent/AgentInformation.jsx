@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import { Grid, Select, Typography, Box, FormControl, InputLabel, Button, FormHelperText, TextField, Table, TableBody, InputAdornment, TableContainer, TableHead, TableRow, TableCell, TableSortLabel, MenuItem, IconButton } from "@mui/material";
+import { Grid, Select, Typography, Box, FormControl, InputLabel, Button, FormHelperText, TextField, Table, TableBody, InputAdornment, TableContainer, TableHead, TableRow, TableCell, TableSortLabel, MenuItem, IconButton, Stack, Avatar, Tooltip } from "@mui/material";
 import { useFormik } from "formik"
 import { sales_agent_e } from "../../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query"
@@ -34,10 +34,7 @@ import payIcon from '../../assets/images/payIcon.svg';
 import CustomExportMenu from '../../common/Custom/CustomExport'
 import apiClient from '../../API Calls/APIClient'
 import CustomSelect from '../../common/Custom/CustomSelect'
-
-
-
-
+import ViewBtn from '../../assets/images/ViewBtn.svg'
 
 
 const AgentInformation = () => {
