@@ -98,7 +98,7 @@ const AgentInformation = () => {
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
     const driverList = useGetUserByInfluncer(page, 10, startDate, endDate, params.id)
-    const totalUsers = driverList.data?.data?.data?.influencersData || 0;
+    const totalUsers = driverList.data?.data?.data?.totalCount || 0;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
     // console.log('test',driverList.data?.data?.data?.influencersData)
     const UserInfo = useGetAgent(params.id)

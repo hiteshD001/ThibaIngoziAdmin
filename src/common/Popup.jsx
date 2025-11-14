@@ -26,7 +26,7 @@ const Popup = ({
             >
                 <div className="modal-content bg-light text-light border border-dark p-3">
                     <div className="modal-header border-0">
-                        <h5 className="modal-title text-center w-100">{title}</h5>
+                        <h5 className="modal-title text-center w-100" style={{ color: 'black' }}>{title}</h5>
                     </div>
                     <div className="modal-footer d-flex justify-content-center gap-3 border-0">
                         <button
