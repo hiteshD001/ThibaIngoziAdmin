@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
 import {
@@ -46,6 +46,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 const ListOfSalesAgent = () => {
+    const buttonRefs = useRef({});
     const [popup, setpopup] = useState(false)
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
@@ -57,6 +58,7 @@ const ListOfSalesAgent = () => {
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     const [selectedPayoutType, setSelectedPayoutType] = useState('');
+
     const [payPopup, setPopup] = useState('')
     const [range, setRange] = useState([
         {
@@ -87,15 +89,16 @@ const ListOfSalesAgent = () => {
     const totalPages = UserList?.data?.data?.data?.totalPages
     const queryClient = useQueryClient();
 
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [menuUserId, setMenuUserId] = useState(null);
 
-    const handleOpenMenu = (event) => {
-        setAnchorEl(event.currentTarget);
+    const handleOpenMenu = (userId) => {
+        setMenuUserId(userId);
     };
 
     const handleCloseMenu = () => {
-        setAnchorEl(null);
+        setMenuUserId(null);
     };
+
 
     const { mutate: shareAgent } = useShareAgent(
         (data) => {
@@ -322,6 +325,16 @@ const ListOfSalesAgent = () => {
         }
     };
 
+    useEffect(() => {
+        const data = UserList?.data?.data?.data
+
+        if (data) {
+            setMenuUserId(null)
+            console.log("working")
+            console.log(menuUserId)
+        }
+    }, [UserList?.data?.data?.data])
+
     return (
         <Box p={2}>
             <Grid container spacing={2}>
@@ -501,13 +514,12 @@ const ListOfSalesAgent = () => {
                         </Grid>
 
                         {/* Table */}
-                        <Box
-                            sx={{
-                                px: { xs: 0, md: 2 },
-                                pt: { xs: 0, md: 3 },
-                                backgroundColor: "#FFFFFF",
-                                borderRadius: "10px",
-                            }}
+                        <Box sx={{
+                            px: { xs: 0, md: 2 },
+                            pt: { xs: 0, md: 3 },
+                            backgroundColor: "#FFFFFF",
+                            borderRadius: "10px",
+                        }}
                         >
                             <TableContainer>
                                 <Table sx={{ "& .MuiTableCell-root": { fontSize: "15px" } }}>
@@ -689,25 +701,15 @@ const ListOfSalesAgent = () => {
                                     </TableHead>
 
                                     <TableBody>
-                                        {UserList.isFetching ? (
+                                        {UserList.isFetching ?
                                             <TableRow>
-                                                <TableCell
-                                                    sx={{ color: "#4B5563", borderBottom: "none" }}
-                                                    colSpan={16}
-                                                    align="center"
-                                                >
+                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={16} align="center">
                                                     <Loader />
                                                 </TableCell>
                                             </TableRow>
-                                        ) : agentList?.length > 0 ? (
-                                            agentList.map((user) => {
-                                                const unpaid = Number(user.totalUnPaid) || 0;
-                                                const MIN_ZAR = 10;
-                                                const disabledPay = unpaid < MIN_ZAR;
-
-                                                return (
+                                            : (agentList?.length > 0 ?
+                                                agentList?.map((user) => (
                                                     <TableRow key={user._id}>
-                                                        {/* User */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
                                                             <Stack direction="row" alignItems="center" gap={1.5}>
                                                                 <Avatar
@@ -716,161 +718,171 @@ const ListOfSalesAgent = () => {
                                                                     sx={{ width: 32, height: 32 }}
                                                                 />
                                                                 {user.first_name} {user.last_name}
+
                                                             </Stack>
                                                         </TableCell>
 
-                                                        {/* Contact No */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {`${user?.mobile_no_country_code ?? ""}${user?.mobile_no ?? ""}`}
+                                                            {`${user?.mobile_no_country_code ?? ''}${user?.mobile_no ?? ''}`}
                                                         </TableCell>
 
-                                                        {/* Email */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
                                                             {user.email}
                                                         </TableCell>
 
-                                                        {/* Enrolment Discount */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
                                                             {user.enrollAmountDeduction}
                                                         </TableCell>
 
-                                                        {/* Total Earned */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
                                                             {user.totalEarnedAmount}
                                                         </TableCell>
 
-                                                        {/* Commission Earned */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
                                                             {user.commissionEarned}
                                                         </TableCell>
 
-                                                        {/* Unpaid Amount */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.totalUnPaid}
+                                                            {user.totalUnPaid || 0}
                                                         </TableCell>
 
-                                                        {/* Paid Amount */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.totalPaid}
+                                                            {user.totalPaid || 0}
                                                         </TableCell>
 
-                                                        {/* Total Users */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.length}
+                                                            {user.user_id.length}
                                                         </TableCell>
 
-                                                        {/* Account Number */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.accountNumber}
+                                                            {user.accountNumber ?? '-'}
                                                         </TableCell>
 
-                                                        {/* Bank Name */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.bank_name}
+                                                            {user.bankId?.bank_name ? user.bankId.bank_name : "-"}
                                                         </TableCell>
 
-                                                        {/* Branch Code */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.branch_code}
+                                                            {user.bankId?.branch_code ? user.bankId.branch_code : "-"}
                                                         </TableCell>
 
-                                                        {/* Share Status */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.sharedStatus}
+                                                            {user.sharedStatus ?? '-'}
                                                         </TableCell>
 
-                                                        {/* Performance Level */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.performanceLevel}
+                                                            {user.performanceLevel ? user.performanceLevel : "-"}
                                                         </TableCell>
 
-                                                        {/* Tie */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.tie}
+                                                            {user.tie ?? '-'}
                                                         </TableCell>
 
-                                                        {/* Actions */}
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            <Box display="flex" alignItems="center" gap={2}>
-                                                                {/* View */}
-                                                                <span
-                                                                    onClick={() =>
-                                                                        nav(`/home/total-sales-agent/agent-information/${user._id}`)
-                                                                    }
-                                                                    className="tbl-btn"
-                                                                    style={{ marginRight: "10px", cursor: "pointer" }}
+                                                        <TableCell sx={{ backgroundColor: 'white' }}>
+                                                            <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                                <IconButton
+                                                                    ref={(el) => (buttonRefs.current[user._id] = el)}
+                                                                    onClick={() => handleOpenMenu(user._id)}
                                                                 >
-                                                                    View
-                                                                </span>
+                                                                    <MoreVertIcon />
+                                                                </IconButton>
 
-                                                                {/* Share */}
-                                                                <span
-                                                                    onClick={() => {
-                                                                        setSharingId(user?._id);
-                                                                        shareAgent({ id: user?._id, email: user?.email });
-                                                                    }}
-                                                                    className="tbl-gray cursor-pointer"
-                                                                    style={{ marginRight: "10px" }}
-                                                                >
-                                                                    {sharingId === user?._id ? "Sharing..." : "Share"}
-                                                                </span>
 
-                                                                {/* Pay */}
-                                                                <span
-                                                                    onClick={
-                                                                        !disabledPay
-                                                                            ? (event) =>
-                                                                                handlePopup(event, "payout", "sales_agent", user)
-                                                                            : undefined
-                                                                    }
-                                                                    className={`tbl-gray cursor-pointer ${disabledPay ? "disabled" : ""
-                                                                        }`}
-                                                                    style={
-                                                                        disabledPay
-                                                                            ? { pointerEvents: "none", opacity: 0.5 }
-                                                                            : {}
-                                                                    }
-                                                                    title={
-                                                                        disabledPay ? `Requires at least R ${MIN_ZAR} unpaid` : "Pay"
-                                                                    }
-                                                                >
-                                                                    Pay
-                                                                </span>
+                                                            </Box>
+                                                        </TableCell>
+                                                        <Menu
+                                                            anchorEl={menuUserId ? buttonRefs.current[menuUserId] : null}
+                                                            open={Boolean(menuUserId)}
+                                                            onClose={handleCloseMenu}
+                                                            anchorOrigin={{
+                                                                vertical: "bottom",
+                                                                horizontal: "right",
+                                                            }}
+                                                            transformOrigin={{
+                                                                vertical: "top",
+                                                                horizontal: "right",
+                                                            }}
+                                                        >
+                                                            <MenuItem
+                                                                onClick={() => {
+                                                                    nav(`/home/total-sales-agent/agent-information/${user._id}`)
+                                                                    handleCloseMenu();
+                                                                }}
+                                                            >
+                                                                <img src={OutlinedView} alt="view button" /> &nbsp; View
+                                                            </MenuItem>
+                                                            <MenuItem
+                                                                onClick={() => {
+                                                                    setSharingId(user?._id);
+                                                                    shareAgent({ id: user?._id, email: user?.email });
+                                                                    handleCloseMenu();
+                                                                }}
+                                                            >
+                                                                <img src={OutlinedShare} alt="edit button" /> &nbsp;   {sharingId === user?._id ? "Sharing..." : "Share"}
+                                                            </MenuItem>
+                                                            <MenuItem
+                                                                onClick={(event) => {
+                                                                    handlePopup(event, 'payout', 'sales_agent');
+                                                                    handleCloseMenu();
+                                                                }}
+                                                            >
+                                                                <img src={OutlinedPay} alt="edit button" /> &nbsp;   Pay
+                                                            </MenuItem>
+                                                            <MenuItem
+                                                                onClick={() => {
+                                                                    setconfirmation(user._id);
+                                                                    handleCloseMenu();
+                                                                }}
+                                                            >
+                                                                <img src={outlinedDustbin} alt="dustbin button" /> &nbsp;   Delete
+                                                            </MenuItem>
+                                                        </Menu>
 
-                                                                {/* Delete */}
-                                                                <span
-                                                                    onClick={() => setconfirmation(user._id)}
-                                                                    className="tbl-gray cursor-pointer"
-                                                                >
-                                                                    Delete
-                                                                </span>
-
-                                                                {confirmation === user._id && (
-                                                                    <DeleteSalesAgent
-                                                                        id={user._id}
+                                                        {/* <TableCell>
+                                                            <Box
+                                                                align="center"
+                                                                sx={{ display: "flex", flexDirection: "row", gap: 0 }}
+                                                            >
+                                                                <Tooltip title="View" arrow placement="top">
+                                                                    <IconButton onClick={() =>
+                                                                        nav(`/home/total-users/user-information/${driver._id}`)
+                                                                    }>
+                                                                        <img src={ViewBtn} alt="view button" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                <Tooltip title="Delete" arrow placement="top">
+                                                                    <IconButton onClick={() => setconfirmation(driver._id)}>
+                                                                        <img src={delBtn} alt="delete button" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                <Tooltip title="Payout" arrow placement="top">
+                                                                    <IconButton onClick={(event) =>
+                                                                        handlePopup(event, "payout", "driver", driver)
+                                                                    }>
+                                                                        <img src={driverPayoutIcon} alt="payout button" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                                {confirmation === driver._id && (
+                                                                    <DeleteConfirm
+                                                                        id={driver._id}
                                                                         setconfirmation={setconfirmation}
                                                                     />
                                                                 )}
-                                                            </Box>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                );
-                                            })
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell
-                                                    sx={{ color: "#4B5563", borderBottom: "none" }}
-                                                    colSpan={16}
-                                                    align="center"
-                                                >
-                                                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
-                                                        No data found
-                                                    </Typography>
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
 
+                                                            </Box>
+                                                        </TableCell> */}
+                                                    </TableRow>
+                                                ))
+                                                :
+                                                <TableRow>
+                                                    <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={16} align="center">
+                                                        <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                            No data found
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>)
+                                        }
+                                    </TableBody>
                                 </Table>
                             </TableContainer>
 
