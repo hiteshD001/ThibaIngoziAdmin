@@ -5,7 +5,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineDown, AiOutlineUp } from 
 import { useFormik } from "formik";
 import { companyValidation } from "../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType, useGetCityList } from "../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetServicesList, useRegister, useGetSecurityList, useCreateNotificationType, useGetCityList, useGetBanksList } from "../API Calls/API";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { toast } from "react-toastify";
@@ -69,7 +69,7 @@ const AddCompany = () => {
 						values[key]?.forEach(id => {
 							formData.append("securityCompany[]", id);
 						});
-					}else if(key === 'accountHolderName'){
+					} else if (key === 'accountHolderName') {
 						formData.append("account_holder_name", values[key]);
 					} else {
 						formData.append(key, values[key]);
@@ -435,12 +435,12 @@ const AddCompany = () => {
 						<Grid size={{ xs: 12, sm: 6 }}>
 							<FormControl variant="standard" fullWidth>
 								<InputLabel shrink htmlFor="id_no" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-									ID No
+									ID/Passport Number
 								</InputLabel>
 								<BootstrapInput
 									id="id_no"
 									name="id_no"
-									placeholder="Enter ID No."
+									placeholder="Enter ID/Passport Number."
 									value={companyForm.values.id_no}
 									onChange={companyForm.handleChange}
 								/>
@@ -748,6 +748,130 @@ const AddCompany = () => {
 									onChange={companyForm.handleChange}
 								/>
 								{companyForm.touched.postal_code && <div style={{ color: 'red', fontSize: 12 }}>{companyForm.errors.postal_code}</div>}
+							</FormControl>
+						</Grid>
+
+						{/* Actions */}
+						{/* <Grid size={12} sx={{ mt: 1 }}>
+							<Box display="flex" justifyContent="flex-end" gap={2}>
+								<Button variant="outlined" sx={{ width: 130, height: 48, borderRadius: '10px', color: 'black', borderColor: '#E0E3E7' }} onClick={handleCancel}>
+									Cancel
+								</Button>
+								<Button
+									type="submit"
+									variant="contained"
+									onClick={companyForm.handleSubmit}
+									disabled={newcompany.isPending}
+									sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+								>
+									{newcompany.isPending ? <Loader color="white" /> : "Save"}
+								</Button>
+							</Box>
+						</Grid> */}
+					</Grid>
+				</Paper>
+				<Paper elevation={0} sx={{ p: 3, mt: 3, mb: 3, borderRadius: '10px' }}>
+					<Grid container spacing={3}>
+
+						<Grid size={12}>
+							<Typography variant="h6" gutterBottom fontWeight={600}>
+								Bank Details
+							</Typography>
+						</Grid>
+
+						<Grid size={{ xs: 12, sm: 6 }}>
+							<FormControl variant="standard" fullWidth >
+								<InputLabel shrink htmlFor="suburb" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+									Account Holder Name
+								</InputLabel>
+								<BootstrapInput
+									id="accountHolderName"
+									name="accountHolderName"
+									placeholder="Enter Account Holder Name"
+									value={companyForm.values.accountHolderName}
+									onChange={companyForm.handleChange}
+								/>
+								{companyForm.touched.accountHolderName && <div style={{ color: 'red', fontSize: 12 }}>{companyForm.errors.accountHolderName}</div>}
+							</FormControl>
+						</Grid>
+						<Grid size={{ xs: 12, sm: 6 }}>
+							<FormControl variant="standard" fullWidth >
+								<InputLabel shrink htmlFor="street" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+									Branch Code
+								</InputLabel>
+								<BootstrapInput
+									id="customerCode"
+									name="customerCode"
+									placeholder="customerCode"
+									readOnly
+									value={companyForm.values.customerCode}
+									onChange={companyForm.handleChange}
+								/>
+								{companyForm.touched.customerCode && <div style={{ color: 'red', fontSize: 12 }}>{companyForm.errors.customerCode}</div>}
+							</FormControl>
+						</Grid>
+						<Grid size={{ xs: 12, sm: 6 }}>
+							<FormControl variant="standard" fullWidth>
+								<InputLabel shrink htmlFor="postal_code" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+									Account Type
+								</InputLabel>
+								<BootstrapInput
+									id="accountType"
+									name="accountType"
+									placeholder="Enter Account Type"
+									value={companyForm.values.accountType}
+									onChange={companyForm.handleChange}
+								/>
+								{companyForm.touched.accountType && <div style={{ color: 'red', fontSize: 12 }}>{companyForm.errors.accountType}</div>}
+							</FormControl>
+						</Grid>
+						<Grid size={{ xs: 12, sm: 6 }}>
+							<CustomSelect
+								label="Bank Id"
+								name="bankId"
+								value={companyForm.values.bankId}
+								onChange={(e) => {
+									const selectedBank = bankList?.find(bank => bank._id === e.target.value);
+									companyForm.setValues({
+										...companyForm.values,
+										bankId: e.target.value,
+										customerCode: selectedBank?.branch_code || ''
+									});
+								}}
+								options={bankList?.map(bank => ({
+									value: bank._id,
+									label: bank.bank_name
+								})) || []}
+								error={companyForm.errors.bankId && companyForm.touched.bankId}
+								helperText={companyForm.errors.bankId}
+							/>
+							{/* <FormControl variant="standard" fullWidth>
+								<InputLabel shrink htmlFor="postal_code" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+									Bank Id
+								</InputLabel>
+								<BootstrapInput
+									id="bankId"
+									name="bankId"
+									placeholder="Enter Bank Id"
+									value={companyForm.values.bankId}
+									onChange={companyForm.handleChange}
+								/>
+								{companyForm.touched.bankId && <div style={{ color: 'red', fontSize: 12 }}>{companyForm.errors.bankId}</div>}
+							</FormControl> */}
+						</Grid>
+						<Grid size={{ xs: 12, sm: 6 }}>
+							<FormControl variant="standard" fullWidth>
+								<InputLabel shrink htmlFor="postal_code" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+									Account Number
+								</InputLabel>
+								<BootstrapInput
+									id="accountNumber"
+									name="accountNumber"
+									placeholder="Enter Account Number"
+									value={companyForm.values.accountNumber}
+									onChange={companyForm.handleChange}
+								/>
+								{companyForm.touched.accountNumber && <div style={{ color: 'red', fontSize: 12 }}>{companyForm.errors.accountNumber}</div>}
 							</FormControl>
 						</Grid>
 

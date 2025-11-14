@@ -1050,7 +1050,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user?._id}`)}>
+                                                            <IconButton onClick={() => nav(`/home/total-drivers/driver-information/${row?.user?._id}`)}>
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
@@ -1061,7 +1061,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         :
                                         <TableRow>
                                             <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
-                                                <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                <Typography justifyContent="start" alignItems="start"  color="text.secondary" sx={{ mt: 2 }}>
                                                     No data found
                                                 </Typography>
                                             </TableCell>
@@ -1108,7 +1108,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         updatePagination("recentSos", "page", 1); // Reset to first page
                                     }}
                                 >
-                                    {[5, 10, 15, 20].map((num) => (
+                                    {[5, 10, 15, 20,50,100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
@@ -1319,7 +1319,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                                 <TableCell sx={{ color: "#4B5563" }}>
                                                     <Stack direction="row" alignItems="center" gap={1.5}>
                                                         <Avatar
-                                                            src={driver.profileImage || nouser}
+                                                            src={driver.selfieImage || nouser}
                                                             alt="driver"
                                                             sx={{ width: 32, height: 32 }}
                                                         />
@@ -1429,7 +1429,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         updatePagination("driver", "page", 1); // Reset to first page
                                     }}
                                 >
-                                    {[5, 10, 15, 20].map((num) => (
+                                    {[5, 10, 15, 20,50,100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
@@ -1696,7 +1696,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         updatePagination("user", "page", 1); // Reset to first page
                                     }}
                                 >
-                                    {[5, 10, 15, 20].map((num) => (
+                                    {[5, 10, 15, 20,50,100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>

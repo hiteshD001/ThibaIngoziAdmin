@@ -220,11 +220,11 @@ const ListOfCompanies = () => {
                   </TableCell>
                   <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                     <TableSortLabel
-                      id="contact_name"
-                      active={sortBy === 'contact_name'}
+                      id="first_name"
+                      active={sortBy === 'first_name'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'contact_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                     >
                       User name
                     </TableSortLabel>
@@ -364,7 +364,7 @@ const ListOfCompanies = () => {
                     setCurrentPage(1);
                   }}
                 >
-                  {[5, 10, 15, 20].map((num) => (
+                  {[5, 10, 15, 20,50,100].map((num) => (
                     <MenuItem key={num} value={num}>
                       {num}
                     </MenuItem>

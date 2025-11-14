@@ -234,29 +234,44 @@ const ListOfSalesAgent = () => {
         return { result, message };
     };
 
-    const payoutMutation = armedSosPayout(
-        (res) => {
-            const { result, message } = parseXmlResponse(res.data);
+const payoutMutation = armedSosPayout(
+  (res) => {
+    console.log("🔍 payout API raw response:", res.data);
 
-            if (result === "Success") {
-                payoutUpdateMutation.mutate({
-                    user_id: vehicleInfo?.data?.data?.user._id,
-                    type: selectedPayoutType,
-                    amount: PayoutForm.values.amount,
-                });
-                toast.success('Payment successful');
-                closePopup();
-            } else {
-                toast.error(message || 'Payment failed');
-                console.error("Payment Error:", message);
-            }
-        },
+    let result, message;
 
-        (err) => {
-            toast.error('payment failed')
-            console.error("Error!", err);
-        }
-    );
+    // Case 1: XML response
+    if (typeof res.data === "string" && res.data.trim().startsWith("<")) {
+      const parsed = parseXmlResponse(res.data);
+      result = parsed.result;
+      message = parsed.message;
+    }
+    // Case 2: JSON response
+    else if (typeof res.data === "object") {
+      result = res.data?.result || res.data?.status || "Success";
+      message = res.data?.message || res.data?.title || "";
+    }
+
+    if (String(result).toLowerCase() === "success") {
+      payoutUpdateMutation.mutate({
+        user_id: PayoutForm.values.customerCode || "", // safer than vehicleInfo
+        type: selectedPayoutType,
+        amount: PayoutForm.values.amount,
+      });
+      toast.success("Payment successful ✅");
+      closePopup();
+    } else {
+      toast.error(message || "Payment failed ❌");
+      console.error("Payment Error:", message, "Raw result:", result);
+    }
+  },
+  (err) => {
+    toast.error("Payment failed ❌");
+    console.error("Error!", err);
+  }
+);
+
+
 
     const payoutUpdateMutation = payoutUserUpdate(
         (res) => {
@@ -272,22 +287,23 @@ const ListOfSalesAgent = () => {
     };
 
 
-    const handlePopup = (event, type, payoutType) => {
+    const handlePopup = (event, type, payoutType, agent) => {
         event.stopPropagation();
-        PayoutForm.setValues({
-            firstName: agentList?.first_name || "",
-            surname: agentList?.last_name || "",
-            branchCode: agentList?.bankId?.branch_code || "",
-            accountNumber: agentList?.accountNumber || "",
-            customerCode: agentList?.customerCode || "",
-            amount: agentList?.totalUnPaid || 0,
-        });
+        if (agent) {
+            PayoutForm.setValues({
+                firstName: agent.first_name || "",
+                surname: agent.last_name || "",
+                branchCode: agent.bankId?.branch_code || "",
+                accountNumber: agent.accountNumber || "",
+                customerCode: agent._id || "",
+                amount: agent.totalUnPaid || 0,
+            });
+        }
         setPopup(type);
         setSelectedPayoutType(payoutType);
     };
 
-    const closePopup = (event) => {
-        // event.stopPropagation();
+    const closePopup = () => {
         setPopup('')
     }
     const renderPopup = () => {
@@ -704,135 +720,58 @@ const ListOfSalesAgent = () => {
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
                                                             {user.enrollAmountDeduction}
-                                                        </TableCell>
+                                                        </td> */}
+                                                            <td >
 
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.totalEarnedAmount}
-                                                        </TableCell>
+                                                                <span
+                                                                    onClick={() =>
+                                                                        nav(
+                                                                            `/home/total-sales-agent/agent-information/${user._id}`
+                                                                        )
+                                                                    }
+                                                                    className="tbl-btn"
+                                                                    style={{ marginRight: "10px" }}
+                                                                >
+                                                                    view
+                                                                </span>
+                                                                <span
+                                                                    onClick={() => {
+                                                                        setSharingId(user?._id);
+                                                                        shareAgent({ id: user?._id, email: user?.email });
+                                                                    }}
+                                                                    className="tbl-gray ml-2 cursor-pointer"
+                                                                    style={{ marginRight: "10px" }}
+                                                                >
+                                                                    {sharingId === user?._id ? "Sharing..." : "Share"}
+                                                                </span>
+                                                                {
+                                                                    (() => {
+                                                                        const unpaid = Number(user.totalUnPaid) || 0;
+                                                                        const MIN_ZAR = 10; // disable pay when unpaid < 10 ZAR
+                                                                        const disabled = unpaid < MIN_ZAR;
 
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.commissionEarned}
-                                                        </TableCell>
-
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.totalUnPaid || 0}
-                                                        </TableCell>
-
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.totalPaid || 0}
-                                                        </TableCell>
-
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.user_id.length}
-                                                        </TableCell>
-
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.accountNumber ?? '-'}
-                                                        </TableCell>
-
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.bankId?.bank_name ? user.bankId.bank_name : "-"}
-                                                        </TableCell>
-
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.bankId?.branch_code ? user.bankId.branch_code : "-"}
-                                                        </TableCell>
-
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.sharedStatus ?? '-'}
-                                                        </TableCell>
-
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.performanceLevel ? user.performanceLevel : "-"}
-                                                        </TableCell>
-
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.tie ?? '-'}
-                                                        </TableCell>
-
-                                                        <TableCell sx={{ backgroundColor: 'white' }}>
-                                                            <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                                <IconButton onClick={handleOpenMenu}>
-                                                                    <MoreVertIcon />
-                                                                </IconButton>
-
-                                                            </Box>
-                                                        </TableCell>
-                                                        <Menu
-                                                            anchorEl={anchorEl}
-                                                            open={Boolean(anchorEl)}
-                                                            onClose={handleCloseMenu}
-                                                            anchorOrigin={{
-                                                                vertical: "bottom",
-                                                                horizontal: "right",
-                                                            }}
-                                                            transformOrigin={{
-                                                                vertical: "top",
-                                                                horizontal: "right",
-                                                            }}
-                                                        >
-                                                            <MenuItem
-                                                                onClick={() => {
-                                                                    nav(`/home/total-sales-agent/agent-information/${user._id}`)
-                                                                    handleCloseMenu();
-                                                                }}
-                                                            >
-                                                                <img src={OutlinedView} alt="view button" /> &nbsp; View
-                                                            </MenuItem>
-                                                            <MenuItem
-                                                                onClick={() => {
-                                                                    setSharingId(user?._id);
-                                                                    shareAgent({ id: user?._id, email: user?.email });
-                                                                    handleCloseMenu();
-                                                                }}
-                                                            >
-                                                                <img src={OutlinedShare} alt="edit button" /> &nbsp;   {sharingId === user?._id ? "Sharing..." : "Share"}
-                                                            </MenuItem>
-                                                            <MenuItem
-                                                                onClick={(event) => {
-                                                                    handlePopup(event, 'payout', 'sales_agent');
-                                                                    handleCloseMenu();
-                                                                }}
-                                                            >
-                                                                <img src={OutlinedPay} alt="edit button" /> &nbsp;   Pay
-                                                            </MenuItem>
-                                                            <MenuItem
-                                                                onClick={() => {
-                                                                    setconfirmation(user._id);
-                                                                    handleCloseMenu();
-                                                                }}
-                                                            >
-                                                                <img src={outlinedDustbin} alt="dustbin button" /> &nbsp;   Delete
-                                                            </MenuItem>
-                                                        </Menu>
-
-                                                        {/* <TableCell>
-                                                            <Box
-                                                                align="center"
-                                                                sx={{ display: "flex", flexDirection: "row", gap: 0 }}
-                                                            >
-                                                                <Tooltip title="View" arrow placement="top">
-                                                                    <IconButton onClick={() =>
-                                                                        nav(`/home/total-users/user-information/${driver._id}`)
-                                                                    }>
-                                                                        <img src={ViewBtn} alt="view button" />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                                <Tooltip title="Delete" arrow placement="top">
-                                                                    <IconButton onClick={() => setconfirmation(driver._id)}>
-                                                                        <img src={delBtn} alt="delete button" />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                                <Tooltip title="Payout" arrow placement="top">
-                                                                    <IconButton onClick={(event) =>
-                                                                        handlePopup(event, "payout", "driver", driver)
-                                                                    }>
-                                                                        <img src={driverPayoutIcon} alt="payout button" />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                                {confirmation === driver._id && (
-                                                                    <DeleteConfirm
-                                                                        id={driver._id}
+                                                                        return (
+                                                                            <span
+                                                                                onClick={!disabled ? (event) => handlePopup(event, 'payout', 'sales_agent', user) : undefined}
+                                                                                className={`tbl-gray ml-2 cursor-pointer${disabled ? ' disabled' : ''}`}
+                                                                                style={disabled ? { pointerEvents: 'none', opacity: 0.5 } : {}}
+                                                                                title={disabled ? `Requires at least R ${MIN_ZAR} unpaid` : 'Pay'}
+                                                                            >
+                                                                                Pay
+                                                                            </span>
+                                                                        );
+                                                                    })()
+                                                                }
+                                                                <span
+                                                                    // onClick={() => deleteAgent(user._id)}
+                                                                    onClick={() => setconfirmation(user._id)}
+                                                                    className="tbl-gray"
+                                                                >
+                                                                    Delete
+                                                                </span>
+                                                                {confirmation === user._id && (
+                                                                    <DeleteSalesAgent
+                                                                        id={user._id}
                                                                         setconfirmation={setconfirmation}
                                                                     />
                                                                 )}

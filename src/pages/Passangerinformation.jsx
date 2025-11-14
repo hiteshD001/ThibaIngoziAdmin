@@ -10,10 +10,14 @@ import PhoneInput from "react-phone-input-2"
 import {
     Box, Button, Typography, InputLabel, FormControl, FormHelperText, Grid, Paper, Chip,
     FormControlLabel,
+    Checkbox,
 } from "@mui/material";
 import { BootstrapInput } from "../common/BootstrapInput";
 import CustomSelect from "../common/Custom/CustomSelect";
 import GrayPlus from '../assets/images/GrayPlus.svg'
+import SingleImagePreview from "../common/SingleImagePreview"
+import uncheckedIcon from '../assets/images/UnChecked.svg'
+import checkedboxIcon from '../assets/images/checkboxIcon.svg'
 
 const PassangerInformation = () => {
     const [editInfo, setEditInfo] = useState(false);
@@ -21,6 +25,11 @@ const PassangerInformation = () => {
     const [editEmergency, setEditEmergency] = useState(false);
     const [role] = useState(localStorage.getItem("role"));
     const CompanyId = localStorage.getItem("userID");
+    const [previewImage, setPreviewImage] = useState({
+        open: false,
+        src: '',
+        label: ''
+    });
     const params = useParams();
     const client = useQueryClient()
 
@@ -45,7 +54,9 @@ const PassangerInformation = () => {
             subscription_status: "",
             EnrollStartDate: "",
             paymentDate: "",
-            EnrollType: ""
+            EnrollType: "",
+            isEnroll: '',
+            verificationSelfieImage: null,
         },
         validationSchema: vehicleValidation
     })
@@ -68,6 +79,20 @@ const PassangerInformation = () => {
         }
         mutate({ id: params.id, data: formData })
     }
+
+    const handleImageClick = (src, label) => {
+        if (src) {
+            setPreviewImage({
+                open: true,
+                src: src instanceof File ? URL.createObjectURL(src) : src,
+                label: label
+            });
+        }
+    };
+
+    const handleClosePreview = () => {
+        setPreviewImage(prev => ({ ...prev, open: false }));
+    };
 
     const emergencyform = useFormik({
         initialValues: {
@@ -116,6 +141,12 @@ const PassangerInformation = () => {
         </Box>
     );
     return (
+          <>
+            <SingleImagePreview
+                show={previewImage.open}
+                onClose={handleClosePreview}
+                image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
+            />
         <Box p={2}>
 
             {/* user information */}
@@ -261,37 +292,33 @@ const PassangerInformation = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
                             {editInfo ? (
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            name="subscription_status"
-                                            checked={driverform.values.subscription_status === 'active'}
-                                            onChange={(e) => driverform.setFieldValue("subscription_status", e.target.checked ? 'active' : 'inactive')}
-                                            icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
-                                            checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />} />
-                                    }
-                                    label="Subscription Status"
-                                />
+                                // <FormControlLabel
+                                //     control={
+                                //         <Checkbox
+                                //             name="subscription_status"
+                                //             checked={driverform.values.isEnroll}
+                                //             onChange={(e) => driverform.setFieldValue("isEnroll", e.target.checked ? 'active' : 'inactive')}
+                                //             icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
+                                //             checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />} />
+                                //     }
+                                //     label="Subscription Status"
+                                // />
+                                <></>
                             ) : (displayField("Subscription Status", <Chip
-                                label={driverform.values.subscription_status}
+                                label={driverform.values.isEnroll ? "Active" : "Inactive"}
                                 sx={{
-                                    backgroundColor:
-                                        driverform.values.subscription_status === 'inactive' ? '#E5565A1A' :
-                                            driverform.values.subscription_status === 'active' ? '#DCFCE7' :
-                                                '#F3F4F6',
+                                    backgroundColor: driverform.values.isEnroll ? '#DCFCE7' : '#E5565A1A',
                                     '& .MuiChip-label': {
                                         textTransform: 'capitalize',
                                         fontWeight: 500,
-                                        color: driverform.values.subscription_status === 'inactive' ? '#E5565A' :
-                                            driverform.values.subscription_status === 'active' ? '' :
-                                                'black',
+                                        color: driverform.values.isEnroll ? '#15803D' : '#E5565A',
                                     }
                                 }}
                             />))}
-                            
+
 
                         </Grid>
-                        
+
                         {/* Enrolment Information Row */}
                         <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                             {displayField("Start Enrolment", driverform.values.EnrollStartDate ? new Date(driverform.values.EnrollStartDate).toLocaleDateString() : 'N/A')}
@@ -302,24 +329,24 @@ const PassangerInformation = () => {
                         <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                             {displayField("Enrolment Type", driverform.values.EnrollType || 'N/A')}
                         </Grid>
-                        
+
                         {/* <Grid size={{ xs: 12, sm: 6 }}>
                             {editInfo ? (
                                 <FormControl variant="standard" fullWidth >
                                     <InputLabel shrink htmlFor="id_no" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        ID No
+                                        ID/Passport Number
                                     </InputLabel>
                                     <BootstrapInput
                                         id="id_no"
                                         name="id_no"
-                                        placeholder="ID No."
+                                        placeholder="ID/Passport Number."
                                         value={driverform.values.id_no}
                                         onChange={driverform.handleChange}
 
                                     />
                                     {driverform.touched.id_no && <FormHelperText error>{driverform.errors.id_no}</FormHelperText>}
                                 </FormControl>
-                            ) : displayField("ID No", driverform.values.id_no)}
+                            ) : displayField("ID/Passport Number", driverform.values.id_no)}
                         </Grid> */}
                         <Grid size={12}>
                             <Grid container gap={4} sx={{ mt: 1 }}>
@@ -358,7 +385,8 @@ const PassangerInformation = () => {
                                             <img
                                                 src={driverform.values.selfieImage}
                                                 alt="Selfie"
-                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
+                                                 onClick={() => handleImageClick(driverform.values.selfieImage, 'Selfie Image')}
                                             />
                                         ) : (<><img src={GrayPlus} alt="gray plus" />
                                             <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
@@ -403,7 +431,9 @@ const PassangerInformation = () => {
                                             <img
                                                 src={driverform.values.fullImage}
                                                 alt="Full Image"
-                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
+                                                onClick={() => handleImageClick(driverform.values.fullImage, 'Full Image')}
+                                                
                                             />
                                         ) : (<><img src={GrayPlus} alt="gray plus" />
                                             <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
@@ -413,6 +443,55 @@ const PassangerInformation = () => {
                                     </Box>
                                     {driverform.touched.fullImage && driverform.errors.fullImage && (
                                         <FormHelperText error>{driverform.errors.fullImage}</FormHelperText>
+                                    )}
+                                </Grid>
+                                <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
+                                    <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>Verification Selfie Image</label>
+                                    <Box
+                                        sx={{
+                                            border: '2px dashed #E0E3E7',
+                                            borderRadius: '12px',
+                                            minHeight: 180,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: editInfo ? 'pointer' : 'not-allowed',
+                                            position: 'relative',
+                                            background: '#fafbfc'
+                                        }}
+                                        component="label"
+                                    >
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            hidden
+                                            name="verificationSelfieImage"
+                                            disabled={!editInfo}
+                                            onChange={e => driverform.setFieldValue('verificationSelfieImage', e.currentTarget.files[0])}
+                                        />
+                                        {driverform.values.verificationSelfieImage instanceof File ? (
+                                            <img
+                                                src={URL.createObjectURL(driverform.values.verificationSelfieImage)}
+                                                alt="Full Preview"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                onClick={() => handleImageClick(driverform.values.verificationSelfieImage, "verificationSelfieImage")}
+                                            />
+                                        ) : driverform.values.verificationSelfieImage ? (
+                                            <img
+                                                src={driverform.values.verificationSelfieImage}
+                                                alt="verification Selfie Image"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8,cursor: 'pointer' }}
+                                                onClick={() => handleImageClick(driverform.values.verificationSelfieImage, "verificationSelfieImage")}
+                                            />
+                                        ) : (<><img src={GrayPlus} alt="gray plus" />
+                                            <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
+                                        )
+                                        }
+
+                                    </Box>
+                                    {driverform.touched.verificationSelfieImage && driverform.errors.verificationSelfieImage && (
+                                        <FormHelperText error>{driverform.errors.verificationSelfieImage}</FormHelperText>
                                     )}
                                 </Grid>
                             </Grid>
@@ -443,13 +522,15 @@ const PassangerInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditInfo(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== 'company' && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditInfo(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -598,13 +679,15 @@ const PassangerInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditAddress(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== 'company' && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditAddress(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -712,13 +795,15 @@ const PassangerInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditEmergency(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== 'company' && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditEmergency(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -727,6 +812,7 @@ const PassangerInformation = () => {
             </Paper>
 
         </Box>
+      </>
     )
 }
 

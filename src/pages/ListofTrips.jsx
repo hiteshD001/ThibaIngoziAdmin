@@ -14,7 +14,7 @@ import ViewBtn from '../assets/images/ViewBtn.svg';
 import delBtn from '../assets/images/delBtn.svg';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { useGetTripList, usePutUserTrip } from "../API Calls/API";
+import { useGetUser, useGetTripList, usePutUserTrip } from "../API Calls/API";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
 import Listtrip from '../assets/images/Listtrip.svg'
@@ -45,6 +45,7 @@ const ListOfTrips = () => {
   // Sort 1
   const [sortBy, setSortBy] = useState("first_name");
   const [sortOrder, setSortOrder] = useState("asc");
+  const role = localStorage.getItem("role");
 
   const changeSortOrder = (e) => {
     const field = e.target.id;
@@ -56,10 +57,13 @@ const ListOfTrips = () => {
     }
   }
 
+  // Determine companyId based on role
+  const companyId = role === 'company' ? localStorage.getItem("userID") : null;
+
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate, archived, sortBy, sortOrder);
+  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate, archived, sortBy, sortOrder, companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
@@ -112,7 +116,9 @@ const ListOfTrips = () => {
     }
   };
 
-  const handleExport = async ({ startDate, endDate, format: fileFormat }) => {
+  let loginUser = useGetUser(localStorage.getItem("userID"));
+  loginUser = loginUser?.data?.data?.user;
+  const handleExport = async ({ startDate, endDate, exportFormat: fileFormat }) => {
     try {
       const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/userTrip`, {
         params: {
@@ -138,47 +144,72 @@ const ListOfTrips = () => {
         "Ended By": user.ended_by || '',
         "Status": user.trip_status || '',
       }));
-
+      const exportedByValue = loginUser.role === 'company' ? loginUser.company_name : 'Super Admin';
       if (fileFormat === "xlsx") {
         const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+        // Add "Exported By" info above data
+        XLSX.utils.sheet_add_aoa(worksheet, [["Exported By:", exportedByValue]], { origin: "A1" });
+        XLSX.utils.sheet_add_aoa(worksheet, [["Generated On:", new Date().toLocaleString()]], { origin: "A2" });
+        XLSX.utils.sheet_add_aoa(worksheet, [[]], { origin: "A3" }); // Empty line
+        XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A4", skipHeader: false });
+
+        // Adjust column widths dynamically
         const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
           wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
         }));
         worksheet['!cols'] = columnWidths;
+
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Trips");
         XLSX.writeFile(workbook, "Trip_List.xlsx");
-      }
-      else if (fileFormat === "csv") {
+      } else if (fileFormat === "csv") {
+        // Add "Exported By" header at top of CSV
+        const headerRows = [
+          [`Exported By: ${exportedByValue}`],
+          [`Generated On: ${new Date().toLocaleString()}`],
+          []
+        ];
         const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const csv = XLSX.utils.sheet_to_csv(worksheet);
+        const csvData = XLSX.utils.sheet_to_csv(worksheet);
+        const csvHeader = headerRows.map(row => row.join(",")).join("\n") + "\n";
+        const csv = csvHeader + csvData;
+
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = 'Trip_list.csv';
+        link.download = 'Trip_List.csv';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      }
-      else if (fileFormat === "pdf") {
+      } else if (fileFormat === "pdf") {
         const doc = new jsPDF();
+
+        // Header details
+        doc.setFontSize(14);
         doc.text('Trip List', 14, 16);
+        doc.setFontSize(10);
+        doc.text(`Exported By: ${exportedByValue}`, 14, 24);
+        doc.text(`Generated On: ${new Date().toLocaleString()}`, 14, 30);
+
+        // Table content
         autoTable(doc, {
           head: [['Driver', 'Passanger', 'Started At', 'Ended At', 'Ended By', 'Status']],
           body: allUsers.map(user => [
-            user.driver.first_name ?? 'NA',
-            user.passenger.first_name ?? 'NA',
+            user.driver?.first_name ?? 'NA',
+            user.passenger?.first_name ?? 'NA',
             format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") ?? 'NA',
             user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
             user.ended_by ?? 'NA',
             user.trip_status ?? 'NA'
           ]),
-          startY: 20,
+          startY: 36,
           theme: 'striped',
           headStyles: { fillColor: '#367BE0' },
-          margin: { top: 20 },
           styles: { fontSize: 10 },
+          margin: { top: 20 }
         });
+
         doc.save("Trip_List.pdf");
       }
 
@@ -383,11 +414,14 @@ const ListOfTrips = () => {
                                   <img src={Listtrip} alt="view button" />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Delete" arrow placement="top">
+                              {role !== 'company' &&(
+                                <Tooltip title="Delete" arrow placement="top">
                                 <IconButton onClick={() => setConfirmation(data._id)}>
                                   <img src={delBtn} alt="Delete" />
                                 </IconButton>
                               </Tooltip>
+                              )}
+                              
                             </Box>
                             {confirmation === data._id && (
                               <DeleteConfirm id={data._id} setconfirmation={setConfirmation} trip="trip" />
@@ -426,7 +460,7 @@ const ListOfTrips = () => {
                     '& .MuiSelect-select': { padding: '4px 10px' },
                   }}
                 >
-                  {[5, 10, 15, 20].map((num) => (
+                  {[5, 10, 15, 20,50,100].map((num) => (
                     <MenuItem key={num} value={num}>{num}</MenuItem>
                   ))}
                 </Select>

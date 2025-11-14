@@ -16,7 +16,7 @@ import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
 import search from "../assets/images/search.svg";
 import { startOfYear } from "date-fns";
-import { useGetMeetingLinkTripList, useUpdateUserMeetingTripTrip } from "../API Calls/API";
+import { useGetUser, useGetMeetingLinkTripList, useUpdateUserMeetingTripTrip } from "../API Calls/API";
 import Loader from "../common/Loader";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import Listtrip from '../assets/images/Listtrip.svg'
@@ -46,6 +46,10 @@ const ListOfMeetingLinkTrips = () => {
   // Sort 1
   const [sortBy, setSortBy] = useState("first_name");
   const [sortOrder, setSortOrder] = useState("asc");
+    const role = localStorage.getItem("role");
+    const companyId = role === 'company' ? localStorage.getItem("userID") : null;
+    console.log(companyId);
+  
 
   const changeSortOrder = (e) => {
     const field = e.target.id;
@@ -60,7 +64,7 @@ const ListOfMeetingLinkTrips = () => {
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter, startDate, endDate, isArchived, sortBy, sortOrder);
+  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter, startDate, endDate, isArchived, sortBy, sortOrder,companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalMeetingLinkTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
@@ -77,10 +81,10 @@ const ListOfMeetingLinkTrips = () => {
       console.error('Error updating trip:', error);
     }
   );
-
-
-
-  const handleExport = async ({ startDate, endDate, format: fileFormat }) => {
+  
+  let loginUser = useGetUser(localStorage.getItem("userID"));
+  loginUser = loginUser?.data?.data?.user;
+  const handleExport = async ({ startDate, endDate, exportFormat: fileFormat }) => {
     try {
       const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/userMeetingTrip`, {
         params: {
@@ -106,48 +110,78 @@ const ListOfMeetingLinkTrips = () => {
         // "Ended By": user.ended_by || '',
         "Status": user.trip_status || '',
       }));
-
+      const exportedByValue = loginUser.role === 'company' ? loginUser.company_name : 'Super Admin';
       if (fileFormat === "xlsx") {
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
-          wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
-        }));
-        worksheet['!cols'] = columnWidths;
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Meeting_Link_Trip_List");
-        XLSX.writeFile(workbook, "Meeting_Link_Trip_List.xlsx");
+          const workbook = XLSX.utils.book_new();
+
+          // Header row for Exported By
+          const headerRow = [["Exported By", exportedByValue], []]; // blank row after header
+
+          // Prepare sheet data
+          const worksheetData = [
+              ...headerRow,
+              Object.keys(exportData[0] || {}),
+              ...exportData.map(obj => Object.values(obj))
+          ];
+
+          const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+          // Auto-fit columns
+          const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+              wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+          }));
+          worksheet['!cols'] = columnWidths;
+
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Meeting_Link_Trip_List");
+          XLSX.writeFile(workbook, "Meeting_Link_Trip_List.xlsx");
       }
+
       else if (fileFormat === "csv") {
-        const worksheet = XLSX.utils.json_to_sheet(exportData);
-        const csv = XLSX.utils.sheet_to_csv(worksheet);
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'Meeting_Link_Trip_List.csv';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+          const headers = Object.keys(exportData[0] || {});
+          const csvRows = exportData.map(row =>
+              headers.map(h => JSON.stringify(row[h] ?? '')).join(',')
+          );
+
+          const csv = `Exported By,${exportedByValue}\n\n${headers.join(',')}\n${csvRows.join('\n')}`;
+
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'Meeting_Link_Trip_List.csv';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
       }
+
       else if (fileFormat === "pdf") {
-        const doc = new jsPDF();
-        doc.text('Meeting Link TripList', 14, 16);
-        autoTable(doc, {
-          head: [['User1', 'User2', 'Started At', 'Ended At', 'Status']],
-          body: allUsers.map(user => [
-            user.user1.first_name ?? 'NA',
-            user.user2.first_name ?? 'NA',
-            format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") ?? 'NA',
-            user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
-            // user.ended_by ?? 'NA',
-            user.trip_status ?? 'NA'
-          ]),
-          startY: 20,
-          theme: 'striped',
-          headStyles: { fillColor: '#367BE0' },
-          margin: { top: 20 },
-          styles: { fontSize: 10 },
-        });
-        doc.save("Meeting_Link_Trip_List.pdf");
+          const doc = new jsPDF();
+
+          // Title
+          doc.setFontSize(14);
+          doc.text('Meeting Link Trip List', 14, 16);
+
+          // Exported By line
+          doc.setFontSize(10);
+          doc.text(`Exported By: ${exportedByValue}`, 14, 24);
+
+          // Table
+          autoTable(doc, {
+              startY: 30,
+              head: [['User1', 'User2', 'Started At', 'Ended At', 'Status']],
+              body: allUsers.map(user => [
+                  user.user1?.first_name || 'NA',
+                  user.user2?.first_name || 'NA',
+                  format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || 'NA',
+                  user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
+                  user.trip_status || 'NA'
+              ]),
+              theme: 'striped',
+              headStyles: { fillColor: [54, 123, 224], textColor: 255 },
+              styles: { fontSize: 10 },
+              margin: { top: 20 },
+          });
+
+          doc.save("Meeting_Link_Trip_List.pdf");
       }
 
     } catch (err) {
@@ -375,15 +409,16 @@ const ListOfMeetingLinkTrips = () => {
                                   <img src={Listtrip} alt="view button" />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Delete" arrow placement="top">
+                              {role !== 'company' &&(
+                                <Tooltip title="Delete" arrow placement="top">
                                 <IconButton
                                   onClick={() => setConfirmation(data._id)}
                                 >
                                   <img src={delBtn} alt="delete button" />
                                 </IconButton>
                               </Tooltip>
-
-                            </Box>
+                              )}
+                                                          </Box>
                             {confirmation === data._id && (
                               <DeleteConfirm id={data._id} setconfirmation={setConfirmation} trip="LinkTrip" />
                             )}
@@ -421,7 +456,7 @@ const ListOfMeetingLinkTrips = () => {
                     '& .MuiSelect-select': { padding: '4px 10px' },
                   }}
                 >
-                  {[5, 10, 15, 20].map((num) => (
+                  {[5, 10, 15, 20,50,100].map((num) => (
                     <MenuItem key={num} value={num}>
                       {num}
                     </MenuItem>

@@ -399,19 +399,20 @@ export const useDeleteSosAmount = (onSuccess, onError) => {
 
 
 // trip
-export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, sortBy, sortOrder) => {
+export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, sortBy, sortOrder,companyId) => {
     const nav = useNavigate();
+    
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userTrip`, {
             params: {
-                page, limit, filter, startDate, endDate, archived, sortBy, sortOrder
+                page, limit, filter, startDate, endDate, archived, sortBy, sortOrder,companyId
             },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder],
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder,companyId],
         queryFn: queryFn,
         retry: false,
     });
@@ -452,17 +453,17 @@ export const useDeleteUserTrip = (onSuccess, onError) => {
 };
 
 //meetingLink trip
-export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, sortBy, sortOrder) => {
+export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, sortBy, sortOrder,companyId) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/userMeetingTrip`, {
-            params: { page, limit, filter, startDate, endDate, archived, sortBy, sortOrder },
+            params: { page, limit, filter, startDate, endDate, archived, sortBy, sortOrder,companyId },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder],
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder,companyId],
         queryFn: queryFn,
         retry: false,
     });

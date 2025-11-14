@@ -39,6 +39,7 @@ import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import ImagePreviewModal from "../common/ImagePreviewModal";
 import PhoneInput from "react-phone-input-2";
+import SingleImagePreview from "../common/SingleImagePreview";
 
 const VehicleInformation = () => {
     const [editInfo, setEditInfo] = useState(false);
@@ -53,6 +54,11 @@ const VehicleInformation = () => {
     const CompanyId = localStorage.getItem("userID");
     const [selectedPayoutType, setSelectedPayoutType] = useState('');
     const [payPopup, setPopup] = useState('')
+    const [previewImage, setPreviewImage] = useState({
+           open: false,
+           src: '',
+           label: ''
+         });
 
 
     const driverform = useFormik({
@@ -87,7 +93,9 @@ const VehicleInformation = () => {
             subscription_status: "",
             EnrollStartDate: "",
             paymentDate: "",
-            EnrollType: ""
+            EnrollType: "",
+            isEnroll:"",
+            verificationSelfieImage: null,
         },
         validationSchema: vehicleValidation,
         onSubmit: (values) => {
@@ -161,6 +169,20 @@ const VehicleInformation = () => {
             mutate({ id: params.id, data: formData });
         }
     });
+
+     const handleImageClick = (src, label) => {
+    if (src) {
+      setPreviewImage({
+        open: true,
+        src: src instanceof File ? URL.createObjectURL(src) : src,
+        label: label
+      });
+    }
+  };
+
+  const handleClosePreview = () => {
+    setPreviewImage(prev => ({ ...prev, open: false }));
+  };
 
     const vehicleInfo = useGetUser(params.id);
     const companyList = useGetUserList("company list", "company");
@@ -312,6 +334,12 @@ const VehicleInformation = () => {
         </Box>
     );
     return (
+        <>
+            <SingleImagePreview
+                show={previewImage.open}
+                onClose={handleClosePreview}
+                image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
+            />
         <Box p={2}>
             {/* driver information */}
             <Paper elevation={0} sx={{ p: 3, borderRadius: '10px', mb: 3 }}>
@@ -635,26 +663,21 @@ const VehicleInformation = () => {
                                     control={
                                         <Checkbox
                                             name="subscription_status"
-                                            checked={driverform.values.subscription_status === 'active'}
-                                            onChange={(e) => driverform.setFieldValue("subscription_status", e.target.checked ? 'active' : 'inactive')}
+                                            checked={driverform.values.isEnroll}
+                                            onChange={(e) => driverform.setFieldValue("isEnroll", e.target.checked ? 'active' : 'inactive')}
                                             icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
                                             checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />} />
                                     }
                                     label="Subscription Status"
                                 />
                             ) : (displayField("Subscription Status", <Chip
-                                label={driverform.values.subscription_status}
+                                label={driverform.values.isEnroll ? "Active" : "Inactive"}
                                 sx={{
-                                    backgroundColor:
-                                        driverform.values.subscription_status === 'inactive' ? '#E5565A1A' :
-                                            driverform.values.subscription_status === 'active' ? '#DCFCE7' :
-                                                '#F3F4F6',
+                                     backgroundColor: driverform.values.isEnroll ? '#DCFCE7' : '#E5565A1A',
                                     '& .MuiChip-label': {
                                         textTransform: 'capitalize',
                                         fontWeight: 500,
-                                        color: driverform.values.subscription_status === 'inactive' ? '#E5565A' :
-                                            driverform.values.subscription_status === 'active' ? '' :
-                                                'black',
+                                        color: driverform.values.isEnroll ? '#15803D' : '#E5565A',
                                     }
                                 }}
                             />))}
@@ -705,12 +728,13 @@ const VehicleInformation = () => {
                                                 src={URL.createObjectURL(driverform.values.selfieImage)}
                                                 alt="Selfie Preview"
                                                 style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
-                                            />
-                                        ) : driverform.values.selfieImage ? (
-                                            <img
+                                                />
+                                            ) : driverform.values.selfieImage ? (
+                                                <img
                                                 src={driverform.values.selfieImage}
                                                 alt="Selfie"
-                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8,cursor: 'pointer' }}
+                                                onClick={() => handleImageClick(driverform.values.selfieImage, 'Selfie Image')}
                                             />
                                         ) : (<><img src={GrayPlus} alt="gray plus" />
                                             <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
@@ -755,7 +779,8 @@ const VehicleInformation = () => {
                                             <img
                                                 src={driverform.values.fullImage}
                                                 alt="Full Image"
-                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8,cursor: 'pointer' }}
+                                                onClick={() => handleImageClick(driverform.values.fullImage, 'Full Image')}
                                             />
                                         ) : (<><img src={GrayPlus} alt="gray plus" />
                                             <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
@@ -767,11 +792,60 @@ const VehicleInformation = () => {
                                         <FormHelperText error>{driverform.errors.fullImage}</FormHelperText>
                                     )}
                                 </Grid>
+                                  <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
+                                    <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>verification Selfie Image</label>
+                                    <Box
+                                        sx={{
+                                            border: '2px dashed #E0E3E7',
+                                            borderRadius: '12px',
+                                            minHeight: 180,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            cursor: editInfo ? 'pointer' : 'not-allowed',
+                                            position: 'relative',
+                                            background: '#fafbfc'
+                                        }}
+                                        component="label"
+                                    >
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            hidden
+                                            name="verificationSelfieImage"
+                                            disabled={!editInfo}
+                                            onChange={e => driverform.setFieldValue('verificationSelfieImage', e.currentTarget.files[0])}
+                                        />
+                                        {driverform.values.verificationSelfieImage instanceof File ? (
+                                            <img
+                                                src={URL.createObjectURL(driverform.values.verificationSelfieImage)}
+                                                alt="Full Preview"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 ,cursor: 'pointer'}}
+                                                onClick={() => handleImageClick(driverform.values.verificationSelfieImage, 'verification Selfie Image')}
+                                            />
+                                        ) : driverform.values.verificationSelfieImage ? (
+                                            <img
+                                                src={driverform.values.verificationSelfieImage}
+                                                alt="verification Selfie Image"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 ,cursor: 'pointer'}}
+                                                onClick={() => handleImageClick(driverform.values.verificationSelfieImage, 'verification Selfie Image')}
+                                            />
+                                        ) : (<><img src={GrayPlus} alt="gray plus" />
+                                            <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
+                                        )
+                                        }
+
+                                    </Box>
+                                    {driverform.touched.verificationSelfieImage && driverform.errors.verificationSelfieImage && (
+                                        <FormHelperText error>{driverform.errors.verificationSelfieImage}</FormHelperText>
+                                    )}
+                                </Grid>
                             </Grid>
                         </Grid>
                         <Grid size={12}>
                             <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
-                                {editInfo ? (
+                                {editInfo  ? (
                                     <>
                                         <Button
                                             variant="contained"
@@ -795,13 +869,15 @@ const VehicleInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditInfo(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== "company" && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditInfo(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -951,13 +1027,15 @@ const VehicleInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditAddress(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== "company" && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditAddress(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -1133,13 +1211,15 @@ const VehicleInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => setEditEmergency(true)}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== "company" && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => setEditEmergency(true)}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -1313,7 +1393,9 @@ const VehicleInformation = () => {
                                                             maxHeight: 200,
                                                             maxWidth: '100%',
                                                             borderRadius: 4,
+                                                            cursor : 'pointer'
                                                         }}
+                                                        onClick={() => handleImageClick(vehicleForm.values.images[index], item.label)}
                                                     />
                                                 ) : (
                                                     <Box textAlign="center">
@@ -1407,19 +1489,21 @@ const VehicleInformation = () => {
                                         </Button>
                                     </>
                                 ) : (
-                                    <Button
-                                        variant="contained"
-                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        onClick={() => {
-                                            if (!vehicleForm.values.vehicle_id) {
-                                                toast.error("No vehicle found.");
-                                                return;
-                                            }
-                                            setEditVehicle(true);
-                                        }}
-                                    >
-                                        Edit
-                                    </Button>
+                                    role !== "company" && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => {
+                                                if (!vehicleForm.values.vehicle_id) {
+                                                    toast.error("No vehicle found.");
+                                                    return;
+                                                }
+                                                setEditVehicle(true);
+                                            }}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
                                 )}
                             </Box>
                         </Grid>
@@ -1542,7 +1626,7 @@ const VehicleInformation = () => {
                                         setCurrentPage(1);
                                     }}
                                 >
-                                    {[5, 10, 15, 20].map((num) => (
+                                    {[5, 10, 15, 20,50,100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
@@ -1620,6 +1704,7 @@ const VehicleInformation = () => {
                 </Box>
             </Paper>
         </Box >
+        </>
     );
 };
 

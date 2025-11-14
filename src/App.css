@@ -727,7 +727,19 @@ table#example {
     padding: 12px 8px !important;
 }
 
-* {
+
+
+
+.copy-btn  {
+    color: #4285F4 !important;
+}
+
+.css-1umw9bq-MuiSvgIcon-root,  .css-q7mezt{
+   color: #1c1c1c;
+}
+ 
+
+.css-q7mezt {
     color: #1c1c1c;
 }
 

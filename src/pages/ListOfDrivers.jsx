@@ -339,7 +339,8 @@ const ListOfDrivers = () => {
     }, [CompanyForm.values.isArmed]);
 
 
-    const handleExport = async ({ startDate, endDate, format }) => {
+    const handleExport = async ({ startDate, endDate, exportFormat }) => {
+        const user = companyInfo.data?.data?.user;
         try {
             const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
                 params: {
@@ -365,49 +366,80 @@ const ListOfDrivers = () => {
                 "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
                 "Contact Email": user.email || ''
             }));
-
-            if (format === "xlsx") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const exportedByValue = user.role === 'company' ? user.company_name : 'Super Admin';
+            if (exportFormat === "xlsx") {
+                const workbook = XLSX.utils.book_new();
+            
+                // Add "Exported By" row
+                const headerRow = [["Exported By", exportedByValue], []]; // blank row after header
+            
+                // Prepare data with header row
+                const worksheetData = [
+                    ...headerRow,
+                    Object.keys(exportData[0] || {}),
+                    ...exportData.map(obj => Object.values(obj))
+                ];
+            
+                const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+            
+                // Auto-fit columns
                 const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
                     wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
                 }));
                 worksheet['!cols'] = columnWidths;
-                const workbook = XLSX.utils.book_new();
+            
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
                 XLSX.writeFile(workbook, "Drivers_List.xlsx");
             }
-            else if (format === "csv") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const csv = XLSX.utils.sheet_to_csv(worksheet);
+            
+            else if (exportFormat === "csv") {            
+                // Convert data to CSV
+                const headers = Object.keys(exportData[0] || {});
+                const csvRows = exportData.map(row =>
+                    headers.map(h => JSON.stringify(row[h] ?? '')).join(',')
+                );
+                const csv = `Exported By,${exportedByValue}\n\n${headers.join(',')}\n${csvRows.join('\n')}`;
+            
+                // Download file
                 const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'driver_list.csv';
+                link.download = 'Drivers_List.csv';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             }
-            else if (format === "pdf") {
+            
+            else if (exportFormat === "pdf") {
                 const doc = new jsPDF();
+                // Header
+                doc.setFontSize(14);
                 doc.text('Driver List', 14, 16);
+            
+                // Exported By
+                doc.setFontSize(10);
+                doc.text(`Exported By: ${exportedByValue}`, 14, 24);
+            
+                // Table
                 autoTable(doc, {
+                    startY: 30,
                     head: [['Driver', 'Driver ID', 'Company', 'Contact No.', 'Contact Email']],
                     body: allUsers.map(user => [
-                        `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
-                        user.passport_no ?? 'NA',
-                        user.company_name ?? 'NA',
-                        user?.email ?? 'NA',
-                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
-                        user.email ?? 'NA'
+                        `${user.first_name || ''} ${user.last_name || ''}` || 'NA',
+                        user.passport_no || 'NA',
+                        user.company_name || 'NA',
+                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` || 'NA',
+                        user.email || 'NA'
                     ]),
-                    startY: 20,
                     theme: 'striped',
-                    headStyles: { fillColor: '#367BE0' },
-                    margin: { top: 20 },
+                    headStyles: { fillColor: [54, 123, 224], textColor: 255 },
                     styles: { fontSize: 10 },
+                    margin: { top: 20 },
                 });
+            
                 doc.save("Drivers_List.pdf");
             }
+            
 
         } catch (err) {
             console.error("Error exporting data:", err);
@@ -694,9 +726,11 @@ const ListOfDrivers = () => {
 
                                 </Box>
                             ) : (
-                                <Button variant="contained" sx={{ width: 120, height: 45, borderRadius: '10px', backgroundColor: 'var(--Blue)' }} onClick={() => setedit(true)}>
-                                    Edit
-                                </Button>
+                                role !== 'company' && (
+                                    <Button variant="contained" sx={{ width: 120, height: 45, borderRadius: '10px', backgroundColor: 'var(--Blue)' }} onClick={() => setedit(true)}>
+                                        Edit
+                                    </Button>
+                                )
                             )}
                         </Box>
                     </Paper>
@@ -987,7 +1021,6 @@ const ListOfDrivers = () => {
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
                                             IconComponent={() => <img src={sortBy === 'subscription_start_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-
                                         >
                                             Tag Connection
                                         </TableSortLabel>
@@ -1052,18 +1085,13 @@ const ListOfDrivers = () => {
 
                                                 <TableCell sx={{ color: "#4B5563" }}>
                                                     <Chip
-                                                        label={driver.subscription_status}
+                                                        label={driver.isEnroll ? "active" : "inactive"}
                                                         sx={{
-                                                            backgroundColor:
-                                                                driver?.subscription_status === 'inactive' ? '#E5565A1A' :
-                                                                    driver?.subscription_status === 'active' ? '#DCFCE7' :
-                                                                        '#F3F4F6',
+                                                             backgroundColor: driver?.isEnroll ? '#DCFCE7' : '#E5565A1A',
                                                             '& .MuiChip-label': {
                                                                 textTransform: 'capitalize',
                                                                 fontWeight: 500,
-                                                                color: driver?.subscription_status === 'inactive' ? '#E5565A' :
-                                                                    driver?.subscription_status === 'active' ? '' :
-                                                                        'black',
+                                                                color: driver?.isEnroll ? '#15803D' : '#E5565A',
                                                             }
                                                         }}
                                                     />
@@ -1089,11 +1117,13 @@ const ListOfDrivers = () => {
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        <Tooltip title="Delete" arrow placement="top">
-                                                            <IconButton onClick={() => setconfirmation(driver._id)}>
-                                                                <img src={delBtn} alt="delete button" />
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                        {role !== 'company' && (
+                                                            <Tooltip title="Delete" arrow placement="top">
+                                                                <IconButton onClick={() => setconfirmation(driver._id)}>
+                                                                    <img src={delBtn} alt="delete button" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        )}  
                                                         <Tooltip title="Payout" arrow placement="top">
                                                             <IconButton onClick={(event) => 
                                                                 handlePopup(event, "payout", "driver", driver)
@@ -1162,7 +1192,7 @@ const ListOfDrivers = () => {
                                         setpage(1);
                                     }}
                                 >
-                                    {[5, 10, 15, 20].map((num) => (
+                                    {[5, 10, 15, 20,50,100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
