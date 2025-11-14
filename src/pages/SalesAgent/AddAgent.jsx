@@ -41,8 +41,8 @@ const AddAgent = () => {
             if (!values.referralCode) {
                 values.referralCode = generateReferralCode();
             }
-            
-            newAgent.mutate(values); 
+
+            newAgent.mutate(values);
         },
     });
 
@@ -74,7 +74,7 @@ const AddAgent = () => {
     return (
         <Box p={2}>
             <form onSubmit={UserForm.handleSubmit}>
-                <Box elevation={0} sx={{ p: 3, borderRadius: '16px', mb: 3, backgroundColor: '#f7f9fb' }}>
+                <Paper elevation={0} sx={{ p: 3, borderRadius: '10px' }}>
                     <Grid container spacing={3}>
                         <Grid size={12}>
                             <Typography variant="h6" gutterBottom fontWeight={600}>
@@ -220,19 +220,19 @@ const AddAgent = () => {
                             </FormControl>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                                <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="accountNumber" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        Account Number
-                                    </InputLabel>
-                                    <BootstrapInput
-                                        id="accountNumber"
-                                        name="accountNumber"
-                                        placeholder="Enter Account Number"
-                                        value={UserForm.values.accountNumber}
-                                        onChange={UserForm.handleChange}
-                                    />
-                                    {UserForm.touched.accountNumber && <FormHelperText error>{UserForm.errors.accountNumber}</FormHelperText>}
-                                </FormControl>
+                            <FormControl variant="standard" fullWidth >
+                                <InputLabel shrink htmlFor="accountNumber" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    Account Number
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="accountNumber"
+                                    name="accountNumber"
+                                    placeholder="Enter Account Number"
+                                    value={UserForm.values.accountNumber}
+                                    onChange={UserForm.handleChange}
+                                />
+                                {UserForm.touched.accountNumber && <FormHelperText error>{UserForm.errors.accountNumber}</FormHelperText>}
+                            </FormControl>
                         </Grid>
                         {/* <Grid size={{ xs: 12, sm: 6 }}>
                                 <FormControl variant="standard" fullWidth >
@@ -280,14 +280,24 @@ const AddAgent = () => {
                             </FormControl>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
-                            <FormControl variant="standard" fullWidth >
+                            <CustomSelect
+                                label="Bank Name"
+                                name="bankId"
+                                value={UserForm?.values?.bankId}
+                                onChange={(selectedOption) => {
+                                    UserForm.setFieldValue("bankId", selectedOption?.target?.value || "");
+                                }}
+                                options={banksList?.[0]?.options ?? []}
+                                error={UserForm.errors.bankId}
+                                helperText={UserForm.errors.bankId}
+                            />
+                            {/* <FormControl variant="standard" fullWidth >
                                 <label style={{ marginBottom: 0 }}>Bank Name</label>
                                 <Select
                                     name="bankId"
                                     options={banksList}
                                     placeholder="Select Bank"
                                     classNamePrefix="select"
-                                    // className="form-control"
                                     value={banksList
                                         .flatMap((group) => group.options)
                                         .find((option) => option.value == UserForm?.values?.bankId)}
@@ -297,7 +307,7 @@ const AddAgent = () => {
                                     styles={{
                                         control: (base, state) => ({
                                             ...base,
-                                            minHeight: "45px",   // 👈 decrease container height
+                                            minHeight: "45px",  
                                             height: "45px",
                                         }),
                                         option: (base, state) => ({
@@ -311,7 +321,7 @@ const AddAgent = () => {
                                         }),
                                         valueContainer: (base) => ({
                                             ...base,
-                                            padding: "0 10px",   // 👈 tighter padding
+                                            padding: "0 10px",  
                                             height: "45px",
                                             maxHeight: "38px",
                                             overflowY: "auto",
@@ -319,7 +329,7 @@ const AddAgent = () => {
                                     }}
                                 />
                                 {UserForm.touched.bankId && <FormHelperText error>{UserForm.errors.bankId}</FormHelperText>}
-                            </FormControl>
+                            </FormControl> */}
                         </Grid>
 
                         <Grid size={12} sx={{ mt: 1 }}>
@@ -338,7 +348,7 @@ const AddAgent = () => {
                             </Box>
                         </Grid>
                     </Grid>
-                </Box>
+                </Paper>
             </form>
         </Box>
     );

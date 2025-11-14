@@ -56,6 +56,9 @@ import ListOfViewArcheivedMeeting from "./pages/ListOfViewArcheivedMeeting";
 import ListOfViewArcheivedMissingPerson from "./pages/ListOfViewArcheivedMissingPerson";
 import ListofMissingvehicale from "./pages/ListOfViewArcheivedMissingVehicale";
 import ListOfViewArcheivedMissingVehicale from "./pages/ListOfViewArcheivedMissingVehicale";
+import ListOfSalesAgent from "./pages/SalesAgent/ListOfSalesAgent";
+import AddAgent from "./pages/SalesAgent/AddAgent";
+import AgentInformation from "./pages/SalesAgent/AgentInformation";
 // Define your map loader options once here
 const mapLoaderOptions = {
     id: 'google-map-script-main',
@@ -259,7 +262,24 @@ function App() {
                             path: "view-archeived-person",
                             element: <ListOfViewArcheivedMissingPerson />
                         },
-                        
+
+                    ]
+                },
+                {
+                    path: "total-sales-agent",
+                    children: [
+                        {
+                            path: "",
+                            element: <ListOfSalesAgent />
+                        },
+                        {
+                            path: "add-agent",
+                            element: <AddAgent />
+                        },
+                        {
+                            path: "agent-information/:id",
+                            element: <AgentInformation />
+                        },
                     ]
                 },
                 {

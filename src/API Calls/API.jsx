@@ -732,6 +732,113 @@ export const usePutMissingVehicale = (onSuccess, onError) => {
 }
 
 
+// Sales Agent
+
+// get all sales agent
+export const useGetSalesAgent = (page = 1, limit = 10, filter, startDate, endDate, sortBy, sortOrder) => {
+    const navigate = useNavigate();
+    const res = useQuery({
+        queryKey: ['salesAgent', page, limit, filter, startDate, endDate, sortBy, sortOrder],
+        queryFn: async () =>
+            apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer`, {
+                params: { page, limit, filter, startDate, endDate, sortBy, sortOrder }
+            }),
+        retry: false,
+        onError: (error) => {
+            console.log(error)
+        },
+    });
+    return res;
+};
+// add sales agent
+export const useCreateSalesAgent = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/influencer`,
+            JSON.stringify(data),
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+
+
+
+
+// get sales agent by id 
+export const useGetAgent = (id) => {
+    const res = useQuery({
+        queryKey: ['agent', id],
+        queryFn: async () =>
+            apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer/byId/${id}`),
+        staleTime: Infinity,
+        enabled: id !== undefined,
+        onError: (error) => {
+            console.log(error)
+        },
+    });
+    return res;
+};
+// update sales agent by id
+export const useUpdateSalesAgent = (onSucess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/influencer/updateById/${id}`,
+            data
+        );
+    };
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+    return res;
+};
+
+// sales agent delete by id
+export const useDeleteSalesAgent = (onSuccess, onError) => {
+
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/influencer/deleteById/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+// sales agent details share 
+export const useShareAgent = (onSuccess, onError) => {
+    return useMutation({
+        mutationFn: async ({ id, email }) => {
+            const { data } = await apiClient.post(
+                `${import.meta.env.VITE_BASEURL}/influencer/share/details/${id}`, { email }
+            );
+            return data;
+        },
+        onSuccess,
+        onError,
+    });
+};
 
 
 
@@ -1390,18 +1497,17 @@ export const fetchHotspot = async ({
 // get list of Province
 export const fetchProvince = () => {
     const queryFn = async () => {
-      const res = await apiClient.get(`${import.meta.env.VITE_BASEURL}/province`);
-      return res.data; // ✅ usually you'd want only the response data
+        const res = await apiClient.get(`${import.meta.env.VITE_BASEURL}/province`);
+        return res.data; // ✅ usually you'd want only the response data
     };
-  
+
     const res = useQuery({
-      queryKey: ["Province List"],
-      queryFn,
-      staleTime: 15 * 60 * 1000, // 15 minutes
-      enabled: true, // ✅ use true to allow fetching; Boolean() is always false
-      retry: false,
+        queryKey: ["Province List"],
+        queryFn,
+        staleTime: 15 * 60 * 1000, // 15 minutes
+        enabled: true, // ✅ use true to allow fetching; Boolean() is always false
+        retry: false,
     });
-  
+
     return res;
 };
-  
