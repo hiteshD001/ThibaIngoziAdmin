@@ -234,42 +234,42 @@ const ListOfSalesAgent = () => {
         return { result, message };
     };
 
-const payoutMutation = armedSosPayout(
-  (res) => {
-    console.log("🔍 payout API raw response:", res.data);
+    const payoutMutation = armedSosPayout(
+        (res) => {
+            console.log("🔍 payout API raw response:", res.data);
 
-    let result, message;
+            let result, message;
 
-    // Case 1: XML response
-    if (typeof res.data === "string" && res.data.trim().startsWith("<")) {
-      const parsed = parseXmlResponse(res.data);
-      result = parsed.result;
-      message = parsed.message;
-    }
-    // Case 2: JSON response
-    else if (typeof res.data === "object") {
-      result = res.data?.result || res.data?.status || "Success";
-      message = res.data?.message || res.data?.title || "";
-    }
+            // Case 1: XML response
+            if (typeof res.data === "string" && res.data.trim().startsWith("<")) {
+                const parsed = parseXmlResponse(res.data);
+                result = parsed.result;
+                message = parsed.message;
+            }
+            // Case 2: JSON response
+            else if (typeof res.data === "object") {
+                result = res.data?.result || res.data?.status || "Success";
+                message = res.data?.message || res.data?.title || "";
+            }
 
-    if (String(result).toLowerCase() === "success") {
-      payoutUpdateMutation.mutate({
-        user_id: PayoutForm.values.customerCode || "", // safer than vehicleInfo
-        type: selectedPayoutType,
-        amount: PayoutForm.values.amount,
-      });
-      toast.success("Payment successful ✅");
-      closePopup();
-    } else {
-      toast.error(message || "Payment failed ❌");
-      console.error("Payment Error:", message, "Raw result:", result);
-    }
-  },
-  (err) => {
-    toast.error("Payment failed ❌");
-    console.error("Error!", err);
-  }
-);
+            if (String(result).toLowerCase() === "success") {
+                payoutUpdateMutation.mutate({
+                    user_id: PayoutForm.values.customerCode || "", // safer than vehicleInfo
+                    type: selectedPayoutType,
+                    amount: PayoutForm.values.amount,
+                });
+                toast.success("Payment successful ✅");
+                closePopup();
+            } else {
+                toast.error(message || "Payment failed ❌");
+                console.error("Payment Error:", message, "Raw result:", result);
+            }
+        },
+        (err) => {
+            toast.error("Payment failed ❌");
+            console.error("Error!", err);
+        }
+    );
 
 
 
@@ -689,15 +689,25 @@ const payoutMutation = armedSosPayout(
                                     </TableHead>
 
                                     <TableBody>
-                                        {UserList.isFetching ?
+                                        {UserList.isFetching ? (
                                             <TableRow>
-                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={16} align="center">
+                                                <TableCell
+                                                    sx={{ color: "#4B5563", borderBottom: "none" }}
+                                                    colSpan={16}
+                                                    align="center"
+                                                >
                                                     <Loader />
                                                 </TableCell>
                                             </TableRow>
-                                            : (agentList?.length > 0 ?
-                                                agentList?.map((user) => (
+                                        ) : agentList?.length > 0 ? (
+                                            agentList.map((user) => {
+                                                const unpaid = Number(user.totalUnPaid) || 0;
+                                                const MIN_ZAR = 10;
+                                                const disabledPay = unpaid < MIN_ZAR;
+
+                                                return (
                                                     <TableRow key={user._id}>
+                                                        {/* User */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
                                                             <Stack direction="row" alignItems="center" gap={1.5}>
                                                                 <Avatar
@@ -706,90 +716,161 @@ const payoutMutation = armedSosPayout(
                                                                     sx={{ width: 32, height: 32 }}
                                                                 />
                                                                 {user.first_name} {user.last_name}
-
                                                             </Stack>
                                                         </TableCell>
 
+                                                        {/* Contact No */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {`${user?.mobile_no_country_code ?? ''}${user?.mobile_no ?? ''}`}
+                                                            {`${user?.mobile_no_country_code ?? ""}${user?.mobile_no ?? ""}`}
                                                         </TableCell>
 
+                                                        {/* Email */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
                                                             {user.email}
                                                         </TableCell>
 
+                                                        {/* Enrolment Discount */}
                                                         <TableCell sx={{ color: "#4B5563" }}>
                                                             {user.enrollAmountDeduction}
-                                                        </td> */}
-                                                            <td >
+                                                        </TableCell>
 
+                                                        {/* Total Earned */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.totalEarnedAmount}
+                                                        </TableCell>
+
+                                                        {/* Commission Earned */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.commissionEarned}
+                                                        </TableCell>
+
+                                                        {/* Unpaid Amount */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.totalUnPaid}
+                                                        </TableCell>
+
+                                                        {/* Paid Amount */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.totalPaid}
+                                                        </TableCell>
+
+                                                        {/* Total Users */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.length}
+                                                        </TableCell>
+
+                                                        {/* Account Number */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.accountNumber}
+                                                        </TableCell>
+
+                                                        {/* Bank Name */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.bank_name}
+                                                        </TableCell>
+
+                                                        {/* Branch Code */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.branch_code}
+                                                        </TableCell>
+
+                                                        {/* Share Status */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.sharedStatus}
+                                                        </TableCell>
+
+                                                        {/* Performance Level */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.performanceLevel}
+                                                        </TableCell>
+
+                                                        {/* Tie */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            {user.tie}
+                                                        </TableCell>
+
+                                                        {/* Actions */}
+                                                        <TableCell sx={{ color: "#4B5563" }}>
+                                                            <Box display="flex" alignItems="center" gap={2}>
+                                                                {/* View */}
                                                                 <span
                                                                     onClick={() =>
-                                                                        nav(
-                                                                            `/home/total-sales-agent/agent-information/${user._id}`
-                                                                        )
+                                                                        nav(`/home/total-sales-agent/agent-information/${user._id}`)
                                                                     }
                                                                     className="tbl-btn"
-                                                                    style={{ marginRight: "10px" }}
+                                                                    style={{ marginRight: "10px", cursor: "pointer" }}
                                                                 >
-                                                                    view
+                                                                    View
                                                                 </span>
+
+                                                                {/* Share */}
                                                                 <span
                                                                     onClick={() => {
                                                                         setSharingId(user?._id);
                                                                         shareAgent({ id: user?._id, email: user?.email });
                                                                     }}
-                                                                    className="tbl-gray ml-2 cursor-pointer"
+                                                                    className="tbl-gray cursor-pointer"
                                                                     style={{ marginRight: "10px" }}
                                                                 >
                                                                     {sharingId === user?._id ? "Sharing..." : "Share"}
                                                                 </span>
-                                                                {
-                                                                    (() => {
-                                                                        const unpaid = Number(user.totalUnPaid) || 0;
-                                                                        const MIN_ZAR = 10; // disable pay when unpaid < 10 ZAR
-                                                                        const disabled = unpaid < MIN_ZAR;
 
-                                                                        return (
-                                                                            <span
-                                                                                onClick={!disabled ? (event) => handlePopup(event, 'payout', 'sales_agent', user) : undefined}
-                                                                                className={`tbl-gray ml-2 cursor-pointer${disabled ? ' disabled' : ''}`}
-                                                                                style={disabled ? { pointerEvents: 'none', opacity: 0.5 } : {}}
-                                                                                title={disabled ? `Requires at least R ${MIN_ZAR} unpaid` : 'Pay'}
-                                                                            >
-                                                                                Pay
-                                                                            </span>
-                                                                        );
-                                                                    })()
-                                                                }
+                                                                {/* Pay */}
                                                                 <span
-                                                                    // onClick={() => deleteAgent(user._id)}
+                                                                    onClick={
+                                                                        !disabledPay
+                                                                            ? (event) =>
+                                                                                handlePopup(event, "payout", "sales_agent", user)
+                                                                            : undefined
+                                                                    }
+                                                                    className={`tbl-gray cursor-pointer ${disabledPay ? "disabled" : ""
+                                                                        }`}
+                                                                    style={
+                                                                        disabledPay
+                                                                            ? { pointerEvents: "none", opacity: 0.5 }
+                                                                            : {}
+                                                                    }
+                                                                    title={
+                                                                        disabledPay ? `Requires at least R ${MIN_ZAR} unpaid` : "Pay"
+                                                                    }
+                                                                >
+                                                                    Pay
+                                                                </span>
+
+                                                                {/* Delete */}
+                                                                <span
                                                                     onClick={() => setconfirmation(user._id)}
-                                                                    className="tbl-gray"
+                                                                    className="tbl-gray cursor-pointer"
                                                                 >
                                                                     Delete
                                                                 </span>
+
                                                                 {confirmation === user._id && (
                                                                     <DeleteSalesAgent
                                                                         id={user._id}
                                                                         setconfirmation={setconfirmation}
                                                                     />
                                                                 )}
-
                                                             </Box>
-                                                        </TableCell> */}
+                                                        </TableCell>
                                                     </TableRow>
-                                                ))
-                                                :
-                                                <TableRow>
-                                                    <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={16} align="center">
-                                                        <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
-                                                            No data found
-                                                        </Typography>
-                                                    </TableCell>
-                                                </TableRow>)
-                                        }
+                                                );
+                                            })
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell
+                                                    sx={{ color: "#4B5563", borderBottom: "none" }}
+                                                    colSpan={16}
+                                                    align="center"
+                                                >
+                                                    <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                        No data found
+                                                    </Typography>
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
                                     </TableBody>
+
                                 </Table>
                             </TableContainer>
 
