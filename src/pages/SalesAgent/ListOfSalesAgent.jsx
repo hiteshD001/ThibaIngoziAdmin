@@ -296,7 +296,7 @@ const ListOfSalesAgent = () => {
             PayoutForm.setValues({
                 firstName: agent.first_name || "",
                 surname: agent.last_name || "",
-                branchCode: agent.bankId?.branch_code || "",
+                branchCode: agent.bank?.branch_code || "",
                 accountNumber: agent.accountNumber || "",
                 customerCode: agent._id || "",
                 amount: agent.totalUnPaid || 0,
@@ -822,7 +822,7 @@ const ListOfSalesAgent = () => {
                                                             </MenuItem>
                                                             <MenuItem
                                                                 onClick={(event) => {
-                                                                    handlePopup(event, 'payout', 'sales_agent');
+                                                                    handlePopup(event, 'payout', 'sales_agent', user);
                                                                     handleCloseMenu();
                                                                 }}
                                                             >

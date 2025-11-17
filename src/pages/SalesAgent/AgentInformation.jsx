@@ -154,27 +154,38 @@ const AgentInformation = () => {
 
     const payoutMutation = armedSosPayout(
         (res) => {
-            const { result, message } = parseXmlResponse(res.data);
-
-            if (result === "Success") {
-                payoutUpdateMutation.mutate({
-                    user_id: UserInfo.data?.data?.data._id,
-                    type: selectedPayoutType,
-                    amount: UserInfo.data?.data?.data.totalUnPaid,
-                });
-                toast.success('Payment successful');
-                closePopup();
+            // Extract JSON data from Axios response
+            const responseData = res.data;
+    
+            if (responseData?.success === true && responseData?.data?.payouts?.length > 0) {
+                const payout = responseData.data.payouts[0];
+    
+                if (payout.status === 'pending' || payout.status === 'processing') {
+                    payoutUpdateMutation.mutate({
+                        user_id: UserInfo.data?.data?.data._id,
+                        type: selectedPayoutType,
+                        amount: UserInfo.data?.data?.data.totalUnPaid,
+                    });
+                    toast.success('Payment request created successfully. Status: ' + payout.status);
+                    closePopup();
+                } else if (payout.status === 'completed') {
+                    toast.success('Payment completed successfully');
+                } else {
+                    toast.error(`Payment failed. Status: ${payout.status}`);
+                    console.error("Payment Error:", payout);
+                }
+    
             } else {
-                toast.error(message || 'Payment failed');
-                console.error("Payment Error:", message);
+                toast.error('Payment failed');
+                console.error("Payment Error:", responseData);
             }
         },
-
+    
         (err) => {
-            toast.error('payment failed')
+            toast.error('Payment failed');
             console.error("Error!", err);
         }
-    );
+    );    
 
     const payoutUpdateMutation = payoutUserUpdate(
         (res) => {
@@ -195,7 +206,8 @@ const AgentInformation = () => {
         PayoutForm.setValues({
             firstName: UserInfo.data?.data?.data?.first_name || "",
             surname: UserInfo.data?.data?.data?.last_name || "",
-            branchCode: UserInfo.data?.data?.data.bankId?.branch_code || "",
+            // branchCode: UserInfo.data?.data?.data.bankId?.branch_code || "",
+            branchCode: UserInfo.data?.data?.data.bank?.branch_code || "",
             accountNumber: UserInfo.data?.data?.data?.accountNumber || "",
             customerCode: UserInfo.data?.data?.data?.customerCode || "",
             amount: UserInfo.data?.data?.data?.totalUnPaid || 0,
