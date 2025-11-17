@@ -477,7 +477,7 @@ const Home = ({ isMapLoaded }) => {
                                                                     onChange={(e) => {
                                                                         setStatus(e.target.value);
                                                                         setStatusUpdate(true);
-                                                                        setSelectedId(row._id);
+                                                                        setSelectedId(user._id);
                                                                     }}
                                                                 >
                                                                     <option value="" hidden> Select </option>
