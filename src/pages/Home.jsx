@@ -526,7 +526,7 @@ const Home = ({ isMapLoaded }) => {
                                                                         </Button>
                                                                     </Tooltip>
                                                                 ) : (
-                                                                    <Loader />
+                                                                    null
                                                                 )}
                                                             </Box>
                                                         </TableCell>
@@ -915,7 +915,7 @@ const Home = ({ isMapLoaded }) => {
                                                                         </Button>
                                                                     </Tooltip>
                                                                 ) : (
-                                                                    <Loader />
+                                                                    null
                                                                 )}
                                                             </Box>
                                                         </TableCell>
