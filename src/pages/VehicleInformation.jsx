@@ -40,6 +40,7 @@ import { toastOption } from "../common/ToastOptions";
 import ImagePreviewModal from "../common/ImagePreviewModal";
 import PhoneInput from "react-phone-input-2";
 import SingleImagePreview from "../common/SingleImagePreview";
+import Loader from "../common/Loader";
 
 const VehicleInformation = () => {
     const [editInfo, setEditInfo] = useState(false);
@@ -333,6 +334,23 @@ const VehicleInformation = () => {
             </Typography>
         </Box>
     );
+
+    if (vehicleInfo.isLoading) {
+        return (
+            <Box
+                p={2}
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'start',
+                    minHeight: '60vh',
+                }}
+            >
+                <Loader />
+            </Box>
+        );
+    }
+
     return (
         <>
             <SingleImagePreview
