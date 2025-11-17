@@ -91,20 +91,20 @@ export const superadmin_menulist = [
     //     path: "",
     //     image: settings
     // },
-    {
-        id: "total-sales-agent",
-        name: "Sales Agent",
-        path: "/home/total-sales-agent",
-        image: salesagent,
-        // submenu: {
-        //     name: "List of Sales Agent",
-        //     path: "/home/total-sales-agent",
-        //     image: arrowLeft
-        // },
-        // add: "Add Sales Agent",
-        info: "Sales Agent Information"
-        // company: "",
-    },
+    // {
+    //     id: "total-sales-agent",
+    //     name: "Sales Agent",
+    //     path: "/home/total-sales-agent",
+    //     image: salesagent,
+    //     // submenu: {
+    //     //     name: "List of Sales Agent",
+    //     //     path: "/home/total-sales-agent",
+    //     //     image: arrowLeft
+    //     // },
+    //     // add: "Add Sales Agent",
+    //     info: "Sales Agent Information"
+    //     // company: "",
+    // },
     {
         id: "total-saps-wanted",
         name: "SAPS Wanted",
