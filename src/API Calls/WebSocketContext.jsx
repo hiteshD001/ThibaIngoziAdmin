@@ -3,72 +3,72 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const WebSocketContext = createContext(null);
 
-export const WebSocketProvider = ({ ...props }) => {
-    const { children } = props;
-
+export const WebSocketProvider = ({ children }) => {
     const socketRef = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
-    const [activeUserList, setActiveUserList] = useState([]);
+    const [activeUserLists, setActiveUserLists] = useState([]);
     const pingIntervalRef = useRef(null);
     const url = import.meta.env.VITE_WEB_SOCKET_URL;
 
     useEffect(() => {
-        const connectWebSocket = () => {
-            const socket = new WebSocket(url);
-            socketRef.current = socket;
+        const socket = new WebSocket(url);
+        socketRef.current = socket;
 
-            socket.onopen = () => {
-                setIsConnected(true);
+        socket.onopen = () => {
+            setIsConnected(true);
 
-                pingIntervalRef.current = setInterval(() => {
-                    if (socket.readyState === WebSocket.OPEN) {
-                        socket.send(JSON.stringify({ type: "ping" }));
-                    }
-                }, 30000);
-            };
-
-            socket.onclose = () => {
-                setIsConnected(false);
-                clearInterval(pingIntervalRef.current);
-            };
-
-            socket.onerror = (error) => {
-                console.error("WebSocket error", error);
-            };
-
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                if (data.length === 0) {
-                    setActiveUserList([]);
-                } else if (data.type === "pong") {
-                } else {
-                    setActiveUserList(() => [...data]);
+            pingIntervalRef.current = setInterval(() => {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({ type: "ping" }));
                 }
-            };
+            }, 30000);
         };
 
-        // Attempt to establish WebSocket connection
-        connectWebSocket();
+        socket.onclose = () => {
+            setIsConnected(false);
+            clearInterval(pingIntervalRef.current);
+        };
 
-        // Cleanup function when component unmounts or url changes
-        return () => {
-            if (socketRef.current) {
-                socketRef.current.close();
-                socketRef.current = null;
-                clearInterval(pingIntervalRef.current); // Clean up ping interval
+        socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+
+        socket.onmessage = (event) => {
+            let data;
+
+            try {
+                data = JSON.parse(event.data);
+            } catch (err) {
+                console.log("Invalid WS message", err);
+                return;
             }
+
+            if (data?.type === "pong") return;
+
+            // Backend structured payload
+            if (data?.type === "ACTIVE_SOS" && Array.isArray(data?.payload)) {
+                setActiveUserLists(data.payload); // replace
+                return;
+            }
+
+            // Backend sends just array (legacy)
+            if (Array.isArray(data)) {
+                setActiveUserLists(data);
+                return;
+            }
+        };
+
+        return () => {
+            socket.close();
+            clearInterval(pingIntervalRef.current);
         };
     }, [url]);
 
     return (
-        <WebSocketContext.Provider
-            value={{ isConnected, activeUserList, socketRef }}
-        >
+        <WebSocketContext.Provider value={{ isConnected, activeUserLists, socketRef }}>
             {children}
         </WebSocketContext.Provider>
     );
 };
 
-export const useWebSocket = () => {
-    return useContext(WebSocketContext);
-};
+export const useWebSocket = () => useContext(WebSocketContext);
