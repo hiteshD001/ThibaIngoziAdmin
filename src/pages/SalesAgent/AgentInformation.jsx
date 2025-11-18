@@ -369,27 +369,7 @@ const AgentInformation = () => {
                         </Box>
                     </Box>
                 </Grid>
-                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-                    <Box sx={{ height: "100%", backgroundColor: '#FB8C001A', borderRadius: '16px' }}>
-                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
-                            <Box>
-                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Earned Amount</Typography>
-                                <Typography variant="h4" fontWeight={600}>
-                                    R {UserInfo.data?.data?.data?.totalEarnedAmount || 0}
-                                </Typography>
-                                <div className="d-flex gap-2 align-items-center">
-                                    <div className="percentage-green">
-                                        ↑ 1%
-                                    </div>
-                                    <span> from last month</span>
-                                </div>
-                            </Box>
-                            <Box>
-                                <img src={sales4} alt="Sales Agent 4" />
-                            </Box>
-                        </Box>
-                    </Box>
-                </Grid>
+                
                 <Grid size={{ xs: 12, md: 6, lg: 3 }}>
                     <Box sx={{ height: "100%", backgroundColor: '#0D94881A', borderRadius: '16px' }}>
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
@@ -1369,16 +1349,17 @@ const AgentInformation = () => {
                             R {UserInfo.data?.data?.data.totalUnPaid || 0}
                         </Typography>
                     </Box>
-
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
-                        sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
-                    >
-                        <img src={payIcon} alt="payIcon" />
-                        Pay
-                    </Button>
+                    {UserInfo.data?.data?.data.totalUnPaid >= 10 && (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
+                            sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
+                        >
+                            <img src={payIcon} alt="payIcon" />
+                            Pay
+                        </Button>
+                    )}
 
                     {renderPopup()}
                 </Box>

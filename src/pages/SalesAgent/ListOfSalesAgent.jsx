@@ -58,6 +58,7 @@ const ListOfSalesAgent = () => {
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     const [selectedPayoutType, setSelectedPayoutType] = useState('');
+    const [selectedUser, setSelectedUser] = useState(null); 
 
     const [payPopup, setPopup] = useState('')
     const [range, setRange] = useState([
@@ -88,11 +89,11 @@ const ListOfSalesAgent = () => {
     const agentList = UserList?.data?.data?.data?.influencersData
     const totalPages = UserList?.data?.data?.data?.totalPages
     const queryClient = useQueryClient();
-
     const [menuUserId, setMenuUserId] = useState(null);
 
-    const handleOpenMenu = (userId) => {
+    const handleOpenMenu = (userId, user) => {
         setMenuUserId(userId);
+        setSelectedUser(user);
     };
 
     const handleCloseMenu = () => {
@@ -782,7 +783,7 @@ const ListOfSalesAgent = () => {
                                                             <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                                 <IconButton
                                                                     ref={(el) => (buttonRefs.current[user._id] = el)}
-                                                                    onClick={() => handleOpenMenu(user._id)}
+                                                                    onClick={() => handleOpenMenu(user._id, user)}
                                                                 >
                                                                     <MoreVertIcon />
                                                                 </IconButton>
@@ -805,7 +806,7 @@ const ListOfSalesAgent = () => {
                                                         >
                                                             <MenuItem
                                                                 onClick={() => {
-                                                                    nav(`/home/total-sales-agent/agent-information/${user._id}`)
+                                                                    nav(`/home/total-sales-agent/agent-information/${selectedUser._id}`)
                                                                     handleCloseMenu();
                                                                 }}
                                                             >
@@ -813,24 +814,26 @@ const ListOfSalesAgent = () => {
                                                             </MenuItem>
                                                             <MenuItem
                                                                 onClick={() => {
-                                                                    setSharingId(user?._id);
-                                                                    shareAgent({ id: user?._id, email: user?.email });
+                                                                    setSharingId(selectedUser?._id);
+                                                                    shareAgent({ id: selectedUser?._id, email: selectedUser?.email });
                                                                     handleCloseMenu();
                                                                 }}
                                                             >
-                                                                <img src={OutlinedShare} alt="edit button" /> &nbsp;   {sharingId === user?._id ? "Sharing..." : "Share"}
+                                                                <img src={OutlinedShare} alt="edit button" /> &nbsp;   {sharingId === selectedUser?._id ? "Sharing..." : "Share"}
                                                             </MenuItem>
-                                                            <MenuItem
-                                                                onClick={(event) => {
-                                                                    handlePopup(event, 'payout', 'sales_agent', user);
-                                                                    handleCloseMenu();
-                                                                }}
-                                                            >
-                                                                <img src={OutlinedPay} alt="edit button" /> &nbsp;   Pay
-                                                            </MenuItem>
+                                                            {selectedUser?.amount >= 10 && (
+                                                                <MenuItem
+                                                                    onClick={(event) => {
+                                                                        handlePopup(event, 'payout', 'sales_agent', selectedUser);
+                                                                        handleCloseMenu();
+                                                                    }}
+                                                                >
+                                                                    <img src={OutlinedPay} alt="edit button" /> &nbsp; Pay
+                                                                </MenuItem>
+                                                            )}
                                                             <MenuItem
                                                                 onClick={() => {
-                                                                    setconfirmation(user._id);
+                                                                    setconfirmation(selectedUser._id);
                                                                     handleCloseMenu();
                                                                 }}
                                                             >
