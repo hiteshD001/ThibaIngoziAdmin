@@ -279,7 +279,8 @@ const ListOfSalesAgent = () => {
 
     const payoutUpdateMutation = payoutUserUpdate(
         (res) => {
-            toast.success('payment successful');
+            // toast.success('payment successful');
+            queryClient.invalidateQueries(["salesAgent"]);
         },
         (err) => {
             toast.error('payment failed')
@@ -295,8 +296,10 @@ const ListOfSalesAgent = () => {
         event.stopPropagation();
         if (agent) {
             PayoutForm.setValues({
+                user_id: agent._id || "",
                 firstName: agent.first_name || "",
                 surname: agent.last_name || "",
+                bank_name: agent.bank?.bank_name || "",
                 branchCode: agent.bank?.branch_code || "",
                 accountNumber: agent.accountNumber || "",
                 customerCode: agent._id || "",
@@ -821,7 +824,7 @@ const ListOfSalesAgent = () => {
                                                             >
                                                                 <img src={OutlinedShare} alt="edit button" /> &nbsp;   {sharingId === selectedUser?._id ? "Sharing..." : "Share"}
                                                             </MenuItem>
-                                                            {selectedUser?.amount >= 10 && (
+                                                            {selectedUser?.totalUnPaid >= 10 && (
                                                                 <MenuItem
                                                                     onClick={(event) => {
                                                                         handlePopup(event, 'payout', 'sales_agent', selectedUser);

@@ -204,9 +204,11 @@ const AgentInformation = () => {
         event.stopPropagation();
 
         PayoutForm.setValues({
+            user_id: UserInfo.data?.data?.data?._id || "",
             firstName: UserInfo.data?.data?.data?.first_name || "",
             surname: UserInfo.data?.data?.data?.last_name || "",
             // branchCode: UserInfo.data?.data?.data.bankId?.branch_code || "",
+            bank_name: UserInfo.data?.data?.data.bank?.bank_name || "",
             branchCode: UserInfo.data?.data?.data.bank?.branch_code || "",
             accountNumber: UserInfo.data?.data?.data?.accountNumber || "",
             customerCode: UserInfo.data?.data?.data?.customerCode || "",
@@ -331,6 +333,24 @@ const AgentInformation = () => {
                     </Box>
                 </Grid>
                 <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#EAF8EC', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Paid Commission</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    R {UserInfo.data?.data?.data.totalPaid || 0}
+                                </Typography>
+                                <Typography variant="body2" sx={{ color: '#4B5563' }}>
+                                    No pending payments
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sa5} alt="Sales Agent 2" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
                     <Box sx={{ height: "100%", backgroundColor: '#EA580C1A', borderRadius: '16px' }}>
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
                             <Box>
@@ -354,7 +374,8 @@ const AgentInformation = () => {
                             <Box>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>My Total Users</Typography>
                                 <Typography variant="h4" fontWeight={600}>
-                                    {UserInfo.data?.data?.data?.user_id.length || 0}
+                                    {/* {UserInfo.data?.data?.data?.user_id.length || 0} */}
+                                    {driverList.isSuccess && driverList.data?.data?.data?.influencersData?.length || 0}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
                                     <div className="percentage-green">
