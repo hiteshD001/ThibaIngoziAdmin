@@ -55,7 +55,7 @@ const Home = ({ isMapLoaded }) => {
     const [selectedId, setSelectedId] = useState("");
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all")
-    // const { isConnected, activeUserList } = useWebSocket();
+    const { isConnected, activeUserLists } = useWebSocket();
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
     // Recent SOS pagination
@@ -119,6 +119,26 @@ const Home = ({ isMapLoaded }) => {
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
     const activeUserList = activeSos?.data?.data?.data
+
+
+    useEffect(() => {
+        if (!Array.isArray(activeUserLists)) return;
+
+        const currentLength = activeUserLists.length;
+        const previousLength = prevLengthRef.current;
+
+        // First run setup
+        if (previousLength === null) {
+            prevLengthRef.current = currentLength;
+            return;
+        }
+
+        // Trigger only when count changes
+        if (previousLength !== currentLength) {
+            prevLengthRef.current = currentLength;   // update stored length
+            activeSos?.refetch?.();
+        }
+    }, [activeUserLists]);
 
 
 
