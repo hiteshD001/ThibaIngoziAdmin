@@ -315,9 +315,9 @@ const AgentInformation = () => {
                     <Box sx={{ height: "100%", backgroundColor: '#EFF6FF', borderRadius: '16px' }}>
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
                             <Box>
-                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Earned Commission</Typography>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Earned Amount</Typography>
                                 <Typography variant="h4" fontWeight={600}>
-                                    R {UserInfo.data?.data?.data.totalCommission || 0}
+                                    R {UserInfo.data?.data?.data.totalEarnedAmount || 0}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
                                     <div className="percentage-green">
@@ -1370,17 +1370,27 @@ const AgentInformation = () => {
                             R {UserInfo.data?.data?.data.totalUnPaid || 0}
                         </Typography>
                     </Box>
-                    {UserInfo.data?.data?.data.totalUnPaid >= 10 && (
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
-                            sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
+                    <Tooltip
+                        title={
+                            UserInfo.data?.data?.data.totalUnPaid >= 10
+                            ? "Click to pay"
+                            : "Minimum unpaid amount is 10 to payout"
+                        }
+                        arrow
                         >
-                            <img src={payIcon} alt="payIcon" />
-                            Pay
-                        </Button>
-                    )}
+                        <span>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                disabled={UserInfo.data?.data?.data.totalUnPaid < 10}
+                                onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
+                                sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
+                                >
+                                <img src={payIcon} alt="payIcon" />
+                                Pay
+                            </Button>
+                        </span>
+                    </Tooltip>
 
                     {renderPopup()}
                 </Box>

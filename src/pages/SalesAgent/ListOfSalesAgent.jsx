@@ -39,7 +39,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DeleteSalesAgent } from "../../common/ConfirmationPOPup";
 import ImportSheet from "../../common/ImportSheet";
 import { FaArrowUp, FaArrowUpLong } from "react-icons/fa6";
-import { Avatar, Box, Button, Grid, Select as MuiSelect, IconButton, InputAdornment, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, TextField, Typography, Menu } from "@mui/material";
+import { Avatar, Box, Button, Grid, Select as MuiSelect, IconButton, InputAdornment, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, TextField, Typography, Menu, Tooltip } from "@mui/material";
 import CustomExportMenu from "../../common/Custom/CustomExport";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -824,16 +824,28 @@ const ListOfSalesAgent = () => {
                                                             >
                                                                 <img src={OutlinedShare} alt="edit button" /> &nbsp;   {sharingId === selectedUser?._id ? "Sharing..." : "Share"}
                                                             </MenuItem>
-                                                            {selectedUser?.totalUnPaid >= 10 && (
-                                                                <MenuItem
+                                                            <Tooltip
+                                                                title={
+                                                                    selectedUser?.totalUnPaid >= 10
+                                                                    ? "Click to pay"
+                                                                    : "Minimum unpaid amount is 10 to payout"
+                                                                }
+                                                                arrow
+                                                                >
+                                                                <span style={{ width: "100%", display: "block" }}>
+                                                                    <MenuItem
+                                                                    disabled={selectedUser?.totalUnPaid < 10}
                                                                     onClick={(event) => {
+                                                                        if (selectedUser?.totalUnPaid >= 10) {
                                                                         handlePopup(event, 'payout', 'sales_agent', selectedUser);
                                                                         handleCloseMenu();
+                                                                        }
                                                                     }}
-                                                                >
+                                                                    >
                                                                     <img src={OutlinedPay} alt="edit button" /> &nbsp; Pay
-                                                                </MenuItem>
-                                                            )}
+                                                                    </MenuItem>
+                                                                </span>
+                                                            </Tooltip>
                                                             <MenuItem
                                                                 onClick={() => {
                                                                     setconfirmation(selectedUser._id);
