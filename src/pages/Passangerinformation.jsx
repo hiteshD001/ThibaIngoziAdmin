@@ -65,6 +65,7 @@ const PassangerInformation = () => {
             EnrollType: "",
             isEnroll: '',
             verificationSelfieImage: null,
+            hijakingId : "",
         },
         validationSchema: vehicleValidation
     })
@@ -428,6 +429,35 @@ const PassangerInformation = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                             {displayField("Enrolment Type", driverform.values.EnrollType || 'N/A')}
+                        </Grid>
+
+                         <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                            {
+                                editInfo ? (<FormControl variant="standard" fullWidth>
+                                    <InputLabel
+                                        shrink
+                                        htmlFor="hijakingId"
+                                        sx={{
+                                            fontSize: '1.3rem',
+                                            color: 'rgba(0, 0, 0, 0.8)',
+                                            '&.Mui-focused': { color: 'black' },
+                                        }}
+                                    >
+                                        Device IMEI Number
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="hijakingId"
+                                        name="hijakingId"
+                                        placeholder="Device IMEI number"
+                                        value={driverform?.values?.hijakingId}
+                                        onChange={driverform?.handleChange}
+
+                                    />
+                                    {driverform?.touched?.hijakingId && driverform?.errors?.hijakingId && (
+                                        <FormHelperText error>{driverform?.errors?.hijakingId}</FormHelperText>
+                                    )}
+                                </FormControl>) : (displayField("Device IMEI Number", driverform?.values?.hijakingId))
+                            }
                         </Grid>
 
                         {/* <Grid size={{ xs: 12, sm: 6 }}>
