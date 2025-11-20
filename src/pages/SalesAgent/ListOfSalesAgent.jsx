@@ -339,6 +339,39 @@ const ListOfSalesAgent = () => {
         }
     }, [UserList?.data?.data?.data])
 
+    const getTrendData = (type) => {
+        let stat;
+      
+        // For transaction types (earned, commission, paid, unpaid)
+        if (type !== "user") {
+          stat = UserList?.data?.data?.data?.monthlyStats?.find(
+            (item) => item.transactionType === type
+          );
+        } else {
+            stat = UserList?.data?.data?.data?.user;
+        }
+      
+        const percent = stat?.percentageChange ?? 0;
+      
+        let arrow = "→";
+        let color = "#6c757d";
+      
+        if (stat?.trend === "up") {
+          arrow = "↑";
+          color = "green";
+        } else if (stat?.trend === "down") {
+          arrow = "↓";
+          color = "red";
+        }
+      
+        return { arrow, color, percent };
+    };      
+    const earned = getTrendData("earned");
+    const commission = getTrendData("commission");
+    const unpaid = getTrendData("unpaid");
+    const paid = getTrendData("paid");
+    const userTrend = getTrendData("user");
+    console.log(userTrend, "userTrend");
     return (
         <Box p={2}>
             <Grid container spacing={2}>
@@ -356,10 +389,9 @@ const ListOfSalesAgent = () => {
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                <div className="percentage-green">
-                                    {/* {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} % */}
-                                    ↑ 2%
-                                </div>
+                                    <div style={{ color: earned.color, fontWeight: 600 }}>
+                                        {earned.arrow} {earned.percent}%
+                                    </div>
                                 <span> from last month</span>
                             </div>
                         </div>
@@ -377,9 +409,8 @@ const ListOfSalesAgent = () => {
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                <div className="percentage-green">
-                                    {/* {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} % */}
-                                    ↑ 2%
+                                <div style={{ color: commission.color, fontWeight: 600 }}>
+                                    {commission.arrow} {commission.percent}%
                                 </div>
                                 <span> from last month</span>
                             </div>
@@ -391,16 +422,15 @@ const ListOfSalesAgent = () => {
                         <div className="d-flex justify-content-between  w-100 ">
                             <div className="">
                                 <span>Total Users</span>
-                                <h3>R {UserList.data?.data?.data?.grandTotalUsers || 0}</h3>
+                                <h3>{UserList.data?.data?.data?.grandTotalUsers || 0}</h3>
                             </div>
                             <img src={sa3} alt="dash-counter" />
 
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                <div className="percentage-green">
-                                    {/* {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} % */}
-                                    ↑ 2%
+                                <div style={{ color: userTrend.color, fontWeight: 600 }}>
+                                    {userTrend.arrow} {userTrend.percent}%
                                 </div>
                                 <span> from last month</span>
                             </div>
@@ -419,9 +449,8 @@ const ListOfSalesAgent = () => {
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                <div className="percentage-green">
-                                    {/* {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} % */}
-                                    ↑ 2%
+                                <div style={{ color: paid.color, fontWeight: 600 }}>
+                                    {paid.arrow} {paid.percent}%
                                 </div>
                                 <span> from last month</span>
                             </div>
@@ -440,9 +469,8 @@ const ListOfSalesAgent = () => {
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                <div className="percentage-green">
-                                    {/* {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} % */}
-                                    ↑ 2%
+                                <div style={{ color: unpaid.color, fontWeight: 600 }}>
+                                    {unpaid.arrow} {unpaid.percent}%
                                 </div>
                                 <span> from last month</span>
                             </div>

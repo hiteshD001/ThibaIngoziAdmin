@@ -307,7 +307,42 @@ const AgentInformation = () => {
         }
     };
 
-    console.log(agentForm.values.bankId)
+    const getTrendData = (type) => {
+        let stat;
+      
+        // For transaction types (earned, commission, paid, unpaid)
+        if (type !== "user") {
+          stat = UserInfo.data?.data?.data?.monthlyStats?.find(
+            (item) => item.transactionType === type
+          );
+        } else if(type == "userAll"){
+            stat = UserInfo.data?.data?.data?.allUserStats;
+        } else {
+            stat = UserInfo.data?.data?.data?.userStats;
+        }
+      
+        const percent = stat?.percentageChange ?? 0;
+      
+        let arrow = "→";
+        let color = "#6c757d";
+      
+        if (stat?.trend === "up") {
+          arrow = "↑";
+          color = "green";
+        } else if (stat?.trend === "down") {
+          arrow = "↓";
+          color = "red";
+        }
+      
+        return { arrow, color, percent };
+    };      
+    const earned = getTrendData("earned");
+    const commission = getTrendData("commission");
+    const unpaid = getTrendData("unpaid");
+    const paid = getTrendData("paid");
+    const user = getTrendData("user");
+    const userAll = getTrendData("userAll");
+
     return (
         <Box p={2}>
             <Grid container spacing={2}>
@@ -320,8 +355,8 @@ const AgentInformation = () => {
                                     R {UserInfo.data?.data?.data.totalEarnedAmount || 0}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
-                                    <div className="percentage-green">
-                                        ↑ 2%
+                                    <div style={{ color: earned.color, fontWeight: 600 }}>
+                                        {earned.arrow} {earned.percent}%
                                     </div>
                                     <span> from last month</span>
                                 </div>
@@ -340,9 +375,12 @@ const AgentInformation = () => {
                                 <Typography variant="h4" fontWeight={600}>
                                     R {UserInfo.data?.data?.data.totalPaid || 0}
                                 </Typography>
-                                <Typography variant="body2" sx={{ color: '#4B5563' }}>
-                                    No pending payments
-                                </Typography>
+                                <div className="d-flex gap-2 align-items-center">
+                                    <div style={{ color: paid.color, fontWeight: 600 }}>
+                                        {paid.arrow} {paid.percent}%
+                                    </div>
+                                    <span> from last month</span>
+                                </div>
                             </Box>
                             <Box>
                                 <img src={sa5} alt="Sales Agent 2" />
@@ -358,9 +396,12 @@ const AgentInformation = () => {
                                 <Typography variant="h4" fontWeight={600}>
                                     R {UserInfo.data?.data?.data.totalUnPaid || 0}
                                 </Typography>
-                                <Typography variant="body2" sx={{ color: '#4B5563' }}>
-                                    No pending payments
-                                </Typography>
+                                <div className="d-flex gap-2 align-items-center">
+                                    <div style={{ color: unpaid.color, fontWeight: 600 }}>
+                                        {unpaid.arrow} {unpaid.percent}%
+                                    </div>
+                                    <span> from last month</span>
+                                </div>
                             </Box>
                             <Box>
                                 <img src={sa5} alt="Sales Agent 2" />
@@ -378,10 +419,10 @@ const AgentInformation = () => {
                                     {driverList.isSuccess && driverList.data?.data?.data?.influencersData?.length || 0}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
-                                    <div className="percentage-green">
-                                        ↑ 2%
+                                    <div style={{ color: user.color, fontWeight: 600 }}>
+                                        {user.arrow} {user.percent}%
                                     </div>
-                                    <span> this month</span>
+                                    <span> from last month</span>
                                 </div>
                             </Box>
                             <Box>
@@ -400,8 +441,8 @@ const AgentInformation = () => {
                                     R {UserInfo.data?.data?.data?.commissionEarned || 0}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
-                                    <div className="percentage-green">
-                                        ↑ 1%
+                                    <div style={{ color: commission.color, fontWeight: 600 }}>
+                                        {commission.arrow} {commission.percent}%
                                     </div>
                                     <span> from last month</span>
                                 </div>
@@ -457,8 +498,8 @@ const AgentInformation = () => {
                                     {UserInfo.data?.data?.data?.grandTotalUsers || 0}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
-                                    <div className="percentage-green">
-                                        ↑ 1%
+                                    <div style={{ color: userAll.color, fontWeight: 600 }}>
+                                        {userAll.arrow} {userAll.percent}%
                                     </div>
                                     <span> from last month</span>
                                 </div>
