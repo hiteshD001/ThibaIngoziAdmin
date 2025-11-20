@@ -45,7 +45,7 @@ const copyButtonStyles = {
     borderRadius: '4px',
 };
 
-const Home = ({ isMapLoaded }) => {
+const Home = ({ isMapLoaded, }) => {
     // filters
     const [filter, setfilter] = useState("");
     const [recentFilter, setRecentFilter] = useState("");
@@ -56,6 +56,8 @@ const Home = ({ isMapLoaded }) => {
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all")
     const { isConnected, activeUserLists } = useWebSocket();
+
+    console.log("activeUserLists", activeUserLists);
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
     // Recent SOS pagination
@@ -119,6 +121,26 @@ const Home = ({ isMapLoaded }) => {
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
     const activeUserList = activeSos?.data?.data?.data
+
+    useEffect(() => {
+        if (!Array.isArray(activeUserLists)) return;
+
+        const currentLength = activeUserLists.length;
+        const previousLength = prevLengthRef.current;
+
+        // First run setup
+        if (previousLength === null) {
+            prevLengthRef.current = currentLength;
+            return;
+        }
+
+        // Trigger only when count changes
+        if (previousLength !== currentLength) {
+            prevLengthRef.current = currentLength;   // update stored length
+            activeSos?.refetch?.();
+        }
+    }, [activeUserLists]);
+
 
 
     useEffect(() => {

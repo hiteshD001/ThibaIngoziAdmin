@@ -154,27 +154,38 @@ const AgentInformation = () => {
 
     const payoutMutation = armedSosPayout(
         (res) => {
-            const { result, message } = parseXmlResponse(res.data);
-
-            if (result === "Success") {
-                payoutUpdateMutation.mutate({
-                    user_id: UserInfo.data?.data?.data._id,
-                    type: selectedPayoutType,
-                    amount: UserInfo.data?.data?.data.totalUnPaid,
-                });
-                toast.success('Payment successful');
-                closePopup();
+            // Extract JSON data from Axios response
+            const responseData = res.data;
+    
+            if (responseData?.success === true && responseData?.data?.payouts?.length > 0) {
+                const payout = responseData.data.payouts[0];
+    
+                if (payout.status === 'pending' || payout.status === 'processing') {
+                    payoutUpdateMutation.mutate({
+                        user_id: UserInfo.data?.data?.data._id,
+                        type: selectedPayoutType,
+                        amount: UserInfo.data?.data?.data.totalUnPaid,
+                    });
+                    toast.success('Payment request created successfully. Status: ' + payout.status);
+                    closePopup();
+                } else if (payout.status === 'completed') {
+                    toast.success('Payment completed successfully');
+                } else {
+                    toast.error(`Payment failed. Status: ${payout.status}`);
+                    console.error("Payment Error:", payout);
+                }
+    
             } else {
-                toast.error(message || 'Payment failed');
-                console.error("Payment Error:", message);
+                toast.error('Payment failed');
+                console.error("Payment Error:", responseData);
             }
         },
-
+    
         (err) => {
-            toast.error('payment failed')
+            toast.error('Payment failed');
             console.error("Error!", err);
         }
-    );
+    );    
 
     const payoutUpdateMutation = payoutUserUpdate(
         (res) => {
@@ -193,9 +204,12 @@ const AgentInformation = () => {
         event.stopPropagation();
 
         PayoutForm.setValues({
+            user_id: UserInfo.data?.data?.data?._id || "",
             firstName: UserInfo.data?.data?.data?.first_name || "",
             surname: UserInfo.data?.data?.data?.last_name || "",
-            branchCode: UserInfo.data?.data?.data.bankId?.branch_code || "",
+            // branchCode: UserInfo.data?.data?.data.bankId?.branch_code || "",
+            bank_name: UserInfo.data?.data?.data.bank?.bank_name || "",
+            branchCode: UserInfo.data?.data?.data.bank?.branch_code || "",
             accountNumber: UserInfo.data?.data?.data?.accountNumber || "",
             customerCode: UserInfo.data?.data?.data?.customerCode || "",
             amount: UserInfo.data?.data?.data?.totalUnPaid || 0,
@@ -293,7 +307,42 @@ const AgentInformation = () => {
         }
     };
 
-    console.log(agentForm.values.bankId)
+    const getTrendData = (type) => {
+        let stat;
+      
+        // For transaction types (earned, commission, paid, unpaid)
+        if (type !== "user") {
+          stat = UserInfo.data?.data?.data?.monthlyStats?.find(
+            (item) => item.transactionType === type
+          );
+        } else if(type == "userAll"){
+            stat = UserInfo.data?.data?.data?.allUserStats;
+        } else {
+            stat = UserInfo.data?.data?.data?.userStats;
+        }
+      
+        const percent = stat?.percentageChange ?? 0;
+      
+        let arrow = "→";
+        let color = "#6c757d";
+      
+        if (stat?.trend === "up") {
+          arrow = "↑";
+          color = "green";
+        } else if (stat?.trend === "down") {
+          arrow = "↓";
+          color = "red";
+        }
+      
+        return { arrow, color, percent };
+    };      
+    const earned = getTrendData("earned");
+    const commission = getTrendData("commission");
+    const unpaid = getTrendData("unpaid");
+    const paid = getTrendData("paid");
+    const user = getTrendData("user");
+    const userAll = getTrendData("userAll");
+
     return (
         <Box p={2}>
             <Grid container spacing={2}>
@@ -301,19 +350,40 @@ const AgentInformation = () => {
                     <Box sx={{ height: "100%", backgroundColor: '#EFF6FF', borderRadius: '16px' }}>
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
                             <Box>
-                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Earned Commission</Typography>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Earned Amount</Typography>
                                 <Typography variant="h4" fontWeight={600}>
-                                    R {UserInfo.data?.data?.data.totalCommission || 0}
+                                    R {UserInfo.data?.data?.data.totalEarnedAmount || 0}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
-                                    <div className="percentage-green">
-                                        ↑ 2%
+                                    <div style={{ color: earned.color, fontWeight: 600 }}>
+                                        {earned.arrow} {earned.percent}%
                                     </div>
                                     <span> from last month</span>
                                 </div>
                             </Box>
                             <Box>
                                 <img src={sales1} alt="Sales Agent 1" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#EAF8EC', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Paid Commission</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    R {UserInfo.data?.data?.data.totalPaid || 0}
+                                </Typography>
+                                <div className="d-flex gap-2 align-items-center">
+                                    <div style={{ color: paid.color, fontWeight: 600 }}>
+                                        {paid.arrow} {paid.percent}%
+                                    </div>
+                                    <span> from last month</span>
+                                </div>
+                            </Box>
+                            <Box>
+                                <img src={sa5} alt="Sales Agent 2" />
                             </Box>
                         </Box>
                     </Box>
@@ -326,9 +396,12 @@ const AgentInformation = () => {
                                 <Typography variant="h4" fontWeight={600}>
                                     R {UserInfo.data?.data?.data.totalUnPaid || 0}
                                 </Typography>
-                                <Typography variant="body2" sx={{ color: '#4B5563' }}>
-                                    No pending payments
-                                </Typography>
+                                <div className="d-flex gap-2 align-items-center">
+                                    <div style={{ color: unpaid.color, fontWeight: 600 }}>
+                                        {unpaid.arrow} {unpaid.percent}%
+                                    </div>
+                                    <span> from last month</span>
+                                </div>
                             </Box>
                             <Box>
                                 <img src={sa5} alt="Sales Agent 2" />
@@ -342,13 +415,14 @@ const AgentInformation = () => {
                             <Box>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>My Total Users</Typography>
                                 <Typography variant="h4" fontWeight={600}>
-                                    {UserInfo.data?.data?.data?.user_id.length || 0}
+                                    {/* {UserInfo.data?.data?.data?.user_id.length || 0} */}
+                                    {driverList.isSuccess && driverList.data?.data?.data?.influencersData?.length || 0}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
-                                    <div className="percentage-green">
-                                        ↑ 2%
+                                    <div style={{ color: user.color, fontWeight: 600 }}>
+                                        {user.arrow} {user.percent}%
                                     </div>
-                                    <span> this month</span>
+                                    <span> from last month</span>
                                 </div>
                             </Box>
                             <Box>
@@ -357,27 +431,7 @@ const AgentInformation = () => {
                         </Box>
                     </Box>
                 </Grid>
-                <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-                    <Box sx={{ height: "100%", backgroundColor: '#FB8C001A', borderRadius: '16px' }}>
-                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
-                            <Box>
-                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Earned Amount</Typography>
-                                <Typography variant="h4" fontWeight={600}>
-                                    R {UserInfo.data?.data?.data?.totalEarnedAmount || 0}
-                                </Typography>
-                                <div className="d-flex gap-2 align-items-center">
-                                    <div className="percentage-green">
-                                        ↑ 1%
-                                    </div>
-                                    <span> from last month</span>
-                                </div>
-                            </Box>
-                            <Box>
-                                <img src={sales4} alt="Sales Agent 4" />
-                            </Box>
-                        </Box>
-                    </Box>
-                </Grid>
+                
                 <Grid size={{ xs: 12, md: 6, lg: 3 }}>
                     <Box sx={{ height: "100%", backgroundColor: '#0D94881A', borderRadius: '16px' }}>
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
@@ -387,8 +441,8 @@ const AgentInformation = () => {
                                     R {UserInfo.data?.data?.data?.commissionEarned || 0}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
-                                    <div className="percentage-green">
-                                        ↑ 1%
+                                    <div style={{ color: commission.color, fontWeight: 600 }}>
+                                        {commission.arrow} {commission.percent}%
                                     </div>
                                     <span> from last month</span>
                                 </div>
@@ -444,8 +498,8 @@ const AgentInformation = () => {
                                     {UserInfo.data?.data?.data?.grandTotalUsers || 0}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
-                                    <div className="percentage-green">
-                                        ↑ 1%
+                                    <div style={{ color: userAll.color, fontWeight: 600 }}>
+                                        {userAll.arrow} {userAll.percent}%
                                     </div>
                                     <span> from last month</span>
                                 </div>
@@ -1357,16 +1411,27 @@ const AgentInformation = () => {
                             R {UserInfo.data?.data?.data.totalUnPaid || 0}
                         </Typography>
                     </Box>
-
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
-                        sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
-                    >
-                        <img src={payIcon} alt="payIcon" />
-                        Pay
-                    </Button>
+                    <Tooltip
+                        title={
+                            UserInfo.data?.data?.data.totalUnPaid >= 10
+                            ? "Click to pay"
+                            : "Minimum unpaid amount is 10 to payout"
+                        }
+                        arrow
+                        >
+                        <span>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                disabled={UserInfo.data?.data?.data.totalUnPaid < 10}
+                                onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
+                                sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
+                                >
+                                <img src={payIcon} alt="payIcon" />
+                                Pay
+                            </Button>
+                        </span>
+                    </Tooltip>
 
                     {renderPopup()}
                 </Box>

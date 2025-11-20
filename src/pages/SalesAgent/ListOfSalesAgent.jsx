@@ -39,7 +39,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DeleteSalesAgent } from "../../common/ConfirmationPOPup";
 import ImportSheet from "../../common/ImportSheet";
 import { FaArrowUp, FaArrowUpLong } from "react-icons/fa6";
-import { Avatar, Box, Button, Grid, Select as MuiSelect, IconButton, InputAdornment, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, TextField, Typography, Menu } from "@mui/material";
+import { Avatar, Box, Button, Grid, Select as MuiSelect, IconButton, InputAdornment, MenuItem, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, TextField, Typography, Menu, Tooltip } from "@mui/material";
 import CustomExportMenu from "../../common/Custom/CustomExport";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -58,6 +58,7 @@ const ListOfSalesAgent = () => {
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     const [selectedPayoutType, setSelectedPayoutType] = useState('');
+    const [selectedUser, setSelectedUser] = useState(null); 
 
     const [payPopup, setPopup] = useState('')
     const [range, setRange] = useState([
@@ -88,11 +89,11 @@ const ListOfSalesAgent = () => {
     const agentList = UserList?.data?.data?.data?.influencersData
     const totalPages = UserList?.data?.data?.data?.totalPages
     const queryClient = useQueryClient();
-
     const [menuUserId, setMenuUserId] = useState(null);
 
-    const handleOpenMenu = (userId) => {
+    const handleOpenMenu = (userId, user) => {
         setMenuUserId(userId);
+        setSelectedUser(user);
     };
 
     const handleCloseMenu = () => {
@@ -278,7 +279,8 @@ const ListOfSalesAgent = () => {
 
     const payoutUpdateMutation = payoutUserUpdate(
         (res) => {
-            toast.success('payment successful');
+            // toast.success('payment successful');
+            queryClient.invalidateQueries(["salesAgent"]);
         },
         (err) => {
             toast.error('payment failed')
@@ -294,9 +296,11 @@ const ListOfSalesAgent = () => {
         event.stopPropagation();
         if (agent) {
             PayoutForm.setValues({
+                user_id: agent._id || "",
                 firstName: agent.first_name || "",
                 surname: agent.last_name || "",
-                branchCode: agent.bankId?.branch_code || "",
+                bank_name: agent.bank?.bank_name || "",
+                branchCode: agent.bank?.branch_code || "",
                 accountNumber: agent.accountNumber || "",
                 customerCode: agent._id || "",
                 amount: agent.totalUnPaid || 0,
@@ -335,6 +339,39 @@ const ListOfSalesAgent = () => {
         }
     }, [UserList?.data?.data?.data])
 
+    const getTrendData = (type) => {
+        let stat;
+      
+        // For transaction types (earned, commission, paid, unpaid)
+        if (type !== "user") {
+          stat = UserList?.data?.data?.data?.monthlyStats?.find(
+            (item) => item.transactionType === type
+          );
+        } else {
+            stat = UserList?.data?.data?.data?.user;
+        }
+      
+        const percent = stat?.percentageChange ?? 0;
+      
+        let arrow = "→";
+        let color = "#6c757d";
+      
+        if (stat?.trend === "up") {
+          arrow = "↑";
+          color = "green";
+        } else if (stat?.trend === "down") {
+          arrow = "↓";
+          color = "red";
+        }
+      
+        return { arrow, color, percent };
+    };      
+    const earned = getTrendData("earned");
+    const commission = getTrendData("commission");
+    const unpaid = getTrendData("unpaid");
+    const paid = getTrendData("paid");
+    const userTrend = getTrendData("user");
+    console.log(userTrend, "userTrend");
     return (
         <Box p={2}>
             <Grid container spacing={2}>
@@ -352,10 +389,9 @@ const ListOfSalesAgent = () => {
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                <div className="percentage-green">
-                                    {/* {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} % */}
-                                    ↑ 2%
-                                </div>
+                                    <div style={{ color: earned.color, fontWeight: 600 }}>
+                                        {earned.arrow} {earned.percent}%
+                                    </div>
                                 <span> from last month</span>
                             </div>
                         </div>
@@ -373,9 +409,8 @@ const ListOfSalesAgent = () => {
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                <div className="percentage-green">
-                                    {/* {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} % */}
-                                    ↑ 2%
+                                <div style={{ color: commission.color, fontWeight: 600 }}>
+                                    {commission.arrow} {commission.percent}%
                                 </div>
                                 <span> from last month</span>
                             </div>
@@ -387,16 +422,15 @@ const ListOfSalesAgent = () => {
                         <div className="d-flex justify-content-between  w-100 ">
                             <div className="">
                                 <span>Total Users</span>
-                                <h3>R {UserList.data?.data?.data?.grandTotalUsers || 0}</h3>
+                                <h3>{UserList.data?.data?.data?.grandTotalUsers || 0}</h3>
                             </div>
                             <img src={sa3} alt="dash-counter" />
 
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                <div className="percentage-green">
-                                    {/* {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} % */}
-                                    ↑ 2%
+                                <div style={{ color: userTrend.color, fontWeight: 600 }}>
+                                    {userTrend.arrow} {userTrend.percent}%
                                 </div>
                                 <span> from last month</span>
                             </div>
@@ -415,9 +449,8 @@ const ListOfSalesAgent = () => {
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                <div className="percentage-green">
-                                    {/* {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} % */}
-                                    ↑ 2%
+                                <div style={{ color: paid.color, fontWeight: 600 }}>
+                                    {paid.arrow} {paid.percent}%
                                 </div>
                                 <span> from last month</span>
                             </div>
@@ -436,9 +469,8 @@ const ListOfSalesAgent = () => {
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                <div className="percentage-green">
-                                    {/* {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} % */}
-                                    ↑ 2%
+                                <div style={{ color: unpaid.color, fontWeight: 600 }}>
+                                    {unpaid.arrow} {unpaid.percent}%
                                 </div>
                                 <span> from last month</span>
                             </div>
@@ -782,7 +814,7 @@ const ListOfSalesAgent = () => {
                                                             <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                                 <IconButton
                                                                     ref={(el) => (buttonRefs.current[user._id] = el)}
-                                                                    onClick={() => handleOpenMenu(user._id)}
+                                                                    onClick={() => handleOpenMenu(user._id, user)}
                                                                 >
                                                                     <MoreVertIcon />
                                                                 </IconButton>
@@ -805,7 +837,7 @@ const ListOfSalesAgent = () => {
                                                         >
                                                             <MenuItem
                                                                 onClick={() => {
-                                                                    nav(`/home/total-sales-agent/agent-information/${user._id}`)
+                                                                    nav(`/home/total-sales-agent/agent-information/${selectedUser._id}`)
                                                                     handleCloseMenu();
                                                                 }}
                                                             >
@@ -813,24 +845,38 @@ const ListOfSalesAgent = () => {
                                                             </MenuItem>
                                                             <MenuItem
                                                                 onClick={() => {
-                                                                    setSharingId(user?._id);
-                                                                    shareAgent({ id: user?._id, email: user?.email });
+                                                                    setSharingId(selectedUser?._id);
+                                                                    shareAgent({ id: selectedUser?._id, email: selectedUser?.email });
                                                                     handleCloseMenu();
                                                                 }}
                                                             >
-                                                                <img src={OutlinedShare} alt="edit button" /> &nbsp;   {sharingId === user?._id ? "Sharing..." : "Share"}
+                                                                <img src={OutlinedShare} alt="edit button" /> &nbsp;   {sharingId === selectedUser?._id ? "Sharing..." : "Share"}
                                                             </MenuItem>
-                                                            <MenuItem
-                                                                onClick={(event) => {
-                                                                    handlePopup(event, 'payout', 'sales_agent');
-                                                                    handleCloseMenu();
-                                                                }}
-                                                            >
-                                                                <img src={OutlinedPay} alt="edit button" /> &nbsp;   Pay
-                                                            </MenuItem>
+                                                            <Tooltip
+                                                                title={
+                                                                    selectedUser?.totalUnPaid >= 10
+                                                                    ? "Click to pay"
+                                                                    : "Minimum unpaid amount is 10 to payout"
+                                                                }
+                                                                arrow
+                                                                >
+                                                                <span style={{ width: "100%", display: "block" }}>
+                                                                    <MenuItem
+                                                                    disabled={selectedUser?.totalUnPaid < 10}
+                                                                    onClick={(event) => {
+                                                                        if (selectedUser?.totalUnPaid >= 10) {
+                                                                        handlePopup(event, 'payout', 'sales_agent', selectedUser);
+                                                                        handleCloseMenu();
+                                                                        }
+                                                                    }}
+                                                                    >
+                                                                    <img src={OutlinedPay} alt="edit button" /> &nbsp; Pay
+                                                                    </MenuItem>
+                                                                </span>
+                                                            </Tooltip>
                                                             <MenuItem
                                                                 onClick={() => {
-                                                                    setconfirmation(user._id);
+                                                                    setconfirmation(selectedUser._id);
                                                                     handleCloseMenu();
                                                                 }}
                                                             >
