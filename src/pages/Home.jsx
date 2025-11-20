@@ -306,7 +306,23 @@ const Home = ({ isMapLoaded, }) => {
 
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
-                                    onClick={() => nav("/home")}
+                                    onClick={() => {
+                                        setfilter("");
+                                        setSelectedNotification("all");
+                                        setRangeSos([
+                                            {
+                                                startDate: startOfYear(new Date()),
+                                                endDate: new Date(),
+                                                key: 'selection'
+                                            }
+                                        ]);
+                                        setActivePage(1);
+                                        setActiveLimit(20);
+                                        setSortBy2("createdAt");
+                                        setSortOrder2("desc");
+
+                                        nav("/home");
+                                    }}
                                 >
                                     View All
                                 </Button>
@@ -694,7 +710,23 @@ const Home = ({ isMapLoaded, }) => {
                                 </FormControl>
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
-                                    onClick={() => nav("/home")}
+                                    onClick={() => {
+                                        setRecentFilter("");
+                                        setRecentNotification("all");
+                                        setRange([
+                                            {
+                                                startDate: startOfYear(new Date()),
+                                                endDate: new Date(),
+                                                key: "selection",
+                                            },
+                                        ]);
+                                        setRecentPage(1);
+                                        setRecentLimit(20);
+                                        setSortBy("createdAt");
+                                        setSortOrder("desc");
+
+                                        nav("/home");
+                                    }}
 
                                 >
                                     View All
