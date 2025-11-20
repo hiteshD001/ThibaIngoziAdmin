@@ -143,6 +143,26 @@ const Home = ({ isMapLoaded, }) => {
 
 
 
+    useEffect(() => {
+        if (!Array.isArray(activeUserLists)) return;
+
+        const currentLength = activeUserLists.length;
+        const previousLength = prevLengthRef.current;
+
+        // First run setup
+        if (previousLength === null) {
+            prevLengthRef.current = currentLength;
+            return;
+        }
+
+        // Trigger only when count changes
+        if (previousLength !== currentLength) {
+            prevLengthRef.current = currentLength;   // update stored length
+            activeSos?.refetch?.();
+        }
+    }, [activeUserLists]);
+
+
 
     // const activeSOS = useGetActiveSOS();
 
@@ -307,6 +327,7 @@ const Home = ({ isMapLoaded, }) => {
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
+
                                         setfilter("");
                                         setSelectedNotification("all");
                                         setRangeSos([

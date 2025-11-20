@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import { useFormik } from "formik"
 import { vehicleValidation } from "../common/FormValidation"
 import { useQueryClient } from "@tanstack/react-query"
-import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser, useGetCityList } from "../API Calls/API"
+import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser, useGetCityList,useGetVehicleTypeList  } from "../API Calls/API"
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
@@ -18,10 +18,18 @@ import GrayPlus from '../assets/images/GrayPlus.svg'
 import SingleImagePreview from "../common/SingleImagePreview"
 import uncheckedIcon from '../assets/images/UnChecked.svg'
 import checkedboxIcon from '../assets/images/checkboxIcon.svg'
+import vehicleIcon from '../assets/images/vehicleIcon.svg'
+import vehicleIcon2 from '../assets/images/vehicleIcon2.svg'
+import vehicleIcon3 from '../assets/images/vehicleIcon3.svg'
+import vehicleIcon4 from '../assets/images/vehicleIcon4.svg'
+import vehicleIcon5 from '../assets/images/vehicleIcon5.svg'
+import vehicleIcon6 from '../assets/images/vehicleIcon6.svg'
+import Loader from "../common/Loader"
 
 const PassangerInformation = () => {
     const [editInfo, setEditInfo] = useState(false);
     const [editAddress, setEditAddress] = useState(false);
+     const [editVehicle, setEditVehicle] = useState(false);
     const [editEmergency, setEditEmergency] = useState(false);
     const [role] = useState(localStorage.getItem("role"));
     const CompanyId = localStorage.getItem("userID");
@@ -57,6 +65,7 @@ const PassangerInformation = () => {
             EnrollType: "",
             isEnroll: '',
             verificationSelfieImage: null,
+            hijakingId : "",
         },
         validationSchema: vehicleValidation
     })
@@ -123,6 +132,7 @@ const PassangerInformation = () => {
     const countrylist = useGetCountryList()
     const cityList = useGetCityList(driverform.values.province)
     const companyList = useGetUserList("company list", "company");
+
     useEffect(() => {
         const data = UserInfo.data?.data
 
@@ -140,6 +150,97 @@ const PassangerInformation = () => {
             </Typography>
         </Box>
     );
+
+    const vehicleInfo = useGetUser(params.id);
+
+    console.log("vehicleInfo",vehicleInfo?.data?.data?.vehicle)
+
+      useEffect(() => {
+            const data = vehicleInfo.data?.data;
+    
+            if (data) {
+                const user = data?.user;
+                setdriverformvalues({
+                    form: driverform,
+                    data: {
+                        ...user,
+                        other_e_hailing_company: user.other_e_hailing_company
+                            ? user.other_e_hailing_company.split(",").filter(Boolean)
+                            : [],
+                    },
+                });
+                setdriverformvalues({ form: emergencyform, data: data.user });
+    
+                const vehicleData = data.vehicle?.[0];
+    
+                if (vehicleData) {
+                    vehicleForm.setValues({
+                        vehicle_id: vehicleData._id || "",
+                        vehicle_name: vehicleData.vehicle_name || "",
+                        type: vehicleData.type || "",
+                        reg_no: vehicleData.reg_no || "",
+                        license_number: vehicleData.license_number || "",
+                        images: [
+                            vehicleData.image_front_side,
+                            vehicleData.image_back_side,
+                            vehicleData.image_left_side,
+                            vehicleData.image_right_side,
+                            vehicleData.image_car_number_plate,
+                            vehicleData.image_driver_license,
+                        ].filter(Boolean),
+                    });
+                }
+                // console.log('driver', driverform.values)
+            }
+        }, [vehicleInfo?.data]);
+
+     
+         const vehicleTypeList = useGetVehicleTypeList()
+
+        
+         
+
+         const vehicleForm = useFormik({
+                initialValues: {
+                    vehicle_id: "",
+                    vehicle_name: "",
+                    type: "",
+                    reg_no: "",
+                    license_number: '',
+                    images: [],
+                },
+                onSubmit: (values) => {
+                    const formData = new FormData();
+                    Object.keys(values).forEach((key) => {
+                        if (key === 'images') {
+                            values[key].forEach(file => {
+                                if (file instanceof File) {
+                                    formData.append('images', file);
+                                }
+                            });
+                        } else {
+                            formData.append(key, values[key]);
+                        }
+                    });
+                    mutateVehicle({ id: values.vehicle_id, data: formData });
+                }
+            });
+
+            if (vehicleInfo.isLoading) {
+                    return (
+                        <Box
+                            p={2}
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'start',
+                                minHeight: '60vh',
+                            }}
+                        >
+                            <Loader />
+                        </Box>
+                    );
+                }
     return (
           <>
             <SingleImagePreview
@@ -328,6 +429,35 @@ const PassangerInformation = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                             {displayField("Enrolment Type", driverform.values.EnrollType || 'N/A')}
+                        </Grid>
+
+                         <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                            {
+                                editInfo ? (<FormControl variant="standard" fullWidth>
+                                    <InputLabel
+                                        shrink
+                                        htmlFor="hijakingId"
+                                        sx={{
+                                            fontSize: '1.3rem',
+                                            color: 'rgba(0, 0, 0, 0.8)',
+                                            '&.Mui-focused': { color: 'black' },
+                                        }}
+                                    >
+                                        Device IMEI Number
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="hijakingId"
+                                        name="hijakingId"
+                                        placeholder="Device IMEI number"
+                                        value={driverform?.values?.hijakingId}
+                                        onChange={driverform?.handleChange}
+
+                                    />
+                                    {driverform?.touched?.hijakingId && driverform?.errors?.hijakingId && (
+                                        <FormHelperText error>{driverform?.errors?.hijakingId}</FormHelperText>
+                                    )}
+                                </FormControl>) : (displayField("Device IMEI Number", driverform?.values?.hijakingId))
+                            }
                         </Grid>
 
                         {/* <Grid size={{ xs: 12, sm: 6 }}>
@@ -810,6 +940,293 @@ const PassangerInformation = () => {
                     </Grid>
                 </form>
             </Paper>
+
+
+            {vehicleInfo?.data?.data?.vehicle.length > 0 ? (
+            <Paper elevation={0} sx={{ p: 3, borderRadius: '10px', mb: 3 }}>
+                <form>
+                    <Grid container spacing={editVehicle ? 3 : 1}>
+                        <Grid size={12}>
+                            <Typography variant="h6" gutterBottom fontWeight={600}>
+                                Vehicle Information
+                            </Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: editVehicle ? 6 : 4 }}>
+                            {editVehicle ? (
+                                <FormControl variant="standard" fullWidth>
+                                    <InputLabel
+                                        shrink
+                                        htmlFor="vehicle_name"
+                                        sx={{
+                                            fontSize: '1.3rem',
+                                            color: 'rgba(0, 0, 0, 0.8)',
+                                            '&.Mui-focused': { color: 'black' },
+                                        }}
+                                    >
+                                        Vehicle Name
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="vehicle_name"
+                                        name="vehicle_name"
+                                        placeholder="Vehicle Name"
+                                        value={vehicleForm.values.vehicle_name}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled={!editVehicle}
+                                    />
+                                    {vehicleForm.touched?.vehicle_name && (
+                                        <FormHelperText error>{vehicleForm.errors?.vehicle_name}</FormHelperText>
+                                    )}
+                                </FormControl>
+                            ) : (
+                                displayField("Vehicle Name", vehicleForm.values.vehicle_name)
+                            )}
+                        </Grid>
+
+                        <Grid size={{ xs: 12, sm: editVehicle ? 6 : 4 }}>
+                            {editVehicle ? (
+                                <CustomSelect
+                                    label="Vehicle Type"
+                                    name="type"
+                                    value={vehicleForm.values.type}
+                                    onChange={vehicleForm.handleChange}
+                                    disabled={!editVehicle}
+                                    options={vehicleTypeList?.data?.data?.map(vehicle => ({
+                                        value: vehicle._id,
+                                        label: vehicle.vehicleTypeName
+                                    })) || []}
+                                    error={vehicleForm.errors.type && vehicleForm.touched.type}
+                                    helperText={vehicleForm.touched.type ? vehicleForm.errors.type : ''}
+                                />
+                            ) : displayField("Vehicle Type", vehicleTypeList?.data?.data?.find(p => p._id === vehicleForm.values.type)?.vehicleTypeName)}
+                        </Grid>
+
+                        <Grid size={{ xs: 12, sm: editVehicle ? 6 : 4 }}>
+                            {editVehicle ? (
+                                <FormControl variant="standard" fullWidth>
+                                    <InputLabel
+                                        shrink
+                                        htmlFor="reg_no"
+                                        sx={{
+                                            fontSize: '1.3rem',
+                                            color: 'rgba(0, 0, 0, 0.8)',
+                                            '&.Mui-focused': { color: 'black' },
+                                        }}
+                                    >
+                                        Vehicle Registration No.
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="reg_no"
+                                        name="reg_no"
+                                        placeholder="Vehicle Registration No."
+                                        value={vehicleForm.values.reg_no}
+                                        onChange={vehicleForm.handleChange}
+                                        disabled={!editVehicle}
+                                    />
+                                    {vehicleForm.touched?.reg_no && (
+                                        <FormHelperText error>{vehicleForm.errors?.reg_no}</FormHelperText>
+                                    )}
+                                </FormControl>
+                            ) : (
+                                displayField("Vehicle Registration No.", vehicleForm.values.reg_no)
+                            )}
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: editVehicle ? 6 : 4 }}>
+                            {editVehicle ? (
+                                <FormControl variant="standard" fullWidth>
+                                    <InputLabel
+                                        shrink
+                                        htmlFor="license_number"
+                                        sx={{
+                                            fontSize: '1.3rem',
+                                            color: 'rgba(0, 0, 0, 0.8)',
+                                            '&.Mui-focused': { color: 'black' },
+                                        }}
+                                    >
+                                        Driving License Number
+                                    </InputLabel>
+                                    <BootstrapInput
+                                        id="license_number"
+                                        name="license_number"
+                                        placeholder="Driving License Number"
+                                        value={vehicleForm.values.license_number}
+                                        onChange={vehicleForm.handleChange}
+                                    />
+                                    {vehicleForm.touched?.license_number && (
+                                        <FormHelperText error>{vehicleForm.errors?.license_number}</FormHelperText>
+                                    )}
+                                </FormControl>
+                            ) : (
+                                displayField("Driving License Number", vehicleForm.values.license_number)
+                            )}
+                        </Grid>
+                        {(vehicleForm?.values?.images?.length > 0 || editVehicle) && (
+                            <Grid size={12}>
+                                <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>
+                                    Add Car Images
+                                </Typography>
+                                <Grid container pt={2} spacing={2}>
+                                    {[
+                                        { label: "Front Side", img: vehicleIcon },
+                                        { label: "Back Side", img: vehicleIcon2 },
+                                        { label: "Left Side", img: vehicleIcon3 },
+                                        { label: "Right Side", img: vehicleIcon4 },
+                                        { label: "Car Number Plate", img: vehicleIcon5 },
+                                        { label: "License DISC Image", img: vehicleIcon6 },
+                                    ].map((item, index) => (
+                                        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }} key={index}>
+                                            <Typography
+                                                variant="subtitle2"
+                                                color="textSecondary"
+                                                align="center"
+                                                gutterBottom
+                                            >
+                                                {item.label}
+                                            </Typography>
+
+                                            <Box
+                                                sx={{
+                                                    border: '1px solid #E5E7EB',
+                                                    borderRadius: '12px',
+                                                    p: 2,
+                                                    minHeight: 250,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    cursor: editVehicle ? 'pointer' : 'default',
+                                                    position: 'relative',
+                                                }}
+                                            >
+                                                {vehicleForm.values.images[index] ? (
+                                                    <img
+                                                        src={
+                                                            vehicleForm.values.images[index] instanceof File
+                                                                ? URL.createObjectURL(vehicleForm.values.images[index])
+                                                                : vehicleForm.values.images[index]
+                                                        }
+                                                        alt={item.label}
+                                                        style={{
+                                                            maxHeight: 200,
+                                                            maxWidth: '100%',
+                                                            borderRadius: 4,
+                                                            cursor : 'pointer'
+                                                        }}
+                                                        onClick={() => handleImageClick(vehicleForm.values.images[index], item.label)}
+                                                    />
+                                                ) : (
+                                                    <Box textAlign="center">
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                flexDirection: 'column',
+                                                                gap: 1,
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                            }}
+                                                        >
+                                                            <img src={item.img} alt="vehicle image" height={50} width={50} />
+                                                            <Box
+                                                                sx={{
+                                                                    p: 1,
+                                                                    display: 'flex',
+                                                                    flexDirection: 'row',
+                                                                    gap: 1,
+                                                                    justifyContent: 'center',
+                                                                    alignItems: 'center',
+                                                                    backgroundColor: '#367BE0',
+                                                                    borderRadius: '8px',
+                                                                }}
+                                                            >
+                                                                <img src={camera} alt="camera" />
+                                                                <Typography sx={{ color: 'white' }} variant="body2">
+                                                                    Upload
+                                                                </Typography>
+                                                            </Box>
+                                                        </Box>
+                                                    </Box>
+                                                )}
+
+                                                {/* File input overlay only if edit mode is on */}
+                                                {editVehicle && (
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        style={{
+                                                            opacity: 0,
+                                                            position: 'absolute',
+                                                            top: 0,
+                                                            left: 0,
+                                                            width: '100%',
+                                                            height: '100%',
+                                                            cursor: 'pointer',
+                                                        }}
+                                                        onChange={(e) => {
+                                                            const file = e.target.files[0];
+                                                            if (file) {
+                                                                const updatedImages = [...vehicleForm.values.images];
+                                                                updatedImages[index] = file;
+                                                                vehicleForm.setFieldValue("images", updatedImages);
+                                                            }
+                                                        }}
+                                                    />
+                                                )}
+                                            </Box>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            </Grid>
+                        )}
+
+
+                        <Grid size={12}>
+                            <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+                                {editVehicle ? (
+                                    <>
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => {
+                                                // Save logic for emergency contact (if needed, call submithandler or a separate handler)
+                                                vehicleForm.handleSubmit()
+                                                setEditVehicle(false);
+                                            }}
+                                        >
+                                            Save
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px' }}
+                                            onClick={() => {
+                                                resetDriverForm();
+                                                setEditVehicle(false);
+                                            }}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </>
+                                ) : (
+                                    role !== "company" && (
+                                        <Button
+                                            variant="contained"
+                                            sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => {
+                                                if (!vehicleForm.values.vehicle_id) {
+                                                    toast.error("No vehicle found.");
+                                                    return;
+                                                }
+                                                setEditVehicle(true);
+                                            }}
+                                        >
+                                            Edit
+                                        </Button>
+                                    )
+                                )}
+                            </Box>
+                        </Grid>
+
+                    </Grid>
+                </form>
+            </Paper >
+             ) : null}
 
         </Box>
       </>
