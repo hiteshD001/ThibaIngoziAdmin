@@ -1,3 +1,4 @@
+// src/components/TwoFactorAuth.jsx
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { toastOption } from '../common/ToastOptions';

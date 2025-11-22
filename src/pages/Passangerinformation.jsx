@@ -65,7 +65,8 @@ const PassangerInformation = () => {
             EnrollType: "",
             isEnroll: '',
             verificationSelfieImage: null,
-            hijakingId: "",
+            hijakingId : "",
+            hijakingPass: ""
         },
         validationSchema: vehicleValidation
     })
@@ -459,6 +460,38 @@ const PassangerInformation = () => {
                                     </FormControl>) : (displayField("Device IMEI Number", driverform?.values?.hijakingId))
                                 }
                             </Grid>
+                                    />
+                                    {driverform?.touched?.hijakingId && driverform?.errors?.hijakingId && (
+                                        <FormHelperText error>{driverform?.errors?.hijakingId}</FormHelperText>
+                                    )}
+                                </FormControl>) : (displayField("Device IMEI Number", driverform?.values?.hijakingId))
+                            }
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                            {editInfo ? (<FormControl variant="standard" fullWidth>
+                                <InputLabel
+                                    shrink
+                                    htmlFor="hijakingPass"
+                                    sx={{
+                                        fontSize: '1.3rem',
+                                        color: 'rgba(0, 0, 0, 0.8)',
+                                        '&.Mui-focused': { color: 'black' },
+                                    }}
+                                >
+                                    Device Password
+                                </InputLabel>
+                                <BootstrapInput
+                                    id="hijakingPass"
+                                    name="hijakingPass"
+                                    placeholder="Device Password"
+                                    value={driverform.values.hijakingPass}
+                                    onChange={driverform.handleChange}
+                                />
+                                <FormHelperText sx={{ mt: 1, fontSize: '13px' }}>
+                                    <strong>Note:</strong> Password should be the last 6 digits of the IMEI number.
+                                </FormHelperText>
+                            </FormControl>) : (displayField("Device Password", driverform.values.hijakingPass))}
+                        </Grid>
 
                             {/* <Grid size={{ xs: 12, sm: 6 }}>
                             {editInfo ? (
