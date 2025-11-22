@@ -4,10 +4,12 @@ import { toast } from 'react-toastify';
 import { toastOption } from '../common/ToastOptions';
 import Loader from '../common/Loader';
 import { FaArrowLeft } from 'react-icons/fa';
+import { request2FAReset } from '../API Calls/authAPI';
 
 const TwoFactorAuth = ({ tempToken, email, onVerificationSuccess, onBack }) => {
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const [isLoading, setIsLoading] = useState(false);
+    const [showResetForm, setShowResetForm] = useState(false);
     const [error, setError] = useState('');
 
     const handleInputChange = (index, value) => {
@@ -70,6 +72,26 @@ const TwoFactorAuth = ({ tempToken, email, onVerificationSuccess, onBack }) => {
         }
     };
 
+    const handleReset2FA = async () => {
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const response = await request2FAReset(email);
+            if (response.success) {
+                toast.success('If your email exists, you will receive a reset link', toastOption);
+                setShowResetForm(false);
+            } else {
+                setError(response.message || 'Failed to send reset link');
+            }
+        } catch (error) {
+            console.error('Error requesting 2FA reset:', error);
+            setError('Failed to process your request. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="login-box shadow p-4 rounded bg-white col-sm-12 col-md-8 col-lg-5">
             <button 
@@ -86,41 +108,89 @@ const TwoFactorAuth = ({ tempToken, email, onVerificationSuccess, onBack }) => {
             </div>
             
             {error && <div className="alert alert-danger">{error}</div>}
-            
-            <form onSubmit={handleSubmit}>
-                <div className="d-flex justify-content-center mb-4 gap-2">
-                    {code.map((digit, index) => (
-                        <input
-                            key={index}
-                            id={`code-${index}`}
-                            type="text"
-                            className="form-control text-center"
-                            style={{
-                                width: '45px',
-                                height: '60px',
-                                fontSize: '24px',
-                                textAlign: 'center'
-                            }}
-                            maxLength={1}
-                            value={digit}
-                            onChange={(e) => handleInputChange(index, e.target.value)}
-                            onKeyDown={(e) => handleKeyDown(index, e)}
+
+            {!showResetForm ? (
+                <>
+                    <form onSubmit={handleSubmit}>
+                        <div className="d-flex justify-content-center mb-4 gap-2">
+                            {code.map((digit, index) => (
+                                <input
+                                    key={index}
+                                    id={`code-${index}`}
+                                    type="text"
+                                    className="form-control text-center"
+                                    style={{
+                                        width: '45px',
+                                        height: '60px',
+                                        fontSize: '24px',
+                                        textAlign: 'center'
+                                    }}
+                                    maxLength={1}
+                                    value={digit}
+                                    onChange={(e) => handleInputChange(index, e.target.value)}
+                                    onKeyDown={(e) => handleKeyDown(index, e)}
+                                    disabled={isLoading}
+                                    autoFocus={index === 0}
+                                />
+                            ))}
+                        </div>
+                        
+                        <div className="d-grid mb-3">
+                            <button
+                                type="submit"
+                                className="btn btn-primary"
+                                disabled={isLoading || code.some(c => c === '')}
+                            >
+                                {isLoading ? <Loader color="white" /> : 'Verify'}
+                            </button>
+                        </div>
+                    </form>
+
+                    <div className="text-center">
+                        <button
+                            type="button"
+                            className="btn btn-link p-0"
+                            onClick={() => setShowResetForm(true)}
                             disabled={isLoading}
-                            autoFocus={index === 0}
+                        >
+                            Can't access your authenticator? Reset 2FA
+                        </button>
+                    </div>
+                </>
+            ) : (
+                <div className="mt-3 p-3 border rounded">
+                    <h5>Reset Two-Factor Authentication</h5>
+                    <p className="text-muted small mb-3">
+                        We'll send you an email with instructions to reset your 2FA settings.
+                    </p>
+                    
+                    <div className="mb-3">
+                        <input
+                            type="email"
+                            className="form-control mb-2"
+                            value={email}
+                            readOnly
                         />
-                    ))}
-                </div>
-                
-                <div className="d-grid">
+                        <button
+                            className="btn btn-primary w-100"
+                            onClick={handleReset2FA}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Sending...' : 'Send Reset Link'}
+                        </button>
+                    </div>
+                    
                     <button
-                        type="submit"
-                        className="btn btn-primary"
-                        disabled={isLoading || code.some(c => c === '')}
+                        className="btn btn-link p-0"
+                        onClick={() => {
+                            setShowResetForm(false);
+                            setError('');
+                        }}
                     >
-                        {isLoading ? <Loader color="white" /> : 'Verify'}
+                        Back to 2FA verification
                     </button>
                 </div>
-            </form>
+            )}
         </div>
     );
 };

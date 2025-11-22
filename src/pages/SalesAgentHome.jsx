@@ -1,6 +1,6 @@
 import { useEffect, useState, useLayoutEffect } from "react";
 import Select from "react-select";
-import { Grid, Paper, Typography, Box, FormControl, InputLabel, Button, FormHelperText, Modal, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
+import { Grid, Typography, Box, FormControl, InputLabel, FormHelperText } from "@mui/material";
 import { useFormik } from "formik";
 import { sales_agent_e } from "../common/FormValidation";
 import { BootstrapInput } from '../common/BootstrapInput'
@@ -13,25 +13,60 @@ import PhoneInput from "react-phone-input-2";
 import Loader from "../common/Loader";
 import { useGetUserByInfluncer } from "../API Calls/API";
 import { startOfYear } from "date-fns";
-import { useParams } from "react-router-dom";
-import nouser from "../assets/images/NoUser.png";
-import Prev from "../assets/images/left.png";
-import Next from "../assets/images/right.png";
+import { useNavigate, useParams } from "react-router-dom";
+
+import sa2 from '../assets/images/sa2.svg'
+import sa3 from '../assets/images/sa3.svg'
+import sa4 from '../assets/images/sa4.svg'
+import sales1 from '../assets/images/sales1.svg'
+import sa5 from '../assets/images/sa5.svg'
+import sales3 from '../assets/images/sales3.svg'
+import sales5 from '../assets/images/sales5.svg'
+import sales6 from '../assets/images/sales6.svg'
+// import search from "../assets/images/search.svg";
+// import nouser from "../assets/images/NoUser.png";
+// import calender from '../assets/images/calender.svg';
+// import arrowup from '../assets/images/arrowup.svg';
+// import arrowdown from '../assets/images/arrowdown.svg';
+// import arrownuteral from '../assets/images/arrownuteral.svg';
+// import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+// import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+// import ViewBtn from '../assets/images/ViewBtn.svg'
+// import Prev from "../assets/images/left.png";
+// import Next from "../assets/images/right.png";
+// import CustomExportMenu from "../common/Custom/CustomExport";
+// import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
+// import apiClient from "../API Calls/APIClient";
 // import Prev from "../../assets/images/left.png";
 // import { useFormik } from "formik";
 
 const SalesAgentHome = () => {
+    // const nav = useNavigate()
     const role = localStorage.getItem("role");
+    // const [rowsPerPage, setRowsPerPage] = useState(5);
+    // const [currentPage, setCurrentPage] = useState(1);
     const [time, setTime] = useState("today");
     const [timeTitle, setTimeTitle] = useState("Today");
     const [banksList, setbanksList] = useState([])
     const client = useQueryClient();
     const [edit, setedit] = useState(false);
     const bankslist = useGetBanksList()
-    const [tieModalOpen, setTieModalOpen] = useState(false);
-    const [tieUsers, setTieUsers] = useState([]);
+    // const [tieModalOpen, setTieModalOpen] = useState(false);
+    // const [tieUsers, setTieUsers] = useState([]);
     const [page, setpage] = useState(1);
-    const [tieData, setTieData] = useState(true)
+    // const [tieData, setTieData] = useState(true)
+    // const [filter, setfilter] = useState("");
+    // const [sortBy, setSortBy] = useState("first_name");
+    // const [sortOrder, setSortOrder] = useState("asc");
+    // const changeSortOrder = (e) => {
+    //     const field = e.target.id;
+    //     if (field !== sortBy) {
+    //         setSortBy(field);
+    //         setSortOrder("asc");
+    //     } else {
+    //         setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+    //     }
+    // }
     useEffect(() => {
         switch (time) {
             case "today":
@@ -78,11 +113,11 @@ const SalesAgentHome = () => {
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
 
-    
-    
     const userinfo = useGetAgent(localStorage.getItem("userID"));
-    console.log("userinfo",userinfo?.data?.data)
+    console.log("userinfo", userinfo?.data?.data)
     const listOfSalesAgentUsers = useGetUserByInfluncer(page, 10, startDate, endDate, userinfo?.data?.data?.data?._id)
+    // const totalUsers = listOfSalesAgentUsers.data?.data?.data?.totalCount || 0;
+    // const totalPages = Math.ceil(totalUsers / rowsPerPage);
 
     const profileForm = useFormik({
         initialValues: sales_agent,
@@ -97,29 +132,140 @@ const SalesAgentHome = () => {
 
     });
 
-    const handleTieClick = () => {
-        const tieUserData = userinfo?.data?.data?.data?.tieUserData;
-        setTieUsers(tieUserData)
+    // const handleTieClick = () => {
+    //     const tieUserData = userinfo?.data?.data?.data?.tieUserData;
+    //     setTieUsers(tieUserData)
 
-        setTieData(true)
+    //     setTieData(true)
 
-        console.log("Tie clicked:", tieUserData);
+    //     console.log("Tie clicked:", tieUserData);
 
-        if (tieUserData && Array.isArray(tieUserData)) {
-            setTieUsers(tieUserData);
-            setTieModalOpen(true);
+    //     if (tieUserData && Array.isArray(tieUserData)) {
+    //         setTieUsers(tieUserData);
+    //         setTieModalOpen(true);
+    //     } else {
+    //         toast.info("No tie user data available");
+    //     }
+    // };
+
+    // const handleCancel = () => {
+    //     const data = userinfo?.data?.data?.data;
+    //     if (data) {
+    //         profileForm.resetForm({ values: data });
+    //     }
+    //     setedit(false);
+    // };
+
+    // const handleExport = async ({ startDate, endDate, format }) => {
+    //     try {
+    //         const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+    //             params: {
+    //                 role: "passanger",
+    //                 page: 1,
+    //                 limit: 10000,
+    //                 filter: "",
+    //                 company_id: paramId,
+    //                 startDate,
+    //                 endDate,
+    //             },
+    //         });
+
+    //         const allUsers = data?.users || [];
+    //         if (!allUsers.length) {
+    //             toast.warning("No User data found for this period.");
+    //             return;
+    //         }
+
+    //         const exportData = allUsers.map(user => ({
+    //             "User": `${user.first_name || ''} ${user.last_name || ''}` || '',
+    //             "Company Name": user.company_name || '',
+    //             "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+    //             "Contact Email": user.email || ''
+    //         }));
+
+    //         if (format === "xlsx") {
+    //             const worksheet = XLSX.utils.json_to_sheet(exportData);
+    //             const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+    //                 wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+    //             }));
+    //             worksheet['!cols'] = columnWidths;
+    //             const workbook = XLSX.utils.book_new();
+    //             XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    //             XLSX.writeFile(workbook, "User_List.xlsx");
+    //         }
+    //         else if (format === "csv") {
+    //             const worksheet = XLSX.utils.json_to_sheet(exportData);
+    //             const csv = XLSX.utils.sheet_to_csv(worksheet);
+    //             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    //             const link = document.createElement('a');
+    //             link.href = URL.createObjectURL(blob);
+    //             link.download = 'user_list.csv';
+    //             document.body.appendChild(link);
+    //             link.click();
+    //             document.body.removeChild(link);
+    //         }
+    //         else if (format === "pdf") {
+    //             const doc = new jsPDF();
+    //             doc.text('User List', 14, 16);
+    //             autoTable(doc, {
+    //                 head: [['User', 'Company Name', 'Contact No.', 'Contact Email']],
+    //                 body: allUsers.map(user => [
+    //                     `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
+    //                     user.company_name ?? 'NA',
+    //                     `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
+    //                     user.email ?? 'NA'
+    //                 ]),
+    //                 startY: 20,
+    //                 theme: 'striped',
+    //                 headStyles: { fillColor: '#367BE0' },
+    //                 margin: { top: 20 },
+    //                 styles: { fontSize: 10 },
+    //             });
+    //             doc.save("User_List.pdf");
+    //         }
+
+    //     } catch (err) {
+    //         console.error("Error exporting data:", err);
+    //         toast.error("Export failed.");
+    //     }
+    // };
+
+    const getTrendData = (type) => {
+        let stat;
+
+        // For transaction types (earned, commission, paid, unpaid)
+        if (type !== "user") {
+            stat = userinfo.data?.data?.data?.monthlyStats?.find(
+                (item) => item.transactionType === type
+            );
+        } else if (type == "userAll") {
+            stat = userinfo.data?.data?.data?.allUserStats;
         } else {
-            toast.info("No tie user data available");
+            stat = userinfo.data?.data?.data?.userStats;
         }
-    };
 
-    const handleCancel = () => {
-        const data = userinfo?.data?.data?.data;
-        if (data) {
-            profileForm.resetForm({ values: data });
+        const percent = stat?.percentageChange ?? 0;
+
+        let arrow = "→";
+        let color = "#6c757d";
+
+        if (stat?.trend === "up") {
+            arrow = "↑";
+            color = "green";
+        } else if (stat?.trend === "down") {
+            arrow = "↓";
+            color = "red";
         }
-        setedit(false);
+
+        return { arrow, color, percent };
     };
+    const earned = getTrendData("earned");
+    const commission = getTrendData("commission");
+    const unpaid = getTrendData("unpaid");
+    const paid = getTrendData("paid");
+    const user = getTrendData("user");
+    const userAll = getTrendData("userAll");
+
     useEffect(() => {
         const data = userinfo?.data?.data
         if (data) {
@@ -172,176 +318,169 @@ const SalesAgentHome = () => {
                     </Box>
                 </Grid>
             </Grid> */}
-            <Grid container spacing={3} px={2}>
-            <Grid size={{ xs: 12, md: 4 }}>
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 3,
-                            borderRadius: 3,
-                            // textAlign: "center",
-                            bgcolor: "#e3f5ff",
-                        }}
-                    >
-                        <Typography variant="subtitle1" color="text.secondary">
-                            Total Earned Amount
-                        </Typography>
-                        <Typography variant="h4" fontWeight="bold">
-                            R {userinfo?.data?.data?.data?.totalEarnedAmount}
-                        </Typography>
-                    </Paper>
+
+            <Grid container px={2} spacing={3} my={5} alignItems="stretch">
+                <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+
+                    <Box sx={{ height: "100%", backgroundColor: '#e3f5ff', borderRadius: '16px', }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Earned Amount</Typography>
+                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.totalEarnedAmount}</Typography>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>
+                                    <span style={{ color: earned.color, fontWeight: 500 }}>{earned.arrow}{earned.percent}%</span> from last month
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sales1} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Box>
                 </Grid>
 
-                {/* Total Companies */}
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 3,
-                            borderRadius: 3,
-                            // textAlign: "center",
-                            bgcolor: "#e3f5ff",
-                        }}
-                    >
-                        <Typography variant="subtitle1" color="text.secondary">
-                            Total Commission Earned
-                        </Typography>
-                        <Typography variant="h4" fontWeight="bold">
-                            R {userinfo?.data?.data?.data?.totalCommission}
-                        </Typography>
-                    </Paper>
-                </Grid>
-                
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 3,
-                            borderRadius: 3,
-                            // textAlign: "center",
-                            bgcolor: "#e3f5ff",
-                        }}
-                    >
-                        <Typography variant="subtitle1" color="text.secondary">
-                            Total Commission Unpaid
-                        </Typography>
-                        <Typography variant="h4" fontWeight="bold">
-                            R {userinfo?.data?.data?.data?.totalUnPaid}
-                        </Typography>
-                    </Paper>
-                </Grid>
-                
-                 <Grid size={{ xs: 12, md: 4 }}>
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 3,
-                            borderRadius: 3,
-                            // textAlign: "center",
-                            bgcolor: "#e3f5ff",
-                        }}
-                    >
-                        <Typography variant="subtitle1" color="text.secondary">
-                            Total Commission Paid
-                        </Typography>
-                        <Typography variant="h4" fontWeight="bold">
-                            R {userinfo?.data?.data?.data?.totalPaid}
-                        </Typography>
-                    </Paper>
+                <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+
+                    <Box sx={{ height: "100%", backgroundColor: '#e9efff', borderRadius: '16px', }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Commission Earned</Typography>
+                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.totalCommission}</Typography>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>
+                                    <span style={{ color: commission.color, fontWeight: 500 }}>{commission.arrow}{commission.percent}%</span> from last month
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sa2} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Box>
                 </Grid>
 
+                <Grid size={{ xs: 12, md: 6, lg: 4 }}>
 
-
-
-                {/* Users Active (time filter) */}
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 3,
-                            borderRadius: 3,
-                            // textAlign: "center",
-                            bgcolor: "#e3f5ff",
-                        }}
-                    >
-                        <Typography variant="subtitle1" color="text.secondary" >
-                            My Total Users
-                        </Typography>
-                        <Typography variant="h4" fontWeight="bold">
-                            {userinfo?.data?.data?.data?.user_id?.length}
-                        </Typography>
-                    </Paper>
-                </Grid>
-                <Grid size={{ xs: 12, md: 4 }} >
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 3,
-                            borderRadius: 3,
-                            // textAlign: "center",
-                            bgcolor: "#e3f5ff",
-
-                        }}
-
-                    >
-                        <Typography variant="subtitle1" color="text.secondary" >
-                            Performance Level
-                        </Typography>
-                        <Typography variant="h4" fontWeight="bold" >
-                            {userinfo?.data?.data?.data.performanceLevel}
-                        </Typography>
-                    </Paper>
+                    <Box sx={{ height: "100%", backgroundColor: '#fff3e5', borderRadius: '16px', }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Commission Unpaid</Typography>
+                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.totalUnPaid}</Typography>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>
+                                    <span style={{ color: unpaid.color, fontWeight: 500 }}>{unpaid.arrow}{unpaid.percent}%</span> from last month
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sa5} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Box>
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 3,
-                            borderRadius: 3,
-                            // textAlign: "center",
-                            bgcolor: "#e3f5ff",
-                            cursor: "pointer"
-                        }}
-                        // onClick={handleTieClick}
-                    >
-                        <Typography variant="subtitle1" color="text.secondary" >
-                            Tie
-                        </Typography>
-                        <Typography variant="h4" fontWeight="bold">
-                            {userinfo?.data?.data?.data?.tie}
-                        </Typography>
-                    </Paper>
+                <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+
+                    <Box sx={{ height: "100%", backgroundColor: '#0d94881a', borderRadius: '16px', }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Commission Paid</Typography>
+                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.totalPaid}</Typography>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>
+                                    <span style={{ color: paid.color, fontWeight: 500 }}>{paid.arrow}{paid.percent}%</span> from last month
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sa4} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Box>
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 4 }}>
-                    <Paper
-                        elevation={3}
-                        sx={{
-                            p: 3,
-                            borderRadius: 3,
-                            // textAlign: "center",
-                            bgcolor: "#e3f5ff",
-                            cursor: "pointer"
-                        }}
-                        // onClick={handleTieClick}
-                    >
-                        <Typography variant="subtitle1" color="text.secondary" >
-                        Total Sales agent Users 
-                        </Typography>
-                        <Typography variant="h4" fontWeight="bold">
-                            {userinfo?.data?.data?.data?.grandTotalUsers}
-                        </Typography>
-                    </Paper>
+                <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+
+                    <Box sx={{ height: "100%", backgroundColor: '#eaf8ec', borderRadius: '16px', }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>My Total Users</Typography>
+                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.user_id?.length}</Typography>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>
+                                    <span style={{ color: user.color, fontWeight: 500 }}>{user.arrow}{user.percent}%</span> from last month
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sa3} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+
+                    <Box sx={{ height: "100%", backgroundColor: '#F59E0B1A', borderRadius: '16px', }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Performance Level</Typography>
+                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data.performanceLevel ?? 0}</Typography>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>
+                                    {/* <span style={{ color: '#16A34A', fontWeight: 500 }}>+8%</span>  */}
+                                    Level 1 Performer
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sales3} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+
+                    <Box sx={{ height: "100%", backgroundColor: '#6b72801a', borderRadius: '16px', }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Tie</Typography>
+                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.tie ?? 0}</Typography>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>
+                                    {/* <span style={{ color: '#16A34A', fontWeight: 500 }}>+8%</span>  */}
+                                    No linked users
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sales5} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+
+                    <Box sx={{ height: "100%", backgroundColor: '#367be01a', borderRadius: '16px', }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total Sales agent Users</Typography>
+                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.grandTotalUsers ?? 0}</Typography>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>
+                                    <span style={{ color: userAll.color, fontWeight: 500 }}>{userAll.arrow}{userAll.percent}%</span> from last month
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <img src={sales6} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Box>
                 </Grid>
             </Grid>
 
-
             <Box p={2}>
-                <Box elevation={0} sx={{ p: 3, borderRadius: '16px', mb: 3, backgroundColor: '#f7f9fb' }}>
+                <Box
+                    elevation={0}
+                    sx={{
+                        p: 3,
+                        borderRadius: '16px',
+                        mb: 3,
+                        backgroundColor: '#fdfdfd',
+                        boxShadow: 'rgba(0, 0, 0, 0.1) -3px 4px 23px',
+                    }}
+                >
                     <form>
                         <Grid container spacing={edit ? 3 : 1}>
-                            <Grid size={12}>
+                            <Grid size={12} sx={{ borderBottom: "1px solid #E5E7EB", marginBottom: "20px" }}>
                                 <Typography variant="h6" gutterBottom fontWeight={600}>
                                     Profile Information
                                 </Typography>
@@ -472,7 +611,7 @@ const SalesAgentHome = () => {
                                 {edit ? (
                                     <FormControl variant="standard" fullWidth >
                                         <InputLabel shrink htmlFor="enrollAmountDeduction" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
-                                        Enrolment Discount %
+                                            Enrolment Discount %
                                         </InputLabel>
                                         <BootstrapInput
                                             id="enrollAmountDeduction"
@@ -645,138 +784,463 @@ const SalesAgentHome = () => {
                 </Box>
             </Box>
 
-            {/* <div className="theme-table" style={{ marginTop: '20px' }}>
-                <div className="tab-heading">
-                    <div className="count">
-                        <h3>Total Users</h3>
-                        <p>{listOfSalesAgentUsers.isSuccess && listOfSalesAgentUsers.data?.data?.data?.influencersData?.length || 0}</p>
-                    </div>
-                    <div className="tbl-filter">
-                        
-                        <button
-                                    onClick={() => nav("/home/total-drivers/add-driver")}
-                                    className="btn btn-primary"
-                                >
-                                    + Add Driver
-                                </button>
-                                <button className="btn btn-primary" onClick={handleExport}
-                                    disabled={isExportingDrivers}>
-                                    {isExportingDrivers ? 'Exporting...' : '+ Export Sheet'}
-                                </button>
+            {/* <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px' }}>
+                <Grid container justifyContent="space-between" alignItems="center" p={2}>
+                    <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                        <Typography variant="h6" fontWeight={590} sx={{ pl: 2 }}>Total Users</Typography>
+                        <Typography variant="body2" sx={{ p: 0.8, borderRadius: '50px', color: '#4B5563', backgroundColor: '#F3F4F6' }}>{listOfSalesAgentUsers.isSuccess && listOfSalesAgentUsers.data?.data?.data?.influencersData?.length || 0} total</Typography>
+                    </Grid>
+                    <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
 
-                        <button className="btn btn-primary" onClick={() => setpopup(true)}>
-                                    + Import Sheet
-                                </button>
-                    </div>
-                </div>
-                {listOfSalesAgentUsers.isFetching ? (
-                    <Loader />
-                ) : (
+                        <TextField
+                            variant="outlined"
+                            placeholder="Search"
+                            value={filter}
+                            onChange={(e) => setfilter(e.target.value)}
+                            fullWidth
+                            sx={{
+                                width: '100%',
+                                height: '40px',
+                                borderRadius: '8px',
+                                '& .MuiInputBase-root': {
+                                    height: '40px',
+                                    fontSize: '14px',
+                                },
+                                '& .MuiOutlinedInput-input': {
+                                    padding: '10px 14px',
+                                },
+                                '& .MuiOutlinedInput-root': {
+                                    '& fieldset': {
+                                        borderColor: 'var(--light-gray)',
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'var(--light-gray)',
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'var(--light-gray)',
+                                    },
+                                },
+                            }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <img src={search} alt="search icon" />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                        <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
+                            <CustomExportMenu onExport={handleExport} />
+                            <CustomDateRangePicker
+                                value={range}
+                                onChange={setRange}
+                                icon={calender}
+                            />
+                        </Box>
+
+                    </Grid>
+                </Grid>
+                {listOfSalesAgentUsers.data?.data?.data?.influencersData ? (
                     <>
-                        {listOfSalesAgentUsers.data?.data?.data?.influencersData ? (
-                            <>
-                                <table
-                                    id="example"
-                                    className="table table-striped nowrap"
-                                    style={{ width: "100%" }}
-                                >
-                                    <thead>
-                                        <tr>
-                                            <th>User name</th>
-                                            <th>Driver ID</th>
-                                            <th>Company</th>
-                                            <th>Contact No.</th>
-                                            <th>Contact Email</th>
-                                            <th>&nbsp;</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {listOfSalesAgentUsers?.data && listOfSalesAgentUsers.data?.data?.data?.influencersData?.map((driver) => (
-                                            <tr key={driver._id}>
-                                                <td>
-                                                    <div
-                                                        className={
-                                                            (!driver.first_name && !driver.last_name) ? "prof nodata" : "prof"
-                                                        }
-                                                    >
-                                                        <img
-                                                            className="profilepicture"
-                                                            src={
-                                                                driver.selfieImage
-                                                                    ? driver.selfieImage
-                                                                    : nouser
-                                                            }
-                                                        />
-                                                        {driver.first_name} {driver.last_name}
-                                                    </div>
-                                                </td>
-                                                <td className={!driver.id_no ? "nodata" : ""}>
-                                                    {driver.id_no}
-                                                </td>
-                                                <td className={!driver.company_name ? "companynamenodata" : ""}>
-                                                    {driver.company_name}
-                                                </td>
-                                                <td className={!driver?.mobile_no ? "nodata" : ""}>
-                                                    {`${driver?.mobile_no_country_code ?? ''}${driver?.mobile_no ?? ''}`}
-                                                </td>
-                                                <td className={!driver.email ? "nodata" : ""}>
-                                                    {driver.email}
-                                                </td>
-                                                <td>
-                                                            <span
-                                                                onClick={() => setconfirmation(driver._id)}
-                                                                className="tbl-gray"
-                                                            >
-                                                                Delete
-                                                            </span>
-                                                            {confirmation === driver._id && (
-                                                                <DeleteConfirm
-                                                                    id={driver._id}
-                                                                    setconfirmation={setconfirmation}
+                        <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                            <TableContainer >
+                                <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
+                                    <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                        <TableRow >
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                                <TableSortLabel
+                                                    id="first_name"
+                                                    active={sortBy === 'first_name'}
+                                                    direction={sortOrder}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >
+                                                    User
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                                <TableSortLabel
+                                                    id="id_no"
+                                                    active={sortBy === 'id_no'}
+                                                    direction={sortOrder}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortBy === 'id_no' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >
+                                                    Driver ID
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                                <TableSortLabel
+                                                    id="company_name"
+                                                    active={sortBy === 'company_name'}
+                                                    direction={sortOrder}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortBy === 'company_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >
+                                                    Company
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                                <TableSortLabel
+                                                    id="mobile_no_country_code"
+                                                    active={sortBy === 'mobile_no_country_code'}
+                                                    direction={sortOrder}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortBy === 'mobile_no_country_code' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >
+                                                    Contact No.
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                                <TableSortLabel
+                                                    id="address"
+                                                    active={sortBy === 'address'}
+                                                    direction={sortOrder}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortBy === 'address' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >
+                                                    Contact Email
+                                                </TableSortLabel>
+                                            </TableCell>
+                                            <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+
+                                    <TableBody>
+                                        {listOfSalesAgentUsers.isFetching ?
+                                            <TableRow>
+                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                                    <Loader />
+                                                </TableCell>
+                                            </TableRow>
+                                            : (listOfSalesAgentUsers.data?.data?.data?.influencersData?.length > 0 ?
+                                                listOfSalesAgentUsers.data?.data?.data?.influencersData?.map((user) => (
+                                                    <TableRow key={user._id}>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            <Stack direction="row" alignItems="center" gap={1}>
+                                                                <Avatar
+                                                                    src={user?.selfieImage || nouser}
+                                                                    alt="User"
                                                                 />
-                                                            )}
-                                                            <span
-                                                                onClick={() =>
-                                                                    nav(
-                                                                        `/home/total-drivers/driver-information/${driver._id}`
-                                                                    )
-                                                                }
-                                                                className="tbl-btn"
-                                                            >
-                                                                view
-                                                            </span>
-                                                        </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                                <div className="pagiation">
-                                    <div className="pagiation-left">
-                                        <button
-                                            disabled={page === 1}
-                                            onClick={() => setpage((p) => p - 1)}
+                                                                {user.first_name} {user.last_name}
+                                                            </Stack>
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {user.id_no || "-"}
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {user.company_name || "-"}
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {`${user?.mobile_no_country_code ?? ""}${user?.mobile_no ?? "-"}`}
+                                                        </TableCell>
+                                                        <TableCell sx={{ color: '#4B5563' }}>
+                                                            {user.email || "-"}
+                                                        </TableCell>
+                                                        <TableCell >
+                                                            <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                                <Tooltip title="View" arrow placement="top">
+                                                                    <IconButton onClick={() => nav(`/sales-home/user-information/${user._id}`)}>
+                                                                        <img src={ViewBtn} alt="view button" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </Box>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
+                                                :
+                                                <TableRow>
+                                                    <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                                        <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                            No data found
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>)
+                                        }
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <Grid container sx={{ px: { xs: 1, sm: 3 }, pb: 2 }} justifyContent="space-between" alignItems="center" mt={2}>
+                                <Grid>
+                                    <Box display="flex" alignItems="center">
+                                        <Typography variant="body2">
+                                            Rows per page:&nbsp;
+                                        </Typography>
+                                        <Select
+                                            size="small"
+                                            sx={{
+                                                border: 'none',
+                                                boxShadow: 'none',
+                                                outline: 'none',
+                                                '& .MuiOutlinedInput-notchedOutline': {
+                                                    border: 'none',
+                                                },
+                                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                    border: 'none',
+                                                },
+                                                '& .MuiOutlinedInput-root': {
+                                                    boxShadow: 'none',
+                                                    outline: 'none',
+                                                },
+                                                '& .MuiSelect-select': {
+                                                    outline: 'none',
+                                                },
+                                            }}
+                                            value={rowsPerPage}
+                                            onChange={(e) => {
+                                                setRowsPerPage(Number(e.target.value));
+                                                setCurrentPage(1);
+                                            }}
                                         >
-                                            <img src={Prev} /> Prev
-                                        </button>
-                                    </div>
-                                    <div className="pagiation-right">
-                                        <button
-                                            disabled={page === listOfSalesAgentUsers.data?.data?.data?.totalPages}
-                                            onClick={() => setpage((p) => p + 1)}
+                                            {[5, 10, 15, 20].map((num) => (
+                                                <MenuItem key={num} value={num}>
+                                                    {num}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </Box>
+                                </Grid>
+                                <Grid>
+                                    <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                        <Typography variant="body2">
+                                            {currentPage} / {totalPages}
+                                        </Typography>
+                                        <IconButton
+                                            disabled={currentPage === 1}
+                                            onClick={() => setCurrentPage((prev) => prev - 1)}
                                         >
-                                            Next <img src={Next} />
-                                        </button>
-                                    </div>
-                                </div>
-                            </>
-                        ) : (
-                            <p className="no-data-found">No data found</p>
-                        )}
+                                            <NavigateBeforeIcon fontSize="small" />
+                                        </IconButton>
+                                        <IconButton
+                                            disabled={currentPage === totalPages}
+                                            onClick={() => setCurrentPage((prev) => prev + 1)}
+                                        >
+                                            <NavigateNextIcon fontSize="small" />
+                                        </IconButton>
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                        </Box>
+
                     </>
+                ) : (
+                    <Typography align="center" color="text.secondary" sx={{ mt: 2, p: 2 }}>
+                        No data found
+                    </Typography>
                 )}
+            </Box> */}
 
-            </div> */}
+            {/* {tieData && (
+                <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px' }}>
+                    <Grid container justifyContent="space-between" alignItems="center" p={2}>
+                        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                            <Typography variant="h6" fontWeight={590} sx={{ pl: 2 }}>Tie Users</Typography>
+                            <Typography variant="body2" sx={{ p: 0.8, borderRadius: '50px', color: '#4B5563', backgroundColor: '#F3F4F6' }}>{userinfo?.data?.data?.data?.tieUserData?.length || 0} total</Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+                            <TextField
+                                variant="outlined"
+                                placeholder="Search"
+                                value={filter}
+                                onChange={(e) => setfilter(e.target.value)}
+                                fullWidth
+                                sx={{
+                                    width: '100%',
+                                    height: '40px',
+                                    borderRadius: '8px',
+                                    '& .MuiInputBase-root': {
+                                        height: '40px',
+                                        fontSize: '14px',
+                                    },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '10px 14px',
+                                    },
+                                    '& .MuiOutlinedInput-root': {
+                                        '& fieldset': {
+                                            borderColor: 'var(--light-gray)',
+                                        },
+                                        '&:hover fieldset': {
+                                            borderColor: 'var(--light-gray)',
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: 'var(--light-gray)',
+                                        },
+                                    },
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <img src={search} alt="search icon" />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
+                                <CustomExportMenu onExport={handleExport} />
+                                <CustomDateRangePicker
+                                    value={range}
+                                    onChange={setRange}
+                                    icon={calender}
+                                />
+                            </Box>
 
+                        </Grid>
+                    </Grid>
+                    {userinfo?.data?.data?.data?.tieUserData?.length > 0 ? (
+                        <>
+                            <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                                <TableContainer >
+                                    <Table sx={{ '& .MuiTableCell-root': { borderBottom: 'none', fontSize: '15px' } }}>
+                                        <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                            <TableRow >
+                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                                    <TableSortLabel
+                                                        id="index"
+                                                        active={sortBy === 'index'}
+                                                        direction={sortOrder}
+                                                        onClick={changeSortOrder}
+                                                        IconComponent={() => <img src={sortBy === 'index' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    >
+                                                        No.
+                                                    </TableSortLabel>
+                                                </TableCell>
+                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                                    <TableSortLabel
+                                                        id="first_name"
+                                                        active={sortBy === 'first_name'}
+                                                        direction={sortOrder}
+                                                        onClick={changeSortOrder}
+                                                        IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    >
+                                                        Name
+                                                    </TableSortLabel>
+                                                </TableCell>
+                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                                    <TableSortLabel
+                                                        id="salesCount"
+                                                        active={sortBy === 'salesCount'}
+                                                        direction={sortOrder}
+                                                        onClick={changeSortOrder}
+                                                        IconComponent={() => <img src={sortBy === 'salesCount' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    >
+                                                        Users
+                                                    </TableSortLabel>
+                                                </TableCell>
+
+
+                                                <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+
+                                        <TableBody>
+                                            {userinfo?.isFetching ?
+                                                <TableRow>
+                                                    <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={5} align="center">
+                                                        <Loader />
+                                                    </TableCell>
+                                                </TableRow>
+                                                : (
+                                                    userinfo?.data?.data?.data?.tieUserData?.map((user, index) => (
+                                                        <TableRow key={user._id}>
+                                                            <TableCell sx={{ color: '#4B5563' }}>
+                                                                {index + 1}
+                                                            </TableCell>
+                                                            <TableCell sx={{ color: '#4B5563' }}>
+                                                                <Stack direction="row" alignItems="center" gap={1}>
+                                                                    <Avatar
+                                                                        src={user?.selfieImage || nouser}
+                                                                        alt="User"
+                                                                    />
+                                                                    {user.first_name} {user.last_name}
+                                                                </Stack>
+                                                            </TableCell>
+                                                            <TableCell sx={{ color: '#4B5563' }}>
+                                                                {user.user.salesCount || "-"}
+                                                            </TableCell>
+                                                            <TableCell >
+                                                                <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                                    <Tooltip title="View" arrow placement="top">
+                                                                        <IconButton onClick={() => nav(`/home/total-sales-agent/agent-information/${user._id}`)}>
+                                                                            <img src={ViewBtn} alt="view button" />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                </Box>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    )))
+                                            }
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                                <Grid container sx={{ px: { xs: 1, sm: 3 }, pb: 2 }} justifyContent="space-between" alignItems="center" mt={2}>
+                                    <Grid>
+                                        <Box display="flex" alignItems="center">
+                                            <Typography variant="body2">
+                                                Rows per page:&nbsp;
+                                            </Typography>
+                                            <Select
+                                                size="small"
+                                                sx={{
+                                                    border: 'none',
+                                                    boxShadow: 'none',
+                                                    outline: 'none',
+                                                    '& .MuiOutlinedInput-notchedOutline': {
+                                                        border: 'none',
+                                                    },
+                                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                        border: 'none',
+                                                    },
+                                                    '& .MuiOutlinedInput-root': {
+                                                        boxShadow: 'none',
+                                                        outline: 'none',
+                                                    },
+                                                    '& .MuiSelect-select': {
+                                                        outline: 'none',
+                                                    },
+                                                }}
+                                                value={rowsPerPage}
+                                                onChange={(e) => {
+                                                    setRowsPerPage(Number(e.target.value));
+                                                    setCurrentPage(1);
+                                                }}
+                                            >
+                                                {[5, 10, 15, 20].map((num) => (
+                                                    <MenuItem key={num} value={num}>
+                                                        {num}
+                                                    </MenuItem>
+                                                ))}
+                                            </Select>
+                                        </Box>
+                                    </Grid>
+                                    <Grid>
+                                        <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                            <Typography variant="body2">
+                                                {currentPage} / {totalPages}
+                                            </Typography>
+                                            <IconButton
+                                                disabled={currentPage === 1}
+                                                onClick={() => setCurrentPage((prev) => prev - 1)}
+                                            >
+                                                <NavigateBeforeIcon fontSize="small" />
+                                            </IconButton>
+                                            <IconButton
+                                                disabled={currentPage === totalPages}
+                                                onClick={() => setCurrentPage((prev) => prev + 1)}
+                                            >
+                                                <NavigateNextIcon fontSize="small" />
+                                            </IconButton>
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                            </Box>
+                        </>
+                    ) : (
+                        <Typography align="center" color="text.secondary" sx={{ mt: 2, p: 2 }}>
+                            No data found
+                        </Typography>
+                    )}
+                </Box>
+            )} */}
         </>
 
     );

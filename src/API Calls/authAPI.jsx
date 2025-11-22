@@ -25,6 +25,21 @@ export const enable2FA = async (enable = true) => {
     return response.data;
 };
 
+// Complete 2FA reset with token
+export const reset2FA = async (token, email) => {
+    const response = await apiClient.post('/auth/2fa/reset', { 
+        token,
+        email
+    });
+    return response.data;
+};
+
+// In authAPI.jsx, add this function:
+export const request2FAReset = async (email) => {
+    const response = await apiClient.post('/auth/2fa/request-reset', { email });
+    return response.data;
+};
+
 // Disable 2FA for the current user
 export const disable2FA = async () => {
     const response = await apiClient.post('/auth/2fa/disable');

@@ -9,6 +9,7 @@ import {
 import { BootstrapInput } from "../common/BootstrapInput";
 import CustomSelect from "../common/Custom/CustomSelect";
 import { useEffect, useState, useLayoutEffect } from "react";
+import CircularProgress from '@mui/material/CircularProgress';
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetUser, useUpdateUser, useGetCountryList, useGetProvinceList, useGetServicesList, useGetCityList } from "../API Calls/API";
 import { toast } from "react-toastify";
@@ -17,6 +18,11 @@ import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 import GrayPlus from '../assets/images/GrayPlus.svg'
+import { enable2FA, disable2FA } from "../API Calls/authAPI";
+import { Switch, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { QRCodeSVG } from 'qrcode.react';
+import QRCode from 'qrcode';
+
 
 const Profile = () => {
   const [servicesList, setServicesList] = useState({});
@@ -30,6 +36,11 @@ const Profile = () => {
   const [GrpservicesList, setGrpservicesList] = useState([]);
   const [role] = useState(localStorage.getItem("role"));
   const [edit, setEdit] = useState(false);
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [is2FALoading, setIs2FALoading] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState(null);
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
   const client = useQueryClient();
 
   const onSuccess = () => {
@@ -41,7 +52,11 @@ const Profile = () => {
   };
 
   const { mutate, isPending } = useUpdateUser(onSuccess, onError);
-  const userinfo = useGetUser(localStorage.getItem("userID"), role);
+  const userinfo = useGetUser(localStorage.getItem("userID"), role, {
+    onSuccess: (data) => {
+      
+    }
+  });
 
   const profileForm = useFormik({
     initialValues: role === "super_admin" ? super_admin : company,
@@ -125,6 +140,14 @@ const Profile = () => {
           mobile_no_country_code: userinfo.data?.data.user?.mobile_no_country_code || "",
         }
     );
+    
+    // Update 2FA status when user data is loaded
+    const is2FAEnabled = userinfo.data?.data?.user?.twoFactorAuth?.enabled;
+    console.log("2FA Status:", is2FAEnabled); 
+    
+    if (is2FAEnabled !== undefined) {
+      setIs2FAEnabled(is2FAEnabled); // Ensure it's a boolean
+    }
   }, [userinfo.data, edit]);
 
   const serviceslist = useGetServicesList()
@@ -166,6 +189,66 @@ const Profile = () => {
 
   const handleClosePreview = () => {
     setPreviewImage(prev => ({ ...prev, open: false }));
+  };
+
+  const handle2FAToggle = async (e) => {
+    const newValue = e.target.checked;
+    setIs2FALoading(true);
+    
+    try {
+      console.log(newValue ? 'Enabling 2FA...' : 'Disabling 2FA...');
+      const response = await enable2FA(newValue);
+
+      if (!response || !response.success) {
+          throw new Error(newValue ? 'Failed to initialize 2FA setup' : 'Failed to disable 2FA');
+      }
+
+      if (newValue) {
+          const { secret, otpauthUrl } = response;
+
+          if (!secret || !otpauthUrl) {
+              throw new Error('Invalid 2FA setup data received');
+          }
+
+          try {
+              // Generate QR code data URL only when enabling 2FA
+              const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
+                  errorCorrectionLevel: 'H',
+                  margin: 2,
+                  width: 200,
+                  type: 'image/png'
+              });
+
+              setQrCodeData({ 
+                  secret,
+                  otpauthUrl,
+                  qrCodeDataUrl
+              });
+              setQrCodeUrl(otpauthUrl);
+              setShowQRCode(true);
+              setIs2FAEnabled(true);
+          } catch (error) {
+              console.error('Error generating QR code:', error);
+              throw new Error('Failed to generate QR code');
+          }
+      } else {
+          // Handle successful disable
+          setIs2FAEnabled(false);
+          setQrCodeData(null);
+          setQrCodeUrl('');
+          toast.success('2FA has been disabled successfully', toastOption);
+      }
+    } catch (error) {
+      console.error('2FA toggle error:', error);
+      toast.error(
+          error.response?.data?.message || error.message || 'Failed to update 2FA settings',
+          toastOption
+      );
+      // Revert the switch on error
+      setIs2FAEnabled(!newValue);
+    } finally {
+        setIs2FALoading(false);
+    }
   };
 
   return (
@@ -634,6 +717,93 @@ const Profile = () => {
                   </Grid>
                 </Grid>
               </Grid>
+              {/* 2FA Toggle */}
+              {/* <Grid item xs={12} sx={{ mt: 4, mb: 2 }}>
+                <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: 2 }}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
+                        Two-Factor Authentication (2FA)
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Add an extra layer of security to your account
+                      </Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      {is2FALoading && <CircularProgress size={24} sx={{ mr: 2 }} />}
+                      <Switch
+                        checked={is2FAEnabled}
+                        onChange={handle2FAToggle}
+                        disabled={is2FALoading}
+                        color="primary"
+                      />
+                    </Box>
+                  </Box>
+                </Paper>
+              </Grid> */}
+
+              {/* 2FA Setup Dialog */}
+              <Dialog open={showQRCode} onClose={() => setShowQRCode(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Set Up Two-Factor Authentication</DialogTitle>
+                <DialogContent sx={{ textAlign: 'center' }}>
+                    <Typography variant="body1" paragraph>
+                        Scan the QR code below with your authenticator app:
+                    </Typography>
+                    
+                    {qrCodeData?.qrCodeDataUrl ? (
+                        <Box sx={{ 
+                            display: 'flex', 
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            my: 2,
+                            p: 2,
+                            bgcolor: 'white',
+                            borderRadius: 1,
+                            border: '1px solid #e0e0e0'
+                        }}>
+                            <img 
+                                src={qrCodeData.qrCodeDataUrl} 
+                                alt="2FA QR Code" 
+                                style={{ 
+                                    width: 200, 
+                                    height: 200,
+                                    objectFit: 'contain'
+                                }} 
+                            />
+                        </Box>
+                    ) : (
+                        <Box>Generating QR code...</Box>
+                    )}
+
+                    {qrCodeData?.secret && (
+                        <Box sx={{ mt: 2, mb: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+                            <Typography variant="body2" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                                {qrCodeData.secret}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                Or enter this code manually: <strong>{qrCodeData.secret}</strong>
+                            </Typography>
+                        </Box>
+                    )}
+
+                    <Typography variant="body2" color="text.secondary">
+                        After scanning, you'll be asked to enter a verification code from your authenticator app.
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => {
+                            setShowQRCode(false);
+                            setIs2FAEnabled(true);
+                            toast.success('Two-factor authentication has been enabled', toastOption);
+                        }}
+                    >
+                        I've set up my authenticator app
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
               {/* save /edit button */}
               <Grid size={12}>
                 <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>

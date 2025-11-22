@@ -22,7 +22,7 @@ import ListOfSosAmount from "./pages/ListOfSosAmount";
 import "react-phone-input-2/lib/style.css";
 import "./App.css";
 import { useJsApiLoader } from "@react-google-maps/api";
-import { AuthGuard, LogGuard, RouteGuard } from "./common/Guard";
+import { AuthGuard, LogGuard, RouteGuard, SalesGuard } from "./common/Guard";
 import ListOfTrips from "./pages/ListofTrips";
 import PassangerInformation from "./pages/Passangerinformation";
 import ListOfUsers from "./pages/ListOfUsers";
@@ -59,6 +59,9 @@ import ListOfViewArcheivedMissingVehicale from "./pages/ListOfViewArcheivedMissi
 import ListOfSalesAgent from "./pages/SalesAgent/ListOfSalesAgent";
 import AddAgent from "./pages/SalesAgent/AddAgent";
 import AgentInformation from "./pages/SalesAgent/AgentInformation";
+import SalesAgentHome from "./pages/SalesAgentHome";
+import Reset2FAPage from './pages/Reset2FAPage';
+
 // Define your map loader options once here
 const mapLoaderOptions = {
     id: 'google-map-script-main',
@@ -91,6 +94,20 @@ function App() {
         {
             path: "/payment-expired",
             element: <PaymentExpired />
+        },
+        {
+            path: '/sales-home',
+            element: <AuthGuard><Layout /></AuthGuard>,
+            children: [
+                {
+                    path: "",
+                    element: <SalesGuard><SalesAgentHome /></SalesGuard>
+                },
+                {
+                    path: "user-information/:id",
+                    element: <PassangerInformation />
+                }
+            ]
         },
         {
             path: "/home",
@@ -393,7 +410,10 @@ function App() {
             path: "/request-hardware",
             element: <RequestHardware />
         },
-
+        {
+            path: '/reset-2fa',
+            element: <Reset2FAPage />
+        }
 
 
     ])
