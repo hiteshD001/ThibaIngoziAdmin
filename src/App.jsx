@@ -60,6 +60,8 @@ import ListOfSalesAgent from "./pages/SalesAgent/ListOfSalesAgent";
 import AddAgent from "./pages/SalesAgent/AddAgent";
 import AgentInformation from "./pages/SalesAgent/AgentInformation";
 import SalesAgentHome from "./pages/SalesAgentHome";
+import Reset2FAPage from './pages/Reset2FAPage';
+
 // Define your map loader options once here
 const mapLoaderOptions = {
     id: 'google-map-script-main',
@@ -404,7 +406,10 @@ function App() {
             path: "/request-hardware",
             element: <RequestHardware />
         },
-
+        {
+            path: '/reset-2fa',
+            element: <Reset2FAPage />
+        }
 
 
     ])
