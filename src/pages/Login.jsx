@@ -55,7 +55,7 @@ export const Login = () => {
         localStorage.setItem('currentlong', res.data.user.current_long);
         localStorage.setItem("userID", res.data.user._id);
         localStorage.setItem("userName", res.data.user.first_name + " " + res.data.user.last_name);
-        localStorage.setItem("role", res.data.role);
+        localStorage.setItem("role", res.data.user.role);
         localStorage.setItem("selfiImage", res.data.user.selfieImage);
         localStorage.setItem("contact_name", res.data.user.contact_name);
         if (res.data.role === "sales_agent") {
