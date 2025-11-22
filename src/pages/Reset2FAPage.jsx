@@ -35,7 +35,7 @@ const Reset2FAPage = () => {
                         ...toastOption,
                         autoClose: 3000
                     });
-                    setTimeout(() => navigate('/login'), 3000);
+                    setTimeout(() => navigate('/'), 3000);
                 } else {
                     throw new Error(response.message || 'Failed to reset 2FA');
                 }
