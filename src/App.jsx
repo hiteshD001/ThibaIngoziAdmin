@@ -100,6 +100,10 @@ function App() {
                 {
                     path: "",
                     element: <SalesGuard><SalesAgentHome /></SalesGuard>
+                },
+                {
+                    path: "user-information/:id",
+                    element: <PassangerInformation />
                 }
             ]
         },

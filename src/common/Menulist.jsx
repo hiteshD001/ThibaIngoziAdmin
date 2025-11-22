@@ -170,6 +170,20 @@ export const superadmin_menulist = [
     },
 ]
 
+export const salesAgent_menulist = [
+    {
+        id: "sales-home",
+        name: "Home",
+        path: "/sales-home",
+        image: Dashboard
+    },
+    {
+        id: "logout",
+        name: "Logout",
+        image: Logout
+    },
+]
+
 export const Companyadmin_menulist = () => {
     const id = localStorage.getItem("userID");
 

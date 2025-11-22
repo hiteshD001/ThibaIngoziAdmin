@@ -40,6 +40,6 @@ export const SalesGuard = ({ children }) => {
         return children
     }
     else {
-        return <Navigate to='/home' />
+        return <Navigate to='/sales-home' />
     }
 }
