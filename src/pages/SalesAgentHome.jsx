@@ -1,6 +1,6 @@
 import { useEffect, useState, useLayoutEffect } from "react";
 import Select from "react-select";
-import { Grid, Paper, Typography, Box, FormControl, InputLabel, Button, FormHelperText, Modal, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, TextField, InputAdornment, TableSortLabel, Tooltip, IconButton, MenuItem, Stack, Avatar } from "@mui/material";
+import { Grid, Typography, Box, FormControl, InputLabel, FormHelperText } from "@mui/material";
 import { useFormik } from "formik";
 import { sales_agent_e } from "../common/FormValidation";
 import { BootstrapInput } from '../common/BootstrapInput'
@@ -23,50 +23,50 @@ import sa5 from '../assets/images/sa5.svg'
 import sales3 from '../assets/images/sales3.svg'
 import sales5 from '../assets/images/sales5.svg'
 import sales6 from '../assets/images/sales6.svg'
-import search from "../assets/images/search.svg";
-import nouser from "../assets/images/NoUser.png";
-import calender from '../assets/images/calender.svg';
-import arrowup from '../assets/images/arrowup.svg';
-import arrowdown from '../assets/images/arrowdown.svg';
-import arrownuteral from '../assets/images/arrownuteral.svg';
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import ViewBtn from '../assets/images/ViewBtn.svg'
-import Prev from "../assets/images/left.png";
-import Next from "../assets/images/right.png";
-import CustomExportMenu from "../common/Custom/CustomExport";
-import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
-import apiClient from "../API Calls/APIClient";
+// import search from "../assets/images/search.svg";
+// import nouser from "../assets/images/NoUser.png";
+// import calender from '../assets/images/calender.svg';
+// import arrowup from '../assets/images/arrowup.svg';
+// import arrowdown from '../assets/images/arrowdown.svg';
+// import arrownuteral from '../assets/images/arrownuteral.svg';
+// import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+// import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+// import ViewBtn from '../assets/images/ViewBtn.svg'
+// import Prev from "../assets/images/left.png";
+// import Next from "../assets/images/right.png";
+// import CustomExportMenu from "../common/Custom/CustomExport";
+// import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
+// import apiClient from "../API Calls/APIClient";
 // import Prev from "../../assets/images/left.png";
 // import { useFormik } from "formik";
 
 const SalesAgentHome = () => {
-    const nav = useNavigate()
+    // const nav = useNavigate()
     const role = localStorage.getItem("role");
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-    const [currentPage, setCurrentPage] = useState(1);
+    // const [rowsPerPage, setRowsPerPage] = useState(5);
+    // const [currentPage, setCurrentPage] = useState(1);
     const [time, setTime] = useState("today");
     const [timeTitle, setTimeTitle] = useState("Today");
     const [banksList, setbanksList] = useState([])
     const client = useQueryClient();
     const [edit, setedit] = useState(false);
     const bankslist = useGetBanksList()
-    const [tieModalOpen, setTieModalOpen] = useState(false);
-    const [tieUsers, setTieUsers] = useState([]);
+    // const [tieModalOpen, setTieModalOpen] = useState(false);
+    // const [tieUsers, setTieUsers] = useState([]);
     const [page, setpage] = useState(1);
-    const [tieData, setTieData] = useState(true)
-    const [filter, setfilter] = useState("");
-    const [sortBy, setSortBy] = useState("first_name");
-    const [sortOrder, setSortOrder] = useState("asc");
-    const changeSortOrder = (e) => {
-        const field = e.target.id;
-        if (field !== sortBy) {
-            setSortBy(field);
-            setSortOrder("asc");
-        } else {
-            setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
-        }
-    }
+    // const [tieData, setTieData] = useState(true)
+    // const [filter, setfilter] = useState("");
+    // const [sortBy, setSortBy] = useState("first_name");
+    // const [sortOrder, setSortOrder] = useState("asc");
+    // const changeSortOrder = (e) => {
+    //     const field = e.target.id;
+    //     if (field !== sortBy) {
+    //         setSortBy(field);
+    //         setSortOrder("asc");
+    //     } else {
+    //         setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+    //     }
+    // }
     useEffect(() => {
         switch (time) {
             case "today":
@@ -116,8 +116,8 @@ const SalesAgentHome = () => {
     const userinfo = useGetAgent(localStorage.getItem("userID"));
     console.log("userinfo", userinfo?.data?.data)
     const listOfSalesAgentUsers = useGetUserByInfluncer(page, 10, startDate, endDate, userinfo?.data?.data?.data?._id)
-    const totalUsers = listOfSalesAgentUsers.data?.data?.data?.totalCount || 0;
-    const totalPages = Math.ceil(totalUsers / rowsPerPage);
+    // const totalUsers = listOfSalesAgentUsers.data?.data?.data?.totalCount || 0;
+    // const totalPages = Math.ceil(totalUsers / rowsPerPage);
 
     const profileForm = useFormik({
         initialValues: sales_agent,
@@ -132,103 +132,103 @@ const SalesAgentHome = () => {
 
     });
 
-    const handleTieClick = () => {
-        const tieUserData = userinfo?.data?.data?.data?.tieUserData;
-        setTieUsers(tieUserData)
+    // const handleTieClick = () => {
+    //     const tieUserData = userinfo?.data?.data?.data?.tieUserData;
+    //     setTieUsers(tieUserData)
 
-        setTieData(true)
+    //     setTieData(true)
 
-        console.log("Tie clicked:", tieUserData);
+    //     console.log("Tie clicked:", tieUserData);
 
-        if (tieUserData && Array.isArray(tieUserData)) {
-            setTieUsers(tieUserData);
-            setTieModalOpen(true);
-        } else {
-            toast.info("No tie user data available");
-        }
-    };
+    //     if (tieUserData && Array.isArray(tieUserData)) {
+    //         setTieUsers(tieUserData);
+    //         setTieModalOpen(true);
+    //     } else {
+    //         toast.info("No tie user data available");
+    //     }
+    // };
 
-    const handleCancel = () => {
-        const data = userinfo?.data?.data?.data;
-        if (data) {
-            profileForm.resetForm({ values: data });
-        }
-        setedit(false);
-    };
+    // const handleCancel = () => {
+    //     const data = userinfo?.data?.data?.data;
+    //     if (data) {
+    //         profileForm.resetForm({ values: data });
+    //     }
+    //     setedit(false);
+    // };
 
-    const handleExport = async ({ startDate, endDate, format }) => {
-        // try {
-        //     const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
-        //         params: {
-        //             role: "passanger",
-        //             page: 1,
-        //             limit: 10000,
-        //             filter: "",
-        //             company_id: paramId,
-        //             startDate,
-        //             endDate,
-        //         },
-        //     });
+    // const handleExport = async ({ startDate, endDate, format }) => {
+    //     try {
+    //         const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+    //             params: {
+    //                 role: "passanger",
+    //                 page: 1,
+    //                 limit: 10000,
+    //                 filter: "",
+    //                 company_id: paramId,
+    //                 startDate,
+    //                 endDate,
+    //             },
+    //         });
 
-        //     const allUsers = data?.users || [];
-        //     if (!allUsers.length) {
-        //         toast.warning("No User data found for this period.");
-        //         return;
-        //     }
+    //         const allUsers = data?.users || [];
+    //         if (!allUsers.length) {
+    //             toast.warning("No User data found for this period.");
+    //             return;
+    //         }
 
-        //     const exportData = allUsers.map(user => ({
-        //         "User": `${user.first_name || ''} ${user.last_name || ''}` || '',
-        //         "Company Name": user.company_name || '',
-        //         "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
-        //         "Contact Email": user.email || ''
-        //     }));
+    //         const exportData = allUsers.map(user => ({
+    //             "User": `${user.first_name || ''} ${user.last_name || ''}` || '',
+    //             "Company Name": user.company_name || '',
+    //             "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+    //             "Contact Email": user.email || ''
+    //         }));
 
-        //     if (format === "xlsx") {
-        //         const worksheet = XLSX.utils.json_to_sheet(exportData);
-        //         const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
-        //             wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
-        //         }));
-        //         worksheet['!cols'] = columnWidths;
-        //         const workbook = XLSX.utils.book_new();
-        //         XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-        //         XLSX.writeFile(workbook, "User_List.xlsx");
-        //     }
-        //     else if (format === "csv") {
-        //         const worksheet = XLSX.utils.json_to_sheet(exportData);
-        //         const csv = XLSX.utils.sheet_to_csv(worksheet);
-        //         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        //         const link = document.createElement('a');
-        //         link.href = URL.createObjectURL(blob);
-        //         link.download = 'user_list.csv';
-        //         document.body.appendChild(link);
-        //         link.click();
-        //         document.body.removeChild(link);
-        //     }
-        //     else if (format === "pdf") {
-        //         const doc = new jsPDF();
-        //         doc.text('User List', 14, 16);
-        //         autoTable(doc, {
-        //             head: [['User', 'Company Name', 'Contact No.', 'Contact Email']],
-        //             body: allUsers.map(user => [
-        //                 `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
-        //                 user.company_name ?? 'NA',
-        //                 `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
-        //                 user.email ?? 'NA'
-        //             ]),
-        //             startY: 20,
-        //             theme: 'striped',
-        //             headStyles: { fillColor: '#367BE0' },
-        //             margin: { top: 20 },
-        //             styles: { fontSize: 10 },
-        //         });
-        //         doc.save("User_List.pdf");
-        //     }
+    //         if (format === "xlsx") {
+    //             const worksheet = XLSX.utils.json_to_sheet(exportData);
+    //             const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+    //                 wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+    //             }));
+    //             worksheet['!cols'] = columnWidths;
+    //             const workbook = XLSX.utils.book_new();
+    //             XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    //             XLSX.writeFile(workbook, "User_List.xlsx");
+    //         }
+    //         else if (format === "csv") {
+    //             const worksheet = XLSX.utils.json_to_sheet(exportData);
+    //             const csv = XLSX.utils.sheet_to_csv(worksheet);
+    //             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    //             const link = document.createElement('a');
+    //             link.href = URL.createObjectURL(blob);
+    //             link.download = 'user_list.csv';
+    //             document.body.appendChild(link);
+    //             link.click();
+    //             document.body.removeChild(link);
+    //         }
+    //         else if (format === "pdf") {
+    //             const doc = new jsPDF();
+    //             doc.text('User List', 14, 16);
+    //             autoTable(doc, {
+    //                 head: [['User', 'Company Name', 'Contact No.', 'Contact Email']],
+    //                 body: allUsers.map(user => [
+    //                     `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
+    //                     user.company_name ?? 'NA',
+    //                     `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
+    //                     user.email ?? 'NA'
+    //                 ]),
+    //                 startY: 20,
+    //                 theme: 'striped',
+    //                 headStyles: { fillColor: '#367BE0' },
+    //                 margin: { top: 20 },
+    //                 styles: { fontSize: 10 },
+    //             });
+    //             doc.save("User_List.pdf");
+    //         }
 
-        // } catch (err) {
-        //     console.error("Error exporting data:", err);
-        //     toast.error("Export failed.");
-        // }
-    };
+    //     } catch (err) {
+    //         console.error("Error exporting data:", err);
+    //         toast.error("Export failed.");
+    //     }
+    // };
 
     const getTrendData = (type) => {
         let stat;
@@ -784,7 +784,7 @@ const SalesAgentHome = () => {
                 </Box>
             </Box>
 
-            <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px' }}>
+            {/* <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" p={2}>
                     <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
                         <Typography variant="h6" fontWeight={590} sx={{ pl: 2 }}>Total Users</Typography>
@@ -1028,9 +1028,9 @@ const SalesAgentHome = () => {
                         No data found
                     </Typography>
                 )}
-            </Box>
+            </Box> */}
 
-            {tieData && (
+            {/* {tieData && (
                 <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px' }}>
                     <Grid container justifyContent="space-between" alignItems="center" p={2}>
                         <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
@@ -1240,7 +1240,7 @@ const SalesAgentHome = () => {
                         </Typography>
                     )}
                 </Box>
-            )}
+            )} */}
         </>
 
     );
