@@ -66,6 +66,7 @@ const PassangerInformation = () => {
             isEnroll: '',
             verificationSelfieImage: null,
             hijakingId : "",
+            hijakingPass: ""
         },
         validationSchema: vehicleValidation
     })
