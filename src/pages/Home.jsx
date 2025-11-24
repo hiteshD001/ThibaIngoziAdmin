@@ -954,7 +954,7 @@ const Home = ({ isMapLoaded, }) => {
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
-                                                                <IconButton onClick={() => nav(`total-drivers/driver-information/${row?.user?._id}`)}>
+                                                                <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`)}>
                                                                     <img src={ViewBtn} alt="view button" />
                                                                 </IconButton>
                                                             </Tooltip>
