@@ -218,8 +218,9 @@ const Report = ({ id }) => {
                                         >
                                             <MenuItem value="">All Categories</MenuItem>
                                             {notificationTypes.data?.data?.map((type) => (
+                                                console.log("type ", type),
                                                 <MenuItem key={type._id} value={type._id}>
-                                                    {type.type}
+                                                    {type.display_title}
                                                 </MenuItem>
                                             ))}
                                         </Select>
@@ -331,7 +332,7 @@ const Report = ({ id }) => {
                                             <MenuItem value="">All Categories</MenuItem>
                                             {notificationTypes.data?.data?.map((type) => (
                                                 <MenuItem key={type._id} value={type._id}>
-                                                    {type.type}
+                                                    {type.display_title}
                                                 </MenuItem>
                                             ))}
                                         </Select>
