@@ -1005,11 +1005,11 @@ const ListOfDrivers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="subscription_status"
-                                            active={sortBy === 'subscription_status'}
+                                            id="isEnroll"
+                                            active={sortBy === 'isEnroll'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'subscription_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'isEnroll' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Subscription Status
                                         </TableSortLabel>
