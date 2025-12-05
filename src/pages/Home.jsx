@@ -122,10 +122,12 @@ const Home = ({ isMapLoaded, }) => {
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
     const activeUserList = activeSos?.data?.data?.data
 
-    useEffect(() => {
-        if (!Array.isArray(activeUserLists)) return;
+    const prevLengthRef = useRef(activeUserList?.length);
 
-        const currentLength = activeUserLists.length;
+    useEffect(() => {
+        if (!Array.isArray(activeUserList)) return;
+
+        const currentLength = activeUserList.length;
         const previousLength = prevLengthRef.current;
 
         // First run setup
@@ -137,34 +139,11 @@ const Home = ({ isMapLoaded, }) => {
         // Trigger only when count changes
         if (previousLength !== currentLength) {
             prevLengthRef.current = currentLength;   // update stored length
-            activeSos?.refetch?.();
+            refetchRecentSOS();
+            queryClient.invalidateQueries(['chartData'], { exact: false });
+            queryClient.invalidateQueries(['hotspot'], { exact: false });
         }
-    }, [activeUserLists]);
-
-
-
-    useEffect(() => {
-        if (!Array.isArray(activeUserLists)) return;
-
-        const currentLength = activeUserLists.length;
-        const previousLength = prevLengthRef.current;
-
-        // First run setup
-        if (previousLength === null) {
-            prevLengthRef.current = currentLength;
-            return;
-        }
-
-        // Trigger only when count changes
-        if (previousLength !== currentLength) {
-            prevLengthRef.current = currentLength;   // update stored length
-            activeSos?.refetch?.();
-        }
-    }, [activeUserLists]);
-
-
-
-    // const activeSOS = useGetActiveSOS();
+    }, [activeUserList?.length, refetchRecentSOS]);
 
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
@@ -235,18 +214,6 @@ const Home = ({ isMapLoaded, }) => {
         setStatusUpdate(false);
         setStatus('')
     };
-
-    const prevLengthRef = useRef(activeUserList?.length);
-
-    useEffect(() => {
-        if (activeUserList?.length !== prevLengthRef.current) {
-            prevLengthRef.current = activeUserList?.length;
-            refetchRecentSOS();
-            queryClient.invalidateQueries(['chartData'], { exact: false });
-            queryClient.invalidateQueries(['hotspot'], { exact: false });
-        }
-    }, [activeUserList?.length]);
-
 
     const totalActiveItems = activeSos?.data?.data?.totalItems || 0
     const totalActivePages = Math.ceil(totalActiveItems / activeLimit)
