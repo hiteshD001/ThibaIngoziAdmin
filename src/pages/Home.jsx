@@ -57,7 +57,6 @@ const Home = ({ isMapLoaded, }) => {
     const [recentNotification, setRecentNotification] = useState("all")
     const { isConnected, activeUserLists } = useWebSocket();
 
-    console.log("activeUserLists", activeUserLists);
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
     // Recent SOS pagination
@@ -834,7 +833,6 @@ const Home = ({ isMapLoaded, }) => {
                                         </TableRow>
                                         : (recentSos?.data?.items?.length > 0 ?
                                             recentSos?.data?.items?.map((row) => (
-                                                console.log("row", row),
                                                 <TableRow key={row?._id}>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
