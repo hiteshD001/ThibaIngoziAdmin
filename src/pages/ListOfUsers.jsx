@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
@@ -12,6 +12,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import search from '../assets/images/search.svg';
 import whiteplus from '../assets/images/whiteplus.svg';
 import { useGetUser, useGetUserList } from "../API Calls/API";
+import { useQueryClient } from "@tanstack/react-query";
 import Loader from "../common/Loader";
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
@@ -37,6 +38,7 @@ const ListOfUsers = () => {
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
+    const client = useQueryClient();
     const [page, setpage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
@@ -58,6 +60,30 @@ const ListOfUsers = () => {
     // Sort 1
     const [sortBy, setSortBy] = useState("first_name");
     const [sortOrder, setSortOrder] = useState("asc");
+
+    // Save/restore filter state using React Query cache
+    useEffect(() => {
+        const savedState = client.getQueryData(['userListFilters']);
+        if (savedState) {
+            setfilter(savedState.filter || "");
+            setSortBy(savedState.sortBy || "first_name");
+            setSortOrder(savedState.sortOrder || "asc");
+            setRange(savedState.range || [{
+                startDate: startOfYear(new Date()),
+                endDate: new Date(),
+                key: 'selection'
+            }]);
+        }
+    }, [client]);
+
+    useEffect(() => {
+        client.setQueryData(['userListFilters'], {
+            filter,
+            sortBy,
+            sortOrder,
+            range
+        });
+    }, [filter, sortBy, sortOrder, range, client]);
 
     const changeSortOrder = (e) => {
         const field = e.target.id;
@@ -240,6 +266,21 @@ const ListOfUsers = () => {
                                 startIcon={<img src={whiteplus} alt='white plus' />}
                             >
                                 Add User
+                            </Button>
+                            <Button variant="outlined" onClick={() => {
+                                setfilter("");
+                                setSortBy("first_name");
+                                setSortOrder("asc");
+                                setCurrentPage(1);
+                                setRowsPerPage(5);
+                                setRange([{
+                                    startDate: startOfYear(new Date()),
+                                    endDate: new Date(),
+                                    key: 'selection'
+                                }]);
+                                client.removeQueries(['userListFilters']);
+                            }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
+                                View All
                             </Button>
 
                         </Box>

@@ -1,5 +1,5 @@
 import { useState, useLayoutEffect, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, Tooltip, TableSortLabel, Chip } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -72,19 +72,41 @@ const ListOfDrivers = () => {
     const [payPopup, setPopup] = useState("");
     const [selectedPayoutType, setSelectedPayoutType] = useState("");
     const [selectedDriver, setSelectedDriver] = useState(null);
-    const [range, setRange] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
+    const [range, setRange] = useState([{
+        startDate: startOfYear(new Date()),
+        endDate: new Date(),
+        key: 'selection'
+    }]);
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
 
     // Sort 1
     const [sortBy, setSortBy] = useState("first_name");
     const [sortOrder, setSortOrder] = useState("asc");
+
+    // Save/restore filter state using React Query cache
+    useEffect(() => {
+        const savedState = client.getQueryData(['driverListFilters']);
+        if (savedState) {
+            setfilter(savedState.filter || "");
+            setSortBy(savedState.sortBy || "first_name");
+            setSortOrder(savedState.sortOrder || "asc");
+            setRange(savedState.range || [{
+                startDate: startOfYear(new Date()),
+                endDate: new Date(),
+                key: 'selection'
+            }]);
+        }
+    }, [client]);
+
+    useEffect(() => {
+        client.setQueryData(['driverListFilters'], {
+            filter,
+            sortBy,
+            sortOrder,
+            range
+        });
+    }, [filter, sortBy, sortOrder, range, client]);
 
     const changeSortOrder = (e) => {
         const field = e.target.id;
@@ -927,6 +949,21 @@ const ListOfDrivers = () => {
                             <Button variant="contained" onClick={handleAddDriver} sx={{ height: '40px', fontSize: '0.8rem', width: '150px', borderRadius: '8px' }}
                                 startIcon={<img src={whiteplus} alt='white plus' />}>
                                 Add Driver
+                            </Button>
+                            <Button variant="outlined" onClick={() => {
+                                setfilter("");
+                                setSortBy("first_name");
+                                setSortOrder("asc");
+                                setpage(1);
+                                setRowsPerPage(10);
+                                setRange([{
+                                    startDate: startOfYear(new Date()),
+                                    endDate: new Date(),
+                                    key: 'selection'
+                                }]);
+                                client.removeQueries(['driverListFilters']);
+                            }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
+                                View All
                             </Button>
 
 
