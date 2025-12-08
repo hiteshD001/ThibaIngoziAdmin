@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import useDebounce from "../hooks/useDebounce";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
     Tooltip,
@@ -43,6 +44,7 @@ const ListOfUsers = () => {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
+    const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     let companyId = localStorage.getItem("userID");
@@ -78,12 +80,12 @@ const ListOfUsers = () => {
 
     useEffect(() => {
         client.setQueryData(['userListFilters'], {
-            filter,
+            filter: debouncedFilter,
             sortBy,
             sortOrder,
             range
         });
-    }, [filter, sortBy, sortOrder, range, client]);
+    }, [debouncedFilter, sortBy, sortOrder, range, client]);
 
     const changeSortOrder = (e) => {
         const field = e.target.id;
@@ -95,7 +97,7 @@ const ListOfUsers = () => {
         }
     }
 
-    const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, filter, "", startDate, endDate, sortBy, sortOrder);
+    const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder);
     const totalUsers = UserList.data?.data?.totalUsers || 0;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useDebounce from "../hooks/useDebounce";
 import {
   Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, MenuItem, Chip,
   Tooltip,
@@ -33,6 +34,7 @@ const ListOfTrips = () => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filter, setFilter] = useState("");
+  const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
   const [archived, setArchived] = useState(false)
   const [range, setRange] = useState([
     {
@@ -63,7 +65,7 @@ const ListOfTrips = () => {
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate, archived, sortBy, sortOrder, companyId);
+  const trip = useGetTripList("Trip list", page, rowsPerPage, debouncedFilter, startDate, endDate, archived, sortBy, sortOrder, companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);

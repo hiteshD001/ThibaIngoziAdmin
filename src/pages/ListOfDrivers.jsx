@@ -1,5 +1,6 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import useDebounce from "../hooks/useDebounce";
 import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, Tooltip, TableSortLabel, Chip } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -66,6 +67,7 @@ const ListOfDrivers = () => {
     const [page, setpage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [filter, setfilter] = useState("");
+    const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [confirmation, setconfirmation] = useState("");
     const [servicesList, setServicesList] = useState([]);
     const [GrpservicesList, setGrpservicesList] = useState([]);
@@ -101,12 +103,12 @@ const ListOfDrivers = () => {
 
     useEffect(() => {
         client.setQueryData(['driverListFilters'], {
-            filter,
+            filter: debouncedFilter,
             sortBy,
             sortOrder,
             range
         });
-    }, [filter, sortBy, sortOrder, range, client]);
+    }, [debouncedFilter, sortBy, sortOrder, range, client]);
 
     const changeSortOrder = (e) => {
         const field = e.target.id;
@@ -125,7 +127,7 @@ const ListOfDrivers = () => {
         params.id,
         page,
         rowsPerPage,
-        filter,
+        debouncedFilter,
         "",
         startDate,
         endDate,

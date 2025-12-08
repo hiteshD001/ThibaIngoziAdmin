@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useDebounce from "../hooks/useDebounce";
 import {
   Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
   Tooltip,
@@ -59,13 +60,14 @@ const ListOfCompanies = () => {
   }
 
   const [filter, setfilter] = useState("");
+  const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
   const [confirmation, setconfirmation] = useState("");
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, filter, "", startDate, endDate, sortBy, sortOrder)
+  const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder)
   const totalCompany = companyList.data?.data?.totalUsers || 0;
   const totalPages = Math.ceil(totalCompany / rowsPerPage);
 
