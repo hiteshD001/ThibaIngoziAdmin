@@ -5,6 +5,7 @@ import {
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useState } from "react";
+import useDebounce from "../hooks/useDebounce";
 import plus from '../assets/images/plus.svg'
 import { useNavigate } from "react-router-dom";
 import search from '../assets/images/search.svg'
@@ -21,10 +22,11 @@ const ListOfSosAmount = () => {
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [filter, setFilter] = useState("");
+    const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [confirmation, setConfirmation] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1);
-    const sosList = useGetSoSAmountList("ArmedSOSAmount List", page, rowsPerPage, filter);
+    const sosList = useGetSoSAmountList("ArmedSOSAmount List", page, rowsPerPage, debouncedFilter);
     const totalPages = Math.ceil(sosList?.data?.data.total / rowsPerPage);
     const handleChangePage = (event, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {

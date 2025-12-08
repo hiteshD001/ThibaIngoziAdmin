@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import useDebounce from "../../hooks/useDebounce";
 import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
 import {
     useGetSalesAgent, useShareAgent, payoutUserUpdate,
@@ -55,6 +56,7 @@ const ListOfSalesAgent = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [sharingId, setSharingId] = useState(null);
     const [filter, setfilter] = useState("");
+    const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     const [selectedPayoutType, setSelectedPayoutType] = useState('');
@@ -85,7 +87,7 @@ const ListOfSalesAgent = () => {
 
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
-    let UserList = useGetSalesAgent(page, rowsPerPage, filter, startDate, endDate, sortBy, sortOrder)
+    let UserList = useGetSalesAgent(page, rowsPerPage, debouncedFilter, startDate, endDate, sortBy, sortOrder)
     const agentList = UserList?.data?.data?.data?.influencersData
     const totalPages = UserList?.data?.data?.data?.totalPages
     const queryClient = useQueryClient();
@@ -129,7 +131,6 @@ const ListOfSalesAgent = () => {
         (error) => {
             toast.error("Error uploading sales agents");
             console.error("❌ Error uploading sales agents:", error);
-            // ❌ remove setImportFile(null);
         }
     );
 
@@ -140,7 +141,7 @@ const ListOfSalesAgent = () => {
                 params: {
                     page: 1,
                     limit: 10000,
-                    filter,
+                    filter: debouncedFilter,
                 },
             });
             return response?.data?.data?.influencersData || [];
