@@ -739,7 +739,7 @@ const AgentInformation = () => {
                         <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                             {edit ? (
                                 <CustomSelect
-                                    label="Bank Id"
+                                    label="Bank Name"
                                     name="bankId"
                                     value={agentForm.values.bankId}
                                     onChange={(e) => {
@@ -758,7 +758,7 @@ const AgentInformation = () => {
                                     helperText={agentForm.errors.bankId}
                                 />
 
-                            ) : displayField("Bank ID", agentForm.values.bankId)}
+                            ) : displayField("Bank Name", bankslist?.find(bank => bank._id === agentForm.values.bankId)?.bank_name || "-")}
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: edit ? 6 : 4 }}>
                             <Box display="flex" flexDirection="column" gap={1}>
