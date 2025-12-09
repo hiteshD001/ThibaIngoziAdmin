@@ -443,7 +443,7 @@ const ListOfSalesAgent = () => {
                         <div className="d-flex justify-content-between  w-100 ">
                             <div className="">
                                 <span>Total Paid Amount</span>
-                                <h3>R {UserList.data?.data?.data.totalPaid || 0}</h3>
+                                <h3>R {Number(UserList.data?.data?.data.totalPaid || 0).toFixed(2)}</h3>
                             </div>
                             <img src={sa4} alt="dash-counter" />
 
@@ -463,7 +463,7 @@ const ListOfSalesAgent = () => {
                         <div className="d-flex justify-content-between  w-100 ">
                             <div className="">
                                 <span>Total Unpaid Amount</span>
-                                <h3>R {UserList.data?.data?.data.totalUnpaid || 0}</h3>
+                                <h3>R {Number(UserList.data?.data?.data.totalUnpaid || 0).toFixed(2)}</h3>
                             </div>
                             <img src={sa5} alt="dash-counter" />
 
