@@ -1069,6 +1069,7 @@ export const useGetActiveSosData = (page = 1, limit = 10, startDate, endDate, se
     const res = useQuery({
         queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder],
         queryFn: queryFn,
+        placeholderData: keepPreviousData,
         staleTime: 15 * 60 * 1000,
     });
 

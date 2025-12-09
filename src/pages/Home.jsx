@@ -409,7 +409,7 @@ const Home = ({ isMapLoaded, }) => {
                                 </TableHead>
 
                                 <TableBody>
-                                    {activeSos.isFetching ?
+                                    {activeSos.isPending ?
                                         <TableRow>
                                             <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={9} align="center">
                                                 <Loader />
