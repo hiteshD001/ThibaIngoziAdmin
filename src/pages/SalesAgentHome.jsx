@@ -51,7 +51,7 @@ const SalesAgentHome = () => {
     const [timeTitle, setTimeTitle] = useState("Today");
     const [banksList, setbanksList] = useState([])
     const client = useQueryClient();
-    const [edit, setedit] = useState(false);
+    const [edit, setedit] = useState(true);
     const bankslist = useGetBanksList()
     // const [tieModalOpen, setTieModalOpen] = useState(false);
     // const [tieUsers, setTieUsers] = useState([]);
