@@ -129,10 +129,10 @@ const ImportSheet = ({ setpopup, type = "driver" }) => {
 
     const downloadPath =
         type === "driver"
-            ? "/assets/Driver.xlsx"
+            ? "/assests/Driver.xlsx"
             : type === "sales-agent"
-                ? "/assets/SalesAgent.xlsx"
-                : "/assets/Users.xlsx";
+                ? "/assests/Sample_Sales_Agent.xlsx"
+                : "/assests/Users.xlsx";
     // const sampleFileName = type === "driver" ? "Sample_Driver.xlsx" : "Sample_User.xlsx";
     // const downloadPath = type === "driver" ? "/assests/Driver.xlsx" : "/assests/Users.xlsx";
 
