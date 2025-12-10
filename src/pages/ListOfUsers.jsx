@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import useDebounce from "../hooks/useDebounce";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
     Tooltip,
@@ -12,6 +13,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import search from '../assets/images/search.svg';
 import whiteplus from '../assets/images/whiteplus.svg';
 import { useGetUser, useGetUserList } from "../API Calls/API";
+import { useQueryClient } from "@tanstack/react-query";
 import Loader from "../common/Loader";
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
@@ -37,10 +39,12 @@ const ListOfUsers = () => {
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
+    const client = useQueryClient();
     const [page, setpage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
+    const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     let companyId = localStorage.getItem("userID");
@@ -59,6 +63,30 @@ const ListOfUsers = () => {
     const [sortBy, setSortBy] = useState("first_name");
     const [sortOrder, setSortOrder] = useState("asc");
 
+    // Save/restore filter state using React Query cache
+    useEffect(() => {
+        const savedState = client.getQueryData(['userListFilters']);
+        if (savedState) {
+            setfilter(savedState.filter || "");
+            setSortBy(savedState.sortBy || "first_name");
+            setSortOrder(savedState.sortOrder || "asc");
+            setRange(savedState.range || [{
+                startDate: startOfYear(new Date()),
+                endDate: new Date(),
+                key: 'selection'
+            }]);
+        }
+    }, [client]);
+
+    useEffect(() => {
+        client.setQueryData(['userListFilters'], {
+            filter: debouncedFilter,
+            sortBy,
+            sortOrder,
+            range
+        });
+    }, [debouncedFilter, sortBy, sortOrder, range, client]);
+
     const changeSortOrder = (e) => {
         const field = e.target.id;
         if (field !== sortBy) {
@@ -69,7 +97,7 @@ const ListOfUsers = () => {
         }
     }
 
-    const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, filter, "", startDate, endDate, sortBy, sortOrder);
+    const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder);
     const totalUsers = UserList.data?.data?.totalUsers || 0;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
 
@@ -241,6 +269,21 @@ const ListOfUsers = () => {
                             >
                                 Add User
                             </Button>
+                            <Button variant="outlined" onClick={() => {
+                                setfilter("");
+                                setSortBy("first_name");
+                                setSortOrder("asc");
+                                setCurrentPage(1);
+                                setRowsPerPage(5);
+                                setRange([{
+                                    startDate: startOfYear(new Date()),
+                                    endDate: new Date(),
+                                    key: 'selection'
+                                }]);
+                                client.removeQueries(['userListFilters']);
+                            }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
+                                View All
+                            </Button>
 
                         </Box>
 
@@ -298,11 +341,11 @@ const ListOfUsers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="subscription_status"
-                                            active={sortBy === 'subscription_status'}
+                                            id="isEnroll"
+                                            active={sortBy === 'isEnroll'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'subscription_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'isEnroll' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Subscription Status
                                         </TableSortLabel>

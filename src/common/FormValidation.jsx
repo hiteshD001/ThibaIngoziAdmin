@@ -77,10 +77,10 @@ export const sales_agent_e = yup.object({
     mobile_no: MobileNumber,
     // referralCode: String,
     enrollAmountDeduction: Number,
-    // accountNumber: String,
-    // customerCode: String,
-    // accountType: String,
-    // accountHolderName: String,
+    accountNumber: String,
+    customerCode: String,
+    accountType: String,
+    accountHolderName: String,
 })
 
 export const profileValidation_c = yup.object({

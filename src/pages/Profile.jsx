@@ -718,7 +718,7 @@ const Profile = () => {
                 </Grid>
               </Grid>
               {/* 2FA Toggle */}
-              {/* <Grid item xs={12} sx={{ mt: 4, mb: 2 }}>
+              <Grid item xs={12} sx={{ mt: 4, mb: 2 }}>
                 <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: 2 }}>
                   <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box>
@@ -740,7 +740,7 @@ const Profile = () => {
                     </Box>
                   </Box>
                 </Paper>
-              </Grid> */}
+              </Grid>
 
               {/* 2FA Setup Dialog */}
               <Dialog open={showQRCode} onClose={() => setShowQRCode(false)} maxWidth="sm" fullWidth>

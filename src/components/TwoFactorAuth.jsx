@@ -148,6 +148,10 @@ const TwoFactorAuth = ({ tempToken, email, onVerificationSuccess, onBack }) => {
 
                     <div className="text-center">
                         <button
+                            style={{
+                                fontWeight: 600,
+                                textDecoration: 'none'
+                            }}
                             type="button"
                             className="btn btn-link p-0"
                             onClick={() => setShowResetForm(true)}
@@ -181,6 +185,10 @@ const TwoFactorAuth = ({ tempToken, email, onVerificationSuccess, onBack }) => {
                     </div>
                     
                     <button
+                        style={{
+                            fontWeight: 600,
+                            textDecoration: 'none'
+                        }}
                         className="btn btn-link p-0"
                         onClick={() => {
                             setShowResetForm(false);

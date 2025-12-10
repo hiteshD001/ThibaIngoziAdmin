@@ -53,14 +53,14 @@ export const superadmin_menulist = [
         name: "Total Linked Trips",
         path: "/home/total-linked-trips",
         image: Trip,
-        company: "User Information"
+        company: "Trip Information"
     },
     {
         id: "total-meeting-links",
         name: "Total Meeting Links",
         path: "/home/total-meeting-links",
         image: MeetingLink,
-        company: "User Information"
+        company: "Trip Information"
     },
     {
         id: "total-users",
@@ -209,7 +209,7 @@ export const Companyadmin_menulist = () => {
             name: "Total Linked Trips",
             path: "/home/total-linked-trips",
             image: Trip,
-            company: "User Information"
+            company: "Trip Information"
         },
         {
             id: "total-meeting-links",

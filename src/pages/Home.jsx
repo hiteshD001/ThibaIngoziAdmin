@@ -57,7 +57,6 @@ const Home = ({ isMapLoaded, }) => {
     const [recentNotification, setRecentNotification] = useState("all")
     const { isConnected, activeUserLists } = useWebSocket();
 
-    console.log("activeUserLists", activeUserLists);
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
     // Recent SOS pagination
@@ -122,10 +121,12 @@ const Home = ({ isMapLoaded, }) => {
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
     const activeUserList = activeSos?.data?.data?.data
 
-    useEffect(() => {
-        if (!Array.isArray(activeUserLists)) return;
+    const prevLengthRef = useRef(activeUserList?.length);
 
-        const currentLength = activeUserLists.length;
+    useEffect(() => {
+        if (!Array.isArray(activeUserList)) return;
+
+        const currentLength = activeUserList.length;
         const previousLength = prevLengthRef.current;
 
         // First run setup
@@ -137,34 +138,11 @@ const Home = ({ isMapLoaded, }) => {
         // Trigger only when count changes
         if (previousLength !== currentLength) {
             prevLengthRef.current = currentLength;   // update stored length
-            activeSos?.refetch?.();
+            refetchRecentSOS();
+            queryClient.invalidateQueries(['chartData'], { exact: false });
+            queryClient.invalidateQueries(['hotspot'], { exact: false });
         }
-    }, [activeUserLists]);
-
-
-
-    useEffect(() => {
-        if (!Array.isArray(activeUserLists)) return;
-
-        const currentLength = activeUserLists.length;
-        const previousLength = prevLengthRef.current;
-
-        // First run setup
-        if (previousLength === null) {
-            prevLengthRef.current = currentLength;
-            return;
-        }
-
-        // Trigger only when count changes
-        if (previousLength !== currentLength) {
-            prevLengthRef.current = currentLength;   // update stored length
-            activeSos?.refetch?.();
-        }
-    }, [activeUserLists]);
-
-
-
-    // const activeSOS = useGetActiveSOS();
+    }, [activeUserList?.length, refetchRecentSOS]);
 
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
@@ -236,18 +214,6 @@ const Home = ({ isMapLoaded, }) => {
         setStatus('')
     };
 
-    const prevLengthRef = useRef(activeUserList?.length);
-
-    useEffect(() => {
-        if (activeUserList?.length !== prevLengthRef.current) {
-            prevLengthRef.current = activeUserList?.length;
-            refetchRecentSOS();
-            queryClient.invalidateQueries(['chartData'], { exact: false });
-            queryClient.invalidateQueries(['hotspot'], { exact: false });
-        }
-    }, [activeUserList?.length]);
-
-
     const totalActiveItems = activeSos?.data?.data?.totalItems || 0
     const totalActivePages = Math.ceil(totalActiveItems / activeLimit)
     const totalRecentItems = recentSos?.data?.totalItems
@@ -317,7 +283,7 @@ const Home = ({ isMapLoaded, }) => {
                                         <MenuItem value="all">All Categories</MenuItem>
                                         {notificationTypes.data?.data?.map((type) => (
                                             <MenuItem key={type._id} value={type._id}>
-                                                {type.type}
+                                                {type.display_title}
                                             </MenuItem>
                                         ))}
                                     </Select>
@@ -443,7 +409,7 @@ const Home = ({ isMapLoaded, }) => {
                                 </TableHead>
 
                                 <TableBody>
-                                    {activeSos.isFetching ?
+                                    {activeSos.isPending ?
                                         <TableRow>
                                             <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={9} align="center">
                                                 <Loader />
@@ -724,7 +690,7 @@ const Home = ({ isMapLoaded, }) => {
                                         <MenuItem value="all">All Categories</MenuItem>
                                         {notificationTypes.data?.data?.map((type) => (
                                             <MenuItem key={type._id} value={type._id}>
-                                                {type.type}
+                                                {type.display_title}
                                             </MenuItem>
                                         ))}
                                     </Select>
@@ -867,7 +833,6 @@ const Home = ({ isMapLoaded, }) => {
                                         </TableRow>
                                         : (recentSos?.data?.items?.length > 0 ?
                                             recentSos?.data?.items?.map((row) => (
-                                                console.log("row", row),
                                                 <TableRow key={row?._id}>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {

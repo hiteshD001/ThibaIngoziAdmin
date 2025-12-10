@@ -154,7 +154,7 @@ const CustomExportMenu = ({ role, onExport }) => {
                                         <MenuItem value="all">All Categories</MenuItem>
                                         {notificationTypes.data?.data?.map((type) => (
                                             <MenuItem key={type._id} value={type._id}>
-                                                {type.type}
+                                                {type.display_title}
                                             </MenuItem>
                                         ))}
                                     </Select>

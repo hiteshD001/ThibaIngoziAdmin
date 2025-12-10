@@ -5,6 +5,7 @@ import {
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useState } from "react";
+import useDebounce from "../hooks/useDebounce";
 import plus from '../assets/images/plus.svg'
 import { useNavigate } from "react-router-dom";
 import search from '../assets/images/search.svg'
@@ -21,11 +22,12 @@ const ListOfSosAmount = () => {
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [filter, setFilter] = useState("");
+    const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [confirmation, setConfirmation] = useState("");
 
     const [currentPage, setCurrentPage] = useState(1);
-    const sosList = useGetSoSAmountList("ArmedSOSAmount List", page + 1, rowsPerPage, filter);
-    const totalPages = Math.ceil(sosList.length / rowsPerPage);
+    const sosList = useGetSoSAmountList("ArmedSOSAmount List", page, rowsPerPage, debouncedFilter);
+    const totalPages = Math.ceil(sosList?.data?.data.total / rowsPerPage);
     const handleChangePage = (event, newPage) => setPage(newPage);
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
@@ -82,7 +84,7 @@ const ListOfSosAmount = () => {
 
                 {!sosList.data ? (
                     <Loader />
-                ) : sosList.data?.data?.length ? (
+                ) : sosList?.data?.data?.data?.length ? (
                     <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
                         <TableContainer >
                             <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', paddingBlock: '13px' } }}>
@@ -97,7 +99,7 @@ const ListOfSosAmount = () => {
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {sosList.data.data.map((data) => (
+                                    {sosList.data.data.data.map((data) => (
                                         <TableRow key={data._id}>
                                             <TableCell sx={{ color: '#4B5563' }}>{data.amount}</TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>{data.driverSplitAmount ?? 0}</TableCell>
@@ -172,13 +174,19 @@ const ListOfSosAmount = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={currentPage === 1}
-                                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                                        onClick={() => {
+                                            setCurrentPage((prev) => prev - 1)
+                                            setPage((prev) => prev - 1)
+                                        }}
                                     >
                                         <ArrowBackIosNewIcon fontSize="small" />
                                     </IconButton>
                                     <IconButton
                                         disabled={currentPage === totalPages}
-                                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                                        onClick={() => {
+                                            setCurrentPage((prev) => prev + 1)
+                                            setPage((prev) => prev + 1)
+                                        }}
                                     >
                                         <ArrowForwardIosIcon fontSize="small" />
                                     </IconButton>

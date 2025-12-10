@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import useDebounce from "../../hooks/useDebounce";
 import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
 import {
     useGetSalesAgent, useShareAgent, payoutUserUpdate,
@@ -55,10 +56,11 @@ const ListOfSalesAgent = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [sharingId, setSharingId] = useState(null);
     const [filter, setfilter] = useState("");
+    const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     const [selectedPayoutType, setSelectedPayoutType] = useState('');
-    const [selectedUser, setSelectedUser] = useState(null); 
+    const [selectedUser, setSelectedUser] = useState(null);
 
     const [payPopup, setPopup] = useState('')
     const [range, setRange] = useState([
@@ -85,7 +87,7 @@ const ListOfSalesAgent = () => {
 
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
-    let UserList = useGetSalesAgent(page, rowsPerPage, filter, startDate, endDate, sortBy, sortOrder)
+    let UserList = useGetSalesAgent(page, rowsPerPage, debouncedFilter, startDate, endDate, sortBy, sortOrder)
     const agentList = UserList?.data?.data?.data?.influencersData
     const totalPages = UserList?.data?.data?.data?.totalPages
     const queryClient = useQueryClient();
@@ -129,7 +131,6 @@ const ListOfSalesAgent = () => {
         (error) => {
             toast.error("Error uploading sales agents");
             console.error("❌ Error uploading sales agents:", error);
-            // ❌ remove setImportFile(null);
         }
     );
 
@@ -140,7 +141,7 @@ const ListOfSalesAgent = () => {
                 params: {
                     page: 1,
                     limit: 10000,
-                    filter,
+                    filter: debouncedFilter,
                 },
             });
             return response?.data?.data?.influencersData || [];
@@ -341,31 +342,31 @@ const ListOfSalesAgent = () => {
 
     const getTrendData = (type) => {
         let stat;
-      
+
         // For transaction types (earned, commission, paid, unpaid)
         if (type !== "user") {
-          stat = UserList?.data?.data?.data?.monthlyStats?.find(
-            (item) => item.transactionType === type
-          );
+            stat = UserList?.data?.data?.data?.monthlyStats?.find(
+                (item) => item.transactionType === type
+            );
         } else {
             stat = UserList?.data?.data?.data?.user;
         }
-      
+
         const percent = stat?.percentageChange ?? 0;
-      
+
         let arrow = "→";
         let color = "#6c757d";
-      
+
         if (stat?.trend === "up") {
-          arrow = "↑";
-          color = "green";
+            arrow = "↑";
+            color = "green";
         } else if (stat?.trend === "down") {
-          arrow = "↓";
-          color = "red";
+            arrow = "↓";
+            color = "red";
         }
-      
+
         return { arrow, color, percent };
-    };      
+    };
     const earned = getTrendData("earned");
     const commission = getTrendData("commission");
     const unpaid = getTrendData("unpaid");
@@ -389,9 +390,9 @@ const ListOfSalesAgent = () => {
                         </div>
                         <div className="">
                             <div className="d-flex gap-2">
-                                    <div style={{ color: earned.color, fontWeight: 600 }}>
-                                        {earned.arrow} {earned.percent}%
-                                    </div>
+                                <div style={{ color: earned.color, fontWeight: 600 }}>
+                                    {earned.arrow} {earned.percent}%
+                                </div>
                                 <span> from last month</span>
                             </div>
                         </div>
@@ -442,7 +443,7 @@ const ListOfSalesAgent = () => {
                         <div className="d-flex justify-content-between  w-100 ">
                             <div className="">
                                 <span>Total Paid Amount</span>
-                                <h3>R {UserList.data?.data?.data.totalPaid || 0}</h3>
+                                <h3>R {Number(UserList.data?.data?.data.totalPaid || 0).toFixed(2)}</h3>
                             </div>
                             <img src={sa4} alt="dash-counter" />
 
@@ -462,7 +463,7 @@ const ListOfSalesAgent = () => {
                         <div className="d-flex justify-content-between  w-100 ">
                             <div className="">
                                 <span>Total Unpaid Amount</span>
-                                <h3>R {UserList.data?.data?.data.totalUnpaid || 0}</h3>
+                                <h3>R {Number(UserList.data?.data?.data.totalUnpaid || 0).toFixed(2)}</h3>
                             </div>
                             <img src={sa5} alt="dash-counter" />
 
@@ -855,22 +856,22 @@ const ListOfSalesAgent = () => {
                                                             <Tooltip
                                                                 title={
                                                                     selectedUser?.totalUnPaid >= 10
-                                                                    ? "Click to pay"
-                                                                    : "Minimum unpaid amount is 10 to payout"
+                                                                        ? "Click to pay"
+                                                                        : "Minimum unpaid amount is 10 to payout"
                                                                 }
                                                                 arrow
-                                                                >
+                                                            >
                                                                 <span style={{ width: "100%", display: "block" }}>
                                                                     <MenuItem
-                                                                    disabled={selectedUser?.totalUnPaid < 10}
-                                                                    onClick={(event) => {
-                                                                        if (selectedUser?.totalUnPaid >= 10) {
-                                                                        handlePopup(event, 'payout', 'sales_agent', selectedUser);
-                                                                        handleCloseMenu();
-                                                                        }
-                                                                    }}
+                                                                        disabled={selectedUser?.totalUnPaid < 10}
+                                                                        onClick={(event) => {
+                                                                            if (selectedUser?.totalUnPaid >= 10) {
+                                                                                handlePopup(event, 'payout', 'sales_agent', selectedUser);
+                                                                                handleCloseMenu();
+                                                                            }
+                                                                        }}
                                                                     >
-                                                                    <img src={OutlinedPay} alt="edit button" /> &nbsp; Pay
+                                                                        <img src={OutlinedPay} alt="edit button" /> &nbsp; Pay
                                                                     </MenuItem>
                                                                 </span>
                                                             </Tooltip>
@@ -969,7 +970,7 @@ const ListOfSalesAgent = () => {
                                                 setpage(1);
                                             }}
                                         >
-                                            {[5, 10, 15, 20].map((num) => (
+                                            {[5, 10, 15, 20, 50, 100].map((num) => (
                                                 <MenuItem key={num} value={num}>
                                                     {num}
                                                 </MenuItem>
@@ -1007,6 +1008,11 @@ const ListOfSalesAgent = () => {
                     </Paper>
                 </Grid>
             </Grid>
+            {
+                popup && (
+                    <ImportSheet setpopup={setpopup} popup={popup} type="sales-agent" />
+                )
+            }
             {/* <div className="container-fluid"> */}
             {/* <div className="row"> */}
             {/* <div className="col-md-12"> */}

@@ -554,7 +554,7 @@ const Analytics = ({ id, activePage,
                                         <option value="">All Categories</option>
                                         {notificationTypes.data?.data?.map((type, index) => (
                                             <option key={index} value={type._id}>
-                                                {type.type}
+                                                {type.display_title}
                                             </option>
                                         ))}
                                     </select>

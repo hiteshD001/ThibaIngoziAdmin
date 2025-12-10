@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import useDebounce from "../hooks/useDebounce";
 import {
   Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, Chip, MenuItem,
   Button,
@@ -35,6 +36,7 @@ const ListOfMeetingLinkTrips = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isArchived, setIsArchived] = useState(false);
   const [filter, setFilter] = useState("");
+  const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
   const [range, setRange] = useState([
     {
       startDate: startOfYear(new Date()),
@@ -64,7 +66,7 @@ const ListOfMeetingLinkTrips = () => {
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter, startDate, endDate, isArchived, sortBy, sortOrder,companyId);
+  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, debouncedFilter, startDate, endDate, isArchived, sortBy, sortOrder,companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalMeetingLinkTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);

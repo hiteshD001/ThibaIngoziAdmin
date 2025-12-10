@@ -1,12 +1,12 @@
 import { useEffect, useState, useLayoutEffect } from "react";
 import Select from "react-select";
-import { Grid, Typography, Box, FormControl, InputLabel, FormHelperText } from "@mui/material";
+import { Grid, Typography, Box, FormControl, InputLabel, FormHelperText, Tooltip, Button } from "@mui/material";
 import { useFormik } from "formik";
 import { sales_agent_e } from "../common/FormValidation";
 import { BootstrapInput } from '../common/BootstrapInput'
 import { useQueryClient } from "@tanstack/react-query";
 import { QRCodeCanvas } from "qrcode.react";
-import { useGetAgent, useUpdateSalesAgent, useGetBanksList } from "../API Calls/API";
+import { useGetAgent, useUpdateSalesAgent, useGetBanksList, armedSosPayout, payoutUserUpdate } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import PhoneInput from "react-phone-input-2";
@@ -23,6 +23,8 @@ import sa5 from '../assets/images/sa5.svg'
 import sales3 from '../assets/images/sales3.svg'
 import sales5 from '../assets/images/sales5.svg'
 import sales6 from '../assets/images/sales6.svg'
+import payIcon from '../assets/images/payIcon.svg';
+import PayoutPopup from "../common/Popup";
 // import search from "../assets/images/search.svg";
 // import nouser from "../assets/images/NoUser.png";
 // import calender from '../assets/images/calender.svg';
@@ -54,6 +56,8 @@ const SalesAgentHome = () => {
     // const [tieModalOpen, setTieModalOpen] = useState(false);
     // const [tieUsers, setTieUsers] = useState([]);
     const [page, setpage] = useState(1);
+    const [payPopup, setPopup] = useState("");
+    const [selectedPayoutType, setSelectedPayoutType] = useState('');
     // const [tieData, setTieData] = useState(true)
     // const [filter, setfilter] = useState("");
     // const [sortBy, setSortBy] = useState("first_name");
@@ -132,103 +136,129 @@ const SalesAgentHome = () => {
 
     });
 
-    // const handleTieClick = () => {
-    //     const tieUserData = userinfo?.data?.data?.data?.tieUserData;
-    //     setTieUsers(tieUserData)
+    const PayoutForm = useFormik({
+        initialValues: {
+            firstName: '',
+            surname: '',
+            branchCode: '',
+            amount: 0,
+            accountNumber: '',
+            customerCode: ''
+        }
+    });
 
-    //     setTieData(true)
+    const parseXmlResponse = (xmlString) => {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
 
-    //     console.log("Tie clicked:", tieUserData);
+        const result = xmlDoc.getElementsByTagName("Result")[0]?.textContent;
+        const message = xmlDoc.getElementsByTagName("ResultMessage")[0]?.textContent;
 
-    //     if (tieUserData && Array.isArray(tieUserData)) {
-    //         setTieUsers(tieUserData);
-    //         setTieModalOpen(true);
-    //     } else {
-    //         toast.info("No tie user data available");
-    //     }
-    // };
+        return { result, message };
+    };
 
-    // const handleCancel = () => {
-    //     const data = userinfo?.data?.data?.data;
-    //     if (data) {
-    //         profileForm.resetForm({ values: data });
-    //     }
-    //     setedit(false);
-    // };
+    const payoutMutation = armedSosPayout(
+        (res) => {
+            // Extract JSON data from Axios response
+            const responseData = res.data;
+    
+            if (responseData?.success === true && responseData?.data?.payouts?.length > 0) {
+                const payout = responseData.data.payouts[0];
+    
+                if (payout.status === 'pending' || payout.status === 'processing') {
+                    payoutUpdateMutation.mutate({
+                        user_id: userinfo.data?.data?.data._id,
+                        type: selectedPayoutType,
+                        amount: userinfo.data?.data?.data.totalUnPaid,
+                    });
+                    toast.success('Payment request created successfully. Status: ' + payout.status);
+                    closePopup();
+                } else if (payout.status === 'completed') {
+                    toast.success('Payment completed successfully');
+                } else {
+                    toast.error(`Payment failed. Status: ${payout.status}`);
+                    console.error("Payment Error:", payout);
+                }
+    
+            } else {
+                toast.error('Payment failed');
+                console.error("Payment Error:", responseData);
+            }
+        },
+    
+        (err) => {
+            toast.error('Payment failed');
+            console.error("Error!", err);
+        }
+    );    
 
-    // const handleExport = async ({ startDate, endDate, format }) => {
-    //     try {
-    //         const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
-    //             params: {
-    //                 role: "passanger",
-    //                 page: 1,
-    //                 limit: 10000,
-    //                 filter: "",
-    //                 company_id: paramId,
-    //                 startDate,
-    //                 endDate,
-    //             },
-    //         });
+    const payoutUpdateMutation = payoutUserUpdate(
+        (res) => {
+            userinfo.refetch()
+            toast.success('payment successful');
 
-    //         const allUsers = data?.users || [];
-    //         if (!allUsers.length) {
-    //             toast.warning("No User data found for this period.");
-    //             return;
-    //         }
+        },
+        (err) => {
+            toast.error('payment failed')
+        }
+    );
 
-    //         const exportData = allUsers.map(user => ({
-    //             "User": `${user.first_name || ''} ${user.last_name || ''}` || '',
-    //             "Company Name": user.company_name || '',
-    //             "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
-    //             "Contact Email": user.email || ''
-    //         }));
+    const handleChange = () => {
+        payoutMutation.mutate(PayoutForm.values);
+    };
 
-    //         if (format === "xlsx") {
-    //             const worksheet = XLSX.utils.json_to_sheet(exportData);
-    //             const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
-    //                 wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
-    //             }));
-    //             worksheet['!cols'] = columnWidths;
-    //             const workbook = XLSX.utils.book_new();
-    //             XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-    //             XLSX.writeFile(workbook, "User_List.xlsx");
-    //         }
-    //         else if (format === "csv") {
-    //             const worksheet = XLSX.utils.json_to_sheet(exportData);
-    //             const csv = XLSX.utils.sheet_to_csv(worksheet);
-    //             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    //             const link = document.createElement('a');
-    //             link.href = URL.createObjectURL(blob);
-    //             link.download = 'user_list.csv';
-    //             document.body.appendChild(link);
-    //             link.click();
-    //             document.body.removeChild(link);
-    //         }
-    //         else if (format === "pdf") {
-    //             const doc = new jsPDF();
-    //             doc.text('User List', 14, 16);
-    //             autoTable(doc, {
-    //                 head: [['User', 'Company Name', 'Contact No.', 'Contact Email']],
-    //                 body: allUsers.map(user => [
-    //                     `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
-    //                     user.company_name ?? 'NA',
-    //                     `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
-    //                     user.email ?? 'NA'
-    //                 ]),
-    //                 startY: 20,
-    //                 theme: 'striped',
-    //                 headStyles: { fillColor: '#367BE0' },
-    //                 margin: { top: 20 },
-    //                 styles: { fontSize: 10 },
-    //             });
-    //             doc.save("User_List.pdf");
-    //         }
+    const handlePopup = (event, type, payoutType) => {
+        event.stopPropagation();
 
-    //     } catch (err) {
-    //         console.error("Error exporting data:", err);
-    //         toast.error("Export failed.");
-    //     }
-    // };
+        // Check if user has bank details
+        const hasBankDetails = userinfo?.data?.data?.data?.bank?.bank_name == '' || 
+                              userinfo?.data?.data?.data?.branchCode == '' || 
+                              userinfo?.data?.data?.data?.accountNumber == '' || 
+                              userinfo?.data?.data?.data?.accountType == ''|| 
+                              userinfo?.data?.data?.data?.customerCode == '';
+        
+        if (hasBankDetails) {
+            toast.error("Please add your bank details before withdrawing funds. Click the Edit button to update your banking information.");
+            return;
+        }
+
+        PayoutForm.setValues({
+            user_id: userinfo.data?.data?.data?._id || "",
+            firstName: userinfo.data?.data?.data?.first_name || "",
+            surname: userinfo.data?.data?.data?.last_name || "",
+            // branchCode: userinfo.data?.data?.data.bankId?.branch_code || "",
+            bank_name: userinfo.data?.data?.data.bank?.bank_name || "",
+            branchCode: userinfo.data?.data?.data.bank?.branch_code || "",
+            accountNumber: userinfo.data?.data?.data?.accountNumber || "",
+            customerCode: userinfo.data?.data?.data?.customerCode || "",
+            amount: userinfo.data?.data?.data?.totalUnPaid || 0,
+        });
+
+        setPopup(type);
+        setSelectedPayoutType(payoutType);
+    };
+
+    const closePopup = (event) => {
+        // event.stopPropagation();
+        setPopup('')
+    }
+
+    const renderPopup = () => {
+        switch (payPopup) {
+            case 'payout':
+                return <PayoutPopup yesAction={handleChange} noAction={closePopup} />;
+            default:
+                return null;
+        }
+    };
+
+    const handleCancel = () => {
+        const data = userinfo.data?.data?.data;
+        if (data) {
+            profileForm.resetForm({ values: data });
+        }
+        setedit(false);
+    };
 
     const getTrendData = (type) => {
         let stat;
@@ -497,6 +527,7 @@ const SalesAgentHome = () => {
                                             placeholder="First Name"
                                             value={profileForm.values.first_name}
                                             onChange={profileForm.handleChange}
+                                            disabled={role == 'sales_agent'}
                                         />
                                         {profileForm.touched.first_name && <FormHelperText error>{profileForm.errors.first_name}</FormHelperText>}
                                     </FormControl>
@@ -514,6 +545,7 @@ const SalesAgentHome = () => {
                                             placeholder="Last Name"
                                             value={profileForm.values.last_name}
                                             onChange={profileForm.handleChange}
+                                            disabled={role == 'sales_agent'}
 
                                         />
                                         {profileForm.touched.last_name && <FormHelperText error>{profileForm.errors.last_name}</FormHelperText>}
@@ -550,7 +582,7 @@ const SalesAgentHome = () => {
                                             placeholder="Email"
                                             value={profileForm.values.email}
                                             onChange={profileForm.handleChange}
-
+                                            disabled={role == 'sales_agent'}
                                         />
                                         {profileForm.touched.email && <FormHelperText error>{profileForm.errors.email}</FormHelperText>}
                                     </FormControl>
@@ -571,6 +603,8 @@ const SalesAgentHome = () => {
                                                 profileForm.setFieldValue("mobile_no", withoutCountryCode);
                                                 profileForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
                                             }}
+                                            disabled={role == 'sales_agent'}
+                                            
                                             inputStyle={{
                                                 width: '100%',
                                                 height: '46px',
@@ -747,7 +781,7 @@ const SalesAgentHome = () => {
                                     )}
                                 </Box>
                             </Grid>
-                            {/* <Grid size={12}>
+                            <Grid size={12}>
                                 <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
                                     {edit ? (
                                         <>
@@ -769,20 +803,89 @@ const SalesAgentHome = () => {
                                             </Button>
                                         </>
                                     ) : (
-                                        // <Button
-                                        //     variant="contained"
-                                        //     sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                        //     onClick={() => setedit(true)}
-                                        // >
-                                        //     Edit
-                                        // </Button>
+                                        // userinfo?.data?.data?.data?.bank?.bank_name === ''  || 
+                                        // userinfo?.data?.data?.data?.branchCode  === '' || 
+                                        // userinfo?.data?.data?.data?.accountNumber === '' || 
+                                        // userinfo?.data?.data?.data?.accountType === '' || 
+                                        // userinfo?.data?.data?.data?.customerCode === '' ? (
+                                            <Button
+                                                variant="contained"
+                                                sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                                onClick={() => setedit(true)}
+                                            >
+                                                Edit
+                                            </Button>
+                                        // ) : null
                                     )}
                                 </Box>
-                            </Grid> */}
+                            </Grid>
                         </Grid>
                     </form>
                 </Box>
             </Box>
+
+             <Box p={2}>
+                
+            <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px', p: 2 }}>
+                <Box sx={{ borderBottom: '1px solid #E5E7EB' }}>
+                    <Typography variant="h6" gutterBottom fontWeight={550}>
+                        Payout
+                    </Typography>
+                </Box>
+                <Box
+                    sx={{
+                        p: 2,
+                        mt: 3,
+                        borderRadius: 2,
+                        border: '1px solid #E5E7EB',
+                        backgroundColor: "#F9FAFB",
+                        display: "flex",
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexDirection: "row",
+                        gap: 2,
+                        width: "100%",
+                    }}
+                >
+                    <Box>
+                        <Typography variant="body1" mb={1} sx={{ color: 'var(--font-gray)' }} fontWeight={500}>
+                            Total Amount
+                        </Typography>
+
+                        <Typography variant="h5" sx={{ fontWeight: 500 }}>
+                            R {userinfo?.data?.data?.data.totalUnPaid || 0}
+                        </Typography>
+                    </Box>
+                    <Tooltip
+                        title={
+                            userinfo?.data?.data?.data.totalUnPaid >= 10 
+                                ? "Click to withdraw"
+                                : "Minimum unpaid amount is 10 to payout"
+                        }
+                        arrow
+                    >
+                        <span>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                disabled={userinfo?.data?.data?.data.totalUnPaid < 10}
+                                onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
+                                sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
+                            >
+                                <img src={payIcon} alt="payIcon" />
+                                Withdraw
+                            </Button>
+                        </span>
+                    </Tooltip>
+
+                    {renderPopup()}
+                </Box>
+            </Box>
+            </Box>
+            
+
+
+            {payPopup && renderPopup()}
 
             {/* <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" p={2}>
@@ -992,7 +1095,7 @@ const SalesAgentHome = () => {
                                                 setCurrentPage(1);
                                             }}
                                         >
-                                            {[5, 10, 15, 20].map((num) => (
+                                            {[5, 10, 15, 20,50,100].map((num) => (
                                                 <MenuItem key={num} value={num}>
                                                     {num}
                                                 </MenuItem>
@@ -1204,7 +1307,7 @@ const SalesAgentHome = () => {
                                                     setCurrentPage(1);
                                                 }}
                                             >
-                                                {[5, 10, 15, 20].map((num) => (
+                                                {[5, 10, 15, 20,50,100].map((num) => (
                                                     <MenuItem key={num} value={num}>
                                                         {num}
                                                     </MenuItem>
