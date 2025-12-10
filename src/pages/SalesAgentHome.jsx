@@ -428,7 +428,7 @@ const SalesAgentHome = () => {
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
                             <Box>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>My Total Users</Typography>
-                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.user_id?.length}</Typography>
+                                <Typography variant="h4" fontWeight={650}> {userinfo?.data?.data?.data?.user_id?.length}</Typography>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>
                                     <span style={{ color: user.color, fontWeight: 500 }}>{user.arrow}{user.percent}%</span> from last month
                                 </Typography>
@@ -446,7 +446,7 @@ const SalesAgentHome = () => {
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
                             <Box>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>Performance Level</Typography>
-                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data.performanceLevel ?? 0}</Typography>
+                                <Typography variant="h4" fontWeight={650}> {userinfo?.data?.data?.data.performanceLevel ?? 0}</Typography>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>
                                     {/* <span style={{ color: '#16A34A', fontWeight: 500 }}>+8%</span>  */}
                                     Level 1 Performer
@@ -465,7 +465,7 @@ const SalesAgentHome = () => {
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
                             <Box>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>Tie</Typography>
-                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.tie ?? 0}</Typography>
+                                <Typography variant="h4" fontWeight={650}> {userinfo?.data?.data?.data?.tie ?? 0}</Typography>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>
                                     {/* <span style={{ color: '#16A34A', fontWeight: 500 }}>+8%</span>  */}
                                     No linked users
@@ -484,7 +484,7 @@ const SalesAgentHome = () => {
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
                             <Box>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>Total Sales agent Users</Typography>
-                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.grandTotalUsers ?? 0}</Typography>
+                                <Typography variant="h4" fontWeight={650}> {userinfo?.data?.data?.data?.grandTotalUsers ?? 0}</Typography>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>
                                     <span style={{ color: userAll.color, fontWeight: 500 }}>{userAll.arrow}{userAll.percent}%</span> from last month
                                 </Typography>
