@@ -14,7 +14,7 @@ import { MdCloudUpload, MdFileDownload, MdClose } from "react-icons/md";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
-import { useFileUpload, useUserFileUpload } from "../API Calls/API";
+import { useFileUpload, useUserFileUpload, useBulkUploadSalesAgent } from "../API Calls/API";
 import Loader from "./Loader";
 import { toastOption } from "./ToastOptions";
 import Downloads from '../assets/images/Downloads.svg'
@@ -66,29 +66,75 @@ const ImportSheet = ({ setpopup, type = "driver" }) => {
     };
 
     const onSuccess = () => {
-        client.invalidateQueries(type === "driver" ? "driver list" : "user list");
-        toast.success(`${type === "driver" ? "Driver" : "User"} imported successfully.`);
+        if (type === "driver") {
+            client.invalidateQueries(["driver list"]);
+        } else if (type === "sales-agent") {
+            client.invalidateQueries(["salesAgent"]);
+        } else {
+            client.invalidateQueries(["user list"]);
+        }
+
+        toast.success(
+            `${type === "sales-agent"
+                ? "Sales Agent"
+                : type === "driver"
+                    ? "Driver"
+                    : "User"
+            } uploaded successfully`
+        );
+
         setpopup(false);
     };
 
+
     const driverUpload = useFileUpload(onSuccess, onError);
     const userUpload = useUserFileUpload(onSuccess, onError);
-    const isPending = type === "driver" ? driverUpload.isPending : userUpload.isPending;
+    const salesAgentUpload = useBulkUploadSalesAgent(onSuccess, onError);
+
+    const isPending =
+        type === "driver"
+            ? driverUpload.isPending
+            : type === "sales-agent"
+                ? salesAgentUpload.isPending
+                : userUpload.isPending;
 
     const handleFileUpload = () => {
-        if (file) {
-            const formData = new FormData();
-            const fieldName = type === "driver" ? "driversSheet" : type === 'sales-agent' ? "file" : "driversSheet";
-            formData.append(fieldName, file);
-            if (type === "driver") driverUpload.mutate(formData);
-            else userUpload.mutate(formData);
+        if (!file) {
+            toast.error("Please select a file first!");
+            return;
+        }
+
+        const formData = new FormData();
+
+        if (type === "driver") {
+            formData.append("driversSheet", file);
+            driverUpload.mutate(formData);
+
+        } else if (type === "sales-agent") {
+            formData.append("file", file);
+            salesAgentUpload.mutate(formData);
+
         } else {
-            alert("Please select a file first!");
+            formData.append("usersSheet", file);
+            userUpload.mutate(formData);
         }
     };
 
-    const sampleFileName = type === "driver" ? "Sample_Driver.xlsx" : "Sample_User.xlsx";
-    const downloadPath = type === "driver" ? "/assests/Driver.xlsx" : "/assests/Users.xlsx";
+    const sampleFileName =
+        type === "driver"
+            ? "Sample_Driver.xlsx"
+            : type === "sales-agent"
+                ? "Sample_Sales_Agent.xlsx"
+                : "Sample_User.xlsx";
+
+    const downloadPath =
+        type === "driver"
+            ? "/assests/Driver.xlsx"
+            : type === "sales-agent"
+                ? "/assests/Sample_Sales_Agent.xlsx"
+                : "/assests/Users.xlsx";
+    // const sampleFileName = type === "driver" ? "Sample_Driver.xlsx" : "Sample_User.xlsx";
+    // const downloadPath = type === "driver" ? "/assests/Driver.xlsx" : "/assests/Users.xlsx";
 
     return (
         <Box
