@@ -45,7 +45,7 @@ export const changePasswordValidation = yup.object({
 });
 export const loginValidation = yup.object({
     email: Email,
-    password:  Password ,
+    password: Password,
 })
 
 export const loginValidation_salesAgent = yup.object({
@@ -78,7 +78,7 @@ export const sales_agent_e = yup.object({
     // referralCode: String,
     enrollAmountDeduction: Number,
     accountNumber: String,
-    customerCode: String,
+    // customerCode: String,
     accountType: String,
     accountHolderName: String,
 })
@@ -111,7 +111,7 @@ export const companyValidation = yup.object({
     bankId: yup.string().required("Bank is required"),
     customerCode: yup.string().required("Branch Code is required"),
     accountType: yup.string().required("Account Type is required"),
-    accountHolderName : yup.string().required("Account Holder Name is required"),   
+    accountHolderName: yup.string().required("Account Holder Name is required"),
     company_bio: yup.string().required("Bio is required")
 })
 
