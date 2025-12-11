@@ -334,9 +334,6 @@ const AddAgent = () => {
 
                         <Grid size={12} sx={{ mt: 1 }}>
                             <Box display="flex" justifyContent="flex-end" gap={2}>
-                                <Button variant="outlined" sx={{ width: 130, height: 48, borderRadius: '10px', color: 'black', borderColor: '#E0E3E7' }} onClick={handleCancel}>
-                                    Cancel
-                                </Button>
                                 <Button
                                     type="submit"
                                     variant="contained"
@@ -344,6 +341,9 @@ const AddAgent = () => {
                                     sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                                 >
                                     {newAgent.isPending ? <Loader color="white" /> : "Save"}
+                                </Button>
+                                <Button variant="outlined" sx={{ width: 130, height: 48, borderRadius: '10px', color: 'black', borderColor: '#E0E3E7' }} onClick={handleCancel}>
+                                    Cancel
                                 </Button>
                             </Box>
                         </Grid>
