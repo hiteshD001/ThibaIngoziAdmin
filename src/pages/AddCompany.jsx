@@ -827,7 +827,7 @@ const AddCompany = () => {
 						</Grid>
 						<Grid size={{ xs: 12, sm: 6 }}>
 							<CustomSelect
-								label="Bank Id"
+								label="Bank Name"
 								name="bankId"
 								value={companyForm.values.bankId}
 								onChange={(e) => {
