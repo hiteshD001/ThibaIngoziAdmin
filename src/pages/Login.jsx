@@ -26,6 +26,8 @@ export const Login = () => {
         initialValues: {
             email: "",
             password: "",
+            isWeb: true
+
         },
         validationSchema: loginValidation_salesAgent,
         onSubmit: (values) => {
@@ -39,7 +41,7 @@ export const Login = () => {
     const onSuccess = (res) => {
         if (res.data.requires2FA) {
             setTempToken(res.data.tempToken);
-            setLoginData({email: loginForm.values.email, password: loginForm.values.password});
+            setLoginData({email: loginForm.values.email, password: loginForm.values.password,isWeb : loginForm.values.isWeb});
             setShow2FA(true);
         } else {    
             handleLoginSuccess(res);
