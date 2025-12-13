@@ -18,6 +18,7 @@ import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 import GrayPlus from '../assets/images/GrayPlus.svg'
+import DeleteIcon from '../assets/images/DeleteIcon.svg'
 import { enable2FA } from "../API Calls/authAPI";
 import { Switch, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
@@ -206,10 +207,8 @@ const Profile = () => {
   };
 
   const handle2FAToggle = async (e) => {
-    console.log("Here")
     const newValue = e.target.checked;
     setIs2FALoading(true);
-
 
     try {
       console.log(newValue ? 'Enabling 2FA...' : 'Disabling 2FA...');
@@ -252,7 +251,8 @@ const Profile = () => {
         setIs2FAEnabled(false);
         setQrCodeData(null);
         setQrCodeUrl('');
-        toast.success('2FA has been disabled successfully', toastOption);
+        toast.success('2FA has been disabled successfully', { ...toastOption, autoClose: 3000 });
+
       }
     } catch (error) {
       console.error('2FA toggle error:', error);
@@ -833,22 +833,24 @@ const Profile = () => {
 
               {/* Close Confirmation Dialog */}
               <Dialog open={showCloseConfirmation} onClose={() => setShowCloseConfirmation(false)} maxWidth="xs" fullWidth>
-                <DialogTitle>Confirm Close</DialogTitle>
+                <DialogTitle sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+                  <img src={DeleteIcon} alt="DeleteIcon" />
+                  Confirm Close
+                </DialogTitle>
                 <DialogContent>
-                  <Typography variant="body1">
-                    Are you sure you want to close without completing 2FA setup?
-                  </Typography>
+                  <Typography>Are you sure you want to close without completing 2FA setup?</Typography>
                 </DialogContent>
-                <DialogActions sx={{ justifyContent: 'center', pb: 3, gap: 2 }}>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleCloseConfirmation(false)}
-                  >
+                <DialogActions>
+                  <Button sx={{ color: 'black', border: '1px solid rgb(175, 179, 189)' }} variant="outlined" onClick={() => handleCloseConfirmation(false)}>
                     No
                   </Button>
                   <Button
                     variant="contained"
+                    color="error"
                     onClick={() => handleCloseConfirmation(true)}
+                    sx={{
+                      backgroundColor: '#EB5757',
+                    }}
                   >
                     Yes
                   </Button>
