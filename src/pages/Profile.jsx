@@ -18,8 +18,9 @@ import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 import GrayPlus from '../assets/images/GrayPlus.svg'
-import { enable2FA, disable2FA } from "../API Calls/authAPI";
-import { Switch, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { enable2FA } from "../API Calls/authAPI";
+import { Switch, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 import { QRCodeSVG } from 'qrcode.react';
 import QRCode from 'qrcode';
 
@@ -41,6 +42,7 @@ const Profile = () => {
   const [qrCodeData, setQrCodeData] = useState(null);
   const [showQRCode, setShowQRCode] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
   const client = useQueryClient();
 
   const onSuccess = () => {
@@ -187,6 +189,20 @@ const Profile = () => {
 
   const handleClosePreview = () => {
     setPreviewImage(prev => ({ ...prev, open: false }));
+  };
+
+  const handleQRCodeClose = () => {
+    setShowCloseConfirmation(true);
+  };
+
+  const handleCloseConfirmation = (shouldClose) => {
+    setShowCloseConfirmation(false);
+
+    if (shouldClose) {
+      // User selected "Yes" - close the dialog
+      setShowQRCode(false);
+    }
+    // User selected "No" - do nothing, stay on the QR code dialog
   };
 
   const handle2FAToggle = async (e) => {
@@ -743,8 +759,19 @@ const Profile = () => {
               </Grid>
 
               {/* 2FA Setup Dialog */}
-              <Dialog open={showQRCode} onClose={() => setShowQRCode(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>Set Up Two-Factor Authentication</DialogTitle>
+              <Dialog open={showQRCode} onClose={handleQRCodeClose} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  Set Up Two-Factor Authentication
+                  <IconButton
+                    aria-label="close"
+                    onClick={handleQRCodeClose}
+                    sx={{
+                      color: (theme) => theme.palette.grey[500],
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </DialogTitle>
                 <DialogContent sx={{ textAlign: 'center' }}>
                   <Typography variant="body1" paragraph>
                     Scan the QR code below with your authenticator app:
@@ -787,7 +814,7 @@ const Profile = () => {
                   )}
 
                   <Typography variant="body2" color="text.secondary">
-                    After scanning, you'll be asked to enter a verification code from your authenticator app.
+                    After scanning, you&apos;ll be asked to enter a verification code from your authenticator app.
                   </Typography>
                 </DialogContent>
                 <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
@@ -799,7 +826,31 @@ const Profile = () => {
                       toast.success('Two-factor authentication has been enabled', toastOption);
                     }}
                   >
-                    I've set up my authenticator app
+                    I&apos;ve set up my authenticator app
+                  </Button>
+                </DialogActions>
+              </Dialog>
+
+              {/* Close Confirmation Dialog */}
+              <Dialog open={showCloseConfirmation} onClose={() => setShowCloseConfirmation(false)} maxWidth="xs" fullWidth>
+                <DialogTitle>Confirm Close</DialogTitle>
+                <DialogContent>
+                  <Typography variant="body1">
+                    Are you sure you want to close without completing 2FA setup?
+                  </Typography>
+                </DialogContent>
+                <DialogActions sx={{ justifyContent: 'center', pb: 3, gap: 2 }}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => handleCloseConfirmation(false)}
+                  >
+                    No
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleCloseConfirmation(true)}
+                  >
+                    Yes
                   </Button>
                 </DialogActions>
               </Dialog>
