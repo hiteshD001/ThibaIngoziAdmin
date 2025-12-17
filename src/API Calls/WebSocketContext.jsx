@@ -55,7 +55,7 @@ export const WebSocketProvider = ({ children }) => {
             if (data?.type === "pong") return;
 
             // Heartbeat pong from server – bump counter so consumers can react
-            if (data?.type === "new_sos") {
+            if (data?.new_sos) {
                 setnewSOS((prev) => prev + 1);
                 return;
             }
@@ -76,7 +76,6 @@ export const WebSocketProvider = ({ children }) => {
             // Backend sends just array (legacy)
             if (Array.isArray(data)) {
                 setActiveUserLists(data);
-                setnewSOS((prev) => prev + 1);
                 return;
             }
         };
