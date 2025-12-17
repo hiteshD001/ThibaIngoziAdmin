@@ -1,5 +1,8 @@
 /* eslint-disable react/prop-types */
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { Slide, toast } from "react-toastify";
+
+const audio = new Audio("/src/assets/audio/notification.mp3")
 
 const WebSocketContext = createContext(null);
 
@@ -50,6 +53,7 @@ export const WebSocketProvider = ({ children }) => {
                 return;
             }
 
+            // if (data?.type === "pong") return;
             if (data?.type === "pong") return;
 
             // Handle paginated data structure (new format)
@@ -67,7 +71,13 @@ export const WebSocketProvider = ({ children }) => {
 
             // Backend sends just array (legacy)
             if (Array.isArray(data)) {
-                setActiveUserLists(data);
+                setActiveUserLists(prev => {
+                    if (prev?.length !== 0) {
+                        audio.play().catch(() => { });
+                        toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                    }
+                    return data
+                });
                 return;
             }
         };
@@ -82,9 +92,9 @@ export const WebSocketProvider = ({ children }) => {
     const requestPage = (page) => {
         if (socketRef.current?.readyState === WebSocket.OPEN) {
             setCurrentPage(page);
-            socketRef.current.send(JSON.stringify({ 
-                type: "request_page", 
-                page: page 
+            socketRef.current.send(JSON.stringify({
+                type: "request_page",
+                page: page
             }));
         }
     };
@@ -104,15 +114,15 @@ export const WebSocketProvider = ({ children }) => {
     };
 
     return (
-        <WebSocketContext.Provider value={{ 
-            isConnected, 
-            activeUserLists, 
+        <WebSocketContext.Provider value={{
+            isConnected,
+            activeUserLists,
             pagination,
             currentPage,
             requestPage,
             nextPage,
             prevPage,
-            socketRef 
+            socketRef
         }}>
             {children}
         </WebSocketContext.Provider>

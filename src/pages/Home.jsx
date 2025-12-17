@@ -55,9 +55,10 @@ const Home = ({ isMapLoaded, }) => {
     const [selectedId, setSelectedId] = useState("");
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all")
-    const { isConnected, activeUserLists } = useWebSocket();
-
-    console.log("activeUserLists",activeUserLists)
+    const {
+        isConnected: isSocketConnected,
+        activeUserLists
+    } = useWebSocket();
 
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
@@ -411,23 +412,24 @@ const Home = ({ isMapLoaded, }) => {
                                 </TableHead>
 
                                 <TableBody>
-                                    {activeSos.isPending ?
+                                    {!isSocketConnected ?
                                         <TableRow>
                                             <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={9} align="center">
                                                 <Loader />
                                             </TableCell>
                                         </TableRow>
-                                        : (activeUserList?.length > 0 ?
-                                            activeUserList?.map((user) => (
+                                        :
+                                        (activeUserLists?.length > 0 ?
+                                            activeUserLists?.map((user) => (
                                                 <TableRow key={user._id}>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
                                                             user?.user?.role === "driver" ? (
-                                                                <Link to={`/home/total-drivers/driver-information/${user?.user?._id}`} className="link">
+                                                                <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id}`} className="link">
                                                                     <Stack direction="row" alignItems="center" gap={1}>
                                                                         <Avatar
                                                                             src={
-                                                                                user?.user
+                                                                                user?.user_id
                                                                                     ?.selfieImage ||
                                                                                 nouser
                                                                             }
@@ -435,21 +437,21 @@ const Home = ({ isMapLoaded, }) => {
                                                                             alt="User"
                                                                         />
 
-                                                                        {user?.user?.first_name || ''} {user?.user?.last_name || ''}
+                                                                        {user?.user_id?.first_name || ''} {user?.user_id?.last_name || ''}
                                                                     </Stack>
                                                                 </Link>) : (
-                                                                <Link to={`/home/total-users/user-information/${user?.user?._id}`} className="link">
+                                                                <Link to={`/home/total-users/user-information/${user?.user_id?._id}`} className="link">
                                                                     <Stack direction="row" alignItems="center" gap={1}>
                                                                         <Avatar
                                                                             src={
-                                                                                user?.user
+                                                                                user?.user_id
                                                                                     ?.selfieImage ||
                                                                                 nouser
                                                                             }
                                                                             alt="User"
                                                                         />
 
-                                                                        {user?.user?.first_name || ''} {user?.user?.last_name || ''}
+                                                                        {user?.user_id?.first_name || ''} {user?.user_id?.last_name || ''}
                                                                     </Stack>
                                                                 </Link>
                                                             )
@@ -457,7 +459,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {user?.user?.company_name}
+                                                        {user?.user_id?.company_name}
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
@@ -574,7 +576,7 @@ const Home = ({ isMapLoaded, }) => {
 
                         </TableContainer>
 
-                        {activeUserList?.length > 0 && !activeSos.isFetching && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                        {/* {activeUserLists?.length > 0 && isSocketConnected && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
                             <Grid>
                                 <Typography variant="body2">
                                     Rows per page:&nbsp;
@@ -598,7 +600,7 @@ const Home = ({ isMapLoaded, }) => {
                                                 outline: 'none',
                                             },
                                         }}
-                                        value={activeLimit}
+                                        value={pagination?.pageSize}
                                         onChange={(e) => {
                                             setActiveLimit(Number(e.target.value));
                                             setActivePage(1);
@@ -615,25 +617,27 @@ const Home = ({ isMapLoaded, }) => {
                             <Grid>
                                 <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
                                     <Typography variant="body2">
-                                        {activePage} / {totalActivePages}
+                                        {currentPage} / {pagination?.totalPages}
                                     </Typography>
                                     <IconButton
-                                        disabled={activePage === 1}
-                                        onClick={() => setActivePage((prev) => prev - 1)}
+                                        disabled={currentPage === 1}
+                                        // onClick={() => setActivePage((prev) => prev - 1)}
+                                        onClick={prevPage}
                                     >
                                         <NavigateBeforeIcon fontSize="small" sx={{
-                                            color: activePage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
+                                            color: currentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
                                         }} />
                                     </IconButton>
                                     <IconButton
-                                        disabled={activePage === totalActivePages}
-                                        onClick={() => setActivePage((prev) => prev + 1)}
+                                        disabled={currentPage === pagination?.totalPages}
+                                        // onClick={() => setActivePage((prev) => prev + 1)}
+                                        onClick={nextPage}
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>
                                 </Box>
                             </Grid>
-                        </Grid>}
+                        </Grid>} */}
                     </Box>
                 </Paper>
 
