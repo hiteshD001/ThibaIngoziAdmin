@@ -57,6 +57,8 @@ const Home = ({ isMapLoaded, }) => {
     const [recentNotification, setRecentNotification] = useState("all")
     const { isConnected, activeUserLists } = useWebSocket();
 
+    console.log("activeUserLists",activeUserLists)
+
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
     // Recent SOS pagination
