@@ -14,6 +14,7 @@ export const WebSocketProvider = ({ children }) => {
         pageSize: 20
     });
     const [currentPage, setCurrentPage] = useState(1);
+    const [newSOS, setnewSOS] = useState(0);
     const pingIntervalRef = useRef(null);
     const url = import.meta.env.VITE_WEB_SOCKET_URL;
 
@@ -50,7 +51,14 @@ export const WebSocketProvider = ({ children }) => {
                 return;
             }
 
+            // Heartbeat pong from server – bump counter so consumers can react
             if (data?.type === "pong") return;
+
+            // Heartbeat pong from server – bump counter so consumers can react
+            if (data?.type === "new_sos") {
+                setnewSOS((prev) => prev + 1);
+                return;
+            }
 
             // Handle paginated data structure (new format)
             if (data?.data && Array.isArray(data?.data) && data?.pagination) {
@@ -68,6 +76,7 @@ export const WebSocketProvider = ({ children }) => {
             // Backend sends just array (legacy)
             if (Array.isArray(data)) {
                 setActiveUserLists(data);
+                setnewSOS((prev) => prev + 1);
                 return;
             }
         };
@@ -82,9 +91,9 @@ export const WebSocketProvider = ({ children }) => {
     const requestPage = (page) => {
         if (socketRef.current?.readyState === WebSocket.OPEN) {
             setCurrentPage(page);
-            socketRef.current.send(JSON.stringify({ 
-                type: "request_page", 
-                page: page 
+            socketRef.current.send(JSON.stringify({
+                type: "request_page",
+                page: page
             }));
         }
     };
@@ -104,15 +113,16 @@ export const WebSocketProvider = ({ children }) => {
     };
 
     return (
-        <WebSocketContext.Provider value={{ 
-            isConnected, 
-            activeUserLists, 
+        <WebSocketContext.Provider value={{
+            isConnected,
+            activeUserLists,
             pagination,
             currentPage,
+            newSOS,
             requestPage,
             nextPage,
             prevPage,
-            socketRef 
+            socketRef
         }}>
             {children}
         </WebSocketContext.Provider>

@@ -28,7 +28,7 @@ import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { SOSStatusUpdate } from "../common/ConfirmationPOPup";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { Slide, toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
@@ -45,6 +45,8 @@ const copyButtonStyles = {
     borderRadius: '4px',
 };
 
+const audio = new Audio("/src/assets/audio/notification.mp3")
+
 const Home = ({ isMapLoaded, }) => {
     // filters
     const [filter, setfilter] = useState("");
@@ -55,9 +57,7 @@ const Home = ({ isMapLoaded, }) => {
     const [selectedId, setSelectedId] = useState("");
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all")
-    const { isConnected, activeUserLists } = useWebSocket();
-
-    console.log("activeUserLists",activeUserLists)
+    const { newSOS } = useWebSocket();
 
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
@@ -145,6 +145,25 @@ const Home = ({ isMapLoaded, }) => {
             queryClient.invalidateQueries(['hotspot'], { exact: false });
         }
     }, [activeUserList?.length, refetchRecentSOS]);
+
+    // Refetch active SOS when we receive a WebSocket pong (heartbeat)
+    useEffect(() => {
+        if (!newSOS) return;
+
+        const fetchData = async () => {
+            try {
+                const res = await activeSos.refetch();
+                if (res.data?.success && !activeSos.isPending)
+                    audio.play().catch(() => { });
+                toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+            } catch (error) {
+                console.error("Refetch failed:", error);
+            }
+        };
+
+        fetchData();
+    }, [newSOS]);
+
 
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
@@ -574,7 +593,7 @@ const Home = ({ isMapLoaded, }) => {
 
                         </TableContainer>
 
-                        {activeUserList?.length > 0 && !activeSos.isFetching && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                        {activeUserList?.length > 0 && !activeSos.isPending && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
                             <Grid>
                                 <Typography variant="body2">
                                     Rows per page:&nbsp;
