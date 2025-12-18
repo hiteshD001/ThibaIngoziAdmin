@@ -37,6 +37,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import tone from "../assets/audio/notification.mp3"
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -45,7 +46,7 @@ const copyButtonStyles = {
     borderRadius: '4px',
 };
 
-const audio = new Audio("/src/assets/audio/notification.mp3")
+const audio = new Audio(tone);
 
 const Home = ({ isMapLoaded, }) => {
     // filters
@@ -155,7 +156,7 @@ const Home = ({ isMapLoaded, }) => {
                 const res = await activeSos.refetch();
                 console.log(res)
                 if (res?.data?.status === 200 && !activeSos.isPending) {
-                    audio.play().catch(() => { });
+                    await audio.play().catch(() => { });
                     toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
                 }
             } catch (error) {
