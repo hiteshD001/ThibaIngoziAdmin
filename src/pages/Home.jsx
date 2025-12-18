@@ -28,7 +28,7 @@ import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { SOSStatusUpdate } from "../common/ConfirmationPOPup";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { Slide, toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
@@ -45,6 +45,8 @@ const copyButtonStyles = {
     borderRadius: '4px',
 };
 
+const audio = new Audio("/src/assets/audio/notification.mp3")
+
 const Home = ({ isMapLoaded, }) => {
     // filters
     const [filter, setfilter] = useState("");
@@ -55,10 +57,7 @@ const Home = ({ isMapLoaded, }) => {
     const [selectedId, setSelectedId] = useState("");
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all")
-    const {
-        isConnected: isSocketConnected,
-        activeUserLists
-    } = useWebSocket();
+    const { newSOS } = useWebSocket();
 
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
@@ -146,6 +145,25 @@ const Home = ({ isMapLoaded, }) => {
             queryClient.invalidateQueries(['hotspot'], { exact: false });
         }
     }, [activeUserList?.length, refetchRecentSOS]);
+
+    // Refetch active SOS when we receive a WebSocket pong (heartbeat)
+    useEffect(() => {
+        if (!newSOS || newSOS === 1) return;
+
+        const fetchData = async () => {
+            try {
+                const res = await activeSos.refetch();
+                if (res.data?.success && !activeSos.isPending)
+                    audio.play().catch(() => { });
+                toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+            } catch (error) {
+                console.error("Refetch failed:", error);
+            }
+        };
+
+        fetchData();
+    }, [newSOS]);
+
 
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
@@ -412,24 +430,23 @@ const Home = ({ isMapLoaded, }) => {
                                 </TableHead>
 
                                 <TableBody>
-                                    {!isSocketConnected ?
+                                    {activeSos.isPending ?
                                         <TableRow>
                                             <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={9} align="center">
                                                 <Loader />
                                             </TableCell>
                                         </TableRow>
-                                        :
-                                        (activeUserLists?.length > 0 ?
-                                            activeUserLists?.map((user) => (
+                                        : (activeUserList?.length > 0 ?
+                                            activeUserList?.map((user) => (
                                                 <TableRow key={user._id}>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
                                                             user?.user?.role === "driver" ? (
-                                                                <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id}`} className="link">
+                                                                <Link to={`/home/total-drivers/driver-information/${user?.user?._id}`} className="link">
                                                                     <Stack direction="row" alignItems="center" gap={1}>
                                                                         <Avatar
                                                                             src={
-                                                                                user?.user_id
+                                                                                user?.user
                                                                                     ?.selfieImage ||
                                                                                 nouser
                                                                             }
@@ -437,21 +454,21 @@ const Home = ({ isMapLoaded, }) => {
                                                                             alt="User"
                                                                         />
 
-                                                                        {user?.user_id?.first_name || ''} {user?.user_id?.last_name || ''}
+                                                                        {user?.user?.first_name || ''} {user?.user?.last_name || ''}
                                                                     </Stack>
                                                                 </Link>) : (
-                                                                <Link to={`/home/total-users/user-information/${user?.user_id?._id}`} className="link">
+                                                                <Link to={`/home/total-users/user-information/${user?.user?._id}`} className="link">
                                                                     <Stack direction="row" alignItems="center" gap={1}>
                                                                         <Avatar
                                                                             src={
-                                                                                user?.user_id
+                                                                                user?.user
                                                                                     ?.selfieImage ||
                                                                                 nouser
                                                                             }
                                                                             alt="User"
                                                                         />
 
-                                                                        {user?.user_id?.first_name || ''} {user?.user_id?.last_name || ''}
+                                                                        {user?.user?.first_name || ''} {user?.user?.last_name || ''}
                                                                     </Stack>
                                                                 </Link>
                                                             )
@@ -459,7 +476,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {user?.user_id?.company_name}
+                                                        {user?.user?.company_name}
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
@@ -576,7 +593,7 @@ const Home = ({ isMapLoaded, }) => {
 
                         </TableContainer>
 
-                        {/* {activeUserLists?.length > 0 && isSocketConnected && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                        {activeUserList?.length > 0 && !activeSos.isPending && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
                             <Grid>
                                 <Typography variant="body2">
                                     Rows per page:&nbsp;
@@ -600,7 +617,7 @@ const Home = ({ isMapLoaded, }) => {
                                                 outline: 'none',
                                             },
                                         }}
-                                        value={pagination?.pageSize}
+                                        value={activeLimit}
                                         onChange={(e) => {
                                             setActiveLimit(Number(e.target.value));
                                             setActivePage(1);
@@ -617,27 +634,25 @@ const Home = ({ isMapLoaded, }) => {
                             <Grid>
                                 <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
                                     <Typography variant="body2">
-                                        {currentPage} / {pagination?.totalPages}
+                                        {activePage} / {totalActivePages}
                                     </Typography>
                                     <IconButton
-                                        disabled={currentPage === 1}
-                                        // onClick={() => setActivePage((prev) => prev - 1)}
-                                        onClick={prevPage}
+                                        disabled={activePage === 1}
+                                        onClick={() => setActivePage((prev) => prev - 1)}
                                     >
                                         <NavigateBeforeIcon fontSize="small" sx={{
-                                            color: currentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
+                                            color: activePage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
                                         }} />
                                     </IconButton>
                                     <IconButton
-                                        disabled={currentPage === pagination?.totalPages}
-                                        // onClick={() => setActivePage((prev) => prev + 1)}
-                                        onClick={nextPage}
+                                        disabled={activePage === totalActivePages}
+                                        onClick={() => setActivePage((prev) => prev + 1)}
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>
                                 </Box>
                             </Grid>
-                        </Grid>} */}
+                        </Grid>}
                     </Box>
                 </Paper>
 
