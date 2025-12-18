@@ -513,7 +513,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         {user?.req_accept || "0"}
                                                     </TableCell>
                                                     <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
-                                                        {user?.type?.type || "-"}
+                                                        {user?.type?.display_title || "-"}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {moment(user?.createdAt).format('HH:mm:ss')}
@@ -939,7 +939,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
-                                                        {row?.type?.type}
+                                                        {row?.type?.display_title}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {row?.help_received}
