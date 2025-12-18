@@ -438,7 +438,11 @@ const AgentInformation = () => {
                             <Box>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>Total Commission Earned(30%)</Typography>
                                 <Typography variant="h4" fontWeight={600}>
-                                    R {UserInfo.data?.data?.data?.commissionEarned || 0}
+                                    R {(
+                                        (UserInfo.data?.data?.data?.totalPaid || 0) +
+                                        (UserInfo.data?.data?.data?.totalUnPaid || 0)
+                                    ).toFixed(3) || 0}
+
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
                                     <div style={{ color: commission.color, fontWeight: 600 }}>
@@ -767,7 +771,7 @@ const AgentInformation = () => {
                                     <>
                                         <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>Referral Code</Typography>
                                         <QRCodeCanvas
-                                            value={`${import.meta.env.VITE_BASEURL}/api/referralCode?referral_code=${agentForm.values.referralCode}`}
+                                            value={`https://dev-api.thibaingozi.com/api/referralCode?referral_code=${agentForm.values.referralCode}`}
                                             size={128}
                                             bgColor="#ffffff"
                                             fgColor="#000000"

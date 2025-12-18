@@ -374,7 +374,10 @@ const SalesAgentHome = () => {
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
                             <Box>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>Total Commission Earned</Typography>
-                                <Typography variant="h4" fontWeight={650}>R {userinfo?.data?.data?.data?.totalCommission}</Typography>
+                                <Typography variant="h4" fontWeight={650}>R {(
+                                        (userinfo.data?.data?.data?.totalPaid || 0) +
+                                        (userinfo.data?.data?.data?.totalUnPaid || 0)
+                                    ).toFixed(3) || 0}</Typography>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>
                                     <span style={{ color: commission.color, fontWeight: 500 }}>{commission.arrow}{commission.percent}%</span> from last month
                                 </Typography>
@@ -772,7 +775,7 @@ const SalesAgentHome = () => {
                                         <>
                                             <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>Referral Code</Typography>
                                             <QRCodeCanvas
-                                                value={`${import.meta.env.VITE_BASEURL}/api/referralCode?refferal_code=${profileForm.values.referralCode}`}
+                                                value={`https://dev-api.thibaingozi.com/api/referralCode?refferal_code=${profileForm.values.referralCode}`}
                                                 size={128}
                                                 bgColor="#ffffff"
                                                 fgColor="#000000"
