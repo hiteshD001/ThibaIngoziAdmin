@@ -772,7 +772,7 @@ const SalesAgentHome = () => {
                                         <>
                                             <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>Referral Code</Typography>
                                             <QRCodeCanvas
-                                                value={`${process.env.VITE_BASEURL}/api/referralCode?refferal_code=${profileForm.values.referralCode}`}
+                                                value={`${import.meta.env.VITE_BASEURL}/api/referralCode?refferal_code=${profileForm.values.referralCode}`}
                                                 size={128}
                                                 bgColor="#ffffff"
                                                 fgColor="#000000"
