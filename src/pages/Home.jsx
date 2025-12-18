@@ -153,9 +153,11 @@ const Home = ({ isMapLoaded, }) => {
         const fetchData = async () => {
             try {
                 const res = await activeSos.refetch();
-                if (res.data?.success && !activeSos.isPending)
+                console.log(res)
+                if (res?.data?.status === 200 && !activeSos.isPending) {
                     audio.play().catch(() => { });
-                toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                }
             } catch (error) {
                 console.error("Refetch failed:", error);
             }
