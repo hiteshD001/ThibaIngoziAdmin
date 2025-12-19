@@ -773,9 +773,9 @@ const SalesAgentHome = () => {
                                     {/* QR Code */}
                                     {profileForm.values.referralCode && (
                                         <>
-                                            <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>Referral Code</Typography>
+                                            <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>Referral Code {profileForm.values.referralCode}</Typography>
                                             <QRCodeCanvas
-                                                value={`https://dev-api.thibaingozi.com/api/referralCode?refferal_code=${profileForm.values.referralCode}`}
+                                                value={`https://dev-api.thibaingozi.com/api/referralCode?referral_code=${profileForm.values.referralCode}`}
                                                 size={128}
                                                 bgColor="#ffffff"
                                                 fgColor="#000000"
