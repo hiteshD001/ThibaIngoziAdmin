@@ -771,7 +771,7 @@ const AgentInformation = () => {
                                     <>
                                         <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>Referral Code</Typography>
                                         <QRCodeCanvas
-                                            value={`https://dev-api.thibaingozi.com/api/referralCode?referral_code=${agentForm.values.referralCode}`}
+                                            value={`https://api.thibaingozi.com/api/referralCode?referral_code=${agentForm.values.referralCode}`}
                                             size={128}
                                             bgColor="#ffffff"
                                             fgColor="#000000"
