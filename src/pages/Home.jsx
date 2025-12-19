@@ -156,8 +156,8 @@ const Home = ({ isMapLoaded, }) => {
                 const res = await activeSos.refetch();
                 console.log(res)
                 if (res?.data?.status === 200 && !activeSos.isPending) {
-                    await audio.play().catch(() => { });
-                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                    // await audio.play().catch(() => { });
+                    // toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
                 }
             } catch (error) {
                 console.error("Refetch failed:", error);
