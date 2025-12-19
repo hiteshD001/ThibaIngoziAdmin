@@ -75,8 +75,7 @@ const ListOfSalesAgent = () => {
     const [sortBy, setSortBy] = useState("first_name");
     const [sortOrder, setSortOrder] = useState("asc");
 
-    const changeSortOrder = (e) => {
-        const field = e.target.id;
+    const changeSortOrder = (field) => {
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
@@ -563,7 +562,7 @@ const ListOfSalesAgent = () => {
                                                     id="first_name"
                                                     active={sortBy === 'first_name'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('first_name')}
                                                     IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     User
@@ -574,7 +573,7 @@ const ListOfSalesAgent = () => {
                                                     id="mobile_no_country_code"
                                                     active={sortBy === 'mobile_no_country_code'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('mobile_no_country_code')}
                                                     IconComponent={() => <img src={sortBy === 'mobile_no_country_code' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Contact No.
@@ -585,7 +584,7 @@ const ListOfSalesAgent = () => {
                                                     id="email"
                                                     active={sortBy === 'email'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('email')}
                                                     IconComponent={() => <img src={sortBy === 'email' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Email
@@ -596,7 +595,7 @@ const ListOfSalesAgent = () => {
                                                     id="enrollAmountDeduction"
                                                     active={sortBy === 'enrollAmountDeduction'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('enrollAmountDeduction')}
                                                     IconComponent={() => <img src={sortBy === 'enrollAmountDeduction' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Enrolment Discount %
@@ -607,7 +606,7 @@ const ListOfSalesAgent = () => {
                                                     id="totalEarnedAmount"
                                                     active={sortBy === 'totalEarnedAmount'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('totalEarnedAmount')}
                                                     IconComponent={() => <img src={sortBy === 'totalEarnedAmount' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Total Earned Amount
@@ -618,7 +617,7 @@ const ListOfSalesAgent = () => {
                                                     id="commissionEarned"
                                                     active={sortBy === 'commissionEarned'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('commissionEarned')}
                                                     IconComponent={() => <img src={sortBy === 'commissionEarned' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Total Commission Earned(30%)
@@ -629,9 +628,8 @@ const ListOfSalesAgent = () => {
                                                     id="totalUnPaid"
                                                     active={sortBy === 'totalUnPaid'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('totalUnPaid')}
                                                     IconComponent={() => <img src={sortBy === 'totalUnPaid' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-
                                                 >
                                                     Unpaid Amount
                                                 </TableSortLabel>
@@ -641,7 +639,7 @@ const ListOfSalesAgent = () => {
                                                     id="totalPaid"
                                                     active={sortBy === 'totalPaid'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('totalPaid')}
                                                     IconComponent={() => <img src={sortBy === 'totalPaid' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Paid Amount
@@ -652,7 +650,7 @@ const ListOfSalesAgent = () => {
                                                     id="length"
                                                     active={sortBy === 'length'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('length')}
                                                     IconComponent={() => <img src={sortBy === 'length' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Total Users
@@ -663,7 +661,7 @@ const ListOfSalesAgent = () => {
                                                     id="accountNumber"
                                                     active={sortBy === 'accountNumber'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('accountNumber')}
                                                     IconComponent={() => <img src={sortBy === 'accountNumber' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Account Number
@@ -674,7 +672,7 @@ const ListOfSalesAgent = () => {
                                                     id="bank_name"
                                                     active={sortBy === 'bank_name'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('bank_name')}
                                                     IconComponent={() => <img src={sortBy === 'bank_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Bank Name
@@ -685,7 +683,7 @@ const ListOfSalesAgent = () => {
                                                     id="branch_code"
                                                     active={sortBy === 'branch_code'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('branch_code')}
                                                     IconComponent={() => <img src={sortBy === 'branch_code' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Branch Code
@@ -696,7 +694,7 @@ const ListOfSalesAgent = () => {
                                                     id="sharedStatus"
                                                     active={sortBy === 'sharedStatus'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('sharedStatus')}
                                                     IconComponent={() => <img src={sortBy === 'sharedStatus' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Share Status
@@ -707,7 +705,7 @@ const ListOfSalesAgent = () => {
                                                     id="performanceLevel"
                                                     active={sortBy === 'performanceLevel'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('performanceLevel')}
                                                     IconComponent={() => <img src={sortBy === 'performanceLevel' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Performance Level
@@ -718,7 +716,7 @@ const ListOfSalesAgent = () => {
                                                     id="tie"
                                                     active={sortBy === 'tie'}
                                                     direction={sortOrder}
-                                                    onClick={changeSortOrder}
+                                                    onClick={() => changeSortOrder('tie')}
                                                     IconComponent={() => <img src={sortBy === 'tie' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Tie
