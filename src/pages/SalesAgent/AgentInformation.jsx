@@ -415,8 +415,8 @@ const AgentInformation = () => {
                             <Box>
                                 <Typography variant="body1" sx={{ color: '#878787' }}>My Total Users</Typography>
                                 <Typography variant="h4" fontWeight={600}>
-                                    {/* {UserInfo.data?.data?.data?.user_id.length || 0} */}
-                                    {driverList.isSuccess && driverList.data?.data?.data?.influencersData?.length || 0}
+                                    {UserInfo.data?.data?.data?.user_id.length || 0}
+                                    {/* {driverList.isSuccess && driverList.data?.data?.data?.user_id?.length || 0} */}
                                 </Typography>
                                 <div className="d-flex gap-2 align-items-center">
                                     <div style={{ color: user.color, fontWeight: 600 }}>
