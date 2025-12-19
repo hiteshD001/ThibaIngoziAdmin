@@ -28,7 +28,7 @@ import Loader from "../common/Loader";
 import Analytics from "../common/Analytics";
 import { SOSStatusUpdate } from "../common/ConfirmationPOPup";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { Slide, toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
@@ -37,6 +37,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import tone from "../assets/audio/notification.mp3"
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -44,6 +45,8 @@ const copyButtonStyles = {
     padding: '4px',
     borderRadius: '4px',
 };
+
+const audio = new Audio(tone);
 
 const Home = ({ isMapLoaded, }) => {
     // filters
@@ -55,7 +58,7 @@ const Home = ({ isMapLoaded, }) => {
     const [selectedId, setSelectedId] = useState("");
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all")
-    const { isConnected, activeUserLists } = useWebSocket();
+    const { newSOS } = useWebSocket();
 
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
@@ -143,6 +146,27 @@ const Home = ({ isMapLoaded, }) => {
             queryClient.invalidateQueries(['hotspot'], { exact: false });
         }
     }, [activeUserList?.length, refetchRecentSOS]);
+
+    // Refetch active SOS when we receive a WebSocket pong (heartbeat)
+    useEffect(() => {
+        if (!newSOS || newSOS === 1) return;
+
+        const fetchData = async () => {
+            try {
+                const res = await activeSos.refetch();
+                console.log(res)
+                if (res?.data?.status === 200 && !activeSos.isPending) {
+                    await audio.play().catch(() => { });
+                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                }
+            } catch (error) {
+                console.error("Refetch failed:", error);
+            }
+        };
+
+        fetchData();
+    }, [newSOS]);
+
 
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
@@ -403,6 +427,7 @@ const Home = ({ isMapLoaded, }) => {
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Trip Type</TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>    </TableCell>
                                     </TableRow>
@@ -512,6 +537,9 @@ const Home = ({ isMapLoaded, }) => {
                                                             </div>
                                                         }
                                                     </TableCell>
+                                                    <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
+                                                        {user?.deepLinks[0]?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
+                                                    </TableCell>
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
@@ -572,7 +600,7 @@ const Home = ({ isMapLoaded, }) => {
 
                         </TableContainer>
 
-                        {activeUserList?.length > 0 && !activeSos.isFetching && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                        {activeUserList?.length > 0 && !activeSos.isPending && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
                             <Grid>
                                 <Typography variant="body2">
                                     Rows per page:&nbsp;
