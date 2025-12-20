@@ -90,13 +90,13 @@ const AgentInformation = () => {
     });
     const [range, setRange] = useState([
         {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
+            startDate: null,
+            endDate: null,
             key: 'selection'
         }
     ]);
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = range[0].startDate?.toISOString();
+    const endDate = range[0].endDate?.toISOString();
     const driverList = useGetUserByInfluncer(page, 10, startDate, endDate, params.id)
     const totalUsers = driverList.data?.data?.data?.totalCount || 0;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
