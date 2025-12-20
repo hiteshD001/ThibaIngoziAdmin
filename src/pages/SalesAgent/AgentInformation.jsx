@@ -35,7 +35,9 @@ import CustomExportMenu from '../../common/Custom/CustomExport'
 import apiClient from '../../API Calls/APIClient'
 import CustomSelect from '../../common/Custom/CustomSelect'
 import ViewBtn from '../../assets/images/ViewBtn.svg'
-
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const AgentInformation = () => {
     const [edit, setEdit] = useState(false)
@@ -233,21 +235,20 @@ const AgentInformation = () => {
     };
     // console.log('test',UserInfo.data?.data?.data)
 
-    const handleExport = async ({ startDate, endDate, format }) => {
+    const handleExport = async ({ startDate, endDate, exportFormat }) => {
         try {
-            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
+            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/influencer/user/data`, {
                 params: {
-                    role: "passanger",
                     page: 1,
                     limit: 10000,
-                    filter: "",
-                    company_id: paramId,
                     startDate,
                     endDate,
+                    influncer_id: params.id,
+                    filter: "",
                 },
             });
 
-            const allUsers = data?.users || [];
+            const allUsers = data?.data?.influencersData || [];
             if (!allUsers.length) {
                 toast.warning("No User data found for this period.");
                 return;
@@ -260,7 +261,7 @@ const AgentInformation = () => {
                 "Contact Email": user.email || ''
             }));
 
-            if (format === "xlsx") {
+            if (exportFormat === "xlsx") {
                 const worksheet = XLSX.utils.json_to_sheet(exportData);
                 const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
                     wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
@@ -270,7 +271,7 @@ const AgentInformation = () => {
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
                 XLSX.writeFile(workbook, "User_List.xlsx");
             }
-            else if (format === "csv") {
+            else if (exportFormat === "csv") {
                 const worksheet = XLSX.utils.json_to_sheet(exportData);
                 const csv = XLSX.utils.sheet_to_csv(worksheet);
                 const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -281,7 +282,7 @@ const AgentInformation = () => {
                 link.click();
                 document.body.removeChild(link);
             }
-            else if (format === "pdf") {
+            else if (exportFormat === "pdf") {
                 const doc = new jsPDF();
                 doc.text('User List', 14, 16);
                 autoTable(doc, {
