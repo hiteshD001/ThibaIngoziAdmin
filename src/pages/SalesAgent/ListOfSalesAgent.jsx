@@ -1011,6 +1011,12 @@ const ListOfSalesAgent = () => {
                     <ImportSheet setpopup={setpopup} popup={popup} type="sales-agent" />
                 )
             }
+            {confirmation && (
+                <DeleteSalesAgent
+                    id={confirmation}
+                    setconfirmation={setconfirmation}
+                />
+            )}
             {/* <div className="container-fluid"> */}
             {/* <div className="row"> */}
             {/* <div className="col-md-12"> */}

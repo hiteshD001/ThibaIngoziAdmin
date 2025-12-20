@@ -103,8 +103,8 @@ export const DeleteSalesAgent = ({ id, setconfirmation }) => {
   const client = useQueryClient();
 
   const onSuccess = () => {
-    toast.success("Delete Sos Amount Successfully.");
-    client.invalidateQueries("ArmedSOSAmount List");
+    toast.success("Sales agent deleted successfully.");
+    client.invalidateQueries("salesAgent");
     setconfirmation("");
   }
   const onError = (error) => {
