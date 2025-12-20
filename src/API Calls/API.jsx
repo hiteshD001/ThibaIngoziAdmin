@@ -71,7 +71,10 @@ export const useGetUserByInfluncer = (
     limit,
     startDate,
     endDate,
-    influncer_id
+    influncer_id,
+    filter,
+    sortBy,
+    sortOrder
 ) => {
     const nav = useNavigate();
 
@@ -83,6 +86,9 @@ export const useGetUserByInfluncer = (
                 startDate,
                 endDate,
                 influncer_id,
+                filter,
+                sortBy,
+                sortOrder,
             },
         });
     };
@@ -93,7 +99,10 @@ export const useGetUserByInfluncer = (
             limit,
             startDate,
             endDate,
-            influncer_id
+            influncer_id,
+            filter,
+            sortBy,
+            sortOrder
         ],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
