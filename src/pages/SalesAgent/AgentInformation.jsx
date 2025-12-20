@@ -97,7 +97,7 @@ const AgentInformation = () => {
     ]);
     const startDate = range[0].startDate?.toISOString();
     const endDate = range[0].endDate?.toISOString();
-    const driverList = useGetUserByInfluncer(page, 10, startDate, endDate, params.id)
+    const driverList = useGetUserByInfluncer(page, 10, startDate, endDate, params.id, filter, sortBy, sortOrder)
     const totalUsers = driverList.data?.data?.data?.totalCount || 0;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
     // console.log('test',driverList.data?.data?.data?.influencersData)
@@ -1183,7 +1183,7 @@ const AgentInformation = () => {
                             <TextField
                                 variant="outlined"
                                 placeholder="Search"
-                                value={filter}
+                                // value={filter}
                                 onChange={(e) => setfilter(e.target.value)}
                                 fullWidth
                                 sx={{
