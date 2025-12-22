@@ -54,7 +54,7 @@ const Profile = () => {
   const { mutate, isPending } = useUpdateUser(onSuccess, onError);
   const userinfo = useGetUser(localStorage.getItem("userID"), role, {
     onSuccess: (data) => {
-      
+
     }
   });
 
@@ -140,11 +140,10 @@ const Profile = () => {
           mobile_no_country_code: userinfo.data?.data.user?.mobile_no_country_code || "",
         }
     );
-    
+
     // Update 2FA status when user data is loaded
     const is2FAEnabled = userinfo.data?.data?.user?.twoFactorAuth?.enabled;
-    console.log("2FA Status:", is2FAEnabled); 
-    
+
     if (is2FAEnabled !== undefined) {
       setIs2FAEnabled(is2FAEnabled); // Ensure it's a boolean
     }
@@ -194,60 +193,60 @@ const Profile = () => {
   const handle2FAToggle = async (e) => {
     const newValue = e.target.checked;
     setIs2FALoading(true);
-    
+
     try {
       console.log(newValue ? 'Enabling 2FA...' : 'Disabling 2FA...');
       const response = await enable2FA(newValue);
 
       if (!response || !response.success) {
-          throw new Error(newValue ? 'Failed to initialize 2FA setup' : 'Failed to disable 2FA');
+        throw new Error(newValue ? 'Failed to initialize 2FA setup' : 'Failed to disable 2FA');
       }
 
       if (newValue) {
-          const { secret, otpauthUrl } = response;
+        const { secret, otpauthUrl } = response;
 
-          if (!secret || !otpauthUrl) {
-              throw new Error('Invalid 2FA setup data received');
-          }
+        if (!secret || !otpauthUrl) {
+          throw new Error('Invalid 2FA setup data received');
+        }
 
-          try {
-              // Generate QR code data URL only when enabling 2FA
-              const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
-                  errorCorrectionLevel: 'H',
-                  margin: 2,
-                  width: 200,
-                  type: 'image/png'
-              });
+        try {
+          // Generate QR code data URL only when enabling 2FA
+          const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
+            errorCorrectionLevel: 'H',
+            margin: 2,
+            width: 200,
+            type: 'image/png'
+          });
 
-              setQrCodeData({ 
-                  secret,
-                  otpauthUrl,
-                  qrCodeDataUrl
-              });
-              setQrCodeUrl(otpauthUrl);
-              setShowQRCode(true);
-              setIs2FAEnabled(true);
-          } catch (error) {
-              console.error('Error generating QR code:', error);
-              throw new Error('Failed to generate QR code');
-          }
+          setQrCodeData({
+            secret,
+            otpauthUrl,
+            qrCodeDataUrl
+          });
+          setQrCodeUrl(otpauthUrl);
+          setShowQRCode(true);
+          setIs2FAEnabled(true);
+        } catch (error) {
+          console.error('Error generating QR code:', error);
+          throw new Error('Failed to generate QR code');
+        }
       } else {
-          // Handle successful disable
-          setIs2FAEnabled(false);
-          setQrCodeData(null);
-          setQrCodeUrl('');
-          toast.success('2FA has been disabled successfully', toastOption);
+        // Handle successful disable
+        setIs2FAEnabled(false);
+        setQrCodeData(null);
+        setQrCodeUrl('');
+        toast.success('2FA has been disabled successfully', toastOption);
       }
     } catch (error) {
       console.error('2FA toggle error:', error);
       toast.error(
-          error.response?.data?.message || error.message || 'Failed to update 2FA settings',
-          toastOption
+        error.response?.data?.message || error.message || 'Failed to update 2FA settings',
+        toastOption
       );
       // Revert the switch on error
       setIs2FAEnabled(!newValue);
     } finally {
-        setIs2FALoading(false);
+      setIs2FALoading(false);
     }
   };
 
@@ -683,7 +682,7 @@ const Profile = () => {
                         disabled={!edit}
                         onChange={e => {
                           profileForm.setFieldValue('verificationSelfieImage', e.currentTarget.files[0])
-                           setPreviewImage({
+                          setPreviewImage({
                             open: false,
                             src: '',
                             label: ''
@@ -746,63 +745,63 @@ const Profile = () => {
               <Dialog open={showQRCode} onClose={() => setShowQRCode(false)} maxWidth="sm" fullWidth>
                 <DialogTitle>Set Up Two-Factor Authentication</DialogTitle>
                 <DialogContent sx={{ textAlign: 'center' }}>
-                    <Typography variant="body1" paragraph>
-                        Scan the QR code below with your authenticator app:
-                    </Typography>
-                    
-                    {qrCodeData?.qrCodeDataUrl ? (
-                        <Box sx={{ 
-                            display: 'flex', 
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            my: 2,
-                            p: 2,
-                            bgcolor: 'white',
-                            borderRadius: 1,
-                            border: '1px solid #e0e0e0'
-                        }}>
-                            <img 
-                                src={qrCodeData.qrCodeDataUrl} 
-                                alt="2FA QR Code" 
-                                style={{ 
-                                    width: 200, 
-                                    height: 200,
-                                    objectFit: 'contain'
-                                }} 
-                            />
-                        </Box>
-                    ) : (
-                        <Box>Generating QR code...</Box>
-                    )}
+                  <Typography variant="body1" paragraph>
+                    Scan the QR code below with your authenticator app:
+                  </Typography>
 
-                    {qrCodeData?.secret && (
-                        <Box sx={{ mt: 2, mb: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                            <Typography variant="body2" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
-                                {qrCodeData.secret}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                                Or enter this code manually: <strong>{qrCodeData.secret}</strong>
-                            </Typography>
-                        </Box>
-                    )}
+                  {qrCodeData?.qrCodeDataUrl ? (
+                    <Box sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      my: 2,
+                      p: 2,
+                      bgcolor: 'white',
+                      borderRadius: 1,
+                      border: '1px solid #e0e0e0'
+                    }}>
+                      <img
+                        src={qrCodeData.qrCodeDataUrl}
+                        alt="2FA QR Code"
+                        style={{
+                          width: 200,
+                          height: 200,
+                          objectFit: 'contain'
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <Box>Generating QR code...</Box>
+                  )}
 
-                    <Typography variant="body2" color="text.secondary">
-                        After scanning, you'll be asked to enter a verification code from your authenticator app.
-                    </Typography>
+                  {qrCodeData?.secret && (
+                    <Box sx={{ mt: 2, mb: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+                      <Typography variant="body2" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                        {qrCodeData.secret}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        Or enter this code manually: <strong>{qrCodeData.secret}</strong>
+                      </Typography>
+                    </Box>
+                  )}
+
+                  <Typography variant="body2" color="text.secondary">
+                    After scanning, you'll be asked to enter a verification code from your authenticator app.
+                  </Typography>
                 </DialogContent>
                 <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
-                    <Button
-                        variant="contained"
-                        onClick={() => {
-                            setShowQRCode(false);
-                            setIs2FAEnabled(true);
-                            toast.success('Two-factor authentication has been enabled', toastOption);
-                        }}
-                    >
-                        I've set up my authenticator app
-                    </Button>
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      setShowQRCode(false);
+                      setIs2FAEnabled(true);
+                      toast.success('Two-factor authentication has been enabled', toastOption);
+                    }}
+                  >
+                    I've set up my authenticator app
+                  </Button>
                 </DialogActions>
-            </Dialog>
+              </Dialog>
 
               {/* save /edit button */}
               <Grid size={12}>

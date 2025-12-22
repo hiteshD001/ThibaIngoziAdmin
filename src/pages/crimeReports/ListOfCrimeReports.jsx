@@ -32,7 +32,7 @@ const ListOfCrimeReports = () => {
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const [page, setpage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
     const [isExporting, setIsExporting] = useState(false);
@@ -392,7 +392,7 @@ const ListOfCrimeReports = () => {
                                             setCurrentPage(1);
                                         }}
                                     >
-                                        {[5, 10, 15, 20,50,100].map((num) => (
+                                        {[5, 10, 15, 20, 50, 100].map((num) => (
                                             <MenuItem key={num} value={num}>
                                                 {num}
                                             </MenuItem>

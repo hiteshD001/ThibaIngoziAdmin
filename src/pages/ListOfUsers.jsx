@@ -41,7 +41,7 @@ const ListOfUsers = () => {
     const params = useParams();
     const client = useQueryClient();
     const [page, setpage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
     const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
@@ -357,7 +357,7 @@ const ListOfUsers = () => {
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
                                             IconComponent={() => <img src={sortBy === 'subscription_start_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-                                            
+
                                         >
                                             Tag Connection
                                         </TableSortLabel>
@@ -370,7 +370,7 @@ const ListOfUsers = () => {
                                             onClick={changeSortOrder}
                                             IconComponent={() => <img src={sortBy === 'subscription_end_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
-                                           Tag Disconnection
+                                            Tag Disconnection
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
@@ -418,7 +418,7 @@ const ListOfUsers = () => {
                                                     <Chip
                                                         label={user.isEnroll ? "active" : "inactive"}
                                                         sx={{
-                                                             backgroundColor: user?.isEnroll ? '#DCFCE7' : '#E5565A1A',
+                                                            backgroundColor: user?.isEnroll ? '#DCFCE7' : '#E5565A1A',
                                                             '& .MuiChip-label': {
                                                                 textTransform: 'capitalize',
                                                                 fontWeight: 500,
@@ -443,14 +443,14 @@ const ListOfUsers = () => {
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        { role !== 'company' && (
-                                                        <Tooltip title="Delete" arrow placement="top">
-                                                            <IconButton onClick={() => setconfirmation(user._id)}>
-                                                                <img src={delBtn} alt="delete button" />
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                        {role !== 'company' && (
+                                                            <Tooltip title="Delete" arrow placement="top">
+                                                                <IconButton onClick={() => setconfirmation(user._id)}>
+                                                                    <img src={delBtn} alt="delete button" />
+                                                                </IconButton>
+                                                            </Tooltip>
                                                         )}
-                                                       
+
                                                         {confirmation === user._id && (
                                                             <DeleteConfirm id={user._id} setconfirmation={setconfirmation} />
                                                         )}
@@ -504,7 +504,7 @@ const ListOfUsers = () => {
                                         setCurrentPage(1);
                                     }}
                                 >
-                                    {[5, 10, 15, 20,50,100].map((num) => (
+                                    {[5, 10, 15, 20, 50, 100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
