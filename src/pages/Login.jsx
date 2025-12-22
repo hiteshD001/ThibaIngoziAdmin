@@ -41,9 +41,9 @@ export const Login = () => {
     const onSuccess = (res) => {
         if (res.data.requires2FA) {
             setTempToken(res.data.tempToken);
-            setLoginData({email: loginForm.values.email, password: loginForm.values.password,isWeb : loginForm.values.isWeb});
+            setLoginData({ email: loginForm.values.email, password: loginForm.values.password, isWeb: loginForm.values.isWeb });
             setShow2FA(true);
-        } else {    
+        } else {
             handleLoginSuccess(res);
         }
     };
@@ -61,9 +61,9 @@ export const Login = () => {
         localStorage.setItem("selfiImage", res.data.user.selfieImage);
         localStorage.setItem("contact_name", res.data.user.contact_name);
         if (res.data.role === "sales_agent") {
-            nav("/sales-home");
+            nav("/sales-home", { state: { from: "login" } });
         } else {
-            nav("/home");
+            nav("/home", { state: { from: "login" } });
         }
     };
 
@@ -78,7 +78,7 @@ export const Login = () => {
         <div className="login-page">
             <div className="container">
                 <div className="row">
-                    <div className="col-md-12  d-flex justify-content-center align-items-center">   
+                    <div className="col-md-12  d-flex justify-content-center align-items-center">
                         {show2FA ? (
                             <TwoFactorAuth
                                 tempToken={tempToken}

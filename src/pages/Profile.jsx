@@ -145,9 +145,10 @@ const Profile = () => {
     );
 
     // Update 2FA status when user data is loaded
-    if (userinfo.data?.data?.user) {
-      const twoFactorAuthEnabled = userinfo.data?.data?.user?.twoFactorAuth?.enabled ?? false;
-      setIs2FAEnabled(Boolean(twoFactorAuthEnabled));
+    const is2FAEnabled = userinfo.data?.data?.user?.twoFactorAuth?.enabled;
+
+    if (is2FAEnabled !== undefined) {
+      setIs2FAEnabled(is2FAEnabled); // Ensure it's a boolean
     }
   }, [userinfo.data, edit]);
 
@@ -251,8 +252,7 @@ const Profile = () => {
         setIs2FAEnabled(false);
         setQrCodeData(null);
         setQrCodeUrl('');
-        toast.success('2FA has been disabled successfully', { ...toastOption, autoClose: 3000 });
-
+        toast.success('2FA has been disabled successfully', toastOption);
       }
     } catch (error) {
       console.error('2FA toggle error:', error);
@@ -814,7 +814,7 @@ const Profile = () => {
                   )}
 
                   <Typography variant="body2" color="text.secondary">
-                    After scanning, you&apos;ll be asked to enter a verification code from your authenticator app.
+                    After scanning, you'll be asked to enter a verification code from your authenticator app.
                   </Typography>
                 </DialogContent>
                 <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
@@ -826,33 +826,7 @@ const Profile = () => {
                       toast.success('Two-factor authentication has been enabled', toastOption);
                     }}
                   >
-                    I&apos;ve set up my authenticator app
-                  </Button>
-                </DialogActions>
-              </Dialog>
-
-              {/* Close Confirmation Dialog */}
-              <Dialog open={showCloseConfirmation} onClose={() => setShowCloseConfirmation(false)} maxWidth="xs" fullWidth>
-                <DialogTitle sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
-                  <img src={DeleteIcon} alt="DeleteIcon" />
-                  Confirm Close
-                </DialogTitle>
-                <DialogContent>
-                  <Typography>Are you sure you want to close without completing 2FA setup?</Typography>
-                </DialogContent>
-                <DialogActions>
-                  <Button sx={{ color: 'black', border: '1px solid rgb(175, 179, 189)' }} variant="outlined" onClick={() => handleCloseConfirmation(false)}>
-                    No
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => handleCloseConfirmation(true)}
-                    sx={{
-                      backgroundColor: '#EB5757',
-                    }}
-                  >
-                    Yes
+                    I've set up my authenticator app
                   </Button>
                 </DialogActions>
               </Dialog>

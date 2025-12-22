@@ -786,7 +786,7 @@ const ListOfSalesAgent = () => {
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.accountNumber ?? '-'}
+                                                            {user?.accountNumber ? user?.accountNumber : '-'}
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>

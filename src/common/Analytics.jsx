@@ -245,36 +245,36 @@ const Analytics = ({ id, activePage,
 
             const exportedByValue = loginUser.role === 'company' ? loginUser.company_name : 'Super Admin';
             if (exportFormat === 'xlsx') {
-                const workbook = XLSX.utils.book_new();            
+                const workbook = XLSX.utils.book_new();
                 // Determine user name
-                const exportedByLabel = "Exported By";            
+                const exportedByLabel = "Exported By";
                 function addSheetWithHeader(data, sheetName) {
                     // Convert data to sheet first
-                    const sheet = XLSX.utils.json_to_sheet(data, { origin: "A3" }); 
+                    const sheet = XLSX.utils.json_to_sheet(data, { origin: "A3" });
                     // This starts your data table at row 3
-            
+
                     // Add the "Exported By" label and name in first row
                     XLSX.utils.sheet_add_aoa(sheet, [[exportedByLabel, exportedByValue]], { origin: "A1" });
-            
+
                     // Adjust column widths
                     sheet["!cols"] = autoFitColumns(data);
-            
+
                     // Optionally freeze top 2 rows (so header stays visible)
                     sheet["!freeze"] = { xSplit: 0, ySplit: 2 };
-            
+
                     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
                 }
-            
+
                 // Add all sheets
                 addSheetWithHeader(TotalData, "Totals");
                 addSheetWithHeader(sosData, "SOS Requests Over Time");
                 addSheetWithHeader(sosAlertData, "Active SOS Alerts");
                 addSheetWithHeader(sosLocationsData, "Top SOS Locations");
                 addSheetWithHeader(sosClosedData, "Recently Closed SOS Alerts");
-            
+
                 XLSX.writeFile(workbook, "Dashboard.xlsx");
             }
-            if (exportFormat === 'csv') {            
+            if (exportFormat === 'csv') {
                 // Convert JSON to CSV
                 const convertToCSV = (data) => {
                     if (!data || !data.length) return "";
@@ -284,7 +284,7 @@ const Analytics = ({ id, activePage,
                     );
                     return [headers.join(","), ...rows].join("\n");
                 };
-            
+
                 const csvSections = [
                     { title: "Totals", data: TotalData },
                     { title: "SOS Requests Over Time", data: sosData },
@@ -292,51 +292,51 @@ const Analytics = ({ id, activePage,
                     { title: "Top SOS Locations", data: sosLocationsData },
                     { title: "Recently Closed SOS Alerts", data: sosClosedData },
                 ];
-            
+
                 let finalCSV = "";
-            
+
                 csvSections.forEach((section, i) => {
                     // Section header
                     finalCSV += `\n\n# ${section.title}\n`;
-            
+
                     // "Exported By" row + blank line
                     finalCSV += `Exported By,${exportedByValue}\n\n`;
-            
+
                     // Add actual table
                     finalCSV += convertToCSV(section.data);
                 });
-            
+
                 // Download CSV file
                 const blob = new Blob([finalCSV], { type: "text/csv;charset=utf-8;" });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
                 link.download = "Dashboard.csv";
                 link.click();
-            }            
+            }
             if (exportFormat === 'pdf') {
                 const doc = new jsPDF("p", "mm", "a4");
                 let currentY = 16; // vertical position tracker
                 const addSection = (title, data) => {
                     if (!data?.length) return; // skip if no data
-            
+
                     // Add section title
                     doc.setFontSize(14);
                     doc.setTextColor(40);
                     doc.text(title, 14, currentY);
                     currentY += 8;
-            
+
                     // Add "Exported By" info
                     doc.setFontSize(10);
                     doc.setTextColor(80);
                     doc.text(`Exported By: ${exportedByValue}`, 14, currentY);
                     currentY += 6;
-            
+
                     // Define table columns
                     const columns = Object.keys(data[0] || {}).map((key) => ({
                         header: key.replace(/_/g, " ").toUpperCase(),
                         dataKey: key,
                     }));
-            
+
                     // Draw table
                     autoTable(doc, {
                         startY: currentY,
@@ -350,7 +350,7 @@ const Analytics = ({ id, activePage,
                             currentY = data.cursor.y + 10;
                         },
                     });
-            
+
                     // Add a page break if needed
                     if (currentY > 250) {
                         doc.addPage();
@@ -359,15 +359,15 @@ const Analytics = ({ id, activePage,
                         currentY += 10;
                     }
                 };
-            
+
                 addSection("Totals", TotalData);
                 addSection("SOS Requests Over Time", sosData);
                 addSection("Active SOS Alerts", sosAlertData);
                 addSection("Top SOS Locations", sosLocationsData);
                 addSection("Recently Closed SOS Alerts", sosClosedData);
-            
+
                 doc.save("Dashboard.pdf");
-            }            
+            }
         } catch (error) {
             console.error("Export failed:", error);
         } finally {

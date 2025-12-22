@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
     // useGetActiveSOS,
     useGetRecentSOS,
@@ -9,7 +9,11 @@ import {
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, FormControl, InputLabel,
     Tooltip,
-    TableSortLabel
+    TableSortLabel,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -38,6 +42,8 @@ import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import tone from "../assets/audio/notification.mp3"
+import { enable2FA } from "../API Calls/authAPI";
+import QRCode from 'qrcode';
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -59,15 +65,23 @@ const Home = ({ isMapLoaded, }) => {
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all")
     const { newSOS } = useWebSocket();
+    const location = useLocation();
 
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
     // Recent SOS pagination
     const [recentPage, setRecentPage] = useState(1);
-    const [recentLimit, setRecentLimit] = useState(20);
+    const [recentLimit, setRecentLimit] = useState(10);
     // Active SOS pagination
     const [activePage, setActivePage] = useState(1);
-    const [activeLimit, setActiveLimit] = useState(20);
+    const [activeLimit, setActiveLimit] = useState(10);
+
+    // 2FA
+    const [showQRCode, setShowQRCode] = useState(false);
+    const [qrCodeData, setQrCodeData] = useState(null);
+    const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+    const [is2FALoading, setIs2FALoading] = useState(false);
+
     // date picker 
     const [rangeSos, setRangeSos] = useState([
         {
@@ -126,6 +140,64 @@ const Home = ({ isMapLoaded, }) => {
 
     const prevLengthRef = useRef(activeUserList?.length);
 
+    const handle2FAToggle = async () => {
+        const newValue = true;
+        setIs2FALoading(true);
+
+        try {
+            console.log(newValue ? 'Enabling 2FA...' : 'Disabling 2FA...');
+            const response = await enable2FA(newValue);
+
+            if (!response || !response.success) {
+                throw new Error(newValue ? 'Failed to initialize 2FA setup' : 'Failed to disable 2FA');
+            }
+
+            if (newValue) {
+                const { secret, otpauthUrl } = response;
+
+                if (!secret || !otpauthUrl) {
+                    throw new Error('Invalid 2FA setup data received');
+                }
+
+                try {
+                    // Generate QR code data URL only when enabling 2FA
+                    const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
+                        errorCorrectionLevel: 'H',
+                        margin: 2,
+                        width: 200,
+                        type: 'image/png'
+                    });
+
+                    setQrCodeData({
+                        secret,
+                        otpauthUrl,
+                        qrCodeDataUrl
+                    });
+                    setShowQRCode(true);
+                    setIs2FAEnabled(true);
+                } catch (error) {
+                    console.error('Error generating QR code:', error);
+                    throw new Error('Failed to generate QR code');
+                }
+            } else {
+                // Handle successful disable
+                setIs2FAEnabled(false);
+                setQrCodeData(null);
+                toast.success('2FA has been disabled successfully', toastOption);
+            }
+        } catch (error) {
+            console.error('2FA toggle error:', error);
+            toast.error(
+                error.response?.data?.message || error.message || 'Failed to update 2FA settings',
+                toastOption
+            );
+            // Revert the switch on error
+            setIs2FAEnabled(!newValue);
+        } finally {
+            setIs2FALoading(false);
+        }
+    };
+
     useEffect(() => {
         if (!Array.isArray(activeUserList)) return;
 
@@ -154,7 +226,6 @@ const Home = ({ isMapLoaded, }) => {
         const fetchData = async () => {
             try {
                 const res = await activeSos.refetch();
-                console.log(res)
                 if (res?.data?.status === 200 && !activeSos.isPending) {
                     // await audio.play().catch(() => { });
                     // toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
@@ -166,6 +237,15 @@ const Home = ({ isMapLoaded, }) => {
 
         fetchData();
     }, [newSOS]);
+
+    useEffect(() => {
+        const status = userinfo?.data?.data?.user?.company_id?.twoFactorAuth?.enabled
+
+        if (!status && location?.state?.from === "login") {
+            setShowQRCode(true);
+        }
+        console.log(status)
+    }, [])
 
 
     const onSuccess = () => {
@@ -579,11 +659,11 @@ const Home = ({ isMapLoaded, }) => {
                                                                         </Button>
                                                                     </Tooltip>
                                                                 ) : (
-                                                                    null
+                                                                    "-"
                                                                 )}
                                                             </Box>
                                                         </TableCell>
-                                                    ) : null}
+                                                    ) : <TableCell sx={{ textAlign: 'center' }}>-</TableCell>}
                                                 </TableRow>
                                             ))
                                             :
@@ -983,11 +1063,11 @@ const Home = ({ isMapLoaded, }) => {
                                                                         </Button>
                                                                     </Tooltip>
                                                                 ) : (
-                                                                    null
+                                                                    "-"
                                                                 )}
                                                             </Box>
                                                         </TableCell>
-                                                    ) : null}
+                                                    ) : <TableCell sx={{ textAlign: 'center' }}>-</TableCell>}
                                                 </TableRow>
                                             ))
                                             :
@@ -1072,6 +1152,94 @@ const Home = ({ isMapLoaded, }) => {
                     handleUpdate={handleUpdate}
                 />
             )}
+
+
+            {/* 2FA POPUP */}
+            <Dialog open={showQRCode} onClose={() => { }} maxWidth="sm" fullWidth>
+                {!is2FAEnabled ?
+                    <>
+                        <DialogContent>Your 2 step authentication is disabled. Turn it on to secure your account</DialogContent>
+                        <DialogActions sx={{ justifyContent: 'end', pb: 3 }}>
+                            <Button
+                                variant="contained"
+                                onClick={() => setShowQRCode(false)}
+                                disabled={is2FALoading}
+                                sx={{ bgcolor: "white", color: "black" }}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="contained"
+                                onClick={handle2FAToggle}
+                                disabled={is2FALoading}
+                            >
+                                {is2FALoading ? "Loading..." : "Turn On"}
+                            </Button>
+                        </DialogActions>
+                    </>
+                    :
+                    <>
+                        <DialogTitle>Set Up Two-Factor Authentication</DialogTitle>
+                        <DialogContent sx={{ textAlign: 'center' }}>
+                            <Typography variant="body1" paragraph>
+                                Scan the QR code below with your authenticator app:
+                            </Typography>
+
+                            {qrCodeData?.qrCodeDataUrl ? (
+                                <Box sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    my: 2,
+                                    p: 2,
+                                    bgcolor: 'white',
+                                    borderRadius: 1,
+                                    border: '1px solid #e0e0e0'
+                                }}>
+                                    <img
+                                        src={qrCodeData.qrCodeDataUrl}
+                                        alt="2FA QR Code"
+                                        style={{
+                                            width: 200,
+                                            height: 200,
+                                            objectFit: 'contain'
+                                        }}
+                                    />
+                                </Box>
+                            ) : (
+                                <Box>Generating QR code...</Box>
+                            )}
+
+                            {qrCodeData?.secret && (
+                                <Box sx={{ mt: 2, mb: 3, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
+                                    <Typography variant="body2" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                                        {qrCodeData.secret}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                                        Or enter this code manually: <strong>{qrCodeData.secret}</strong>
+                                    </Typography>
+                                </Box>
+                            )}
+
+                            <Typography variant="body2" color="text.secondary">
+                                After scanning, you'll be asked to enter a verification code from your authenticator app.
+                            </Typography>
+                        </DialogContent>
+                        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+                            <Button
+                                variant="contained"
+                                onClick={() => {
+                                    setShowQRCode(false);
+                                    setIs2FAEnabled(true);
+                                    toast.success('Two-factor authentication has been enabled', toastOption);
+                                }}
+                            >
+                                I've set up my authenticator app
+                            </Button>
+                        </DialogActions>
+                    </>
+                }
+            </Dialog>
         </Box >
     );
 };

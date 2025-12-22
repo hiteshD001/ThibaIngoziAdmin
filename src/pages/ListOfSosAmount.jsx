@@ -105,7 +105,7 @@ const ListOfSosAmount = () => {
                                             <TableCell sx={{ color: '#4B5563' }}>{data.driverSplitAmount ?? 0}</TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>{data.companySplitAmount ?? 0}</TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>{data.currency || "-"}</TableCell>
-                                            <TableCell sx={{ color: data?.notificationTypeId?.bgColor }}>{data.notificationTypeId?.type || "-"}</TableCell>
+                                            <TableCell sx={{ color: data?.notificationTypeId?.bgColor }}>{data.notificationTypeId?.display_title || "-"}</TableCell>
                                             <TableCell align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                 <Tooltip title="View" arrow placement="top">
                                                     <IconButton onClick={() => nav(`/home/total-sos-amount/sos-amount/${data._id}`)}>
@@ -159,7 +159,7 @@ const ListOfSosAmount = () => {
                                             setCurrentPage(1);
                                         }}
                                     >
-                                        {[5, 10, 15, 20,50,100].map((num) => (
+                                        {[5, 10, 15, 20, 50, 100].map((num) => (
                                             <MenuItem key={num} value={num}>
                                                 {num}
                                             </MenuItem>

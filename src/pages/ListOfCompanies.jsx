@@ -63,7 +63,7 @@ const ListOfCompanies = () => {
   const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
   const [confirmation, setconfirmation] = useState("");
 
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
@@ -366,7 +366,7 @@ const ListOfCompanies = () => {
                     setCurrentPage(1);
                   }}
                 >
-                  {[5, 10, 15, 20,50,100].map((num) => (
+                  {[5, 10, 15, 20, 50, 100].map((num) => (
                     <MenuItem key={num} value={num}>
                       {num}
                     </MenuItem>

@@ -99,7 +99,7 @@ const ListofMissingPerson = () => {
     });
 
 
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
@@ -145,115 +145,115 @@ const ListofMissingPerson = () => {
         },
         () => toast.error("Failed to archive person.")
     );
-    
+
     let loginUser = useGetUser(localStorage.getItem("userID"));
     loginUser = loginUser?.data?.data?.user;
     const handleExport = async ({ startDate, endDate, exportFormat: fileFormat }) => {
         try {
-        const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson`, {
-            params: {
-                page: 1,
-                limit: 10000,
-                filter: "",
-                startDate,
-                endDate,
-            },
-        });
-
-        const allUsers = data?.data || [];
-        if (!allUsers.length) {
-            toast.warning("No Missing Persons data found.");
-            return;
-        }
-
-        const exportData = allUsers.map(user => ({
-            "Name": user.name || '',
-            "Last Seen Location": user.lastSeenLocation || '',
-            "Date": format(user.date, "HH:mm:ss - dd/MM/yyyy") || '',
-            "Request Reached": user.requestReached || '',
-            "Request Accepted": user.requestAccepted || '',
-            "Status": user.status || '',
-            "Reported By": user.reportedBy || '',
-        }));
-        const exportedByValue = loginUser.role === 'company' ? loginUser.company_name : 'Super Admin';
-        if (fileFormat === "xlsx") {
-            const workbook = XLSX.utils.book_new();
-
-            // Header row for Exported By
-            const headerRow = [["Exported By", exportedByValue], []]; // blank row after header
-
-            // Prepare sheet data
-            const worksheetData = [
-                ...headerRow,
-                Object.keys(exportData[0] || {}),
-                ...exportData.map(obj => Object.values(obj))
-            ];
-
-            const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-            // Auto-fit columns
-            const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
-                wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
-            }));
-            worksheet['!cols'] = columnWidths;
-
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Missing_Persons_List");
-            XLSX.writeFile(workbook, "Missing_Persons_List.xlsx");
-        }
-
-        else if (fileFormat === "csv") {
-            const headers = Object.keys(exportData[0] || {});
-            const csvRows = exportData.map(row =>
-                headers.map(h => JSON.stringify(row[h] ?? '')).join(',')
-            );
-
-            const csv = `Exported By,${exportedByValue}\n\n${headers.join(',')}\n${csvRows.join('\n')}`;
-
-            const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'Missing_Persons_List.csv';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        else if (fileFormat === "pdf") {
-            const doc = new jsPDF();
-
-            // Title
-            doc.setFontSize(14);
-            doc.text('Meeting Link Trip List', 14, 16);
-
-            // Exported By line
-            doc.setFontSize(10);
-            doc.text(`Exported By: ${exportedByValue}`, 14, 24);
-
-            // Table
-            autoTable(doc, {
-                startY: 30,
-                head: [["Name", "Last Seen Location", "Date", "Request Reached", "Request Accepted", "Status", "Reported By"]],
-                body: allUsers.map(user => [
-                    user.name || '',
-                    user.lastSeenLocation || '',
-                    format(user.date, "HH:mm:ss - dd/MM/yyyy") || '',
-                    user.requestReached || '',
-                    user.requestAccepted || '',
-                    user.status || '',
-                    user.reportedBy || '',
-                ]),
-                theme: 'striped',
-                headStyles: { fillColor: [54, 123, 224], textColor: 255 },
-                styles: { fontSize: 10 },
-                margin: { top: 20 },
+            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson`, {
+                params: {
+                    page: 1,
+                    limit: 10000,
+                    filter: "",
+                    startDate,
+                    endDate,
+                },
             });
 
-            doc.save("Missing_Persons_List.pdf");
-        }
+            const allUsers = data?.data || [];
+            if (!allUsers.length) {
+                toast.warning("No Missing Persons data found.");
+                return;
+            }
+
+            const exportData = allUsers.map(user => ({
+                "Name": user.name || '',
+                "Last Seen Location": user.lastSeenLocation || '',
+                "Date": format(user.date, "HH:mm:ss - dd/MM/yyyy") || '',
+                "Request Reached": user.requestReached || '',
+                "Request Accepted": user.requestAccepted || '',
+                "Status": user.status || '',
+                "Reported By": user.reportedBy || '',
+            }));
+            const exportedByValue = loginUser.role === 'company' ? loginUser.company_name : 'Super Admin';
+            if (fileFormat === "xlsx") {
+                const workbook = XLSX.utils.book_new();
+
+                // Header row for Exported By
+                const headerRow = [["Exported By", exportedByValue], []]; // blank row after header
+
+                // Prepare sheet data
+                const worksheetData = [
+                    ...headerRow,
+                    Object.keys(exportData[0] || {}),
+                    ...exportData.map(obj => Object.values(obj))
+                ];
+
+                const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+                // Auto-fit columns
+                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+                }));
+                worksheet['!cols'] = columnWidths;
+
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Missing_Persons_List");
+                XLSX.writeFile(workbook, "Missing_Persons_List.xlsx");
+            }
+
+            else if (fileFormat === "csv") {
+                const headers = Object.keys(exportData[0] || {});
+                const csvRows = exportData.map(row =>
+                    headers.map(h => JSON.stringify(row[h] ?? '')).join(',')
+                );
+
+                const csv = `Exported By,${exportedByValue}\n\n${headers.join(',')}\n${csvRows.join('\n')}`;
+
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'Missing_Persons_List.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            else if (fileFormat === "pdf") {
+                const doc = new jsPDF();
+
+                // Title
+                doc.setFontSize(14);
+                doc.text('Meeting Link Trip List', 14, 16);
+
+                // Exported By line
+                doc.setFontSize(10);
+                doc.text(`Exported By: ${exportedByValue}`, 14, 24);
+
+                // Table
+                autoTable(doc, {
+                    startY: 30,
+                    head: [["Name", "Last Seen Location", "Date", "Request Reached", "Request Accepted", "Status", "Reported By"]],
+                    body: allUsers.map(user => [
+                        user.name || '',
+                        user.lastSeenLocation || '',
+                        format(user.date, "HH:mm:ss - dd/MM/yyyy") || '',
+                        user.requestReached || '',
+                        user.requestAccepted || '',
+                        user.status || '',
+                        user.reportedBy || '',
+                    ]),
+                    theme: 'striped',
+                    headStyles: { fillColor: [54, 123, 224], textColor: 255 },
+                    styles: { fontSize: 10 },
+                    margin: { top: 20 },
+                });
+
+                doc.save("Missing_Persons_List.pdf");
+            }
 
         } catch (err) {
-        console.error("Error exporting data:", err);
-        toast.error("Export failed.");
+            console.error("Error exporting data:", err);
+            toast.error("Export failed.");
         }
     };
 
@@ -543,7 +543,7 @@ const ListofMissingPerson = () => {
                                         setCurrentPage(1);
                                     }}
                                 >
-                                    {[5, 10, 15, 20,50,100].map((num) => (
+                                    {[5, 10, 15, 20, 50, 100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
