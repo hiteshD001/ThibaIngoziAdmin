@@ -194,7 +194,7 @@ const Analytics = ({ id, activePage,
             const sosData = [];
             chartDataFinal.forEach((item) => {
                 sosData.push({
-                    Month: item.label,
+                    [time ? timeTitle : "Month"]: item.label,
                     Resolved: item.resolved,
                     Pending: item.pending,
                 });
@@ -418,15 +418,16 @@ const Analytics = ({ id, activePage,
                             />
 
                             {/* <CustomExportMenu role={'dashboard'} /> */}
-                            <CustomExportMenu role={'dashboard'} onExport={handleExport} />
+                            <CustomExportMenu
+                                role={'dashboard'}
+                                onExport={handleExport}
+                                loading={isLoading}
+                            />
                         </Box>
                     </Box>
                 </Grid>
 
             </Grid>
-            <div>
-                {isLoading && <Loader />}
-            </div>
             <Box p={2}>
                 <div className="clearfix"></div>
 
@@ -504,7 +505,7 @@ const Analytics = ({ id, activePage,
                     </div>
                 ) : (
                     <div className="row">
-                        <div className="col-md-6">
+                        <div className="col-md-4">
                             <div className="dash-counter blue">
                                 <div className="d-flex justify-content-between w-100 ">
                                     <div>
@@ -520,13 +521,21 @@ const Analytics = ({ id, activePage,
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-md-4">
                             <div className="dash-counter green">
-                                <span>Users Active {timeTitle}</span>
-                                <h3>
-                                    {driverList?.data?.data
-                                        .totalActiveDriversThisMonth || 0}
-                                </h3>
+                                <div className="d-flex justify-content-between w-100 ">
+                                    <div>
+                                        <span>Users Active {timeTitle}</span>
+                                        <h3>
+                                            {driverList?.data?.data
+                                                .totalActiveDriversThisMonth || 0}
+                                        </h3>
+                                    </div>
+                                    <img src={div3} alt="dash-counter" />
+                                </div>
+                                <div className="">
+                                    <span> 12% from last month</span>
+                                </div>
                             </div>
                         </div>
                     </div>

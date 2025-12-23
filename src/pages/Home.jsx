@@ -13,7 +13,8 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
-    DialogActions
+    DialogActions,
+    Switch
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -37,6 +38,8 @@ import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
 import { FaLocationDot } from "react-icons/fa6";
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import CloseIcon from '@mui/icons-material/Close';
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
@@ -140,62 +143,31 @@ const Home = ({ isMapLoaded, }) => {
 
     const prevLengthRef = useRef(activeUserList?.length);
 
-    const handle2FAToggle = async () => {
-        const newValue = true;
+    const handle2FAToggle = async (e) => {
+        const newValue = e.target.checked;
         setIs2FALoading(true);
 
-        try {
-            console.log(newValue ? 'Enabling 2FA...' : 'Disabling 2FA...');
-            const response = await enable2FA(newValue);
+        if (newValue) {
+            // ENABLE 2FA
+            const response = await enable2FA();
 
-            if (!response || !response.success) {
-                throw new Error(newValue ? 'Failed to initialize 2FA setup' : 'Failed to disable 2FA');
+            if (!response?.secret || !response?.otpauthUrl) {
+                throw new Error("Invalid 2FA setup response");
             }
 
-            if (newValue) {
-                const { secret, otpauthUrl } = response;
+            const qrCodeDataUrl = await QRCode.toDataURL(response.otpauthUrl);
 
-                if (!secret || !otpauthUrl) {
-                    throw new Error('Invalid 2FA setup data received');
-                }
+            setQrCodeData({
+                secret: response.secret,
+                otpauthUrl: response.otpauthUrl,
+                qrCodeDataUrl,
+            });
 
-                try {
-                    // Generate QR code data URL only when enabling 2FA
-                    const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
-                        errorCorrectionLevel: 'H',
-                        margin: 2,
-                        width: 200,
-                        type: 'image/png'
-                    });
-
-                    setQrCodeData({
-                        secret,
-                        otpauthUrl,
-                        qrCodeDataUrl
-                    });
-                    setShowQRCode(true);
-                    setIs2FAEnabled(true);
-                } catch (error) {
-                    console.error('Error generating QR code:', error);
-                    throw new Error('Failed to generate QR code');
-                }
-            } else {
-                // Handle successful disable
-                setIs2FAEnabled(false);
-                setQrCodeData(null);
-                toast.success('2FA has been disabled successfully', toastOption);
-            }
-        } catch (error) {
-            console.error('2FA toggle error:', error);
-            toast.error(
-                error.response?.data?.message || error.message || 'Failed to update 2FA settings',
-                toastOption
-            );
-            // Revert the switch on error
-            setIs2FAEnabled(!newValue);
-        } finally {
-            setIs2FALoading(false);
+            setShowQRCode(true);
+            setIs2FAEnabled(true);
+            queryClient.invalidateQueries("user", { exact: false });
         }
+        setIs2FALoading(false);
     };
 
     useEffect(() => {
@@ -244,7 +216,6 @@ const Home = ({ isMapLoaded, }) => {
         if (!status && location?.state?.from === "login") {
             setShowQRCode(true);
         }
-        console.log(status)
     }, [])
 
 
@@ -565,26 +536,30 @@ const Home = ({ isMapLoaded, }) => {
                                                     <TableCell sx={{
                                                         color: '#4B5563',
                                                     }} >
-                                                        <Box sx={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'space-between',
-                                                        }}>
-                                                            {user?.address}
+                                                        {user?.address ?
+                                                            <Box sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'space-between',
+                                                            }}>
+                                                                {user?.address}
 
-                                                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                                <IconButton
-                                                                    onClick={() => {
-                                                                        setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks[0]?._id}`);
-                                                                        handleCopy();
-                                                                    }}
-                                                                    sx={copyButtonStyles}
-                                                                    aria-label="copy address"
-                                                                >
-                                                                    <ContentCopyIcon fontSize="medium" className="copy-btn" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </Box>
+                                                                <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                    <IconButton
+                                                                        onClick={() => {
+                                                                            setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks[0]?._id}`);
+                                                                            handleCopy();
+                                                                        }}
+                                                                        sx={copyButtonStyles}
+                                                                        aria-label="copy address"
+                                                                    >
+                                                                        <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </Box>
+                                                            :
+                                                            "-"
+                                                        }
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
                                                         {user?.req_reach || "0"}
@@ -1157,26 +1132,29 @@ const Home = ({ isMapLoaded, }) => {
             {/* 2FA POPUP */}
             <Dialog open={showQRCode} onClose={() => { }} maxWidth="sm" fullWidth>
                 {!is2FAEnabled ?
-                    <>
-                        <DialogContent>Your 2 step authentication is disabled. Turn it on to secure your account</DialogContent>
-                        <DialogActions sx={{ justifyContent: 'end', pb: 3 }}>
-                            <Button
-                                variant="contained"
-                                onClick={() => setShowQRCode(false)}
-                                disabled={is2FALoading}
-                                sx={{ bgcolor: "white", color: "black" }}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                variant="contained"
+                    <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", p: 2, gap: 1, position: "relative" }}>
+                        <Box onClick={() => setShowQRCode(false)} ><CloseIcon sx={{ position: "absolute", top: "10px", right: "10px", cursor: "pointer" }} /></Box>
+                        <WarningAmberIcon sx={{ fontSize: "5rem", color: "rgb(214, 116, 55)" }} />
+                        <DialogTitle sx={{ textAlign: "center" }}>Your 2 step authentication is disabled. Turn it on to secure your account</DialogTitle>
+
+                        <Box sx={{ display: "flex", alignItems: "center", width: "100%", p: 2, border: "1px solid black", borderRadius: "1rem" }}>
+                            <Box sx={{ width: "100%" }}>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
+                                    Two-Factor Authentication (2FA)
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Add an extra layer of security to your account
+                                </Typography>
+                            </Box>
+                            <Switch
+                                checked={is2FAEnabled}
                                 onClick={handle2FAToggle}
-                                disabled={is2FALoading}
-                            >
-                                {is2FALoading ? "Loading..." : "Turn On"}
-                            </Button>
-                        </DialogActions>
-                    </>
+                                disabled={is2FALoading || !userinfo.data}
+                                slotProps={{ input: { 'aria-label': 'controlled' } }}
+                                color="primary"
+                            />
+                        </Box>
+                    </Box>
                     :
                     <>
                         <DialogTitle>Set Up Two-Factor Authentication</DialogTitle>
@@ -1222,7 +1200,7 @@ const Home = ({ isMapLoaded, }) => {
                             )}
 
                             <Typography variant="body2" color="text.secondary">
-                                After scanning, you'll be asked to enter a verification code from your authenticator app.
+                                After scanning, you&apos;ll be asked to enter a verification code from your authenticator app.
                             </Typography>
                         </DialogContent>
                         <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
@@ -1234,7 +1212,7 @@ const Home = ({ isMapLoaded, }) => {
                                     toast.success('Two-factor authentication has been enabled', toastOption);
                                 }}
                             >
-                                I've set up my authenticator app
+                                I&apos;ve set up my authenticator app
                             </Button>
                         </DialogActions>
                     </>

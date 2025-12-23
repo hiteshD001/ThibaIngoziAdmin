@@ -10,7 +10,8 @@ import {
     FormControl,
     InputLabel,
     Button,
-    Menu, Stack, IconButton, FormGroup, FormControlLabel, Checkbox
+    Menu, Stack, IconButton, FormGroup, FormControlLabel, Checkbox,
+    CircularProgress
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import checkboxIcon2 from '../../assets/images/checkboxIcon2.svg'
@@ -25,7 +26,7 @@ import exportdiv from '../../assets/images/exportdiv.svg';
 // import exportIcon from '../assets/images/exportIcon.svg';
 
 
-const CustomExportMenu = ({ role, onExport }) => {
+const CustomExportMenu = ({ role, onExport, loading }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
@@ -64,11 +65,12 @@ const CustomExportMenu = ({ role, onExport }) => {
                     backgroundColor: '#F3F4F6'
                 }}
                 variant="outlined"
-                startIcon={<img src={exportdiv} alt="export" />}
+                startIcon={loading ? null : <img src={exportdiv} alt="export" />}
                 size="small"
                 onClick={handleClick}
+                disabled={loading}
             >
-                Export
+                {loading ? <CircularProgress size={20} /> : "Export"}
             </Button>
 
             <Menu
