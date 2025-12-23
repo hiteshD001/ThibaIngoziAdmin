@@ -382,7 +382,7 @@ const ListOfSalesAgent = () => {
                         <div className="d-flex justify-content-between  w-100 ">
                             <div className="">
                                 <span>Total Earned Amount</span>
-                                <h3>R {UserList.data?.data?.data?.totalEarnedAmount || 0}</h3>
+                                <h3>R {Number(UserList.data?.data?.data?.totalEarnedAmount || 0).toFixed(2)}</h3>
                             </div>
                             <img src={sa1} alt="dash-counter" />
 
@@ -402,7 +402,7 @@ const ListOfSalesAgent = () => {
                         <div className="d-flex justify-content-between  w-100 ">
                             <div className="">
                                 <span>Total Commission Earned(30%)</span>
-                                <h3>R {UserList.data?.data?.data?.totalCommissionEarned || 0}</h3>
+                                <h3>R {Number(UserList.data?.data?.data?.totalCommissionEarned || 0).toFixed(2)}</h3>
                             </div>
                             <img src={sa2} alt="dash-counter" />
 
@@ -825,6 +825,11 @@ const ListOfSalesAgent = () => {
                                                             anchorEl={menuUserId ? buttonRefs.current[menuUserId] : null}
                                                             open={Boolean(menuUserId)}
                                                             onClose={handleCloseMenu}
+                                                            sx={{
+                                                                ".MuiPaper-root": {
+                                                                    boxShadow: "0px 2px 9px 0px #0000000F"
+                                                                }
+                                                            }}
                                                             anchorOrigin={{
                                                                 vertical: "bottom",
                                                                 horizontal: "right",
@@ -1011,12 +1016,14 @@ const ListOfSalesAgent = () => {
                     <ImportSheet setpopup={setpopup} popup={popup} type="sales-agent" />
                 )
             }
-            {confirmation && (
-                <DeleteSalesAgent
-                    id={confirmation}
-                    setconfirmation={setconfirmation}
-                />
-            )}
+            {
+                confirmation && (
+                    <DeleteSalesAgent
+                        id={confirmation}
+                        setconfirmation={setconfirmation}
+                    />
+                )
+            }
             {/* <div className="container-fluid"> */}
             {/* <div className="row"> */}
             {/* <div className="col-md-12"> */}
@@ -1262,7 +1269,7 @@ const ListOfSalesAgent = () => {
             {/* </div> */}
             {payPopup && renderPopup()}
             {/* </div> */}
-        </Box>
+        </Box >
     );
 };
 

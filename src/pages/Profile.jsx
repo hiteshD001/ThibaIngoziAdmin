@@ -52,11 +52,7 @@ const Profile = () => {
   };
 
   const { mutate, isPending } = useUpdateUser(onSuccess, onError);
-  const userinfo = useGetUser(localStorage.getItem("userID"), role, {
-    onSuccess: (data) => {
-
-    }
-  });
+  const userinfo = useGetUser(localStorage.getItem("userID"));
 
   const profileForm = useFormik({
     initialValues: role === "super_admin" ? super_admin : company,
@@ -144,10 +140,11 @@ const Profile = () => {
     // Update 2FA status when user data is loaded
     const is2FAEnabled = userinfo.data?.data?.user?.twoFactorAuth?.enabled;
 
-    if (is2FAEnabled !== undefined) {
-      setIs2FAEnabled(is2FAEnabled); // Ensure it's a boolean
-    }
-  }, [userinfo.data, edit]);
+    setIs2FAEnabled(Boolean(is2FAEnabled));
+    // if (is2FAEnabled !== undefined) {
+    //   setIs2FAEnabled(is2FAEnabled); // Ensure it's a boolean
+    // }
+  }, [userinfo.data]);
 
   const serviceslist = useGetServicesList()
   useLayoutEffect(() => {
@@ -194,60 +191,32 @@ const Profile = () => {
     const newValue = e.target.checked;
     setIs2FALoading(true);
 
-    try {
-      console.log(newValue ? 'Enabling 2FA...' : 'Disabling 2FA...');
-      const response = await enable2FA(newValue);
+    if (newValue) {
+      // ENABLE 2FA
+      const response = await enable2FA();
 
-      if (!response || !response.success) {
-        throw new Error(newValue ? 'Failed to initialize 2FA setup' : 'Failed to disable 2FA');
+      if (!response?.secret || !response?.otpauthUrl) {
+        throw new Error("Invalid 2FA setup response");
       }
 
-      if (newValue) {
-        const { secret, otpauthUrl } = response;
+      const qrCodeDataUrl = await QRCode.toDataURL(response.otpauthUrl);
 
-        if (!secret || !otpauthUrl) {
-          throw new Error('Invalid 2FA setup data received');
-        }
+      setQrCodeData({
+        secret: response.secret,
+        otpauthUrl: response.otpauthUrl,
+        qrCodeDataUrl,
+      });
 
-        try {
-          // Generate QR code data URL only when enabling 2FA
-          const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
-            errorCorrectionLevel: 'H',
-            margin: 2,
-            width: 200,
-            type: 'image/png'
-          });
-
-          setQrCodeData({
-            secret,
-            otpauthUrl,
-            qrCodeDataUrl
-          });
-          setQrCodeUrl(otpauthUrl);
-          setShowQRCode(true);
-          setIs2FAEnabled(true);
-        } catch (error) {
-          console.error('Error generating QR code:', error);
-          throw new Error('Failed to generate QR code');
-        }
-      } else {
-        // Handle successful disable
-        setIs2FAEnabled(false);
-        setQrCodeData(null);
-        setQrCodeUrl('');
-        toast.success('2FA has been disabled successfully', toastOption);
-      }
-    } catch (error) {
-      console.error('2FA toggle error:', error);
-      toast.error(
-        error.response?.data?.message || error.message || 'Failed to update 2FA settings',
-        toastOption
-      );
-      // Revert the switch on error
-      setIs2FAEnabled(!newValue);
-    } finally {
-      setIs2FALoading(false);
+      setShowQRCode(true);
+    } else {
+      // DISABLE 2FA
+      await disable2FA();
+      setQrCodeData(null);
+      toast.success("2FA disabled successfully", toastOption);
     }
+
+    await userinfo.refetch();
+    setIs2FALoading(false);
   };
 
   return (
@@ -586,28 +555,25 @@ const Profile = () => {
                         disabled={!edit}
 
                       />
-                      {profileForm.values.selfieImage instanceof File ? (
+                      {profileForm.values.selfieImage ?
                         <img
-                          src={URL.createObjectURL(profileForm.values.selfieImage)}
+                          src={profileForm.values.selfieImage instanceof File ? URL.createObjectURL(profileForm.values.selfieImage) : profileForm.values.selfieImage}
                           alt="Selfie Preview"
                           style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
                           onClick={() => handleImageClick(profileForm.values.selfieImage, 'Selfie Image')}
                         />
-                      ) : profileForm.values.selfieImage ? (
-                        <img
-                          src={profileForm.values.selfieImage}
-                          alt="Selfie"
-                          style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
-                          onClick={() => handleImageClick(profileForm.values.selfieImage, 'Selfie Image')}
-                        />
-                      ) : (<><img src={GrayPlus} alt="gray plus" />
-                        <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
-                      )}
+                        :
+                        <>
+                          <img src={GrayPlus} alt="gray plus" />
+                          <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography>
+                        </>
+                      }
                     </Box>
                     {profileForm.touched.selfieImage && profileForm.errors.selfieImage && (
                       <FormHelperText error>{profileForm.errors.selfieImage}</FormHelperText>
                     )}
                   </Grid>
+
                   <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
                     <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>Full Image</label>
                     <Box
@@ -633,30 +599,25 @@ const Profile = () => {
                         disabled={!edit}
                         onChange={e => profileForm.setFieldValue('fullImage', e.currentTarget.files[0])}
                       />
-                      {profileForm.values.fullImage instanceof File ? (
+                      {profileForm.values.fullImage ?
                         <img
-                          src={URL.createObjectURL(profileForm.values.fullImage)}
-                          alt="Full Preview"
+                          src={profileForm.values.fullImage instanceof File ? URL.createObjectURL(profileForm.values.fullImage) : profileForm.values.fullImage}
+                          alt="Selfie Preview"
                           style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
-                          onClick={() => handleImageClick(profileForm.values.fullImage, 'Full Image')}
+                          onClick={() => handleImageClick(profileForm.values.fullImage, 'Selfie Image')}
                         />
-                      ) : profileForm.values.fullImage ? (
-                        <img
-                          src={profileForm.values.fullImage}
-                          alt="Full Image"
-                          style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
-                          onClick={() => handleImageClick(profileForm.values.fullImage, 'Full Image')}
-                        />
-                      ) : (<><img src={GrayPlus} alt="gray plus" />
-                        <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
-                      )
+                        :
+                        <>
+                          <img src={GrayPlus} alt="gray plus" />
+                          <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography>
+                        </>
                       }
-
                     </Box>
                     {profileForm.touched.fullImage && profileForm.errors.fullImage && (
                       <FormHelperText error>{profileForm.errors.fullImage}</FormHelperText>
                     )}
                   </Grid>
+
                   <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
                     <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>Verification Selfie Image</label>
                     <Box
@@ -690,23 +651,18 @@ const Profile = () => {
 
                         }}
                       />
-                      {profileForm.values.verificationSelfieImage instanceof File ? (
+                      {profileForm.values.verificationSelfieImage ?
                         <img
-                          src={URL.createObjectURL(profileForm.values.verificationSelfieImage)}
-                          alt="Verification Selfie Image"
+                          src={profileForm.values.verificationSelfieImage instanceof File ? URL.createObjectURL(profileForm.values.verificationSelfieImage) : profileForm.values.verificationSelfieImage}
+                          alt="Selfie Preview"
                           style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
-                          onClick={() => handleImageClick(profileForm.values.verificationSelfieImage, 'Verification Selfie Image')}
+                          onClick={() => handleImageClick(profileForm.values.verificationSelfieImage, 'Selfie Image')}
                         />
-                      ) : profileForm.values.verificationSelfieImage ? (
-                        <img
-                          src={profileForm.values.verificationSelfieImage}
-                          alt="Verification Selfie Image"
-                          style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
-                          onClick={() => handleImageClick(profileForm.values.verificationSelfieImage, 'Verification Selfie Image')}
-                        />
-                      ) : (<><img src={GrayPlus} alt="gray plus" />
-                        <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
-                      )
+                        :
+                        <>
+                          <img src={GrayPlus} alt="gray plus" />
+                          <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography>
+                        </>
                       }
 
                     </Box>
@@ -717,7 +673,7 @@ const Profile = () => {
                 </Grid>
               </Grid>
               {/* 2FA Toggle */}
-              <Grid item xs={12} sx={{ mt: 4, mb: 2 }}>
+              <Grid size={12} sx={{ mt: 4, mb: 2 }}>
                 <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: 2 }}>
                   <Box display="flex" justifyContent="space-between" alignItems="center">
                     <Box>
@@ -729,13 +685,17 @@ const Profile = () => {
                       </Typography>
                     </Box>
                     <Box display="flex" alignItems="center">
-                      {is2FALoading && <CircularProgress size={24} sx={{ mr: 2 }} />}
-                      <Switch
-                        checked={is2FAEnabled}
-                        onChange={handle2FAToggle}
-                        disabled={is2FALoading}
-                        color="primary"
-                      />
+                      {userinfo.isLoading ? (
+                        <CircularProgress size={24} />
+                      ) : (
+                        <Switch
+                          checked={is2FAEnabled}
+                          onClick={handle2FAToggle}
+                          disabled={is2FALoading || !userinfo.data}
+                          slotProps={{ input: { 'aria-label': 'controlled' } }}
+                          color="primary"
+                        />
+                      )}
                     </Box>
                   </Box>
                 </Paper>

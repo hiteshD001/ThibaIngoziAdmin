@@ -194,7 +194,7 @@ const Analytics = ({ id, activePage,
             const sosData = [];
             chartDataFinal.forEach((item) => {
                 sosData.push({
-                    Month: item.label,
+                    [time ? timeTitle : "Month"]: item.label,
                     Resolved: item.resolved,
                     Pending: item.pending,
                 });
@@ -418,15 +418,16 @@ const Analytics = ({ id, activePage,
                             />
 
                             {/* <CustomExportMenu role={'dashboard'} /> */}
-                            <CustomExportMenu role={'dashboard'} onExport={handleExport} />
+                            <CustomExportMenu
+                                role={'dashboard'}
+                                onExport={handleExport}
+                                loading={isLoading}
+                            />
                         </Box>
                     </Box>
                 </Grid>
 
             </Grid>
-            <div>
-                {isLoading && <Loader />}
-            </div>
             <Box p={2}>
                 <div className="clearfix"></div>
 

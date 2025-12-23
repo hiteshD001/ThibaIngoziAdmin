@@ -62,7 +62,7 @@ const ListOfMeetingLinkTrips = () => {
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter, startDate, endDate, isArchived, sortBy, sortOrder,companyId);
+  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter, startDate, endDate, isArchived, sortBy, sortOrder, companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalMeetingLinkTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
@@ -195,7 +195,7 @@ const ListOfMeetingLinkTrips = () => {
 
               <CustomExportMenu onExport={handleExport} />
               {/* <Button
-                onClick={() => nav('/home/total-meeting-link-trips/view-archeived')}
+                onClick={() => nav('/home/total-meeting-links/view-archeived')}
                 variant="contained"
                 sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
                 startIcon={<img src={ViewBtn} alt="View" />}>
@@ -291,7 +291,7 @@ const ListOfMeetingLinkTrips = () => {
                                 data.user1.role === "driver"
                                   ? `/home/total-drivers/driver-information/${data.user1._id}`
                                   : data.user1.role === "passanger"
-                                    ? `/home/total-meeting-link-trips/user-information/${data.user1._id}`
+                                    ? `/home/total-meeting-links/user-information/${data.user1._id}`
                                     : "#"
                               }
                             >
@@ -305,7 +305,7 @@ const ListOfMeetingLinkTrips = () => {
                                 data.user2.role === "driver"
                                   ? `/home/total-drivers/driver-information/${data.user2._id}`
                                   : data.user2.role === "passanger"
-                                    ? `/home/total-meeting-link-trips/user-information/${data.user2._id}`
+                                    ? `/home/total-meeting-links/user-information/${data.user2._id}`
                                     : "#"
                               }
                             >
@@ -353,7 +353,7 @@ const ListOfMeetingLinkTrips = () => {
                               <Tooltip title="View" arrow placement="top">
                                 <IconButton
                                   onClick={() =>
-                                    nav(`/home/total-meeting-link-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
+                                    nav(`/home/total-meeting-links/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
                                   }
                                 >
                                   <img src={ViewBtn} alt="view button" />
@@ -377,14 +377,14 @@ const ListOfMeetingLinkTrips = () => {
                               </Tooltip>
                               {role !== 'company' && (
                                 <Tooltip title="Delete" arrow placement="top">
-                                <IconButton
-                                  onClick={() => setConfirmation(data._id)}
-                                >
-                                  <img src={delBtn} alt="delete button" />
-                                </IconButton>
-                              </Tooltip>
+                                  <IconButton
+                                    onClick={() => setConfirmation(data._id)}
+                                  >
+                                    <img src={delBtn} alt="delete button" />
+                                  </IconButton>
+                                </Tooltip>
                               )}
-                              
+
 
                             </Box>
                             {confirmation === data._id && (
@@ -424,7 +424,7 @@ const ListOfMeetingLinkTrips = () => {
                     '& .MuiSelect-select': { padding: '4px 10px' },
                   }}
                 >
-                  {[5, 10, 15, 20,50,100].map((num) => (
+                  {[5, 10, 15, 20, 50, 100].map((num) => (
                     <MenuItem key={num} value={num}>
                       {num}
                     </MenuItem>
