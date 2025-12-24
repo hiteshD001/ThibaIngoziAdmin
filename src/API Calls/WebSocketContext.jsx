@@ -15,7 +15,6 @@ export const WebSocketProvider = ({ children }) => {
     });
     const [currentPage, setCurrentPage] = useState(1);
     const [newSOS, setnewSOS] = useState(0);
-    const pingIntervalRef = useRef(null);
     const url = import.meta.env.VITE_WEB_SOCKET_URL;
 
     useEffect(() => {
@@ -24,17 +23,10 @@ export const WebSocketProvider = ({ children }) => {
 
         socket.onopen = () => {
             setIsConnected(true);
-
-            pingIntervalRef.current = setInterval(() => {
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.send(JSON.stringify({ type: "ping" }));
-                }
-            }, 30000);
         };
 
         socket.onclose = () => {
             setIsConnected(false);
-            clearInterval(pingIntervalRef.current);
         };
 
         socket.onerror = (error) => {
@@ -51,10 +43,10 @@ export const WebSocketProvider = ({ children }) => {
                 return;
             }
 
-            // Heartbeat pong from server – bump counter so consumers can react
+            // Ignore heartbeat pong
             if (data?.type === "pong") return;
 
-            // Heartbeat pong from server – bump counter so consumers can react
+            // New SOS notification from backend
             if (data?.new_sos) {
                 setnewSOS((prev) => prev + 1);
                 return;
@@ -82,9 +74,18 @@ export const WebSocketProvider = ({ children }) => {
 
         return () => {
             socket.close();
-            clearInterval(pingIntervalRef.current);
         };
     }, [url]);
+
+    // When backend sends new_sos, fetch the current page again
+    useEffect(() => {
+        if (socketRef.current?.readyState !== WebSocket.OPEN) return;
+
+        socketRef.current.send(JSON.stringify({
+            type: "request_page",
+            page: currentPage || 1,
+        }));
+    }, [newSOS, currentPage]);
 
     // Function to request specific page
     const requestPage = (page) => {
