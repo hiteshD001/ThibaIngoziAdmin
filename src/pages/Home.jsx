@@ -191,9 +191,9 @@ const Home = ({ isMapLoaded, }) => {
         }
     }, [activeUserList?.length, refetchRecentSOS]);
 
-    // Refetch active SOS when we receive a WebSocket pong (heartbeat)
+    // Refetch active SOS when we receive new SOS notification from WebSocket
     useEffect(() => {
-        if (!newSOS || newSOS === 1) return;
+        if (!newSOS || newSOS === 0) return;
 
         const fetchData = async () => {
             try {
