@@ -748,29 +748,29 @@ const ListOfSalesAgent = () => {
                                                                     alt="user"
                                                                     sx={{ width: 32, height: 32 }}
                                                                 />
-                                                                {user.first_name} {user.last_name}
+                                                                {user.first_name || "-"} {user.last_name }
 
                                                             </Stack>
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {`${user?.mobile_no_country_code ?? ''}${user?.mobile_no ?? ''}`}
+                                                            {`${user?.mobile_no_country_code ?? '-'}${user?.mobile_no ?? '-'}`}
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.email}
+                                                            {user.email || "-"}
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.enrollAmountDeduction}
+                                                            {user.enrollAmountDeduction || 0}
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.totalEarnedAmount}
+                                                            {user.totalEarnedAmount || 0}
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.commissionEarned}
+                                                            {user.commissionEarned || 0}
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
@@ -782,7 +782,7 @@ const ListOfSalesAgent = () => {
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
-                                                            {user.user_id.length}
+                                                            {user.user_id.length || 0}
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
