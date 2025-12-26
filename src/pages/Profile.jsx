@@ -18,10 +18,8 @@ import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
 import PhoneInput from "react-phone-input-2";
 import GrayPlus from '../assets/images/GrayPlus.svg'
-import DeleteIcon from '../assets/images/DeleteIcon.svg'
-import { enable2FA } from "../API Calls/authAPI";
-import { Switch, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
-import CloseIcon from '@mui/icons-material/Close';
+import { enable2FA, disable2FA } from "../API Calls/authAPI";
+import { Switch, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { QRCodeSVG } from 'qrcode.react';
 import QRCode from 'qrcode';
 
@@ -43,7 +41,6 @@ const Profile = () => {
   const [qrCodeData, setQrCodeData] = useState(null);
   const [showQRCode, setShowQRCode] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
-  const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
   const client = useQueryClient();
 
   const onSuccess = () => {
@@ -188,20 +185,6 @@ const Profile = () => {
 
   const handleClosePreview = () => {
     setPreviewImage(prev => ({ ...prev, open: false }));
-  };
-
-  const handleQRCodeClose = () => {
-    setShowCloseConfirmation(true);
-  };
-
-  const handleCloseConfirmation = (shouldClose) => {
-    setShowCloseConfirmation(false);
-
-    if (shouldClose) {
-      // User selected "Yes" - close the dialog
-      setShowQRCode(false);
-    }
-    // User selected "No" - do nothing, stay on the QR code dialog
   };
 
   const handle2FAToggle = async (e) => {
@@ -719,19 +702,8 @@ const Profile = () => {
               </Grid>
 
               {/* 2FA Setup Dialog */}
-              <Dialog open={showQRCode} onClose={handleQRCodeClose} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  Set Up Two-Factor Authentication
-                  <IconButton
-                    aria-label="close"
-                    onClick={handleQRCodeClose}
-                    sx={{
-                      color: (theme) => theme.palette.grey[500],
-                    }}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </DialogTitle>
+              <Dialog open={showQRCode} onClose={() => setShowQRCode(false)} maxWidth="sm" fullWidth>
+                <DialogTitle>Set Up Two-Factor Authentication</DialogTitle>
                 <DialogContent sx={{ textAlign: 'center' }}>
                   <Typography variant="body1" paragraph>
                     Scan the QR code below with your authenticator app:
