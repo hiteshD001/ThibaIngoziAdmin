@@ -266,7 +266,7 @@ const ListOfDrivers = () => {
             if (result === "Success") {
                 // Use selectedDriver._id if available, otherwise use company user id
                 const userId = selectedDriver?._id || companyInfo.data.data.user._id;
-                
+
                 payoutUpdateMutation.mutate({
                     user_id: userId,
                     type: selectedPayoutType,
@@ -305,11 +305,12 @@ const ListOfDrivers = () => {
 
     const handlePopup = (event, type, payoutType, driverData = null) => {
         event.stopPropagation();
-        console.log(driverData,"driverData")
+        console.log(driverData, "driverData")
         // If driverData is provided, use individual driver info
         if (driverData) {
-            console.log(driverData.bankId?.branchCode,"driverData.bankId?.branchCode")
+            console.log(driverData.bankId?.branchCode, "driverData.bankId?.branchCode")
             PayoutForm.setValues({
+                user_id: driverData?._id ?? "",
                 firstName: driverData.first_name || "",
                 surname: driverData.last_name || "",
                 branchCode: driverData?.branchCode || "",
@@ -321,7 +322,7 @@ const ListOfDrivers = () => {
             setSelectedDriver(driverData);
         } else {
             // Use company-level data
-            console.log(companyInfo.data?.data.user.bankId?.branchCode,"companyInfo.data?.data.user.bankId?.branchCode")
+            console.log(companyInfo.data?.data.user.bankId?.branchCode, "companyInfo.data?.data.user.bankId?.branchCode")
             const isCompany = payoutType === "company";
             const selectedAmount = isCompany
                 ? companyInfo.data?.data.totalCompanyAmount
@@ -393,37 +394,37 @@ const ListOfDrivers = () => {
             const exportedByValue = user.role === 'company' ? user.company_name : 'Super Admin';
             if (exportFormat === "xlsx") {
                 const workbook = XLSX.utils.book_new();
-            
+
                 // Add "Exported By" row
                 const headerRow = [["Exported By", exportedByValue], []]; // blank row after header
-            
+
                 // Prepare data with header row
                 const worksheetData = [
                     ...headerRow,
                     Object.keys(exportData[0] || {}),
                     ...exportData.map(obj => Object.values(obj))
                 ];
-            
+
                 const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-            
+
                 // Auto-fit columns
                 const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
                     wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
                 }));
                 worksheet['!cols'] = columnWidths;
-            
+
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Drivers");
                 XLSX.writeFile(workbook, "Drivers_List.xlsx");
             }
-            
-            else if (exportFormat === "csv") {            
+
+            else if (exportFormat === "csv") {
                 // Convert data to CSV
                 const headers = Object.keys(exportData[0] || {});
                 const csvRows = exportData.map(row =>
                     headers.map(h => JSON.stringify(row[h] ?? '')).join(',')
                 );
                 const csv = `Exported By,${exportedByValue}\n\n${headers.join(',')}\n${csvRows.join('\n')}`;
-            
+
                 // Download file
                 const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                 const link = document.createElement('a');
@@ -433,17 +434,17 @@ const ListOfDrivers = () => {
                 link.click();
                 document.body.removeChild(link);
             }
-            
+
             else if (exportFormat === "pdf") {
                 const doc = new jsPDF();
                 // Header
                 doc.setFontSize(14);
                 doc.text('Driver List', 14, 16);
-            
+
                 // Exported By
                 doc.setFontSize(10);
                 doc.text(`Exported By: ${exportedByValue}`, 14, 24);
-            
+
                 // Table
                 autoTable(doc, {
                     startY: 30,
@@ -460,10 +461,10 @@ const ListOfDrivers = () => {
                     styles: { fontSize: 10 },
                     margin: { top: 20 },
                 });
-            
+
                 doc.save("Drivers_List.pdf");
             }
-            
+
 
         } catch (err) {
             console.error("Error exporting data:", err);
@@ -1126,7 +1127,7 @@ const ListOfDrivers = () => {
                                                     <Chip
                                                         label={driver.isEnroll ? "active" : "inactive"}
                                                         sx={{
-                                                             backgroundColor: driver?.isEnroll ? '#DCFCE7' : '#E5565A1A',
+                                                            backgroundColor: driver?.isEnroll ? '#DCFCE7' : '#E5565A1A',
                                                             '& .MuiChip-label': {
                                                                 textTransform: 'capitalize',
                                                                 fontWeight: 500,
@@ -1162,9 +1163,9 @@ const ListOfDrivers = () => {
                                                                     <img src={delBtn} alt="delete button" />
                                                                 </IconButton>
                                                             </Tooltip>
-                                                        )}  
+                                                        )}
                                                         <Tooltip title="Payout" arrow placement="top">
-                                                            <IconButton onClick={(event) => 
+                                                            <IconButton onClick={(event) =>
                                                                 handlePopup(event, "payout", "driver", driver)
                                                             }>
                                                                 <img src={driverPayoutIcon} alt="payout button" />
@@ -1231,7 +1232,7 @@ const ListOfDrivers = () => {
                                         setpage(1);
                                     }}
                                 >
-                                    {[5, 10, 15, 20,50,100].map((num) => (
+                                    {[5, 10, 15, 20, 50, 100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>

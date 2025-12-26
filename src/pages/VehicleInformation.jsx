@@ -178,7 +178,8 @@ const VehicleInformation = () => {
             branchCode: '',
             amount: 0,
             accountNumber: '',
-            customerCode: ''
+            customerCode: '',
+            type: 'driver'
         }
     })
 
@@ -299,14 +300,16 @@ const VehicleInformation = () => {
             // Extract JSON data from Axios response
             const responseData = res.data;
 
+            console.log(responseData, "response")
+
             if (responseData?.success === true && responseData?.data?.payouts?.length > 0) {
                 const payout = responseData.data.payouts[0];
 
                 if (payout.status === 'pending' || payout.status === 'processing') {
                     payoutUpdateMutation.mutate({
-                        user_id: vehicleInfo.data?.data?.data._id,
+                        user_id: vehicleInfo.data?.data?.user?._id,
                         type: selectedPayoutType,
-                        amount: vehicleInfo.data?.data?.data.totalUnPaid,
+                        amount: vehicleInfo.data?.data?.salesAgent?.totalUnPaid,
                     });
                     toast.success('Payment request created successfully. Status: ' + payout.status);
                     closePopup();
@@ -346,11 +349,13 @@ const VehicleInformation = () => {
     const handlePopup = (event, type, payoutType) => {
         event.stopPropagation();
         PayoutForm.setValues({
+            ...PayoutForm.values,
+            user_id: vehicleInfo.data?.data?.user?._id || "",
             firstName: vehicleInfo?.data?.data?.user?.first_name || "",
             surname: vehicleInfo?.data?.data?.user?.last_name || "",
             branchCode: vehicleInfo?.data?.data?.user?.bankId?.branch_code || "",
             accountNumber: vehicleInfo?.data?.data?.user?.accountNumber || "",
-            customerCode: vehicleInfo?.data?.data?.user?.customerCode || "",
+            customerCode: vehicleInfo?.data?.data?.salesAgent?.customerCode || "",
             amount: vehicleInfo?.data?.data.totalDriverAmount || 0,
         });
         setPopup(type);
@@ -1766,6 +1771,7 @@ const VehicleInformation = () => {
                         <Button
                             variant="contained"
                             color="primary"
+                            disabled={vehicleInfo.data?.data?.salesAgent?.totalUnPaid < 10}
                             onClick={(event) => handlePopup(event, "payout", "driver")}
                             sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
                         >

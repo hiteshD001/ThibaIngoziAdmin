@@ -158,10 +158,10 @@ const AgentInformation = () => {
         (res) => {
             // Extract JSON data from Axios response
             const responseData = res.data;
-    
+
             if (responseData?.success === true && responseData?.data?.payouts?.length > 0) {
                 const payout = responseData.data.payouts[0];
-    
+
                 if (payout.status === 'pending' || payout.status === 'processing') {
                     payoutUpdateMutation.mutate({
                         user_id: UserInfo.data?.data?.data._id,
@@ -176,18 +176,18 @@ const AgentInformation = () => {
                     toast.error(`Payment failed. Status: ${payout.status}`);
                     console.error("Payment Error:", payout);
                 }
-    
+
             } else {
                 toast.error('Payment failed');
                 console.error("Payment Error:", responseData);
             }
         },
-    
+
         (err) => {
             toast.error('Payment failed');
             console.error("Error!", err);
         }
-    );    
+    );
 
     const payoutUpdateMutation = payoutUserUpdate(
         (res) => {
@@ -310,33 +310,33 @@ const AgentInformation = () => {
 
     const getTrendData = (type) => {
         let stat;
-      
+
         // For transaction types (earned, commission, paid, unpaid)
         if (type !== "user") {
-          stat = UserInfo.data?.data?.data?.monthlyStats?.find(
-            (item) => item.transactionType === type
-          );
-        } else if(type == "userAll"){
+            stat = UserInfo.data?.data?.data?.monthlyStats?.find(
+                (item) => item.transactionType === type
+            );
+        } else if (type == "userAll") {
             stat = UserInfo.data?.data?.data?.allUserStats;
         } else {
             stat = UserInfo.data?.data?.data?.userStats;
         }
-      
+
         const percent = stat?.percentageChange ?? 0;
-      
+
         let arrow = "→";
         let color = "#6c757d";
-      
+
         if (stat?.trend === "up") {
-          arrow = "↑";
-          color = "green";
+            arrow = "↑";
+            color = "green";
         } else if (stat?.trend === "down") {
-          arrow = "↓";
-          color = "red";
+            arrow = "↓";
+            color = "red";
         }
-      
+
         return { arrow, color, percent };
-    };      
+    };
     const earned = getTrendData("earned");
     const commission = getTrendData("commission");
     const unpaid = getTrendData("unpaid");
@@ -432,7 +432,7 @@ const AgentInformation = () => {
                         </Box>
                     </Box>
                 </Grid>
-                
+
                 <Grid size={{ xs: 12, md: 6, lg: 3 }}>
                     <Box sx={{ height: "100%", backgroundColor: '#0D94881A', borderRadius: '16px' }}>
                         <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 2, py: 2 }}>
@@ -1135,7 +1135,7 @@ const AgentInformation = () => {
                                                 setCurrentPage(1);
                                             }}
                                         >
-                                            {[5, 10, 15, 20,50,100].map((num) => (
+                                            {[5, 10, 15, 20, 50, 100].map((num) => (
                                                 <MenuItem key={num} value={num}>
                                                     {num}
                                                 </MenuItem>
@@ -1347,7 +1347,7 @@ const AgentInformation = () => {
                                                     setCurrentPage(1);
                                                 }}
                                             >
-                                                {[5, 10, 15, 20,50,100].map((num) => (
+                                                {[5, 10, 15, 20, 50, 100].map((num) => (
                                                     <MenuItem key={num} value={num}>
                                                         {num}
                                                     </MenuItem>
@@ -1419,11 +1419,11 @@ const AgentInformation = () => {
                     <Tooltip
                         title={
                             UserInfo.data?.data?.data.totalUnPaid >= 10
-                            ? "Click to pay"
-                            : "Minimum unpaid amount is 10 to payout"
+                                ? "Click to pay"
+                                : "Minimum unpaid amount is 10 to payout"
                         }
                         arrow
-                        >
+                    >
                         <span>
                             <Button
                                 variant="contained"
@@ -1431,7 +1431,7 @@ const AgentInformation = () => {
                                 disabled={UserInfo.data?.data?.data.totalUnPaid < 10}
                                 onClick={(event) => handlePopup(event, 'payout', 'sales_agent')}
                                 sx={{ height: '40px', gap: '10px', backgroundColor: 'var(--Blue)' }}
-                                >
+                            >
                                 <img src={payIcon} alt="payIcon" />
                                 Pay
                             </Button>
