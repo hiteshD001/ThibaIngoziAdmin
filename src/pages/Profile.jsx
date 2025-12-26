@@ -536,7 +536,7 @@ const Profile = () => {
                       sx={{
                         border: '2px dashed #E0E3E7',
                         borderRadius: '12px',
-                        minHeight: 180,
+                        minHeight: 210,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -580,7 +580,7 @@ const Profile = () => {
                       sx={{
                         border: '2px dashed #E0E3E7',
                         borderRadius: '12px',
-                        minHeight: 180,
+                        minHeight: 210,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -624,7 +624,7 @@ const Profile = () => {
                       sx={{
                         border: '2px dashed #E0E3E7',
                         borderRadius: '12px',
-                        minHeight: 180,
+                        minHeight: 210,
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
