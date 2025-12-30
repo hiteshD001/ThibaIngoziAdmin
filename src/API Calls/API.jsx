@@ -1522,3 +1522,119 @@ export const fetchProvince = () => {
 
     return res;
 };
+
+
+
+
+// create role
+export const useCreateRole = (onSuccess, onError) => {
+    return useMutation({
+        mutationFn: async (data) => {
+            const response = await apiClient.post('/super-admin/permission/create-role', data);
+            return response.data;
+        },
+        onSuccess,
+        onError,
+    });
+};
+// get all roles 
+export const useGetRoles = (page = 1, limit = 10000) => {
+    const queryFn = async () => {
+        return await apiClient.get(`/super-admin/roles`, { params: { page, limit } });
+    };
+
+    const res = useQuery({
+        queryKey: ["roles", page, limit],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    return res;
+};
+// assign role to users
+export const useAssignRole = (onSuccess, onError) => {
+    return useMutation({
+        mutationFn: async (data) => {
+            const response = await apiClient.post('/super-admin/users/assign-role', data);
+            return response.data;
+        },
+        onSuccess,
+        onError,
+    });
+};
+// get role by id 
+export const useGetRoleById = (roleId) => {
+    return useQuery({
+        queryKey: ['role', roleId],
+        queryFn: async () => {
+            const { data } = await apiClient.get(`/super-admin/permission/${roleId}`);
+            return data;
+        },
+        staleTime: Infinity,
+        enabled: !!roleId,
+    });
+};
+//  Update role by ID
+export const useUpdateRole = (onSuccess, onError) => {
+    return useMutation({
+        mutationFn: async ({ id, data }) => {
+            const response = await apiClient.put(`/super-admin/permission/${id}`, data);
+            return response.data;
+        },
+        onSuccess,
+        onError,
+    });
+};
+//  Delete Role
+export const useDeleteRole = (onSuccess, onError) => {
+    return useMutation({
+        mutationFn: async (roleId) => {
+            const { data } = await apiClient.delete(`/super-admin/permission/delete-role/${roleId}`);
+            return data;
+        },
+        onSuccess,
+        onError,
+    });
+};
+// get list of admin users
+export const useGetAdminUsers = () => {
+    const queryFn = async () => {
+        return await apiClient.get(`/super-admin/users/get/allAdmin`);
+    };
+
+    const res = useQuery({
+        queryKey: ["AdminUsers"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    return res;
+};
+// get list of permission
+export const useGetPermissions = () => {
+    const queryFn = async () => {
+        return await apiClient.get(`/super-admin/permission`);
+    };
+
+    const res = useQuery({
+        queryKey: ["Permissions"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    return res;
+};
+// Register admin
+export const useCreateAdmin = (onSuccess, onError) => {
+    return useMutation({
+        mutationFn: async (data) => {
+            const response = await apiClient.post('/super-admin/create-admin', data);
+            return response.data;
+        },
+        onSuccess,
+        onError,
+    });
+};

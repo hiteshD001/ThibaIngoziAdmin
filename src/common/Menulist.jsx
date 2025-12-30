@@ -9,7 +9,7 @@ import arrowLeft from "../assets/images/arrow-left.png";
 import ArmedSos from '../assets/images/ArmedSos.svg'
 import SapsWanted from '../assets/images/SapsWanted.svg'
 import salesagent from '../assets/images/salesagent.svg'
-// import settings from "../assets/images/settings.png";
+import settings from "../assets/images/settings.png";
 import Flagged from '../assets/images/Flagged.svg'
 import StolenCarIcon from '../assets/images/StolenCarIcon.svg'
 import MissingPersonIcon from '../assets/images/MissingPersonIcon.svg'
@@ -85,12 +85,12 @@ export const superadmin_menulist = [
     //     path: "/home/hardware-management",
     //     image: hardware
     // },
-    // {
-    //     id: "settings",
-    //     name: "Settings",
-    //     path: "",
-    //     image: settings
-    // },
+    {
+        id: "settings",
+        name: "Settings",
+        path: "/home/settings",
+        image: settings
+    },
     {
         id: "total-sales-agent",
         name: "Sales Agent",

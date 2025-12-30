@@ -61,6 +61,7 @@ import AddAgent from "./pages/SalesAgent/AddAgent";
 import AgentInformation from "./pages/SalesAgent/AgentInformation";
 import SalesAgentHome from "./pages/SalesAgentHome";
 import Reset2FAPage from './pages/Reset2FAPage';
+import AdminSetting from './pages/setting/AdminSetting'
 
 // Define your map loader options once here
 const mapLoaderOptions = {
@@ -111,7 +112,8 @@ function App() {
         },
         {
             path: "/home",
-            element: <AuthGuard><Layout /></AuthGuard>,
+            // element: <AuthGuard><Layout /></AuthGuard>,
+            element:<Layout />,
             children: [
                 {
                     path: "",
@@ -304,8 +306,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            // element: <ListOfSapsWanted />
-                            element: <WorkInProgress />
+                            element: <ListOfSapsWanted />
+                            // element: <WorkInProgress />
 
                         },
                         {
@@ -346,8 +348,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            // element: <ListOfSuspect />
-                            element: <WorkInProgress />
+                            element: <ListOfSuspect />
+                            // element: <WorkInProgress />
 
                         },
                         {
@@ -361,8 +363,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            // element: <FlaggedReport />
-                            element: <WorkInProgress />
+                            element: <FlaggedReport />
+                            // element: <WorkInProgress />
 
                         },
                     ]
@@ -372,8 +374,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            // element: <ListOfCrimeReports />
-                            element: <WorkInProgress />
+                            element: <ListOfCrimeReports />
+                            // element: <WorkInProgress />
 
                         },
                         {
@@ -399,7 +401,11 @@ function App() {
                 {
                     path: 'work-in-progress',
                     element: <WorkInProgress />
-                }
+                },
+                  {
+                    path: "settings",
+                    element: <AdminSetting />
+                },
             ]
         },
         {
