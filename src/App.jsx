@@ -62,6 +62,7 @@ import AgentInformation from "./pages/SalesAgent/AgentInformation";
 import SalesAgentHome from "./pages/SalesAgentHome";
 import Reset2FAPage from './pages/Reset2FAPage';
 import AdminSetting from './pages/setting/AdminSetting'
+import ListOfSubscription from "./pages/subscription/ListOfSubscription";
 
 // Define your map loader options once here
 const mapLoaderOptions = {
@@ -388,6 +389,15 @@ function App() {
                             path: 'confirmation',
                             element: <Confirmation />
                         }
+                    ]
+                },
+                 {
+                    path: "subscription",
+                    children: [
+                        {
+                            path: "",
+                            element: <ListOfSubscription />
+                        },
                     ]
                 },
                 {
