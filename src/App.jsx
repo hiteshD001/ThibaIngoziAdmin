@@ -388,6 +388,15 @@ function App() {
                         }
                     ]
                 },
+                //  {
+                //     path: "subscription",
+                //     children: [
+                //         {
+                //             path: "",
+                //             element: <ListOfSubscription />
+                //         },
+                //     ]
+                // },
                 {
                     path: "hardware-management",
                     element: <RouteGuard><HardwareManagement /></RouteGuard>

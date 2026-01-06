@@ -1,19 +1,26 @@
 import logo4 from "../assets/images/logo4.svg";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { superadmin_menulist, Companyadmin_menulist, salesAgent_menulist } from "./Menulist";
+import { useGetPermissionsByRoleId } from "../API Calls/API";
 import { LogoutConfirm } from "./ConfirmationPOPup";
 
 const SideBar = ({ setActive, isActive, sidebarRef }) => {
     const [confirm, setconfirm] = useState(false)
     const role = localStorage.getItem('role')
-    const [menulist] = useState(() => {
-        if (role === 'super_admin') return superadmin_menulist;
-        if (role === 'company') return Companyadmin_menulist();
-        if (role === 'sales_agent') return salesAgent_menulist;
-
+    const roleId = localStorage.getItem('roleId')
+    
+    // Fetch permissions for company role
+    const { data: permissionsData } = useGetPermissionsByRoleId(roleId);
+    
+    // Dynamically calculate menulist based on role and permissions
+    const menulist = useMemo(() => {
+        if (role === 'super_admin') return superadmin_menulist(permissionsData);
+        if (role === 'company') return Companyadmin_menulist(permissionsData);
+        if (role === 'sales_agent') return salesAgent_menulist(permissionsData);
         return [];
-    });
+    }, [role, permissionsData]);
+    
     const [currentMenu, setcurrentMenu] = useState(
         role === "sales_agent" ? "sales-home" : "home"
     );

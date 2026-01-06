@@ -59,17 +59,27 @@ export const salesAgentValidation = yup.object({
 })
 
 export const profileValidation_s = yup.object({
-    first_name: Username,
-    last_name: Username,
-    email: Email,
-    mobile_no: MobileNumber,
-    street: String,
-    province: String,
-    city: String,
-    suburb: String,
-    postal_code: Number,
-    country: String
-})
+  firstName: yup.string().required("This is a required field"),
+  lastName: yup.string().required("This is a required field"),
+  email: yup.string().required("Email is Required").email("Invalid email"),
+  phone: yup.string().required("Mobile Number is Required"),
+  countryCode: yup.string().required(),
+  country: yup.string().required("Country is required"),
+  province: yup.string().required("Province is required"),
+  city: yup.string().required("City is required"),
+  suburb: yup.string().required("Suburb is required"),
+  streetAddress: yup.string().required("Street is required"),
+  postalCode: yup.string().required("Postal Code is required"),
+  roleId: yup.string().required("Role is required"),
+  password: yup.string()
+    .required("Password is Required")
+    .min(8)
+    .matches(/[A-Z]/)
+    .matches(/[a-z]/)
+    .matches(/[0-9]/)
+    .matches(/[!@#$%^&*]/),
+});
+
 export const sales_agent_e = yup.object({
     first_name: Username,
     last_name: Username,
@@ -163,3 +173,4 @@ export const vehicleValidation = yup.object({
     hijakingPass: yup.string().optional().matches(/^\d{6}$/, 'password should be last 6 digits of IMEI number'),
     passport_no: yup.string().optional()
 })
+
