@@ -1638,3 +1638,74 @@ export const useCreateAdmin = (onSuccess, onError) => {
         onError,
     });
 };
+// get list of subscription users
+export const useGetSubUser = (page = 1, limit = 2, startDate = '', endDate = '', type = 'Active', country, province) => {
+    return useQuery({
+        queryKey: ['subscriptions', page, limit, type, startDate, endDate, country, province],
+        queryFn: async () => {
+            const response = await apiClient.get('/super-admin/subscriptions/', {
+                params: { page, limit, type, from_date: startDate, to_date: endDate, country_id: country, province_id: province },
+            });
+            return response.data;
+        },
+        staleTime: 15 * 60 * 1000,
+        placeholderData: keepPreviousData,
+    });
+};
+// get activity log
+export const useGetActivityLog = (userId) => {
+    const queryFn = async () => {
+        return await apiClient.get(`/super-admin/subscriptions/activity/${userId}`);
+    };
+
+    const res = useQuery({
+        queryKey: ["activity", userId],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        enabled: !!userId,
+    });
+
+    return res;
+};
+// get subscripton analytics
+export const useGetSubAnalytics = (startDate = '', endDate = '', country, province) => {
+    return useQuery({
+        queryKey: ['subscription analytics', startDate, endDate, country, province],
+        queryFn: async () => {
+            const response = await apiClient.get('/super-admin/subscriptions/report', {
+                params: { from_date: startDate, to_date: endDate, country_id: country, province_id: province },
+            });
+            return response.data;
+        },
+        staleTime: 15 * 60 * 1000,
+        placeholderData: keepPreviousData,
+    });
+};
+// get transaction history
+export const useGetTranHistory = (type, id) => {
+    return useQuery({
+        queryKey: ['transaction history', type, id],
+        queryFn: async () => {
+            const params = type === 'all' ? {} : { type };
+            const response = await apiClient.get(`/super-admin/subscriptions/transaction-history/${id}`, {
+                params,
+            });
+            return response.data;
+        },
+        staleTime: 15 * 60 * 1000,
+        placeholderData: keepPreviousData,
+        enabled: !!id,
+    });
+};
+//  Get user by ID
+export const useSubsById = (userId) => {
+    return useQuery({
+        queryKey: ['subscription', userId],
+        queryFn: async () => {
+            const { data } = await apiClient.get(`/super-admin/subscriptions/${userId}`);
+            return data;
+        },
+        staleTime: Infinity,
+        enabled: !!userId,
+    });
+};

@@ -6,6 +6,7 @@ import home3 from '../../assets/images/home3.svg'
 import home4 from '../../assets/images/home4.svg'
 import home5 from '../../assets/images/home5.svg'
 import home6 from '../../assets/images/home6.svg'
+import sosTypes from '../../assets/images/sosTypes.svg'
 // import MoreVertIcon from "@mui/icons-material/MoreVert";
 // import resend from '../../assets/images/resend.svg'
 // import log from '../../assets/images/log.svg'
@@ -26,10 +27,10 @@ import { FiltersBar } from '../../common/FilterBar';
 import { useGetSubUser, useGetSubAnalytics, useUpdateStatus } from '../../API Calls/API';
 import { formatDate } from '../../utils/DateFormatter';
 import { ArrowUpward, ArrowDownward } from '@mui/icons-material';
-import ExportToCSV from '../../components/ExportToCsv';
+// import ExportToCSV from '../../components/ExportToCsv';
 import { useQueryClient } from '@tanstack/react-query';
 import PersonIcon from '@mui/icons-material/Person';
-import CustomPagination from '../../common/custom/CustomPagination';
+import CustomPagination from '../../common/Custom/CustomPagination';
 
 
 
@@ -153,18 +154,15 @@ const ListOfSubscription = () => {
 
     return (
         <>
-            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: 1, flexWrap: "wrap", }}>
-                <FiltersBar
-                    range={range}
-                    setRange={setRange}
-                    setSuburb={setSuburb}
-                    setCountry={setCountry}
-                    setProvince={setProvince}
-                    setCity={setCity}
-                    show={{ primaryPlatform: false, userType: false, role: false }}
-                />
-            </Box>
-            <Grid container spacing={3} my={5}>
+            <Grid sx={{ backgroundColor: 'white', p: 3, mt: '-25px' }} container justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
+                <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: 1, flexWrap: "wrap", }}>
+                    <FiltersBar
+                        range={range}
+                        setRange={setRange}
+                    />
+                </Box>
+            </Grid>
+            <Grid container spacing={3} my={3} px={2}>
                 {/* Total Active Subscriptions */}
                 <Grid size={{ xs: 12, md: 6, lg: 4 }}>
                     <Box sx={{ height: "100%", backgroundColor: '#ECFDF5', borderRadius: '16px' }}>
@@ -180,6 +178,7 @@ const ListOfSubscription = () => {
                                     value={subAnalytics?.data?.total_active_subscriptions?.percentage_change}
                                 />
                             </Box>
+
                             <Box>
                                 <img src={home3} alt="ReportIcon" />
                             </Box>
@@ -294,108 +293,131 @@ const ListOfSubscription = () => {
                         </Box>
                     </Box>
                 </Grid>
+
+                {/* Total Expired Subscriptions */}
+                <Grid size={{ xs: 12, md: 6, lg: 4 }}>
+                    <Box sx={{ height: "100%", backgroundColor: '#367BE01A', borderRadius: '16px' }}>
+                        <Box sx={{ display: 'flex', height: "100%", flexDirection: 'row', justifyContent: 'space-between', gap: 2, px: 3, py: 3 }}>
+                            <Box>
+                                <Typography variant="body1" sx={{ color: '#878787' }}>Total SOS Types Revenue</Typography>
+                                <Typography variant="h4" fontWeight={600}>
+                                    R  {subAnalytics?.data?.total_expired_subscriptions?.total_expired_subscriptions_count ?? 0}
+                                </Typography>
+                                <PercentageChange
+                                    flag={subAnalytics?.data?.total_expired_subscriptions?.flag}
+                                    value={subAnalytics?.data?.total_expired_subscriptions?.percentage_change}
+                                />
+                            </Box>
+                            <Box>
+                                <img src={sosTypes} alt="ExpiredIcon" />
+                            </Box>
+                        </Box>
+                    </Box>
+                </Grid>
             </Grid>
+            <Box sx={{ p: 2 }}>
+                <Tabs
+                    value={tab}
+                    onChange={(e, newValue) => setTab(newValue)}
+                    textColor="primary"
+                    indicatorColor="primary"
+                    sx={{ borderBottom: '1px solid #E5E7EB', backgroundColor: 'white', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}
 
-            <Tabs
-                value={tab}
-                onChange={(e, newValue) => setTab(newValue)}
-                textColor="primary"
-                indicatorColor="primary"
-                sx={{ mt: 4, borderBottom: '1px solid #E5E7EB' }}
+                >
+                    <Tab label='Active Subscriptions' />
+                    <Tab label='Suspended Subscriptions' />
+                    <Tab label='Expired Subscriptions' />
+                    <Tab label='Sos Types Revenue' />
 
-            >
-                <Tab label='Active Subscriptions' />
-                <Tab label='Suspended Subscriptions' />
-                <Tab label='Expired Subscriptions' />
-            </Tabs>
-            <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px' }}>
-                <Grid container justifyContent="space-between" alignItems="center" p={3}>
-                    <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                        <Typography variant="h6" fontWeight={590} sx={{ pl: 2 }}>
-                            {tab === 0
-                                ? "Most Active Advance Users"
-                                : tab === 1
-                                    ? "Suspended Users"
-                                    : "Expired Users"}
-                        </Typography>
-                    </Grid>
-                    <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
-                        <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
+                </Tabs>
+                <Box sx={{ backgroundColor: "rgb(253, 253, 253)", boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)", mt: 3, padding: 0, borderRadius: '10px' }}>
+                    <Grid container justifyContent="space-between" alignItems="center" p={3}>
+                        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                            <Typography variant="h6" fontWeight={590} sx={{ pl: 2 }}>
+                                {tab === 0
+                                    ? "Most Active Advance Users"
+                                    : tab === 1
+                                        ? "Suspended Users" : tab == 2 ?
+                                            "Expired Users" : "SOS Types Revenue"}
+                            </Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, lg: 6 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+                            {/* <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
                             <ExportToCSV
                                 fileName="Subscription Users"
                                 columns={exportColumns}
                                 apiEndpoint="/super-admin/subscriptions/"
                                 params={{ type }}
                             />
-                        </Box>
+                        </Box> */}
 
+                        </Grid>
                     </Grid>
-                </Grid>
 
-                {isLoading ? (
-                    <Typography align="center" color="text.secondary" sx={{ mt: 1, pb: 2 }}>Loading....</Typography>
-                ) : Array.isArray(subUser?.data) && subUser?.data?.length > 0 ? (
-                    <>
-                        <TableContainer >
-                            <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', } }}>
-                                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
-                                    <TableRow >
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787', borderTopLeftRadius: '10px' }}>Subscriber</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Status</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Start Date</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Expiry Date</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Amount Paid</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Payment Method</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Actions</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {subUser?.data?.map((user) => (
-                                        <TableRow key={user.id}>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                <Stack direction="row" alignItems="center" gap={1}>
+                    {isLoading ? (
+                        <Typography align="center" color="text.secondary" sx={{ mt: 1, pb: 2 }}>Loading....</Typography>
+                    ) : Array.isArray(subUser?.data) && subUser?.data?.length > 0 ? (
+                        <>
+                            <TableContainer >
+                                <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', } }}>
+                                    <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                        <TableRow >
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787', borderTopLeftRadius: '10px' }}>Subscriber</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Status</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Start Date</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Expiry Date</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Amount Paid</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Payment Method</TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#878787' }}>Actions</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {subUser?.data?.map((user) => (
+                                            <TableRow key={user.id}>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    <Stack direction="row" alignItems="center" gap={1}>
 
-                                                    <Avatar src={user?.User?.profile_img || undefined} alt="User" >
-                                                        <PersonIcon />
-                                                    </Avatar>
+                                                        <Avatar src={user?.User?.profile_img || undefined} alt="User" >
+                                                            <PersonIcon />
+                                                        </Avatar>
 
-                                                    {user?.User?.firstName || user?.User?.lastName ? `${user?.User?.firstName || ""} ${user?.User?.lastName || ""}`.trim() : "-"}
-                                                </Stack>
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                <Chip
-                                                    label={user.status}
-                                                    sx={{
-                                                        backgroundColor:
-                                                            user.status === 'Active' ? '#DCFCE7' :
-                                                                user.status === 'Expired' ? '#DC26261A' :
-                                                                    user.status === 'Suspended' ? '#FFA72633' :
-                                                                        '#FEF9C3',
-                                                        '& .MuiChip-label': {
-                                                            textTransform: 'capitalize',
-                                                            fontWeight: 500,
-                                                            color: user.status === 'Active' ? '#166534' :
-                                                                user.status === 'Expired' ? '#DC2626' :
-                                                                    user.status === 'Suspended' ? '#FFA726' :
-                                                                        'black',
-                                                        }
-                                                    }}
-                                                />
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#878787 ' }}>
-                                                {formatDate(user.start_date) || "-"}
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#878787 ' }}>
-                                                {formatDate(user.end_date) || "-"}
-                                                {/* {user.expiryDate || "-"} */}
-                                            </TableCell>
-                                            <TableCell sx={{ fontWeight: 500 }}>
-                                                {user.amountPaid || "-"}
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#878787 ' }}>
-                                                {user.paymentMethod || "-"}
-                                            </TableCell>
-                                            {/* <TableCell>
+                                                        {user?.User?.firstName || user?.User?.lastName ? `${user?.User?.firstName || ""} ${user?.User?.lastName || ""}`.trim() : "-"}
+                                                    </Stack>
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    <Chip
+                                                        label={user.status}
+                                                        sx={{
+                                                            backgroundColor:
+                                                                user.status === 'Active' ? '#DCFCE7' :
+                                                                    user.status === 'Expired' ? '#DC26261A' :
+                                                                        user.status === 'Suspended' ? '#FFA72633' :
+                                                                            '#FEF9C3',
+                                                            '& .MuiChip-label': {
+                                                                textTransform: 'capitalize',
+                                                                fontWeight: 500,
+                                                                color: user.status === 'Active' ? '#166534' :
+                                                                    user.status === 'Expired' ? '#DC2626' :
+                                                                        user.status === 'Suspended' ? '#FFA726' :
+                                                                            'black',
+                                                            }
+                                                        }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#878787 ' }}>
+                                                    {formatDate(user.start_date) || "-"}
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#878787 ' }}>
+                                                    {formatDate(user.end_date) || "-"}
+                                                    {/* {user.expiryDate || "-"} */}
+                                                </TableCell>
+                                                <TableCell sx={{ fontWeight: 500 }}>
+                                                    {user.amountPaid || "-"}
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#878787 ' }}>
+                                                    {user.paymentMethod || "-"}
+                                                </TableCell>
+                                                {/* <TableCell>
                                                 <Box
                                                     align="center"
                                                     sx={{ display: "flex", flexDirection: "row", gap: 1 }}>
@@ -448,11 +470,11 @@ const ListOfSubscription = () => {
                                                 </Box>
 
                                             </TableCell> */}
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                            {/* <Menu
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                                {/* <Menu
                                 anchorEl={anchorEl}
                                 open={Boolean(anchorEl)}
                                 onClose={() => setAnchorEl(null)}
@@ -498,7 +520,7 @@ const ListOfSubscription = () => {
                                     Activity Log
                                 </MenuItem>
                             </Menu> */}
-                            {/* <ConfirmationPopUp
+                                {/* <ConfirmationPopUp
                                 open={openPopup === "pause"}
                                 onClose={handleClose}
                                 onConfirm={handleConfirm}
@@ -541,14 +563,15 @@ const ListOfSubscription = () => {
                                 }}
                                 id={userId}
                             /> */}
-                        </TableContainer>
-                        <CustomPagination totalPages={totalPages} setCurrentPage={setCurrentPage} setRowsPerPage={setRowsPerPage} rowsPerPage={rowsPerPage} currentPage={currentPage} />
-                    </>
-                ) : (
-                    <Typography align="center" color="text.secondary" sx={{ mt: 1, pb: 2 }}>
-                        No data found
-                    </Typography>
-                )}
+                            </TableContainer>
+                            <CustomPagination totalPages={totalPages} setCurrentPage={setCurrentPage} setRowsPerPage={setRowsPerPage} rowsPerPage={rowsPerPage} currentPage={currentPage} />
+                        </>
+                    ) : (
+                        <Typography align="center" color="text.secondary" sx={{ mt: 1, pb: 2 }}>
+                            No data found
+                        </Typography>
+                    )}
+                </Box>
             </Box>
         </>
     )

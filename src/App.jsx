@@ -63,6 +63,7 @@ import SalesAgentHome from "./pages/SalesAgentHome";
 import Reset2FAPage from './pages/Reset2FAPage';
 import AdminSetting from './pages/setting/AdminSetting'
 import ListOfSubscription from "./pages/subscription/ListOfSubscription";
+import SubscriptionInfo from "./pages/subscription/SubscriptionInfo";
 
 // Define your map loader options once here
 const mapLoaderOptions = {
@@ -114,7 +115,7 @@ function App() {
         {
             path: "/home",
             // element: <AuthGuard><Layout /></AuthGuard>,
-            element:<Layout />,
+            element: <Layout />,
             children: [
                 {
                     path: "",
@@ -391,13 +392,17 @@ function App() {
                         }
                     ]
                 },
-                 {
+                {
                     path: "subscription",
                     children: [
                         {
                             path: "",
                             element: <ListOfSubscription />
                         },
+                        {
+                            path: "subsInfo/:id",
+                            element: <SubscriptionInfo />
+                        }
                     ]
                 },
                 {
@@ -412,7 +417,7 @@ function App() {
                     path: 'work-in-progress',
                     element: <WorkInProgress />
                 },
-                  {
+                {
                     path: "settings",
                     element: <AdminSetting />
                 },

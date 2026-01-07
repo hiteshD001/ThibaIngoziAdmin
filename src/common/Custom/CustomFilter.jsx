@@ -51,7 +51,7 @@ const CustomFilter = ({ onApply }) => {
             <Button
                 variant="outlined"
                 onClick={handleClick}
-                sx={{ borderRadius: '6px', display: 'flex', gap: '10px', border: '1px solid var(--light-gray)', color: 'black' }}
+                sx={{ height: '40px', borderRadius: '6px', display: 'flex', gap: '10px', border: '1px solid var(--light-gray)', color: 'black' }}
             >
                 <img src={filter} alt="filter" />
                 Filter

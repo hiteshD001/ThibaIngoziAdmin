@@ -7,6 +7,7 @@ import {
     Typography,
     Popper,
 } from '@mui/material';
+import calender from '../../assets/images/calender.svg'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { DateRange } from 'react-date-range';
 import { format } from 'date-fns';
@@ -17,9 +18,8 @@ import { startOfYear } from "date-fns";
 const CustomDateRangePicker = ({
     value,
     onChange,
-    borderColor = 'rgb(175, 179, 189)',
+    borderColor = 'var(--light-gray)',
     buttonLabel = 'Select Date Range',
-    icon,
     buttonSx = {},
 }) => {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -57,8 +57,8 @@ const CustomDateRangePicker = ({
                         }}
                         endIcon={<ExpandMoreIcon />}
                     >
-                        {icon && <img src={icon} alt="calendar" style={{ marginRight: 4 }} />}
-                        <Typography variant="body2" sx={{ textTransform: 'none' }}>
+                        <img src={calender} alt="calendar" style={{ marginRight: 4 }} />
+                        <Typography variant="body2" sx={{ textTransform: 'none', color: '#4B5563' }}>
                             {`${value[0].startDate ? format(value[0].startDate, 'dd MMM yy') : "Start"} - ${value[0].endDate ? format(value[0].endDate, 'dd MMM yy') : "End"}`}
                         </Typography>
                     </Button>

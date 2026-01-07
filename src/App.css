@@ -344,6 +344,7 @@ input[type="checkbox"] {
 
 .outlet {
     padding-top: 20px;
+    height: 100%;
     background-color: #f7f9fb;
 }
 

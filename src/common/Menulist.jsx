@@ -9,11 +9,12 @@ import arrowLeft from "../assets/images/arrow-left.png";
 import ArmedSos from '../assets/images/ArmedSos.svg'
 import SapsWanted from '../assets/images/SapsWanted.svg'
 import salesagent from '../assets/images/salesagent.svg'
-import settings from "../assets/images/settings.png";
+import settings from "../assets/images/settings.svg";
 import Flagged from '../assets/images/Flagged.svg'
 import StolenCarIcon from '../assets/images/StolenCarIcon.svg'
 import MissingPersonIcon from '../assets/images/MissingPersonIcon.svg'
 import SuspectIcon from '../assets/images/SuspectIcon.svg'
+import subscription from '../assets/images/subscription.svg'
 import changePasswordIcon from '../assets/images/changePasswordIcon.svg'
 import profile from "../assets/images/profile.png";
 import Logout from "../assets/images/Logout.svg";
@@ -90,6 +91,12 @@ export const superadmin_menulist = [
         name: "Settings",
         path: "/home/settings",
         image: settings
+    },
+    {
+        id: "subscription",
+        name: "List Of Subscription",
+        path: "/home/subscription",
+        image: subscription
     },
     {
         id: "total-sales-agent",
