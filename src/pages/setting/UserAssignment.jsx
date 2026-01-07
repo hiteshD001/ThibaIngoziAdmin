@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useFormik } from "formik";
-import { useAssignRole, useGetRoles, useGetAdminUsers ,useGetUserList } from "../../API Calls/API";
+import { useAssignRole, useGetRoles, useGetAdminUsers, useGetUserList, useGetRoleByIdWithCompany } from "../../API Calls/API";
 import { toast } from "react-toastify";
 import {
     Box,
@@ -17,77 +17,18 @@ import CustomSelect from "../../common/Custom/CustomSelect";
 import unChecked from "../../assets/images/UnChecked.svg";
 import checked from "../../assets/images/checkboxIcon.svg";
 import { useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import Loader from "../../common/Loader";
 
 const UserAssignment = () => {
     const [filter, setFilter] = useState("");
     const [selectedUsers, setSelectedUsers] = useState([]);
-    const [roleUsers, setRoleUsers] = useState([]);
-    const [companyUsers, setCompanyUsers] = useState([]);
-    const [loadingRole, setLoadingRole] = useState(false);
-    const [loadingCompany, setLoadingCompany] = useState(false);
     const client = useQueryClient()
 
     const { data: roles, isLoading, isError } = useGetRoles();
     const { data: users } = useGetAdminUsers()
+    const companyList = useGetUserList("company list", "company");
 
-    console.log("Roles data:", roles);
-
-    // Fetch both role and company details when either changes
-    const fetchRoleAndCompanyDetails = async (roleId, companyId) => {
-        console.log("Fetching details for role:", roleId, "company:", companyId);
-        
-        setLoadingRole(true);
-        setLoadingCompany(true);
-        
-        try {
-            // Fetch role details if roleId is provided
-            if (roleId) {
-                const roleResponse = await axios.get(`http://localhost:3000/api/v4/role-management/roles/${roleId}`);
-                console.log("Role API response:", roleResponse.data);
-                if (roleResponse.data.success) {
-                    console.log("Recent users found:", roleResponse.data.data.recentUsers);
-                    setRoleUsers(roleResponse.data.data.recentUsers || []);
-                }
-            } else {
-                setRoleUsers([]);
-            }
-
-            // Fetch company users if companyId is provided
-            if (companyId) {
-                const companyResponse = await axios.get(`http://localhost:3000/api/v4/role-management/company-users/${companyId}`);
-                console.log("Company API response:", companyResponse.data);
-                if (companyResponse.data.success) {
-                    console.log("Company users found:", companyResponse.data.data.allUsers);
-                    setCompanyUsers(companyResponse.data.data.allUsers || []);
-                }
-            } else {
-                setCompanyUsers([]);
-            }
-
-        } catch (error) {
-            console.error("Error fetching details:", error);
-            toast.error("Failed to fetch details");
-            setRoleUsers([]);
-            setCompanyUsers([]);
-        } finally {
-            setLoadingRole(false);
-            setLoadingCompany(false);
-        }
-    };
-
-    // Fetch role details when role changes
-    const fetchRoleDetails = async (roleId) => {
-        await fetchRoleAndCompanyDetails(roleId, userform.values.company_id);
-    };
-
-    // Fetch company users when company changes
-    const fetchCompanyUsers = async (companyId) => {
-        await fetchRoleAndCompanyDetails(userform.values.role, companyId);
-    };
-
-
+    // Define success and error handlers first
     const onSuccess = () => {
         toast.success("Role Assigned Successfully.");
         client.invalidateQueries(['roles'], { exact: false })
@@ -100,44 +41,12 @@ const UserAssignment = () => {
     };
 
     const { mutate: assignRole } = useAssignRole(onSuccess, onError);
-    const companyList = useGetUserList("company list", "company");
 
-    // Convert API response to dropdown options
-    const roleOptions =
-        roles?.data?.data?.map((role) => ({
-            label: role.name || role.roleName,
-            value: role._id, // Use _id instead of id
-            description: role.description || "", // ✅ add description
-        })) || [];
-
-    console.log("Role options:", roleOptions);
-
-    if (isError) {
-        toast.error("Failed to load roles");
-    }
-
-        const handleRoleChange = (e) => {
-        const { value } = e.target;
-        console.log("Selected role:", value);
-        userform.setFieldValue("role", value);
-        fetchRoleDetails(value);
-        setSelectedUsers([]); // Clear selected users when role changes
-    };
-
-    const handleCompanyChange = (e) => {
-        const { name, value } = e.target;
-        const companyname = companyList?.data?.data?.users?.find(
-            (user) => user._id === value
-        )?.company_name;
-        userform.setFieldValue(name, value);
-        userform.setFieldValue("company_name", companyname);
-        fetchCompanyUsers(value); // Fetch company users
-        setSelectedUsers([]); // Clear selected users when company changes
-    };
-
+    // Initialize form first
     const userform = useFormik({
         initialValues: {
             role: "",
+            company_id: "",
         },
         onSubmit: (values) => {
             if (!values.role) {
@@ -157,6 +66,56 @@ const UserAssignment = () => {
             assignRole(payload);
         },
     });
+
+    // Now use the API hook after form is initialized
+    const { data: roleData, isLoading: roleLoading } = useGetRoleByIdWithCompany(
+        userform.values.role,
+        userform.values.company_id
+    );
+
+    console.log("Roles data:", roles);
+    console.log("Role data with company filter:", roleData);
+
+    // Extract users from the role data response
+    const roleUsers = roleData?.data?.recentUsers || [];
+    
+    // For company users, we need to check if there are any companyUsers in the recentUsers
+    // Based on the API response, companyUsers are nested inside each user
+    const companyUsers = roleUsers.length > 0 && roleUsers[0]?.companyUsers ? roleUsers[0].companyUsers : [];
+
+    console.log("Role users:", roleUsers);
+    console.log("Company users:", companyUsers);
+
+    // Convert API response to dropdown options
+    const roleOptions =
+        roles?.data?.data?.map((role) => ({
+            label: role.name || role.roleName,
+            value: role._id, // Use _id instead of id
+            description: role.description || "", // ✅ add description
+        })) || [];
+
+    console.log("Role options:", roleOptions);
+
+    if (isError) {
+        toast.error("Failed to load roles");
+    }
+
+        const handleRoleChange = (e) => {
+        const { value } = e.target;
+        console.log("Selected role:", value);
+        userform.setFieldValue("role", value);
+        setSelectedUsers([]); // Clear selected users when role changes
+    };
+
+    const handleCompanyChange = (e) => {
+        const { name, value } = e.target;
+        const companyname = companyList?.data?.data?.users?.find(
+            (user) => user._id === value
+        )?.company_name;
+        userform.setFieldValue(name, value);
+        userform.setFieldValue("company_name", companyname);
+        setSelectedUsers([]); // Clear selected users when company changes
+    };
 
     // Cancel button handler
     const handleCancel = () => {
@@ -183,30 +142,6 @@ const UserAssignment = () => {
 
                 {/* Select Role */}
                 <Box sx={{ mb: 2,display:'flex',flexDirection:'row',gap:2 }}>
-                    <CustomSelect
-                        id="role"
-                        name="role"
-                        label="Role"
-                        value={userform.values.role}
-                        onChange={handleRoleChange}
-                        options={
-                            isLoading
-                                ? [{ label: "Loading...", value: "" }]
-                                : roleOptions.length > 0
-                                    ? roleOptions.map((role) => ({
-                                        value: role.value,
-                                        label: (
-                                            <Box sx={{ display: "flex", flexDirection: "column" }}>
-                                                <Typography sx={{ fontWeight: 450 }}>
-                                                    {role.description ? role.description : role.label}
-                                                </Typography>
-                                            </Box>
-                                        ),
-                                    }))
-                                    : [{ label: "No Roles Found", value: "" }]
-                        }
-                        error={userform.errors.role}
-                    />
                     <CustomSelect
                         label="Company"
                         name="company_id"
@@ -237,6 +172,31 @@ const UserAssignment = () => {
                         error={userform.errors.company_id}
                         helperText={userform.errors.company_id}
                     />
+                    <CustomSelect
+                        id="role"
+                        name="role"
+                        label="Add New Role"
+                        value={userform.values.role}
+                        onChange={handleRoleChange}
+                        options={
+                            isLoading
+                                ? [{ label: "Loading...", value: "" }]
+                                : roleOptions.length > 0
+                                    ? roleOptions.map((role) => ({
+                                        value: role.value,
+                                        label: (
+                                            <Box sx={{ display: "flex", flexDirection: "column" }}>
+                                                <Typography sx={{ fontWeight: 450 }}>
+                                                    {role.description ? role.description : role.label}
+                                                </Typography>
+                                            </Box>
+                                        ),
+                                    }))
+                                    : [{ label: "No Roles Found", value: "" }]
+                        }
+                        error={userform.errors.role}
+                    />
+                    
                 </Box>
 
                 {/* Assign Users */}
@@ -292,7 +252,7 @@ const UserAssignment = () => {
                             overflowY: "auto",
                         }}
                     >
-                        {(loadingCompany || loadingRole) ? (
+                        {roleLoading ? (
                             <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
                                 <Loader />
                             </Box>
@@ -332,12 +292,8 @@ const UserAssignment = () => {
                                             <Typography variant="body2" fontWeight={500}>
                                                 {user.first_name} {user.last_name}
                                             </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                {user.email}
-                                            </Typography>
-                                            <Typography variant="caption" color="primary" sx={{ display: 'block' }}>
-                                                Role Code: {user.role?.toUpperCase()}
-                                            </Typography>
+                                            
+                                            
                                         </Box>
                                     </Box>
                                 ))
@@ -346,10 +302,6 @@ const UserAssignment = () => {
                                     No users found for this company
                                 </Typography>
                             )
-                        ) : loadingRole ? (
-                            <Typography variant="body2" sx={{ textAlign: 'center', py: 2 }}>
-                                Loading users...
-                            </Typography>
                         ) : Array.isArray(roleUsers) && roleUsers.length > 0 ? (
                             // Show role users when role is selected
                             roleUsers.map((user) => (
@@ -383,18 +335,7 @@ const UserAssignment = () => {
                                     <Box sx={{ flex: 1 }}>
                                         <Typography variant="body2" fontWeight={500}>
                                             {user.first_name} {user.last_name}
-                                        </Typography>
-                                        <Typography variant="caption" color="text.secondary">
-                                            {user.email}
-                                        </Typography>
-                                        {user.companyUsers && user.companyUsers.length > 0 && (
-                                            <Typography variant="caption" color="primary" sx={{ display: 'block' }}>
-                                                Company: {user.companyUsers[0].company_name}
-                                            </Typography>
-                                        )}
-                                        <Typography variant="caption" color="success.main" sx={{ display: 'block' }}>
-                                            Role Code: {user.roleId ? 'ASSIGNED' : 'UNASSIGNED'}
-                                        </Typography>
+                                        </Typography>   
                                     </Box>
                                 </Box>
                             ))

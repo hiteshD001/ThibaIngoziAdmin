@@ -1601,6 +1601,22 @@ export const useGetRoleById = (roleId) => {
         enabled: !!roleId,
     });
 };
+
+// get role by id with optional company_id filter and search
+export const useGetRoleByIdWithCompany = (roleId, companyId, search) => {
+    return useQuery({
+        queryKey: ['roleWithCompany', roleId, companyId, search],
+        queryFn: async () => {
+            const params = {};
+            if (companyId) params.company_id = companyId;
+            if (search) params.search = search;
+            const { data } = await apiClient.get(`/role-management/roles/${roleId}`, { params });
+            return data;
+        },
+        staleTime: Infinity,
+        enabled: !!roleId,
+    });
+};
 //  Update role by ID
 export const useUpdateRole = (onSuccess, onError) => {
     return useMutation({
