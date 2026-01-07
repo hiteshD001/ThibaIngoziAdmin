@@ -902,6 +902,7 @@ const Home = ({ isMapLoaded, }) => {
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             Status
                                         </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Trip Type</TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Action</TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>                         </TableCell>
                                     </TableRow>
@@ -998,6 +999,9 @@ const Home = ({ isMapLoaded, }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {row?.help_received}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
+                                                         {row?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
                                                     </TableCell>
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
