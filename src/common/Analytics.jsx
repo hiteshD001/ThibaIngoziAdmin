@@ -211,6 +211,7 @@ const Analytics = ({ id, activePage,
                     Type: user?.type?.type || "",
                     Time: moment(user?.createdAt).format("HH:mm:ss"),
                     Status: user?.help_received,
+                    Trip_Type : user?.deepLinks?.[0]?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"
                 })
             });
 
@@ -234,6 +235,7 @@ const Analytics = ({ id, activePage,
                     "End Time Stamp": format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy"),
                     "Type": row?.type?.type || "",
                     "Status": row?.help_received,
+                    "Trip Type": row?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"
                 })
             });
 
@@ -343,7 +345,7 @@ const Analytics = ({ id, activePage,
                         head: [columns.map((c) => c.header)],
                         body: data.map((row) => columns.map((c) => String(row[c.dataKey] ?? "NA"))),
                         theme: "striped",
-                        headStyles: { fillColor: [54, 123, 224], textColor: 255 },
+                        headStyles: { fillColor: [54, 123, 224], textColor: 255, fontSize: 8 },
                         styles: { fontSize: 9 },
                         margin: { top: 10 },
                         didDrawPage: (data) => {
