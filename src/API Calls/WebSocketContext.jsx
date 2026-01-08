@@ -52,6 +52,12 @@ export const WebSocketProvider = ({ children }) => {
                 return;
             }
 
+            // SOS update notification from backend (existing SOS updated)
+            if (data?.sos_update) {
+                setnewSOS((prev) => prev + 1);
+                return;
+            }
+
             // Handle paginated data structure (new format)
             if (data?.data && Array.isArray(data?.data) && data?.pagination) {
                 setActiveUserLists(data.data);
