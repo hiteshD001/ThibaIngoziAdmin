@@ -70,7 +70,8 @@ const UserAssignment = () => {
     // Now use the API hook after form is initialized
     const { data: roleData, isLoading: roleLoading } = useGetRoleByIdWithCompany(
         userform.values.role,
-        userform.values.company_id
+        userform.values.company_id,
+        filter // Pass the search filter to the API
     );
 
     console.log("Roles data:", roles);
