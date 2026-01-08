@@ -345,7 +345,7 @@ const Analytics = ({ id, activePage,
                         head: [columns.map((c) => c.header)],
                         body: data.map((row) => columns.map((c) => String(row[c.dataKey] ?? "NA"))),
                         theme: "striped",
-                        headStyles: { fillColor: [54, 123, 224], textColor: 255, fontSize: 8 },
+                        headStyles: { fillColor: [54, 123, 224], textColor: 255, fontSize: 7 },
                         styles: { fontSize: 9 },
                         margin: { top: 10 },
                         didDrawPage: (data) => {
