@@ -179,10 +179,35 @@ const Analytics = ({ id, activePage,
         try {
             setIsLoading(true);
             const searchKey = "";
-            const hotspot = await fetchHotspot({ startDate, endDate, category, province });
-            const activeSosData = await fetchActiveSosData({ startDate, endDate, category, searchKey, page: 1, limit: 100000 });
-            const recentSosResponse = await fetchRecentSosData({ startDate, endDate, category, searchKey, page: 1, limit: 100000 });
+
+            // Get notification types data for export
+            const notificationTypesData = notificationTypes.data?.data || [];
+            var selectedCategoryData = null;
+            
+            // Use the category parameter from CustomExport if provided, otherwise use selectedNotification
+            const categoryId = category || selectedNotification;
+            
+            // Only find category data if not "all" and notification types are loaded
+            if (categoryId !== "all" && notificationTypesData.length > 0) {
+                selectedCategoryData = notificationTypesData.find((type) => type._id === categoryId);
+                console.log("selectedCategoryData", selectedCategoryData);
+            }
+            
+            // If no specific category is selected, create a default "All Categories" entry
+            if (!selectedCategoryData) {
+                selectedCategoryData = {
+                    _id: "all",
+                    display_title: "All Categories",
+                    type: "all"
+                };
+            }
+
+            const hotspot = await fetchHotspot({ startDate, endDate,  type: selectedCategoryData._id ? selectedCategoryData._id : category, province });
+            const activeSosData = await fetchActiveSosData({ startDate, endDate, searchKey, type: selectedCategoryData._id ? selectedCategoryData._id : category, page: 1, limit: 100000 });
+            const recentSosResponse = await fetchRecentSosData({ startDate, endDate,searchKey,  type: selectedCategoryData._id ? selectedCategoryData._id : category, page: 1, limit: 100000 });
             const recentSos = recentSosResponse?.items || [];
+
+            
 
             const TotalData = [
                 { Type: "Total Companies", Count: (companyList.data?.data.totalUsers || 0), Percentage: companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2) },
@@ -270,6 +295,8 @@ const Analytics = ({ id, activePage,
                 // Add all sheets
                 addSheetWithHeader(TotalData, "Totals");
                 addSheetWithHeader(sosData, "SOS Requests Over Time");
+                // Add only selected category
+               
                 addSheetWithHeader(sosAlertData, "Active SOS Alerts");
                 addSheetWithHeader(sosLocationsData, "Top SOS Locations");
                 addSheetWithHeader(sosClosedData, "Recently Closed SOS Alerts");
@@ -290,6 +317,8 @@ const Analytics = ({ id, activePage,
                 const csvSections = [
                     { title: "Totals", data: TotalData },
                     { title: "SOS Requests Over Time", data: sosData },
+                    // Add only selected category
+                
                     { title: "Active SOS Alerts", data: sosAlertData },
                     { title: "Top SOS Locations", data: sosLocationsData },
                     { title: "Recently Closed SOS Alerts", data: sosClosedData },
@@ -330,7 +359,9 @@ const Analytics = ({ id, activePage,
                     // Add "Exported By" info
                     doc.setFontSize(10);
                     doc.setTextColor(80);
-                    doc.text(`Exported By: ${exportedByValue}`, 14, currentY);
+                    doc.text(`Category : ${selectedCategoryData.display_title}`, 14, currentY);
+                    doc.text(`Exported By: ${exportedByValue}`, 80, currentY);
+
                     currentY += 6;
 
                     // Define table columns
@@ -364,6 +395,7 @@ const Analytics = ({ id, activePage,
 
                 addSection("Totals", TotalData);
                 addSection("SOS Requests Over Time", sosData);
+                // Add only selected category
                 addSection("Active SOS Alerts", sosAlertData);
                 addSection("Top SOS Locations", sosLocationsData);
                 addSection("Recently Closed SOS Alerts", sosClosedData);
@@ -555,6 +587,7 @@ const Analytics = ({ id, activePage,
                             <div className="row chart-heading">
                                 <div className="col-md-9">
                                     <h3>SOS Requests Over Time</h3>
+
                                 </div>
                                 <div className="col-md-3 d-flex justify-content-end">
                                     <select
