@@ -562,10 +562,28 @@ const Home = ({ isMapLoaded, }) => {
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
-                                                        {user?.req_reach || "0"}
+                                                        <Link 
+                                                            to={`/home/request-reached-users/${user?._id}`}
+                                                            style={{ 
+                                                                textDecoration: 'none', 
+                                                                color: 'var(--orange)',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                        >
+                                                            {user?.req_reach || "0"}
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#01C971' }}>
-                                                        {user?.req_accept || "0"}
+                                                        <Link 
+                                                            to={`/home/request-accepted-users/${user?._id}`}
+                                                            style={{ 
+                                                                textDecoration: 'none', 
+                                                                color: '#01C971',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                        >
+                                                            {user?.req_accept || "0"}
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
                                                         {user?.type?.display_title || "-"}

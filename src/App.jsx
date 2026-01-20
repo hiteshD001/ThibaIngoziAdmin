@@ -61,6 +61,7 @@ import AddAgent from "./pages/SalesAgent/AddAgent";
 import AgentInformation from "./pages/SalesAgent/AgentInformation";
 import SalesAgentHome from "./pages/SalesAgentHome";
 import Reset2FAPage from './pages/Reset2FAPage';
+import RequestUsers from "./pages/RequestUsers";
 
 // Define your map loader options once here
 const mapLoaderOptions = {
@@ -139,6 +140,14 @@ function App() {
                 {
                     path: "hotspot/location",
                     element: <GoogleMaps isMapLoaded={isLoaded} />
+                },
+                {
+                    path: "request-reached-users/:id",
+                    element: <RequestUsers />
+                },
+                {
+                    path: "request-accepted-users/:id",
+                    element: <RequestUsers />
                 },
                 {
                     path: "total-companies",

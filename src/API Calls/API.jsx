@@ -1304,6 +1304,32 @@ export const useUpdateLocationStatus = (onSuccess, onError) => {
 
     return mutation;
 };
+export const useGetLocationId = (locationId, page = 1, limit = 10, search = "") => {
+    const queryFn = async () => {
+        const queryParams = new URLSearchParams({
+            page: page.toString(),
+            limit: limit.toString(),
+            ...(search && search.trim() ? { search: search.trim() } : {})
+        }).toString();
+        
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/location/${locationId}?${queryParams}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: [locationId, page, limit, search],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
 
 export const useGetLocationByLocationId = (locationId) => {
     const queryFn = async () => {
