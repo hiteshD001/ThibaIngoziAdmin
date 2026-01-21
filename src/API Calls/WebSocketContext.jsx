@@ -14,7 +14,7 @@ export const WebSocketProvider = ({ children }) => {
         pageSize: 20
     });
     const [currentPage, setCurrentPage] = useState(1);
-    const [newSOS, setnewSOS] = useState(0);
+    const [newSOS, setnewSOS] = useState({ count: 0, type: undefined });
     const url = import.meta.env.VITE_WEB_SOCKET_URL;
 
     useEffect(() => {
@@ -48,13 +48,13 @@ export const WebSocketProvider = ({ children }) => {
 
             // New SOS notification from backend
             if (data?.new_sos) {
-                setnewSOS((prev) => prev + 1);
+                setnewSOS((prev) => ({ count: prev.count + 1, type: "new_sos" }));
                 return;
             }
 
             // SOS update notification from backend (existing SOS updated)
             if (data?.sos_update) {
-                setnewSOS((prev) => prev + 1);
+                setnewSOS((prev) => ({ count: prev.count + 1, type: "update_sos" }));
                 return;
             }
 

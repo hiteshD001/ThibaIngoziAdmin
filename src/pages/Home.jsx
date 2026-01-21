@@ -193,14 +193,14 @@ const Home = ({ isMapLoaded, }) => {
 
     // Refetch active SOS when we receive new SOS notification from WebSocket
     useEffect(() => {
-        if (!newSOS || newSOS === 0) return;
+        if (!newSOS.type || newSOS.count === 0) return;
 
         const fetchData = async () => {
             try {
                 const res = await activeSos.refetch();
                 if (res?.data?.status === 200 && !activeSos.isPending) {
                     await audio.play().catch(() => { });
-                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                    newSOS.type === "new_sos" && toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
                 }
             } catch (error) {
                 console.error("Refetch failed:", error);
@@ -208,7 +208,7 @@ const Home = ({ isMapLoaded, }) => {
         };
 
         fetchData();
-    }, [newSOS]);
+    }, [newSOS.count]);
 
     useEffect(() => {
         const status = userinfo?.data?.data?.user?.company_id?.twoFactorAuth?.enabled
@@ -562,10 +562,10 @@ const Home = ({ isMapLoaded, }) => {
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
-                                                        <Link 
+                                                        <Link
                                                             to={`/home/request-reached-users/${user?._id}`}
-                                                            style={{ 
-                                                                textDecoration: 'none', 
+                                                            style={{
+                                                                textDecoration: 'none',
                                                                 color: 'var(--orange)',
                                                                 cursor: 'pointer',
                                                             }}
@@ -574,10 +574,10 @@ const Home = ({ isMapLoaded, }) => {
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#01C971' }}>
-                                                        <Link 
+                                                        <Link
                                                             to={`/home/request-accepted-users/${user?._id}`}
-                                                            style={{ 
-                                                                textDecoration: 'none', 
+                                                            style={{
+                                                                textDecoration: 'none',
                                                                 color: '#01C971',
                                                                 cursor: 'pointer',
                                                             }}
@@ -1019,7 +1019,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         {row?.help_received}
                                                     </TableCell>
                                                     <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
-                                                         {row?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
+                                                        {row?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
                                                     </TableCell>
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
