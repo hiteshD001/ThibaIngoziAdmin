@@ -198,9 +198,9 @@ const Home = ({ isMapLoaded, }) => {
         const fetchData = async () => {
             try {
                 const res = await activeSos.refetch();
-                if (res?.data?.status === 200 && !activeSos.isPending) {
+                if (res?.data?.status === 200 && !activeSos.isPending && newSOS.type === "new_sos") {
                     await audio.play().catch(() => { });
-                    newSOS.type === "new_sos" && toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
                 }
             } catch (error) {
                 console.error("Refetch failed:", error);
