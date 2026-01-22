@@ -15,6 +15,7 @@ export const WebSocketProvider = ({ children }) => {
     });
     const [currentPage, setCurrentPage] = useState(1);
     const [newSOS, setnewSOS] = useState({ count: 0, type: undefined });
+    const [requestCounts, setRequestCounts] = useState({}); // Store req_reach and req_accept counts by SOS ID
     const url = import.meta.env.VITE_WEB_SOCKET_URL;
 
     useEffect(() => {
@@ -55,6 +56,26 @@ export const WebSocketProvider = ({ children }) => {
             // SOS update notification from backend (existing SOS updated)
             if (data?.sos_update) {
                 setnewSOS((prev) => ({ count: prev.count + 1, type: "update_sos" }));
+                return;
+            }
+
+            // Request reached users update
+            if (data?.request_reached_update) {
+                const { sosId, count } = data.request_reached_update;
+                setRequestCounts(prev => ({
+                    ...prev,
+                    [sosId]: { ...prev[sosId], req_reach: count }
+                }));
+                return;
+            }
+
+            // Request accepted users update
+            if (data?.request_accepted_update) {
+                const { sosId, count } = data.request_accepted_update;
+                setRequestCounts(prev => ({
+                    ...prev,
+                    [sosId]: { ...prev[sosId], req_accept: count }
+                }));
                 return;
             }
 
@@ -125,6 +146,7 @@ export const WebSocketProvider = ({ children }) => {
             pagination,
             currentPage,
             newSOS,
+            requestCounts,
             requestPage,
             nextPage,
             prevPage,

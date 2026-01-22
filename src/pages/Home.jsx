@@ -67,7 +67,7 @@ const Home = ({ isMapLoaded, }) => {
     const [selectedId, setSelectedId] = useState("");
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all")
-    const { newSOS } = useWebSocket();
+    const { newSOS, requestCounts } = useWebSocket();
     const location = useLocation();
 
     const queryClient = useQueryClient();
@@ -198,6 +198,7 @@ const Home = ({ isMapLoaded, }) => {
         const fetchData = async () => {
             try {
                 const res = await activeSos.refetch();
+                console.log("response",res.data.data.data)
                 if (res?.data?.status === 200 && !activeSos.isPending && newSOS.type === "new_sos") {
                     await audio.play().catch(() => { });
                     toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
@@ -570,7 +571,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                 cursor: 'pointer',
                                                             }}
                                                         >
-                                                            {user?.req_reach || "0"}
+                                                            {requestCounts[user?._id]?.req_reach || user?.req_reach || "0"}
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#01C971' }}>
@@ -582,7 +583,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                 cursor: 'pointer',
                                                             }}
                                                         >
-                                                            {user?.req_accept || "0"}
+                                                            {requestCounts[user?._id]?.req_accept || user?.req_accept || "0"}
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
