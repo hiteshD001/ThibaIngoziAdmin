@@ -1001,10 +1001,28 @@ const Home = ({ isMapLoaded, }) => {
                                                         </Box>
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
+                                                         <Link
+                                                            to={`/home/request-reached-users/${row?._id}`}
+                                                            style={{
+                                                                textDecoration: 'none',
+                                                                color: 'var(--orange)',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                        >
                                                         {row?.req_reach || "0"}
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#01C971' }}>
+                                                         <Link
+                                                            to={`/home/request-accepted-users/${row?._id}`}
+                                                            style={{
+                                                                textDecoration: 'none',
+                                                                color: '#01C971',
+                                                                cursor: 'pointer',
+                                                            }}
+                                                        >                                                            
                                                         {row?.req_accept || "0"}
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}

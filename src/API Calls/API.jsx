@@ -1309,6 +1309,7 @@ export const useGetLocationId = (locationId, page = 1, limit = 10, search = "") 
         const queryParams = new URLSearchParams({
             page: page.toString(),
             limit: limit.toString(),
+            isWeb: true,
             ...(search && search.trim() ? { search: search.trim() } : {})
         }).toString();
         
