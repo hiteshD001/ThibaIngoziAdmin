@@ -7,7 +7,7 @@ import { useState } from "react";
 import DeleteIcon from '../assets/images/DeleteIcon.svg'
 import Logout2 from '../assets/images/logout2.svg'
 
-export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
+export const DeleteConfirm = ({ id, trip, setconfirmation,message }) => {
   const client = useQueryClient();
 
   const onSuccess = () => {
@@ -74,7 +74,7 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
         Delete
       </DialogTitle>
       <DialogContent>
-        <Typography>Are you sure you want to delete this ?</Typography>
+        <Typography>{message ? message : "Are you sure you want to delete this ?"}</Typography>
       </DialogContent>
       <DialogActions>
         <Button sx={{ color: 'black', border: '1px solid rgb(175, 179, 189)' }} variant="outlined" onClick={() => setconfirmation("")}>
