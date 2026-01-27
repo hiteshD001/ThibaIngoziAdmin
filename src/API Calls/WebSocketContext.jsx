@@ -18,37 +18,25 @@ export const WebSocketProvider = ({ children }) => {
     const [requestCounts, setRequestCounts] = useState({}); // Store req_reach and req_accept counts by SOS ID
     const url = import.meta.env.VITE_WEB_SOCKET_URL;
 
+    console.log("newSOS", newSOS)
+
     useEffect(() => {
-        const connectWebSocket = () => {
-            const socket = new WebSocket(url);
-            socketRef.current = socket;
+        const socket = new WebSocket(url);
+        socketRef.current = socket;
 
-            socket.onopen = () => {
-                setIsConnected(true);
-                // Request initial data immediately after connection
-                setTimeout(() => {
-                    if (socketRef.current?.readyState === WebSocket.OPEN) {
-                        socketRef.current.send(JSON.stringify({
-                            type: "request_page",
-                            page: 1,
-                        }));
-                    }
-                }, 100); // Small delay to ensure connection is fully established
-            };
+        socket.onopen = () => {
+            setIsConnected(true);
+        };
 
-            socket.onclose = (event) => {
-                setIsConnected(false);
-                // Attempt to reconnect after 3 seconds if not a normal closure
-                if (!event.wasClean) {
-                    setTimeout(connectWebSocket, 3000);
-                }
-            };
+        socket.onclose = () => {
+            setIsConnected(false);
+        };
 
-            socket.onerror = (error) => {
-                console.error("WebSocket error:", error);
-            };
+        socket.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
 
-            socket.onmessage = (event) => {
+        socket.onmessage = (event) => {
             let data;
 
             try {
@@ -64,7 +52,7 @@ export const WebSocketProvider = ({ children }) => {
             // New SOS notification from backend
             if (data?.new_sos) {
                 setnewSOS((prev) => ({ count: prev.count + 1, type: "new_sos" }));
-                return;
+                // Note: Do NOT return here if the payload also contains 'data' you want to use
             }
 
             // SOS update notification from backend (existing SOS updated)
@@ -96,13 +84,22 @@ export const WebSocketProvider = ({ children }) => {
             // Handle paginated data structure (new format)
             if (data?.data && Array.isArray(data?.data) && data?.pagination) {
                 setActiveUserLists(data.data);
-                setPagination(data.pagination);
+                if (data.pagination) setPagination(data.pagination);
                 return;
             }
 
+            // --- ADD THIS BLOCK ---
+            // Handle initial connection data (Backend sends { new_sos: true, data: [...] })
+            // This catches the data attached to the new_sos event
+            if (data?.data && Array.isArray(data?.data)) {
+                setActiveUserLists(data.data);
+                return;
+            }
+            // ----------------------
+
             // Backend structured payload
             if (data?.type === "ACTIVE_SOS" && Array.isArray(data?.payload)) {
-                setActiveUserLists(data.payload); // replace
+                setActiveUserLists(data.payload);
                 return;
             }
 
@@ -112,16 +109,8 @@ export const WebSocketProvider = ({ children }) => {
                 return;
             }
         };
-        };
-
-        // Initial connection
-        connectWebSocket();
-
-        // Cleanup function
         return () => {
-            if (socketRef.current) {
-                socketRef.current.close();
-            }
+            socket.close();
         };
     }, [url]);
 

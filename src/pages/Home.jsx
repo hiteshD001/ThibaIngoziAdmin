@@ -85,6 +85,8 @@ const Home = ({ isMapLoaded, }) => {
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
     const [is2FALoading, setIs2FALoading] = useState(false);
 
+    console.log("newSOS",newSOS)
+
     // date picker 
     const [rangeSos, setRangeSos] = useState([
         {
@@ -192,14 +194,36 @@ const Home = ({ isMapLoaded, }) => {
     }, [activeUserList?.length, refetchRecentSOS]);
 
     // Refetch active SOS when we receive new SOS notification from WebSocket
+    // useEffect(() => {
+    //     if (!newSOS.type || newSOS.count === 0) return;
+
+    //     const fetchData = async () => {
+    //         try {
+    //             const res = await activeSos.refetch();
+    //             console.log("response",res.data.data.data)
+    //             if (res?.data?.status === 200 && !activeSos.isPending && newSOS.type === "new_sos") {
+    //                 await audio.play().catch(() => { });
+    //                 toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+    //             }
+    //         } catch (error) {
+    //             console.error("Refetch failed:", error);
+    //         }
+    //     };
+
+    //     fetchData();
+    // }, [newSOS.count]);
+
+    // Refetch active SOS when we receive new SOS notification from WebSocket
     useEffect(() => {
         if (!newSOS.type || newSOS.count === 0) return;
 
         const fetchData = async () => {
             try {
                 const res = await activeSos.refetch();
-                console.log("response",res.data.data.data)
-                if (res?.data?.status === 200 && !activeSos.isPending && newSOS.type === "new_sos") {
+                
+                // FIXED: Removed "!activeSos.isPending" from the condition below.
+                // We await the refetch above, so we know we have the latest response.
+                if (res?.data?.status === 200 && newSOS.type === "new_sos") {
                     await audio.play().catch(() => { });
                     toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
                 }
