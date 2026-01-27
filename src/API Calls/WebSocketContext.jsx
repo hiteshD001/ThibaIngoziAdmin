@@ -14,7 +14,8 @@ export const WebSocketProvider = ({ children }) => {
         pageSize: 20
     });
     const [currentPage, setCurrentPage] = useState(1);
-    const [newSOS, setnewSOS] = useState(0);
+    const [newSOS, setnewSOS] = useState({ count: 0, type: undefined });
+    const [requestCounts, setRequestCounts] = useState({}); // Store req_reach and req_accept counts by SOS ID
     const url = import.meta.env.VITE_WEB_SOCKET_URL;
 
     useEffect(() => {
@@ -48,13 +49,33 @@ export const WebSocketProvider = ({ children }) => {
 
             // New SOS notification from backend
             if (data?.new_sos) {
-                setnewSOS((prev) => prev + 1);
+                setnewSOS((prev) => ({ count: prev.count + 1, type: "new_sos" }));
                 return;
             }
 
             // SOS update notification from backend (existing SOS updated)
             if (data?.sos_update) {
-                setnewSOS((prev) => prev + 1);
+                setnewSOS((prev) => ({ count: prev.count + 1, type: "update_sos" }));
+                return;
+            }
+
+            // Request reached users update
+            if (data?.request_reached_update) {
+                const { sosId, count } = data.request_reached_update;
+                setRequestCounts(prev => ({
+                    ...prev,
+                    [sosId]: { ...prev[sosId], req_reach: count }
+                }));
+                return;
+            }
+
+            // Request accepted users update
+            if (data?.request_accepted_update) {
+                const { sosId, count } = data.request_accepted_update;
+                setRequestCounts(prev => ({
+                    ...prev,
+                    [sosId]: { ...prev[sosId], req_accept: count }
+                }));
                 return;
             }
 
@@ -125,6 +146,7 @@ export const WebSocketProvider = ({ children }) => {
             pagination,
             currentPage,
             newSOS,
+            requestCounts,
             requestPage,
             nextPage,
             prevPage,

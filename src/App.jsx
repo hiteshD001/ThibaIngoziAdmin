@@ -64,6 +64,7 @@ import Reset2FAPage from './pages/Reset2FAPage';
 import AdminSetting from './pages/setting/AdminSetting'
 import ListOfSubscription from "./pages/subscription/ListOfSubscription";
 import SubscriptionInfo from "./pages/subscription/SubscriptionInfo";
+import RequestUsers from "./pages/RequestUsers";
 
 // Define your map loader options once here
 const mapLoaderOptions = {
@@ -143,6 +144,14 @@ function App() {
                 {
                     path: "hotspot/location",
                     element: <GoogleMaps isMapLoaded={isLoaded} />
+                },
+                {
+                    path: "request-reached-users/:id",
+                    element: <RequestUsers />
+                },
+                {
+                    path: "request-accepted-users/:id",
+                    element: <RequestUsers />
                 },
                 {
                     path: "total-companies",
