@@ -19,22 +19,36 @@ export const WebSocketProvider = ({ children }) => {
     const url = import.meta.env.VITE_WEB_SOCKET_URL;
 
     useEffect(() => {
-        const socket = new WebSocket(url);
-        socketRef.current = socket;
+        const connectWebSocket = () => {
+            const socket = new WebSocket(url);
+            socketRef.current = socket;
 
-        socket.onopen = () => {
-            setIsConnected(true);
-        };
+            socket.onopen = () => {
+                setIsConnected(true);
+                // Request initial data immediately after connection
+                setTimeout(() => {
+                    if (socketRef.current?.readyState === WebSocket.OPEN) {
+                        socketRef.current.send(JSON.stringify({
+                            type: "request_page",
+                            page: 1,
+                        }));
+                    }
+                }, 100); // Small delay to ensure connection is fully established
+            };
 
-        socket.onclose = () => {
-            setIsConnected(false);
-        };
+            socket.onclose = (event) => {
+                setIsConnected(false);
+                // Attempt to reconnect after 3 seconds if not a normal closure
+                if (!event.wasClean) {
+                    setTimeout(connectWebSocket, 3000);
+                }
+            };
 
-        socket.onerror = (error) => {
-            console.error("WebSocket error:", error);
-        };
+            socket.onerror = (error) => {
+                console.error("WebSocket error:", error);
+            };
 
-        socket.onmessage = (event) => {
+            socket.onmessage = (event) => {
             let data;
 
             try {
@@ -98,9 +112,16 @@ export const WebSocketProvider = ({ children }) => {
                 return;
             }
         };
+        };
 
+        // Initial connection
+        connectWebSocket();
+
+        // Cleanup function
         return () => {
-            socket.close();
+            if (socketRef.current) {
+                socketRef.current.close();
+            }
         };
     }, [url]);
 
