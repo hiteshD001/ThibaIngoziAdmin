@@ -233,7 +233,7 @@ const Home = ({ isMapLoaded, }) => {
         };
 
         fetchData();
-    }, [newSOS.count]);
+    }, [newSOS.count,newSOS.type]);
 
     useEffect(() => {
         const status = userinfo?.data?.data?.user?.company_id?.twoFactorAuth?.enabled
