@@ -49,6 +49,7 @@ const ListOfUsers = () => {
     const [confirmation, setconfirmation] = useState("");
     let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;
+    const [isRange, setIsRange] = useState(false);
     const [range, setRange] = useState([
         {
             startDate: startOfYear(new Date()),
@@ -56,8 +57,10 @@ const ListOfUsers = () => {
             key: 'selection'
         }
     ]);
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    
+    // Calculate startDate and endDate reactively from range state
+    const startDate = isRange ? "" : (range[0]?.startDate?.toISOString() || "");
+    const endDate = isRange ? "" : (range[0]?.endDate?.toISOString() || "");
 
     // Sort 1
     const [sortBy, setSortBy] = useState("first_name");
@@ -95,6 +98,12 @@ const ListOfUsers = () => {
         } else {
             setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
         }
+    }
+
+    // Handle date range changes from date picker
+    const handleDateRangeChange = (newRange) => {
+        setRange(newRange);
+        setIsRange(false); // Reset isRange when specific dates are selected
     }
 
     const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder);
@@ -249,7 +258,7 @@ const ListOfUsers = () => {
                         <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
                             <CustomDateRangePicker
                                 value={range}
-                                onChange={setRange}
+                                onChange={handleDateRangeChange}
                                 icon={calender}
                             />
                             <CustomExportMenu onExport={handleExport} />
@@ -275,11 +284,8 @@ const ListOfUsers = () => {
                                 setSortOrder("asc");
                                 setCurrentPage(1);
                                 setRowsPerPage(5);
-                                setRange([{
-                                    startDate: startOfYear(new Date()),
-                                    endDate: new Date(),
-                                    key: 'selection'
-                                }]);
+                                setIsRange(true)
+                                
                                 client.removeQueries(['userListFilters']);
                             }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
                                 View All
