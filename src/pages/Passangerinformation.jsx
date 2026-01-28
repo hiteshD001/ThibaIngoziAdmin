@@ -24,6 +24,7 @@ import vehicleIcon3 from '../assets/images/vehicleIcon3.svg'
 import vehicleIcon4 from '../assets/images/vehicleIcon4.svg'
 import vehicleIcon5 from '../assets/images/vehicleIcon5.svg'
 import vehicleIcon6 from '../assets/images/vehicleIcon6.svg'
+import camera from '../assets/images/camera.svg'
 import Loader from "../common/Loader"
 
 const PassangerInformation = () => {
