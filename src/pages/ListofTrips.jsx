@@ -297,6 +297,7 @@ const ListOfTrips = () => {
                       Passenger
                     </TableSortLabel>
                   </TableCell>
+                   <TableCell >Trip Type</TableCell>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
                       id="createdAt"
@@ -369,7 +370,9 @@ const ListOfTrips = () => {
                               {data.passenger.first_name}
                             </Link>
                           </TableCell>
-
+                          <TableCell sx={{ color:  '#FF7043' }}>
+                            {data?.trip_type?.tripTypeName || "-"}
+                          </TableCell>
                           <TableCell>{format(data?.createdAt, "HH:mm:ss - dd/MM/yyyy")}</TableCell>
                           <TableCell>{data?.trip_status === 'ended' ? format(data.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---'}</TableCell>
                           <TableCell>{data?.ended_by}</TableCell>
