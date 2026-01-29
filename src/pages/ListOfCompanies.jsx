@@ -84,7 +84,7 @@ const ListOfCompanies = () => {
     
     try {
       const response = await apiClient.put(`${import.meta.env.VITE_BASEURL}/users/${userId}`, {
-        disable: newStatus === 'true'
+        isActive : newStatus === 'true'
       });
       
       if (response.data) {
@@ -338,7 +338,7 @@ const ListOfCompanies = () => {
                                   width: '100px',
                                   padding: '7px',
                                 }}
-                                value={user?.disable === false ? false : true}
+                                value={user?.isActive === true ? true : false}
                                 onChange={(e) => {
                                   const newStatus = e.target.value;
                                   if (newStatus === "") return; // Don't show confirmation for placeholder
@@ -349,8 +349,8 @@ const ListOfCompanies = () => {
                                 }}
                               >
                                 <option value="" hidden> Select </option>
-                                <option value="false"> Active  </option>
-                                <option value="true"> Inactive </option>
+                                <option value="true"> Active  </option>
+                                <option value="false"> Inactive </option>
                               </select>
                             </div>
                           )}
@@ -385,7 +385,7 @@ const ListOfCompanies = () => {
                                 <Typography variant="h6">Status</Typography>
                               </DialogTitle>
                               <DialogContent>
-                                <Typography>{`Are you sure you want to set this company to ${statusConfirmation.newStatus === 'true' ? 'inactive' : 'active'}?`}</Typography>
+                                <Typography>{`Are you sure you want to set this company to ${statusConfirmation.newStatus === 'true' ? 'active' : 'inactive'}?`}</Typography>
                               </DialogContent>
                               <DialogActions>
                                 <Button

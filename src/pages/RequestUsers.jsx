@@ -20,6 +20,7 @@ import { startOfYear } from "date-fns";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
+import ViewBtn from '../assets/images/ViewBtn.svg'
 import moment from 'moment';
 
 const RequestUsers = () => {
@@ -195,6 +196,7 @@ const RequestUsers = () => {
                                         Subscription Status
                                     </TableSortLabel>
                                 </TableCell>
+                                <TableCell align="start" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -225,15 +227,22 @@ const RequestUsers = () => {
                             ) : displayUsers.length > 0 ? (
                                 displayUsers.map((user, index) => (
                                     <TableRow key={user._id || index}>
-                                        <TableCell sx={{ color: '#4B5563' }}>
-                                            <Stack direction="row" alignItems="center" gap={1}>
+                                        <TableCell sx={{ color: '#4B5563' }} >
+                                            <Stack direction="row" alignItems="center" gap={1} >
                                                 <Avatar
                                                     src={user.profileImage || nouser}
                                                     sx={{ width: 40, height: 40 }}
                                                     alt="User"
                                                 />
-                                                <Box>
-                                                    <Typography variant="body2" fontWeight={500}>
+                                                <Box >
+                                                    <Typography variant="body2" fontWeight={500} onClick={() => nav(`/home/total-users/user-information/${user._id}`)}
+                                                        sx={{
+                                                            cursor: "pointer",
+                                                            "&:hover": {
+                                                                textDecoration: "none",
+
+                                                            },
+                                                        }}>
                                                         {user.first_name || '-'} {user.last_name || ''}
                                                     </Typography>
                                                    
@@ -266,7 +275,18 @@ const RequestUsers = () => {
                                                                     />
                                             </Typography>
                                         </TableCell>
-                                        
+                                        <TableCell >
+                                            <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                <Tooltip title="View" arrow placement="top">
+                                                    <IconButton onClick={() => nav(`/home/total-users/user-information/${user._id}`)}>
+                                                        <img src={ViewBtn} alt="view button" />
+                                                    </IconButton>
+                                                </Tooltip>
+    
+                                            </Box>
+
+
+                                        </TableCell>
                                                                 
                                     </TableRow>
                                 ))
