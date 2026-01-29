@@ -5,6 +5,10 @@ import {
   Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
   Tooltip,
   TableSortLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 // import plus from '../assets/images/plus.svg'
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -62,6 +66,10 @@ const ListOfCompanies = () => {
   const [filter, setfilter] = useState("");
   const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
   const [confirmation, setconfirmation] = useState("");
+  const [status, setStatus] = useState("");
+  const [statusUpdate, setStatusUpdate] = useState(false);
+  const [selectedId, setSelectedId] = useState("");
+  const [statusConfirmation, setStatusConfirmation] = useState({ show: false, userId: null, newStatus: null });
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,6 +78,27 @@ const ListOfCompanies = () => {
   const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder)
   const totalCompany = companyList.data?.data?.totalUsers || 0;
   const totalPages = Math.ceil(totalCompany / rowsPerPage);
+
+  const handleStatusUpdate = async () => {
+    const { userId, newStatus } = statusConfirmation;
+    
+    try {
+      const response = await apiClient.put(`${import.meta.env.VITE_BASEURL}/users/${userId}`, {
+        isActive : newStatus === 'true'
+      });
+      
+      if (response.data) {
+        toast.success(`Company status updated successfully`);
+        // Refetch the company list to get updated data
+        companyList.refetch();
+      }
+    } catch (error) {
+      toast.error('Failed to update company status');
+      console.error('Error updating company status:', error);
+    } finally {
+      setStatusConfirmation({ show: false, userId: null, newStatus: null });
+    }
+  };
 
 
   const handleExport = async ({ startDate, endDate, format }) => {
@@ -253,6 +282,9 @@ const ListOfCompanies = () => {
                       Contact Email
                     </TableSortLabel>
                   </TableCell>
+                  {localStorage.getItem('role') === 'super_admin' && (
+                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Status</TableCell>
+                  )}
                   <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -295,6 +327,35 @@ const ListOfCompanies = () => {
 
                         </TableCell>
 
+
+                        <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
+                          {localStorage.getItem('role') === 'super_admin' && (
+                            <div className="select-container">
+                              <select
+                                name="active"
+                                className="my-custom-select"
+                                style={{
+                                  width: '100px',
+                                  padding: '7px',
+                                }}
+                                value={user?.isActive === true ? true : false}
+                                onChange={(e) => {
+                                  const newStatus = e.target.value;
+                                  if (newStatus === "") return; // Don't show confirmation for placeholder
+                                  
+                                  setStatus(newStatus);
+                                  setSelectedId(user._id);
+                                  setStatusConfirmation({ show: true, userId: user._id, newStatus });
+                                }}
+                              >
+                                <option value="" hidden> Select </option>
+                                <option value="true"> Active  </option>
+                                <option value="false"> Inactive </option>
+                              </select>
+                            </div>
+                          )}
+                        </TableCell>
+
                         <TableCell >
                           <Box sx={{
                             justifyContent: 'center',
@@ -317,6 +378,33 @@ const ListOfCompanies = () => {
                               <DeleteConfirm id={user?._id} setconfirmation={setconfirmation} />
                             )}
                           </Box>
+
+                          {statusConfirmation.show && statusConfirmation.userId === user._id && (
+                            <Dialog open={true} onClose={() => setStatusConfirmation({ show: false, userId: null, newStatus: null })} maxWidth="xs" fullWidth>
+                              <DialogTitle sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+                                <Typography variant="h6">Status</Typography>
+                              </DialogTitle>
+                              <DialogContent>
+                                <Typography>{`Are you sure you want to set this company to ${statusConfirmation.newStatus === 'true' ? 'active' : 'inactive'}?`}</Typography>
+                              </DialogContent>
+                              <DialogActions>
+                                <Button
+                                  sx={{ borderRadius: '8px', color: 'black', border: '1px solid rgb(175, 179, 189)' }}
+                                  variant="outlined"
+                                  onClick={() => setStatusConfirmation({ show: false, userId: null, newStatus: null })}
+                                >
+                                  No
+                                </Button>
+                                <Button
+                                  variant="contained"
+                                  onClick={handleStatusUpdate}
+                                  sx={{ backgroundColor: '#EB5757', borderRadius: '8px' }}
+                                >
+                                  Yes
+                                </Button>
+                              </DialogActions>
+                            </Dialog>
+                          )}
 
 
                         </TableCell>
