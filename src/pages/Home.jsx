@@ -622,6 +622,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                 <select
                                                                     name="help_received"
                                                                     className="my-custom-select"
+                                                                    value={selectedId === user._id ? status : ""}
                                                                     onChange={(e) => {
                                                                         setStatus(e.target.value);
                                                                         setStatusUpdate(true);
