@@ -148,6 +148,9 @@ const Home = ({ isMapLoaded, }) => {
 
     const prevLengthRef = useRef(activeUserList?.length);
 
+    const notifiedSosIds = useRef(new Set());
+    const lastFetchTime = useRef(0);
+
     const handle2FAToggle = async (e) => {
         const newValue = e.target.checked;
         setIs2FALoading(true);
@@ -178,6 +181,10 @@ const Home = ({ isMapLoaded, }) => {
     useEffect(() => {
         if (!Array.isArray(activeUserList)) return;
 
+        // Sync notifiedSosIds with current list to avoid re-alerting on known items
+        const currentIds = new Set(activeUserList.map(item => item._id));
+        notifiedSosIds.current = currentIds;
+
         const currentLength = activeUserList.length;
         const previousLength = prevLengthRef.current;
 
@@ -194,31 +201,47 @@ const Home = ({ isMapLoaded, }) => {
             queryClient.invalidateQueries(['chartData'], { exact: false });
             queryClient.invalidateQueries(['hotspot'], { exact: false });
         }
-    }, [activeUserList?.length, refetchRecentSOS]);
+    }, [activeUserList, refetchRecentSOS]); // Removed activeUserList.length to track content updates
 
     // Refetch active SOS when we receive new SOS notification from WebSocket
     useEffect(() => {
         if (!newSOS.type || newSOS.count === 0) return;
 
-        // 1. Play sound immediately on new signal (Decoupled from fetch)
-        if (newSOS.type === "new_sos") {
-            const playAudio = async () => {
-                try {
-                    audioRef.current.currentTime = 0;
-                    await audioRef.current.play();
-                    setIsPlaying(true);
-                } catch (e) {
-                    console.error("Audio playback failed:", e);
-                }
-            }
-            playAudio();
-            toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+        // Throttle API calls to prevent spamming active/sos/data
+        const now = Date.now();
+        if (now - lastFetchTime.current < 2000) {
+            console.log("Throttling SOS fetch");
+            return;
         }
+        lastFetchTime.current = now;
 
-        // 2. Fetch data independently
         const fetchData = async () => {
             try {
-                await activeSos.refetch();
+                const { data: res } = await activeSos.refetch();
+                const newList = res?.data?.data || [];
+
+                // Check for new IDs that we haven't notified about yet
+                let hasNew = false;
+                for (const item of newList) {
+                    if (!notifiedSosIds.current.has(item._id)) {
+                        hasNew = true;
+                        break;
+                    }
+                }
+
+                if (hasNew) {
+                    const playAudio = async () => {
+                        try {
+                            audioRef.current.currentTime = 0;
+                            await audioRef.current.play();
+                            setIsPlaying(true);
+                        } catch (e) {
+                            console.error("Audio playback failed:", e);
+                        }
+                    }
+                    playAudio();
+                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                }
             } catch (error) {
                 console.error("Refetch failed:", error);
             }
