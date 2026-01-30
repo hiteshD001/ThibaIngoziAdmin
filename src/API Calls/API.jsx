@@ -957,17 +957,19 @@ export const useGetUser = (userId) => {
 
 // recent driver list
 
-export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, searchKey, type, sortBy, sortOrder) => {
+
+
+export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, searchKey, type, sortBy, sortOrder,company_id) => {
     const queryFn = async () => {
         return await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`, {
-            page, limit, startDate, endDate, searchKey, type: type === 'all' ? "" : type, sortBy, sortOrder
+            page, limit, startDate, endDate, searchKey, type: type === 'all' ? "" : type, sortBy, sortOrder,company_id
         }
         );
     };
 
     const res = useQuery({
-        queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder],
+        queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder,company_id],
         queryFn: queryFn,
         keepPreviousData: true,
     });

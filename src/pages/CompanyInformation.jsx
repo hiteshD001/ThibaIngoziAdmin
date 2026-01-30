@@ -13,7 +13,8 @@ import CompanyAnalytics from '../assets/images/CompanyAnalytics.svg'
 import CompanyAnalytics2 from '../assets/images/CompanyAnalytics2.svg'
 import CompanyAnalytics3 from '../assets/images/CompanyAnalytics3.svg'
 import CompanyAnalytics4 from '../assets/images/CompanyAnalytics4.svg'
-
+import { useRef } from "react";
+import { startOfYear } from "date-fns";
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
 import { useFormik } from "formik";
@@ -90,7 +91,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
     // Sort 1
     const [sortBy, setSortBy] = useState("first_name");
-    const [sortOrder, setSortOrder] = useState("asc");
+    const [sortOrder, setSortOrder] = useState("desc");
 
     const [sortBy2, setSortBy2] = useState("first_name");
     const [sortOrder2, setSortOrder2] = useState("asc");
@@ -98,6 +99,18 @@ const CompanyInformation = ({ isMapLoaded }) => {
     const [sortBy3, setSortBy3] = useState("first_name");
     const [sortOrder3, setSortOrder3] = useState("asc");
 
+    // Default date range for SOS data - last 30 days
+
+
+    const [range, setRange] = useState([
+            {
+                startDate: startOfYear(new Date()),
+                endDate: new Date(),
+                key: 'selection'
+            }
+        ]);
+        const startDate = range[0].startDate.toISOString();
+        const endDate = range[0].endDate.toISOString();
     const changeSortOrder = (e) => {
         const field = e.target.id;
         if (field !== sortBy) {
@@ -131,7 +144,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
     // react queries
     const companyInfo = useGetUser(params.id);
-    const { data: recentSos, isFetching, refetch } = useGetRecentSOS(pagination.recentSos.page, pagination.recentSos.rowsPerPage, "", "", "", "", sortBy, sortOrder);
+    const company_id = params.id 
+    const { data: recentSos, isFetching, refetch } = useGetRecentSOS(pagination.recentSos.page, pagination.recentSos.rowsPerPage, startDate, endDate, "", "", sortBy, sortOrder ,company_id );
     const driverList = useGetUserList("driver list", "driver", params.id, pagination.driver.page, pagination.driver.rowsPerPage, filter, "", "", "", sortBy2, sortOrder2);
     const userList = useGetUserList("user list", "passanger", params.id, pagination.user.page, pagination.user.rowsPerPage, filter, "", "", "", sortBy3, sortOrder3);
     const notificationTypes = useGetNotificationType();
@@ -1033,18 +1047,18 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                                     {row?.address}
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'var(--orange)' }}>
-                                                    {/* {row?.req_reach || "0"} */}
-                                                    5
+                                                    {row?.req_reach || "0"}
+                                                    
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#01C971' }}>
-                                                    {/* {row?.req_accept || "0"} */}
-                                                    0
+                                                    {row?.req_accept || "0"}
+                                                    
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    {moment(row?.updatedAt).format("HH:mm:ss - dd/MM/yyyy")}
+                                                   {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </TableCell>
 
                                                 <TableCell >
