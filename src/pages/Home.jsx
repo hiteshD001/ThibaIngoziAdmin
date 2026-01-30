@@ -55,7 +55,6 @@ const copyButtonStyles = {
     borderRadius: '4px',
 };
 
-const audio = new Audio(tone);
 
 const Home = ({ isMapLoaded, }) => {
     // filters
@@ -78,6 +77,10 @@ const Home = ({ isMapLoaded, }) => {
     // Active SOS pagination
     const [activePage, setActivePage] = useState(1);
     const [activeLimit, setActiveLimit] = useState(10);
+
+    // Audio Control
+    const audioRef = useRef(new Audio(tone));
+    const [isPlaying, setIsPlaying] = useState(false);
 
     // 2FA
     const [showQRCode, setShowQRCode] = useState(false);
@@ -194,39 +197,28 @@ const Home = ({ isMapLoaded, }) => {
     }, [activeUserList?.length, refetchRecentSOS]);
 
     // Refetch active SOS when we receive new SOS notification from WebSocket
-    // useEffect(() => {
-    //     if (!newSOS.type || newSOS.count === 0) return;
-
-    //     const fetchData = async () => {
-    //         try {
-    //             const res = await activeSos.refetch();
-    //             console.log("response",res.data.data.data)
-    //             if (res?.data?.status === 200 && !activeSos.isPending && newSOS.type === "new_sos") {
-    //                 await audio.play().catch(() => { });
-    //                 toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
-    //             }
-    //         } catch (error) {
-    //             console.error("Refetch failed:", error);
-    //         }
-    //     };
-
-    //     fetchData();
-    // }, [newSOS.count]);
-
-    // Refetch active SOS when we receive new SOS notification from WebSocket
     useEffect(() => {
         if (!newSOS.type || newSOS.count === 0) return;
 
+        // 1. Play sound immediately on new signal (Decoupled from fetch)
+        if (newSOS.type === "new_sos") {
+            const playAudio = async () => {
+                try {
+                    audioRef.current.currentTime = 0;
+                    await audioRef.current.play();
+                    setIsPlaying(true);
+                } catch (e) {
+                    console.error("Audio playback failed:", e);
+                }
+            }
+            playAudio();
+            toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+        }
+
+        // 2. Fetch data independently
         const fetchData = async () => {
             try {
-                const res = await activeSos.refetch();
-
-                // FIXED: Removed "!activeSos.isPending" from the condition below.
-                // We await the refetch above, so we know we have the latest response.
-                if (res?.data?.status === 200 && newSOS.type === "new_sos") {
-                    await audio.play().catch(() => { });
-                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
-                }
+                await activeSos.refetch();
             } catch (error) {
                 console.error("Refetch failed:", error);
             }
@@ -234,6 +226,13 @@ const Home = ({ isMapLoaded, }) => {
 
         fetchData();
     }, [newSOS.count, newSOS.type]);
+
+    // Stop audio helper
+    const stopAudio = () => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setIsPlaying(false);
+    };
 
     useEffect(() => {
         const status = userinfo?.data?.data?.user?.company_id?.twoFactorAuth?.enabled
@@ -248,6 +247,7 @@ const Home = ({ isMapLoaded, }) => {
         toast.success("Status Updated Successfully.");
         setStatusUpdate(false);
         setSelectedId("");
+        stopAudio(); // Stop sound when status is updated
         queryClient.refetchQueries(["activeSOS2"], { exact: false });
     };
     const onError = (error) => {
@@ -337,8 +337,19 @@ const Home = ({ isMapLoaded, }) => {
                 {/* active sos */}
                 <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
-                        <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
+                        <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 }, alignItems: 'center' }}>
                             <Typography variant="h6" fontWeight={590}>Active SOS Alerts</Typography>
+                            {isPlaying && (
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    size="small"
+                                    onClick={stopAudio}
+                                    sx={{ borderRadius: "20px", textTransform: "none", ml: 2, animate: "pulse 1s infinite" }}
+                                >
+                                    Stop Sound
+                                </Button>
+                            )}
                         </Grid>
                         <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
                             <TextField
