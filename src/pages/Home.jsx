@@ -44,7 +44,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import tone from "../assets/audio/notification.mp3"
+import tone from "../assets/audio/sos_alarm.mp3"
 import { enable2FA } from "../API Calls/authAPI";
 import QRCode from 'qrcode';
 
@@ -85,7 +85,7 @@ const Home = ({ isMapLoaded, }) => {
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
     const [is2FALoading, setIs2FALoading] = useState(false);
 
-    console.log("newSOS",newSOS)
+    console.log("newSOS", newSOS)
 
     // date picker 
     const [rangeSos, setRangeSos] = useState([
@@ -220,7 +220,7 @@ const Home = ({ isMapLoaded, }) => {
         const fetchData = async () => {
             try {
                 const res = await activeSos.refetch();
-                
+
                 // FIXED: Removed "!activeSos.isPending" from the condition below.
                 // We await the refetch above, so we know we have the latest response.
                 if (res?.data?.status === 200 && newSOS.type === "new_sos") {
@@ -233,7 +233,7 @@ const Home = ({ isMapLoaded, }) => {
         };
 
         fetchData();
-    }, [newSOS.count,newSOS.type]);
+    }, [newSOS.count, newSOS.type]);
 
     useEffect(() => {
         const status = userinfo?.data?.data?.user?.company_id?.twoFactorAuth?.enabled
@@ -1026,7 +1026,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         </Box>
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
-                                                         <Link
+                                                        <Link
                                                             to={`/home/request-reached-users/${row?._id}`}
                                                             style={{
                                                                 textDecoration: 'none',
@@ -1034,19 +1034,19 @@ const Home = ({ isMapLoaded, }) => {
                                                                 cursor: 'pointer',
                                                             }}
                                                         >
-                                                        {row?.req_reach || "0"}
+                                                            {row?.req_reach || "0"}
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#01C971' }}>
-                                                         <Link
+                                                        <Link
                                                             to={`/home/request-accepted-users/${row?._id}`}
                                                             style={{
                                                                 textDecoration: 'none',
                                                                 color: '#01C971',
                                                                 cursor: 'pointer',
                                                             }}
-                                                        >                                                            
-                                                        {row?.req_accept || "0"}
+                                                        >
+                                                            {row?.req_accept || "0"}
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
