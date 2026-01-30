@@ -44,7 +44,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import tone from "../assets/audio/sos_alarm.mp3"
+import tone from "../assets/audio/sos_alert_medium.mp3"
 import { enable2FA } from "../API Calls/authAPI";
 import QRCode from 'qrcode';
 
