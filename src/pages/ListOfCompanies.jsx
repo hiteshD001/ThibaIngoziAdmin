@@ -70,14 +70,15 @@ const ListOfCompanies = () => {
   const [statusUpdate, setStatusUpdate] = useState(false);
   const [selectedId, setSelectedId] = useState("");
   const [statusConfirmation, setStatusConfirmation] = useState({ show: false, userId: null, newStatus: null });
-
+const [isRange, setIsRange] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const startDate = range[0].startDate.toISOString();
-  const endDate = range[0].endDate.toISOString();
+  const startDate = isRange ? "" : (range[0]?.startDate?.toISOString() || "");
+    const endDate = isRange ? "" : (range[0]?.endDate?.toISOString() || "");
   const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder)
   const totalCompany = companyList.data?.data?.totalUsers || 0;
   const totalPages = Math.ceil(totalCompany / rowsPerPage);
+     
 
   const handleStatusUpdate = async () => {
     const { userId, newStatus } = statusConfirmation;
@@ -99,6 +100,11 @@ const ListOfCompanies = () => {
       setStatusConfirmation({ show: false, userId: null, newStatus: null });
     }
   };
+
+  const handleDateRangeChange = (newRange) => {
+        setRange(newRange);
+        setIsRange(false); // Reset isRange when specific dates are selected
+    }
 
 
   const handleExport = async ({ startDate, endDate, format }) => {
@@ -215,7 +221,7 @@ const ListOfCompanies = () => {
             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
               <CustomDateRangePicker
                 value={range}
-                onChange={setRange}
+                onChange={handleDateRangeChange}
                 icon={calender}
               />
               <CustomExportMenu onExport={handleExport} />
@@ -227,7 +233,18 @@ const ListOfCompanies = () => {
               >
                 Add Company
               </Button>
-
+              <Button variant="outlined" onClick={() => {
+                                setfilter("");
+                                setSortBy("first_name");
+                                setSortOrder("asc");
+                                setCurrentPage(1);
+                                setRowsPerPage(5);
+                                setIsRange(true)
+                                
+                                client.removeQueries(['userListFilters']);
+                            }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
+                                View All
+                            </Button>
             </Box>
 
           </Grid>
