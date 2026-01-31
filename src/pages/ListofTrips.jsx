@@ -141,6 +141,7 @@ const ListOfTrips = () => {
       const exportData = allUsers.map(user => ({
         "Driver": user.driver.first_name || '',
         "Passanger": user.passenger.first_name || '',
+        "Trip Type": user.trip_type?.tripTypeName || '',
         "Started At": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
         "Ended At": user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
         "Ended By": user.ended_by || '',
@@ -196,10 +197,11 @@ const ListOfTrips = () => {
 
         // Table content
         autoTable(doc, {
-          head: [['Driver', 'Passanger', 'Started At', 'Ended At', 'Ended By', 'Status']],
+          head: [['Driver', 'Passanger','Trip Type', 'Started At', 'Ended At', 'Ended By', 'Status']],
           body: allUsers.map(user => [
             user.driver?.first_name ?? 'NA',
             user.passenger?.first_name ?? 'NA',
+            user.trip_type?.tripTypeName ?? 'NA',
             format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") ?? 'NA',
             user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
             user.ended_by ?? 'NA',
