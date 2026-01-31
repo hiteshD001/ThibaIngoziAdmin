@@ -1,5 +1,4 @@
 import logo3 from "../assets/images/logo3.svg";
-
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { loginValidation_salesAgent } from "../common/FormValidation";
@@ -10,11 +9,13 @@ import { useUserLogin } from "../API Calls/API";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState } from "react";
 import TwoFactorAuth from "../components/TwoFactorAuth";
+import ForgotPassword from "../components/ForgotPassword";
 
 export const Login = () => {
     const nav = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [show2FA, setShow2FA] = useState(false);
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [tempToken, setTempToken] = useState('');
     const [loginData, setLoginData] = useState({ email: '', password: '' });
 
@@ -86,6 +87,8 @@ export const Login = () => {
                                 onVerificationSuccess={handleLoginSuccess}
                                 onBack={handle2FABack}
                             />
+                        ) : showForgotPassword ? (
+                            <ForgotPassword onBack={() => setShowForgotPassword(false)} />
                         ) : (
                             <div className="login-box shadow p-4 rounded bg-white col-sm-12 col-md-8 col-lg-5">
                                 <div className="login-logo">
@@ -132,7 +135,9 @@ export const Login = () => {
                                     {loginForm.touched.password && <p className="err">{loginForm.errors.password}</p>}
 
                                     <div className="forgotpwd text-end">
-                                        <a href="#">Forgot Password?</a>
+                                        <span role="button" className="text-primary cursor-pointer" onClick={() => setShowForgotPassword(true)} style={{ cursor: "pointer" }}>
+                                            Forgot Password?
+                                        </span>
                                     </div>
 
                                     <button
@@ -153,11 +158,6 @@ export const Login = () => {
                             </div>
                         )}
                     </div>
-                    {/* <div className="col-md-12 text-center">
-                        <div className="copyright">
-                            <p>&copy; 2025 Thiba Ingozi</p>
-                        </div>
-                    </div> */}
                 </div>
             </div>
         </div>
