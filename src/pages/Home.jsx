@@ -136,6 +136,7 @@ const Home = ({ isMapLoaded, }) => {
     const nav = useNavigate();
     const userId = localStorage.getItem("userID");
     const role = localStorage.getItem("role");
+    const userinfo = useGetUser(localStorage.getItem("userID"));
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
@@ -212,12 +213,12 @@ const Home = ({ isMapLoaded, }) => {
     }, [newSOS.count]);
 
     useEffect(() => {
-        const status = userinfo?.data?.data?.user?.company_id?.twoFactorAuth?.enabled
+        const status = userinfo?.data?.data?.user?.twoFactorAuth?.enabled
 
-        if (!status && location?.state?.from === "login") {
+        if (status === false && location?.state?.from === "login") {
             setShowQRCode(true);
         }
-    }, [])
+    }, [userinfo?.data?.data?.user?.twoFactorAuth?.enabled])
 
 
     const onSuccess = () => {
@@ -272,7 +273,7 @@ const Home = ({ isMapLoaded, }) => {
     // }, [activeSOS]);
 
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
-    const userinfo = useGetUser(localStorage.getItem("userID"));
+
 
     const handleUpdate = () => {
         const toUpdate = {
