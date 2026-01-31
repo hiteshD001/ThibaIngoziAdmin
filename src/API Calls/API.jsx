@@ -1312,7 +1312,7 @@ export const useGetLocationId = (locationId, page = 1, limit = 10, search = "") 
             isWeb: true,
             ...(search && search.trim() ? { search: search.trim() } : {})
         }).toString();
-        
+
         return await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/location/${locationId}?${queryParams}`
         );
@@ -1444,6 +1444,60 @@ export const useChangePassword = (onSuccess, onError) => {
 
     return mutation;
 }
+
+// forgot password (send email)
+export const useForgotPassword = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/users/forgot-password`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+// verify code
+export const useVerifyCode = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/users/verifyCode`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+// reset password with code/email
+export const useResetPasswordByCode = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/users/reset-password`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
 
 
 // Export Dashboard
