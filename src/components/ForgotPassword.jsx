@@ -100,7 +100,7 @@ const ForgotPassword = ({ onBack }) => {
                             <div className="text-danger small">{emailForm.errors.email}</div>
                         )}
                     </div>
-                    <button type="submit" className="btn btn-primary d-block w-100" disabled={forgotPassword.isPending}>
+                    <button type="submit" className="btn btn-primary d-block w-100" style={{ backgroundColor: '#367BE0', fontWeight: 700 }} disabled={forgotPassword.isPending}>
                         {forgotPassword.isPending ? <Loader color="white" /> : "Send Code"}
                     </button>
                 </form>
@@ -128,11 +128,11 @@ const ForgotPassword = ({ onBack }) => {
                             <div className="text-danger small">{codeForm.errors.code}</div>
                         )}
                     </div>
-                    <button type="submit" className="btn btn-primary d-block w-100" disabled={verifyCode.isPending}>
+                    <button type="submit" className="btn btn-primary d-block w-100" style={{ backgroundColor: '#367BE0', fontWeight: 700 }} disabled={verifyCode.isPending}>
                         {verifyCode.isPending ? <Loader color="white" /> : "Verify Code"}
                     </button>
-                    <div className="text-center mt-3">
-                        <button type="button" className="btn btn-link p-0 text-decoration-none" onClick={() => setStep(1)} style={{ fontSize: '14px' }}>
+                    <div className="text-center mt-2">
+                        <button type="button" className="btn d-block w-100" onClick={() => setStep(1)} style={{ backgroundColor: 'transparent', border: '1px solid #367BE0', color: '#367BE0', fontWeight: 700 }}>
                             Change Email
                         </button>
                     </div>
@@ -189,7 +189,7 @@ const ForgotPassword = ({ onBack }) => {
                             <div className="text-danger small">{resetForm.errors.confirmPassword}</div>
                         )}
                     </div>
-                    <button type="submit" className="btn btn-primary d-block w-100" disabled={resetPassword.isPending}>
+                    <button type="submit" className="btn btn-primary d-block w-100" style={{ backgroundColor: '#367BE0', fontWeight: 700 }} disabled={resetPassword.isPending}>
                         {resetPassword.isPending ? <Loader color="white" /> : "Reset Password"}
                     </button>
                 </form>

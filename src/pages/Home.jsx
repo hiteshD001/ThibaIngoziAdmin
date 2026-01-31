@@ -362,17 +362,6 @@ const Home = ({ isMapLoaded, }) => {
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                         <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 }, alignItems: 'center' }}>
                             <Typography variant="h6" fontWeight={590}>Active SOS Alerts</Typography>
-                            {isPlaying && (
-                                <Button
-                                    variant="contained"
-                                    color="error"
-                                    size="small"
-                                    onClick={stopAudio}
-                                    sx={{ borderRadius: "20px", textTransform: "none", ml: 2, animate: "pulse 1s infinite" }}
-                                >
-                                    Stop Sound
-                                </Button>
-                            )}
                         </Grid>
                         <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
                             <TextField
