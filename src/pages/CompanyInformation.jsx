@@ -40,8 +40,17 @@ import {
     payoutUserUpdate,
     useGetSecurityList,
     useGetRecentSOS,
-    useGetNotificationType
+
+    useGetNotificationType,
+    useGetCountryList,
+    useGetProvinceList,
+    useGetCityList,
+    useGetBanksList
 } from "../API Calls/API";
+import CustomSelect from "../common/Custom/CustomSelect";
+import { BootstrapInput } from "../common/BootstrapInput";
+import PhoneInput from "react-phone-input-2";
+import GrayPlus from '../assets/images/GrayPlus.svg';
 import CustomChart from "../common/CustomChart";
 import PayoutPopup from "../common/Popup";
 import Loader from "../common/Loader";
@@ -103,14 +112,14 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
 
     const [range, setRange] = useState([
-            {
-                startDate: startOfYear(new Date()),
-                endDate: new Date(),
-                key: 'selection'
-            }
-        ]);
-        const startDate = range[0].startDate.toISOString();
-        const endDate = range[0].endDate.toISOString();
+        {
+            startDate: startOfYear(new Date()),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+    const startDate = range[0].startDate.toISOString();
+    const endDate = range[0].endDate.toISOString();
     const changeSortOrder = (e) => {
         const field = e.target.id;
         if (field !== sortBy) {
@@ -144,8 +153,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
     // react queries
     const companyInfo = useGetUser(params.id);
-    const company_id = params.id 
-    const { data: recentSos, isFetching, refetch } = useGetRecentSOS(pagination.recentSos.page, pagination.recentSos.rowsPerPage, startDate, endDate, "", "", sortBy, sortOrder ,company_id );
+    const company_id = params.id
+    const { data: recentSos, isFetching, refetch } = useGetRecentSOS(pagination.recentSos.page, pagination.recentSos.rowsPerPage, startDate, endDate, "", "", sortBy, sortOrder, company_id);
     const driverList = useGetUserList("driver list", "driver", params.id, pagination.driver.page, pagination.driver.rowsPerPage, filter, "", "", "", sortBy2, sortOrder2);
     const userList = useGetUserList("user list", "passanger", params.id, pagination.user.page, pagination.user.rowsPerPage, filter, "", "", "", sortBy3, sortOrder3);
     const notificationTypes = useGetNotificationType();
@@ -174,12 +183,29 @@ const CompanyInformation = ({ isMapLoaded }) => {
         initialValues: {
             company_name: "",
             mobile_no: "",
+            mobile_no_country_code: "+27",
             email: "",
             isArmed: "",
             isPaymentToken: "",
             services: [],
             securityCompany: [],
             isEnrollToken: "",
+            contact_name: "",
+            company_bio: "",
+            id_no: "",
+            street: "",
+            province: "",
+            city: "",
+            suburb: "",
+            postal_code: "",
+            country: "",
+            accountHolderName: "",
+            customerCode: "",
+            accountType: "",
+            bankId: "",
+            accountNumber: "",
+            selfieImage: "",
+            fullImage: "",
         },
         validationSchema: companyEditValidation,
         onSubmit: (values) => {
@@ -187,9 +213,23 @@ const CompanyInformation = ({ isMapLoaded }) => {
             const formData = new FormData();
             Object.entries(values).forEach(([key, value]) => {
                 if (key === "services") {
-                    value.forEach((id) => formData.append("companyService[]", id));
+                    if (value && value.length > 0) {
+                        value.forEach((id) => formData.append("companyService[]", id));
+                    }
                 } else if (key === "securityCompany") {
-                    value.forEach((id) => formData.append("securityCompany[]", id));
+                    if (value && value.length > 0) {
+                        value.forEach((id) => formData.append("securityCompany[]", id));
+                    }
+                } else if (key === "selfieImage") {
+                    if (value instanceof File) {
+                        formData.append("selfieImage", value);
+                    }
+                } else if (key === "fullImage") {
+                    if (value instanceof File) {
+                        formData.append("fullImage", value);
+                    }
+                } else if (key === 'accountHolderName') {
+                    formData.append("account_holder_name", values[key]);
                 } else {
                     formData.append(key, value);
                 }
@@ -197,6 +237,11 @@ const CompanyInformation = ({ isMapLoaded }) => {
             mutate({ id: params.id, data: formData });
         },
     });
+
+    const provincelist = useGetProvinceList(CompanyForm.values.country)
+    const cityList = useGetCityList(CompanyForm.values.province)
+    const countrylist = useGetCountryList()
+    const bankList = useGetBanksList();
 
     useEffect(() => {
         if (companyInfo.data) {
@@ -208,13 +253,30 @@ const CompanyInformation = ({ isMapLoaded }) => {
     useEffect(() => {
         const user = companyInfo.data?.data?.user;
         if (user) {
+            console.log("user", user)
             CompanyForm.setValues({
                 company_name: user.company_name || "",
-                mobile_no: user.mobile_no || "",
+                mobile_no: String(user.mobile_no || ""),
+                contact_name: user.contact_name || "",
                 email: user.email || "",
                 isArmed: user.isArmed || false,
                 isPaymentToken: user.isPaymentToken || false,
                 isEnrollToken: user.isEnrollToken || false,
+                company_bio: user.company_bio || "",
+                id_no: user.id_no || "",
+                street: user.street || "",
+                suburb: user.suburb || "",
+                postal_code: user.postal_code || "",
+                country: user.country?._id || user.country || "",
+                province: user.province?._id || user.province || "",
+                city: user.city?._id || user.city || "",
+                accountHolderName: user.account_holder_name || "",
+                customerCode: user.branch_code || "",
+                accountType: user.account_type || "",
+                bankId: user.bankId?._id || user.bankId || "",
+                accountNumber: user.accountNumber || "",
+                selfieImage: user?.selfieImage || "",
+                fullImage: user?.fullImage || "",
                 services:
                     user.services?.filter((s) => s.serviceId?.isService).map((s) => s.serviceId?._id) ||
                     [],
@@ -420,22 +482,41 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             )}
                         </Grid>
 
-                        {/* Contact No */}
+                        {/* Contact Name */}
                         <Grid size={{ xs: 12, md: 4 }}>
                             <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
-                                Contact Number
+                                Contact Name
                             </Typography>
                             {edit ? (
                                 <TextField
                                     fullWidth
                                     size="small"
-                                    name="mobile_no"
-                                    placeholder="Contact No."
-                                    value={CompanyForm.values.mobile_no}
+                                    name="contact_name"
+                                    placeholder="Contact Name"
+                                    value={CompanyForm.values.contact_name}
                                     onChange={CompanyForm.handleChange}
                                 />
                             ) : (
-                                <Typography >{companyInfo.data?.data.user.mobile_no}</Typography>
+                                <Typography >{companyInfo.data?.data.user.contact_name || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Reg No */}
+                        <Grid size={{ xs: 12, md: 4 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
+                                Company Reg No.
+                            </Typography>
+                            {edit ? (
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    name="company_bio"
+                                    placeholder="Company Reg No."
+                                    value={CompanyForm.values.company_bio}
+                                    onChange={CompanyForm.handleChange}
+                                />
+                            ) : (
+                                <Typography >{companyInfo.data?.data.user.company_bio || "-"}</Typography>
                             )}
                         </Grid>
 
@@ -456,6 +537,173 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.email}</Typography>
                             )}
+                        </Grid>
+
+                        {/* Contact No */}
+                        <Grid size={{ xs: 12, md: 4 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
+                                Contact Number
+                            </Typography>
+                            {edit ? (
+                                // Use PhoneInput logic if preferred or simple TextField as placeholder
+                                <PhoneInput
+                                    country="za"
+                                    value={String(CompanyForm.values.mobile_no || "")}
+                                    onChange={(value, countryData) => {
+                                        CompanyForm.setFieldValue("mobile_no", value);
+                                        CompanyForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
+                                    }}
+                                    inputStyle={{
+                                        width: '100%',
+                                        height: '40px', // Match size='small' height
+                                        borderRadius: '4px',
+                                        border: '1px solid #c4c4c4',
+                                        fontSize: '16px',
+                                        paddingLeft: '48px',
+                                        background: '#fff',
+                                    }}
+                                    buttonStyle={{
+                                        borderRadius: '4px 0 0 4px',
+                                        border: '1px solid #c4c4c4',
+                                        background: '#fff'
+                                    }}
+                                    containerStyle={{
+                                        height: '40px',
+                                        width: '100%',
+                                    }}
+                                />
+                            ) : (
+                                <Typography >{companyInfo.data?.data.user.mobile_no}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* ID No */}
+                        <Grid size={{ xs: 12, md: 4 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
+                                ID/Passport Number
+                            </Typography>
+                            {edit ? (
+                                <TextField
+                                    fullWidth
+                                    size="small"
+                                    name="id_no"
+                                    placeholder="ID/Passport Number"
+                                    value={CompanyForm.values.id_no}
+                                    onChange={CompanyForm.handleChange}
+                                />
+                            ) : (
+                                <Typography >{companyInfo.data?.data.user.id_no || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Images Section (Only in Edit mode or if existing) */}
+                        <Grid size={12}>
+                            <Grid container gap={4} sx={{ mt: 1 }}>
+                                <Grid size={{ xs: 12, sm: 2.5 }}>
+                                    <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500, color: 'rgba(0, 0, 0, 0.6)' }}>Selfie Image</label>
+                                    {edit ? (
+                                        <Box
+                                            sx={{
+                                                border: '2px dashed #E0E3E7',
+                                                borderRadius: '12px',
+                                                minHeight: 180,
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                cursor: 'pointer',
+                                                position: 'relative',
+                                                background: '#fafbfc'
+                                            }}
+                                            component="label"
+                                        >
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                hidden
+                                                name="selfieImage"
+                                                onChange={e => CompanyForm.setFieldValue('selfieImage', e.currentTarget.files[0])}
+                                            />
+                                            {CompanyForm.values.selfieImage instanceof File ? (
+                                                <img
+                                                    src={URL.createObjectURL(CompanyForm.values.selfieImage)}
+                                                    alt="Selfie Preview"
+                                                    style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                />
+                                            ) : CompanyForm.values.selfieImage ? (
+                                                <img
+                                                    src={CompanyForm.values.selfieImage}
+                                                    alt="Selfie"
+                                                    style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                />
+                                            ) : (<><img src={GrayPlus} alt="gray plus" />
+                                                <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
+                                            )}
+                                        </Box>
+                                    ) : (
+                                        CompanyForm.values.selfieImage ? (
+                                            <img
+                                                src={CompanyForm.values.selfieImage}
+                                                alt="Selfie"
+                                                style={{ height: 180, width: '100%', objectFit: 'contain', borderRadius: '12px', border: '1px solid #E0E3E7' }}
+                                            />
+                                        ) : <Typography>-</Typography>
+                                    )}
+                                </Grid>
+                                <Grid size={{ xs: 12, sm: 2.5 }}>
+                                    <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500, color: 'rgba(0, 0, 0, 0.6)' }}>Full Image</label>
+                                    {edit ? (
+                                        <Box
+                                            sx={{
+                                                border: '2px dashed #E0E3E7',
+                                                borderRadius: '12px',
+                                                minHeight: 180,
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                cursor: 'pointer',
+                                                position: 'relative',
+                                                background: '#fafbfc'
+                                            }}
+                                            component="label"
+                                        >
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                hidden
+                                                name="fullImage"
+                                                onChange={e => CompanyForm.setFieldValue('fullImage', e.currentTarget.files[0])}
+                                            />
+
+                                            {CompanyForm.values.fullImage instanceof File ? (
+                                                <img
+                                                    src={URL.createObjectURL(CompanyForm.values.fullImage)}
+                                                    alt="Full Preview"
+                                                    style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                />
+                                            ) : CompanyForm.values.fullImage ? (
+                                                <img
+                                                    src={CompanyForm.values.fullImage}
+                                                    alt="Full Image"
+                                                    style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                />
+                                            ) : (<><img src={GrayPlus} alt="gray plus" />
+                                                <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
+                                            )
+                                            }
+                                        </Box>
+                                    ) : (
+                                        CompanyForm.values.fullImage ? (
+                                            <img
+                                                src={CompanyForm.values.fullImage}
+                                                alt="Full"
+                                                style={{ height: 180, width: '100%', objectFit: 'contain', borderRadius: '12px', border: '1px solid #E0E3E7' }}
+                                            />
+                                        ) : <Typography>-</Typography>
+                                    )}
+                                </Grid>
+                            </Grid>
                         </Grid>
 
                         {/* Google APIs Used */}
@@ -628,32 +876,247 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
                     {/* Save / Edit */}
                     <Box mt={3} textAlign="right">
-                        {edit ? (
-                            <Box sx={{ display: "flex", justifyContent: 'flex-end', gap: 2 }}>
-                                <Button
-                                    variant="outlined"
-                                    sx={{ width: 130, height: 48, borderRadius: '10px', border: '1px solid var(--icon-gray)', backgroundColor: 'white', color: 'black' }}
-                                    onClick={() => {
-                                        setedit(false);
-                                    }}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                    onClick={() => CompanyForm.submitForm()}
-                                >
-                                    Save
-                                </Button>
-
-                            </Box>
-                        ) : (
+                        {!edit && (
                             <Button variant="contained" sx={{ width: 120, height: 45, borderRadius: '10px', backgroundColor: 'var(--Blue)' }} onClick={() => setedit(true)}>
                                 Edit
                             </Button>
                         )}
                     </Box>
+                </Paper>
+
+                {/* Address Section */}
+                <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", p: 3, borderRadius: "10px", mb: 2 }}>
+                    <Grid container spacing={2}>
+                        <Grid size={12}>
+                            <Typography variant="h6" fontWeight={550} mb={1}>
+                                Address
+                            </Typography>
+                        </Grid>
+
+                        {/* Country */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Country</Typography>
+                            {edit ? (
+                                <CustomSelect
+                                    name="country"
+                                    value={CompanyForm.values.country}
+                                    onChange={CompanyForm.handleChange}
+                                    options={countrylist.data?.data.data?.map(country => ({
+                                        value: country._id,
+                                        label: country.country_name
+                                    })) || []}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.country?.country_name || companyInfo.data?.data.user.country || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Province */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Province</Typography>
+                            {edit ? (
+                                <CustomSelect
+                                    name="province"
+                                    value={CompanyForm.values.province}
+                                    onChange={CompanyForm.handleChange}
+                                    options={provincelist.data?.data.data?.map(province => ({
+                                        value: province._id,
+                                        label: province.province_name
+                                    })) || []}
+                                    disabled={!CompanyForm.values.country}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.province?.province_name || companyInfo.data?.data.user.province || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* City */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">City</Typography>
+                            {edit ? (
+                                <CustomSelect
+                                    name="city"
+                                    value={CompanyForm.values.city}
+                                    onChange={CompanyForm.handleChange}
+                                    options={cityList.data?.data.data?.map(city => ({
+                                        value: city._id,
+                                        label: city.city_name
+                                    })) || []}
+                                    disabled={!CompanyForm.values.country || !CompanyForm.values.province}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.city?.city_name || companyInfo.data?.data.user.city || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Suburb */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Suburb</Typography>
+                            {edit ? (
+                                <BootstrapInput
+                                    id="suburb"
+                                    name="suburb"
+                                    placeholder="Enter Suburb"
+                                    value={CompanyForm.values.suburb}
+                                    onChange={CompanyForm.handleChange}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.suburb || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Street */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Street</Typography>
+                            {edit ? (
+                                <BootstrapInput
+                                    id="street"
+                                    name="street"
+                                    placeholder="Street"
+                                    value={CompanyForm.values.street}
+                                    onChange={CompanyForm.handleChange}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.street || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Postal Code */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Postal Code</Typography>
+                            {edit ? (
+                                <BootstrapInput
+                                    id="postal_code"
+                                    name="postal_code"
+                                    placeholder="Enter Postal Code"
+                                    value={CompanyForm.values.postal_code}
+                                    onChange={CompanyForm.handleChange}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.postal_code || "-"}</Typography>
+                            )}
+                        </Grid>
+                    </Grid>
+                </Paper>
+
+                {/* Bank Details Section */}
+                <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", p: 3, borderRadius: "10px", mb: 2 }}>
+                    <Grid container spacing={2}>
+                        <Grid size={12}>
+                            <Typography variant="h6" fontWeight={550} mb={1}>
+                                Bank Details
+                            </Typography>
+                        </Grid>
+
+                        {/* Account Holder Name */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Account Holder Name</Typography>
+                            {edit ? (
+                                <BootstrapInput
+                                    id="accountHolderName"
+                                    name="accountHolderName"
+                                    placeholder="Enter Account Holder Name"
+                                    value={CompanyForm.values.accountHolderName}
+                                    onChange={CompanyForm.handleChange}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.account_holder_name || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Bank */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Bank Name</Typography>
+                            {edit ? (
+                                <CustomSelect
+                                    name="bankId"
+                                    value={CompanyForm.values.bankId}
+                                    onChange={(e) => {
+                                        const selectedBank = bankList?.find(bank => bank._id === e.target.value);
+                                        CompanyForm.setValues({
+                                            ...CompanyForm.values,
+                                            bankId: e.target.value,
+                                            customerCode: selectedBank?.branch_code || ''
+                                        });
+                                    }}
+                                    options={bankList?.map(bank => ({
+                                        value: bank._id,
+                                        label: bank.bank_name
+                                    })) || []}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.bankId?.bank_name || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Branch Code */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Branch Code</Typography>
+                            {edit ? (
+                                <BootstrapInput
+                                    id="customerCode"
+                                    name="customerCode"
+                                    placeholder="Branch Code"
+                                    readOnly
+                                    value={CompanyForm.values.customerCode}
+                                    onChange={CompanyForm.handleChange}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.branch_code || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Account Type */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Account Type</Typography>
+                            {edit ? (
+                                <BootstrapInput
+                                    id="accountType"
+                                    name="accountType"
+                                    placeholder="Enter Account Type"
+                                    value={CompanyForm.values.accountType}
+                                    onChange={CompanyForm.handleChange}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.account_type || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Account Number */}
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Account Number</Typography>
+                            {edit ? (
+                                <BootstrapInput
+                                    id="accountNumber"
+                                    name="accountNumber"
+                                    placeholder="Enter Account Number"
+                                    value={CompanyForm.values.accountNumber}
+                                    onChange={CompanyForm.handleChange}
+                                />
+                            ) : (
+                                <Typography>{companyInfo.data?.data.user.accountNumber || "-"}</Typography>
+                            )}
+                        </Grid>
+
+                        {/* Save / Cancel Buttons */}
+                        {edit && (
+                            <Grid size={12} sx={{ mt: 1 }}>
+                                <Box display="flex" justifyContent="flex-end" gap={2}>
+                                    <Button variant="outlined" sx={{ width: 130, height: 48, borderRadius: '10px', color: 'black', borderColor: '#E0E3E7' }} onClick={() => setedit(false)}>
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        onClick={CompanyForm.handleSubmit}
+                                        sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                    >
+                                        Save
+                                    </Button>
+                                </Box>
+                            </Grid>
+                        )}
+                    </Grid>
                 </Paper>
                 <Grid container gap={{ xs: 0, lg: 4 }} sx={{ mb: 1 }}>
                     {/* Company Services */}
@@ -1048,17 +1511,17 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'var(--orange)' }}>
                                                     {row?.req_reach || "0"}
-                                                    
+
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#01C971' }}>
                                                     {row?.req_accept || "0"}
-                                                    
+
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                   {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                    {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
                                                 </TableCell>
 
                                                 <TableCell >
@@ -1075,7 +1538,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         :
                                         <TableRow>
                                             <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
-                                                <Typography justifyContent="start" alignItems="start"  color="text.secondary" sx={{ mt: 2 }}>
+                                                <Typography justifyContent="start" alignItems="start" color="text.secondary" sx={{ mt: 2 }}>
                                                     No data found
                                                 </Typography>
                                             </TableCell>
@@ -1122,7 +1585,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         updatePagination("recentSos", "page", 1); // Reset to first page
                                     }}
                                 >
-                                    {[5, 10, 15, 20,50,100].map((num) => (
+                                    {[5, 10, 15, 20, 50, 100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
@@ -1443,7 +1906,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         updatePagination("driver", "page", 1); // Reset to first page
                                     }}
                                 >
-                                    {[5, 10, 15, 20,50,100].map((num) => (
+                                    {[5, 10, 15, 20, 50, 100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
@@ -1710,7 +2173,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         updatePagination("user", "page", 1); // Reset to first page
                                     }}
                                 >
-                                    {[5, 10, 15, 20,50,100].map((num) => (
+                                    {[5, 10, 15, 20, 50, 100].map((num) => (
                                         <MenuItem key={num} value={num}>
                                             {num}
                                         </MenuItem>
