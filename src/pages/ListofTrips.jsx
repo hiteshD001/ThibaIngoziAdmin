@@ -297,7 +297,17 @@ const ListOfTrips = () => {
                       Passenger
                     </TableSortLabel>
                   </TableCell>
-                   <TableCell >Trip Type</TableCell>
+                   <TableCell sx={{ color: '#4B5563' }}>
+                    <TableSortLabel
+                      id="trip_type"
+                      active={sortBy === 'trip_type'}
+                      direction={sortOrder}
+                      onClick={changeSortOrder}
+                      IconComponent={() => <img src={sortBy === 'trip_type' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                    >
+                      Trip Type
+                    </TableSortLabel>
+                  </TableCell>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
                       id="createdAt"
