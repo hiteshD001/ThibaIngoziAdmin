@@ -211,6 +211,7 @@ const Home = ({ isMapLoaded, }) => {
                             const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
 
                             if (isAudioEnabled && audioRef.current) {
+                                audioRef.current.loop = false; // Ensure play once
                                 audioRef.current.currentTime = 0;
                                 await audioRef.current.play();
                             }
@@ -243,6 +244,7 @@ const Home = ({ isMapLoaded, }) => {
                                 const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
 
                                 if (isAudioEnabled && audioRef.current) {
+                                    audioRef.current.loop = false; // Ensure play once
                                     audioRef.current.currentTime = 0;
                                     await audioRef.current.play();
                                 }
