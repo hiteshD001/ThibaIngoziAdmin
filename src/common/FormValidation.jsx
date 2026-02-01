@@ -118,7 +118,20 @@ export const companyValidation = yup.object({
 export const companyEditValidation = yup.object({
     email: Email,
     company_name: Username,
+    contact_name: Username,
     mobile_no: MobileNumber,
+    street: String,
+    province: String,
+    city: String,
+    suburb: String,
+    postal_code: Number,
+    country: String,
+    id_no: yup.number().required("Number value is required"),
+    bankId: yup.string().required("Bank is required"),
+    customerCode: yup.string().required("Branch Code is required"),
+    accountType: yup.string().required("Account Type is required"),
+    accountHolderName: yup.string().required("Account Holder Name is required"),
+    company_bio: yup.string().required("Bio is required")
 })
 
 export const SosAmount = yup.object({

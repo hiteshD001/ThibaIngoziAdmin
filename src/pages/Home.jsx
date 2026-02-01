@@ -44,7 +44,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import tone from "../assets/audio/sos_alert_medium.mp3"
+import tone from "../assets/audio/notification.mp3"
 import { enable2FA } from "../API Calls/authAPI";
 import QRCode from 'qrcode';
 
@@ -87,8 +87,6 @@ const Home = ({ isMapLoaded, }) => {
     const [qrCodeData, setQrCodeData] = useState(null);
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
     const [is2FALoading, setIs2FALoading] = useState(false);
-
-    console.log("newSOS", newSOS)
 
     // date picker 
     const [rangeSos, setRangeSos] = useState([
@@ -141,6 +139,7 @@ const Home = ({ isMapLoaded, }) => {
     const nav = useNavigate();
     const userId = localStorage.getItem("userID");
     const role = localStorage.getItem("role");
+    const userinfo = useGetUser(localStorage.getItem("userID"));
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
@@ -248,7 +247,7 @@ const Home = ({ isMapLoaded, }) => {
         };
 
         fetchData();
-    }, [newSOS.count, newSOS.type]);
+    }, [newSOS.count]);
 
     // Stop audio helper
     const stopAudio = () => {
@@ -258,12 +257,12 @@ const Home = ({ isMapLoaded, }) => {
     };
 
     useEffect(() => {
-        const status = userinfo?.data?.data?.user?.company_id?.twoFactorAuth?.enabled
+        const status = userinfo?.data?.data?.user?.twoFactorAuth?.enabled
 
-        if (!status && location?.state?.from === "login") {
+        if (status === false && location?.state?.from === "login") {
             setShowQRCode(true);
         }
-    }, [])
+    }, [userinfo?.data?.data?.user?.twoFactorAuth?.enabled])
 
 
     const onSuccess = () => {
@@ -319,7 +318,7 @@ const Home = ({ isMapLoaded, }) => {
     // }, [activeSOS]);
 
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
-    const userinfo = useGetUser(localStorage.getItem("userID"));
+
 
     const handleUpdate = () => {
         const toUpdate = {
