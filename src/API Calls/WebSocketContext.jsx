@@ -125,19 +125,7 @@ export const WebSocketProvider = ({ children }) => {
                 return;
             }
 
-            // --- Legacy / Existing Handlers (Keep if needed for compatibility) ---
 
-            // New SOS notification from backend (Legacy - keeping for safety if backend still sends this format)
-            if (data?.new_sos) {
-                setnewSOS((prev) => ({ count: prev.count + 1, type: "new_sos" }));
-                return;
-            }
-
-            // SOS update notification from backend (existing SOS updated)
-            if (data?.sos_update) {
-                setnewSOS((prev) => ({ count: prev.count + 1, type: "update_sos" }));
-                return;
-            }
 
             // Request reached users update
             if (data?.request_reached_update) {
