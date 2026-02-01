@@ -15,7 +15,8 @@ import {
     DialogContent,
     DialogContentText,
     DialogActions,
-    Switch
+    Switch,
+    CircularProgress
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -62,28 +63,22 @@ const Home = ({ isMapLoaded, }) => {
     const [filter, setfilter] = useState("");
     const [recentFilter, setRecentFilter] = useState("");
     const [statusUpdate, setStatusUpdate] = useState(false);
-    const [openAudioModal, setOpenAudioModal] = useState(false);
 
-    // Check Audio Permission on Mount
+    // Audio Permission Modal (First Time Only)
+    const [openAudioModal, setOpenAudioModal] = useState(false);
     useEffect(() => {
-        const checkAudio = async () => {
-            try {
-                await audioRef.current.play();
-                audioRef.current.pause();
-                audioRef.current.currentTime = 0;
-            } catch (e) {
-                if (e.name === 'NotAllowedError') {
-                    setOpenAudioModal(true);
-                }
-            }
+        const audioPref = localStorage.getItem("sosAudioEnabled");
+        if (audioPref === null) {
+            setOpenAudioModal(true);
         }
-        checkAudio();
     }, []);
+
     const [status, setStatus] = useState('')
     // const [activeUsers, setActiveUsers] = useState([])
     const [selectedId, setSelectedId] = useState("");
     const [selectedNotification, setSelectedNotification] = useState("all");
-    const [recentNotification, setRecentNotification] = useState("all")
+    const [recentNotification, setRecentNotification] = useState("all");
+    const [updatingId, setUpdatingId] = useState(""); // Track which ID is being updated
     const { newSOS, requestCounts, activeUserLists } = useWebSocket();
     const location = useLocation();
 
@@ -212,11 +207,18 @@ const Home = ({ isMapLoaded, }) => {
                 if (activeUserLists?.length > 0) {
                     const playAudio = async () => {
                         try {
-                            audioRef.current.currentTime = 0;
-                            await audioRef.current.play();
+                            // Respect user preference for audio
+                            const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
+
+                            if (isAudioEnabled && audioRef.current) {
+                                audioRef.current.currentTime = 0;
+                                await audioRef.current.play();
+                            }
                             setIsPlaying(true);
                         } catch (e) {
                             console.error("Audio playback failed:", e);
+                            // User requested to remove the "Click to enable" toast.
+                            // If blocked by policy, we just fail silently (preserving the visual notification below).
                         }
                     }
                     playAudio();
@@ -237,27 +239,18 @@ const Home = ({ isMapLoaded, }) => {
                     if (hasNew) {
                         const playAudio = async () => {
                             try {
-                                audioRef.current.currentTime = 0;
-                                await audioRef.current.play();
+                                // Respect user preference for audio
+                                const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
+
+                                if (isAudioEnabled && audioRef.current) {
+                                    audioRef.current.currentTime = 0;
+                                    await audioRef.current.play();
+                                }
                                 setIsPlaying(true);
                             } catch (e) {
                                 console.error("Audio playback failed:", e);
-                                if (e.name === 'NotAllowedError') {
-                                    toast.warn("Click to enable Alert Sound 🔊", {
-                                        autoClose: 5000,
-                                        hideProgressBar: false,
-                                        closeOnClick: true,
-                                        pauseOnHover: true,
-                                        onClick: async () => {
-                                            try {
-                                                await audioRef.current.play();
-                                                setIsPlaying(true);
-                                            } catch (err) {
-                                                console.error("Retry audio failed", err);
-                                            }
-                                        }
-                                    });
-                                }
+                                // User requested to remove the "Click to enable" toast.
+                                // If blocked by policy, we just fail silently (preserving the visual notification below).
                             }
                         }
                         playAudio();
@@ -317,10 +310,12 @@ const Home = ({ isMapLoaded, }) => {
         toast.success("Status Updated Successfully.");
         setStatusUpdate(false);
         setSelectedId("");
+        setUpdatingId(""); // Clear loader
         stopAudio(); // Stop sound when status is updated
         queryClient.refetchQueries(["activeSOS2"], { exact: false });
     };
     const onError = (error) => {
+        setUpdatingId(""); // Clear loader
         toast.error(
             error.response.data.message || "Something went Wrong",
             toastOption
@@ -369,6 +364,7 @@ const Home = ({ isMapLoaded, }) => {
 
 
     const handleUpdate = () => {
+        setUpdatingId(selectedId);
         const toUpdate = {
             help_received: status,
         };
@@ -719,21 +715,28 @@ const Home = ({ isMapLoaded, }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
                                                         {(!(user?.sosType === 'ARMED_SOS' ? user?.armedSosstatus : user?.help_received)) &&
-                                                            <div className="select-container">
-                                                                <select
-                                                                    name="help_received"
-                                                                    className="my-custom-select"
-                                                                    value={selectedId === user._id ? status : ""}
-                                                                    onChange={(e) => {
-                                                                        setStatus(e.target.value);
-                                                                        setStatusUpdate(true);
-                                                                        setSelectedId(user._id);
-                                                                    }}
-                                                                >
-                                                                    <option value="" hidden> Select </option>
-                                                                    <option value="help_received"> Help Received </option>
-                                                                    <option value="cancel"> Cancel </option>
-                                                                </select>
+                                                            <div className={updatingId === user._id ? "" : "select-container"}>
+                                                                {updatingId === user._id ? (
+                                                                    <Box display="flex" justifyContent="center">
+                                                                        {/* Use custom loader matching the theme */}
+                                                                        <Loader size={25} color="#1E73E8" />
+                                                                    </Box>
+                                                                ) : (
+                                                                    <select
+                                                                        name="help_received"
+                                                                        className="my-custom-select"
+                                                                        value={selectedId === user._id ? status : ""}
+                                                                        onChange={(e) => {
+                                                                            setStatus(e.target.value);
+                                                                            setStatusUpdate(true);
+                                                                            setSelectedId(user._id);
+                                                                        }}
+                                                                    >
+                                                                        <option value="" hidden> Select </option>
+                                                                        <option value="help_received"> Help Received </option>
+                                                                        <option value="cancel"> Cancel </option>
+                                                                    </select>
+                                                                )}
                                                             </div>
                                                         }
                                                     </TableCell>
@@ -1386,31 +1389,46 @@ const Home = ({ isMapLoaded, }) => {
                 }
             </Dialog>
 
-            {/* Audio Permission Modal */}
+            {/* Audio Permission Modal - First Time Only */}
             <Dialog open={openAudioModal} onClose={() => { }} disableEscapeKeyDown>
-                <DialogTitle>Enable Audio Alerts</DialogTitle>
+                <DialogTitle>Enable Audio Alerts?</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        To receive real-time SOS audio alerts, please click "Enable" to grant permission for sound playback.
+                        Do you want to enable sound notifications for real-time SOS alerts?
+                        <br />
+                        <Typography variant="caption" color="text.secondary">
+                            (You can change this anytime in your Profile)
+                        </Typography>
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
+                    <Button onClick={() => {
+                        localStorage.setItem("sosAudioEnabled", "false");
+                        setOpenAudioModal(false);
+                        toast.info("Audio alerts disabled. You can enable them in Profile.", toastOption);
+                    }} color="inherit">
+                        No, thanks
+                    </Button>
                     <Button onClick={() => {
                         const enableAudio = async () => {
                             try {
                                 if (audioRef.current) {
                                     audioRef.current.currentTime = 0;
                                     await audioRef.current.play();
-                                    // We let it play so user hears the confirmation
                                 }
+                                localStorage.setItem("sosAudioEnabled", "true");
                                 setOpenAudioModal(false);
+                                toast.success("Audio alerts enabled!", toastOption);
                             } catch (e) {
                                 console.error("Permission grant failed", e);
+                                // Fallback: still save as true, user might click again later
+                                localStorage.setItem("sosAudioEnabled", "true");
+                                setOpenAudioModal(false);
                             }
                         }
                         enableAudio();
-                    }} color="primary" variant="contained">
-                        Enable Audio
+                    }} color="primary" variant="contained" autoFocus>
+                        Yes, Enable Audio
                     </Button>
                 </DialogActions>
             </Dialog>

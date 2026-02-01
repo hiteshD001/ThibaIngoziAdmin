@@ -41,6 +41,7 @@ const Profile = () => {
   const [qrCodeData, setQrCodeData] = useState(null);
   const [showQRCode, setShowQRCode] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [audioEnabled, setAudioEnabled] = useState(localStorage.getItem("sosAudioEnabled") === 'true');
   const client = useQueryClient();
 
   const onSuccess = () => {
@@ -696,6 +697,44 @@ const Profile = () => {
                           color="primary"
                         />
                       )}
+                    </Box>
+                  </Box>
+                </Paper>
+              </Grid>
+
+              {/* Audio Alerts Toggle */}
+              <Grid size={12} sx={{ mb: 2 }}>
+                <Paper elevation={0} sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: 2 }}>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
+                        Audio Alerts
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Enable sound notifications for incoming SOS alerts
+                      </Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center">
+                      <Switch
+                        checked={audioEnabled}
+                        onClick={(e) => {
+                          const newState = e.target.checked;
+                          localStorage.setItem("sosAudioEnabled", newState);
+                          setAudioEnabled(newState);
+
+                          if (newState) {
+                            toast.success("Audio alerts enabled", toastOption);
+                            // Try to play a silent sound to test/unlock permission if possible (though click already does it)
+                            const audio = new Audio("/assets/audio/notification.mp3"); // Path might need verification, but we just need interaction
+                            // Actually tone is import in Home.jsx, here we don't have it imported. 
+                            // We can just rely on the click interaction content.
+                          } else {
+                            toast.info("Audio alerts disabled", toastOption);
+                          }
+                        }}
+                        slotProps={{ input: { 'aria-label': 'controlled' } }}
+                        color="primary"
+                      />
                     </Box>
                   </Box>
                 </Paper>
