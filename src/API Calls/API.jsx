@@ -972,6 +972,8 @@ export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, search
         queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id],
         queryFn: queryFn,
         keepPreviousData: true,
+        staleTime: 300000, // 5 minutes cache to prevent spamming
+        refetchOnWindowFocus: false,
     });
 
     return res;

@@ -233,7 +233,7 @@ const Home = ({ isMapLoaded, }) => {
                     for (const item of newList) {
                         if (!notifiedSosIds.current.has(item._id)) {
                             hasNew = true;
-                            break;
+                            notifiedSosIds.current.add(item._id); // Update immediately
                         }
                     }
 
