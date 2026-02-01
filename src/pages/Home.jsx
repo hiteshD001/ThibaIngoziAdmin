@@ -13,6 +13,7 @@ import {
     Dialog,
     DialogTitle,
     DialogContent,
+    DialogContentText,
     DialogActions,
     Switch
 } from "@mui/material";
@@ -61,12 +62,29 @@ const Home = ({ isMapLoaded, }) => {
     const [filter, setfilter] = useState("");
     const [recentFilter, setRecentFilter] = useState("");
     const [statusUpdate, setStatusUpdate] = useState(false);
+    const [openAudioModal, setOpenAudioModal] = useState(false);
+
+    // Check Audio Permission on Mount
+    useEffect(() => {
+        const checkAudio = async () => {
+            try {
+                await audioRef.current.play();
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            } catch (e) {
+                if (e.name === 'NotAllowedError') {
+                    setOpenAudioModal(true);
+                }
+            }
+        }
+        checkAudio();
+    }, []);
     const [status, setStatus] = useState('')
     // const [activeUsers, setActiveUsers] = useState([])
     const [selectedId, setSelectedId] = useState("");
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all")
-    const { newSOS, requestCounts } = useWebSocket();
+    const { newSOS, requestCounts, activeUserLists } = useWebSocket();
     const location = useLocation();
 
     const queryClient = useQueryClient();
@@ -143,7 +161,7 @@ const Home = ({ isMapLoaded, }) => {
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
-    const activeUserList = activeSos?.data?.data?.data
+    const activeUserList = activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data;
 
     const prevLengthRef = useRef(activeUserList?.length);
 
@@ -177,6 +195,83 @@ const Home = ({ isMapLoaded, }) => {
         setIs2FALoading(false);
     };
 
+    // Refetch active SOS when we receive new SOS notification from WebSocket
+    useEffect(() => {
+        if (!newSOS.type || newSOS.count === 0) return;
+
+        // Throttle API calls to prevent spamming active/sos/data
+        const now = Date.now();
+        if (now - lastFetchTime.current < 2000) {
+            return;
+        }
+        lastFetchTime.current = now;
+
+        const handleAlert = async () => {
+            try {
+                // If we have WebSocket data, we trust the NEW_SOS signal
+                if (activeUserLists?.length > 0) {
+                    const playAudio = async () => {
+                        try {
+                            audioRef.current.currentTime = 0;
+                            await audioRef.current.play();
+                            setIsPlaying(true);
+                        } catch (e) {
+                            console.error("Audio playback failed:", e);
+                        }
+                    }
+                    playAudio();
+                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                } else {
+                    const { data: res } = await activeSos.refetch();
+                    const newList = res?.data?.data || [];
+
+                    // Check for new IDs that we haven't notified about yet
+                    let hasNew = false;
+                    for (const item of newList) {
+                        if (!notifiedSosIds.current.has(item._id)) {
+                            hasNew = true;
+                            break;
+                        }
+                    }
+
+                    if (hasNew) {
+                        const playAudio = async () => {
+                            try {
+                                audioRef.current.currentTime = 0;
+                                await audioRef.current.play();
+                                setIsPlaying(true);
+                            } catch (e) {
+                                console.error("Audio playback failed:", e);
+                                if (e.name === 'NotAllowedError') {
+                                    toast.warn("Click to enable Alert Sound 🔊", {
+                                        autoClose: 5000,
+                                        hideProgressBar: false,
+                                        closeOnClick: true,
+                                        pauseOnHover: true,
+                                        onClick: async () => {
+                                            try {
+                                                await audioRef.current.play();
+                                                setIsPlaying(true);
+                                            } catch (err) {
+                                                console.error("Retry audio failed", err);
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                        playAudio();
+                        toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                    }
+                }
+            } catch (error) {
+                console.error("Refetch failed:", error);
+            }
+        };
+
+        handleAlert();
+    }, [newSOS.count]);
+
     useEffect(() => {
         if (!Array.isArray(activeUserList)) return;
 
@@ -201,53 +296,6 @@ const Home = ({ isMapLoaded, }) => {
             queryClient.invalidateQueries(['hotspot'], { exact: false });
         }
     }, [activeUserList, refetchRecentSOS]); // Removed activeUserList.length to track content updates
-
-    // Refetch active SOS when we receive new SOS notification from WebSocket
-    useEffect(() => {
-        if (!newSOS.type || newSOS.count === 0) return;
-
-        // Throttle API calls to prevent spamming active/sos/data
-        const now = Date.now();
-        if (now - lastFetchTime.current < 2000) {
-            console.log("Throttling SOS fetch");
-            return;
-        }
-        lastFetchTime.current = now;
-
-        const fetchData = async () => {
-            try {
-                const { data: res } = await activeSos.refetch();
-                const newList = res?.data?.data || [];
-
-                // Check for new IDs that we haven't notified about yet
-                let hasNew = false;
-                for (const item of newList) {
-                    if (!notifiedSosIds.current.has(item._id)) {
-                        hasNew = true;
-                        break;
-                    }
-                }
-
-                if (hasNew) {
-                    const playAudio = async () => {
-                        try {
-                            audioRef.current.currentTime = 0;
-                            await audioRef.current.play();
-                            setIsPlaying(true);
-                        } catch (e) {
-                            console.error("Audio playback failed:", e);
-                        }
-                    }
-                    playAudio();
-                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
-                }
-            } catch (error) {
-                console.error("Refetch failed:", error);
-            }
-        };
-
-        fetchData();
-    }, [newSOS.count]);
 
     // Stop audio helper
     const stopAudio = () => {
@@ -543,58 +591,67 @@ const Home = ({ isMapLoaded, }) => {
                                                 <TableRow key={user._id}>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
-                                                            user?.user?.role === "driver" ? (
-                                                                <Link to={`/home/total-drivers/driver-information/${user?.user?._id}`} className="link">
-                                                                    <Stack direction="row" alignItems="center" gap={1}>
-                                                                        <Avatar
-                                                                            src={
-                                                                                user?.user
-                                                                                    ?.selfieImage ||
-                                                                                nouser
-                                                                            }
-                                                                            sx={{ '&:hover': { textDecoration: 'none' } }}
-                                                                            alt="User"
-                                                                        />
+                                                            user?.sosType === 'ARMED_SOS' ? (
+                                                                <Stack direction="row" alignItems="center" gap={1}>
+                                                                    <Avatar
+                                                                        src={nouser} // No selfie field mentioned for armedUserId, using default or check armedUserId.selfieImage?
+                                                                        alt="User"
+                                                                    />
+                                                                    {user?.armedUserId?.first_name || ''} {user?.armedUserId?.last_name || ''}
+                                                                </Stack>
+                                                            ) : (
+                                                                user?.user?.role === "driver" ? (
+                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user?._id}`} className="link">
+                                                                        <Stack direction="row" alignItems="center" gap={1}>
+                                                                            <Avatar
+                                                                                src={
+                                                                                    user?.user
+                                                                                        ?.selfieImage ||
+                                                                                    nouser
+                                                                                }
+                                                                                sx={{ '&:hover': { textDecoration: 'none' } }}
+                                                                                alt="User"
+                                                                            />
 
-                                                                        {user?.user?.first_name || ''} {user?.user?.last_name || ''}
-                                                                    </Stack>
-                                                                </Link>) : (
-                                                                <Link to={`/home/total-users/user-information/${user?.user?._id}`} className="link">
-                                                                    <Stack direction="row" alignItems="center" gap={1}>
-                                                                        <Avatar
-                                                                            src={
-                                                                                user?.user
-                                                                                    ?.selfieImage ||
-                                                                                nouser
-                                                                            }
-                                                                            alt="User"
-                                                                        />
+                                                                            {user?.user?.first_name || ''} {user?.user?.last_name || ''}
+                                                                        </Stack>
+                                                                    </Link>) : (
+                                                                    <Link to={`/home/total-users/user-information/${user?.user?._id}`} className="link">
+                                                                        <Stack direction="row" alignItems="center" gap={1}>
+                                                                            <Avatar
+                                                                                src={
+                                                                                    user?.user
+                                                                                        ?.selfieImage ||
+                                                                                    nouser
+                                                                                }
+                                                                                alt="User"
+                                                                            />
 
-                                                                        {user?.user?.first_name || ''} {user?.user?.last_name || ''}
-                                                                    </Stack>
-                                                                </Link>
+                                                                            {user?.user?.first_name || ''} {user?.user?.last_name || ''}
+                                                                        </Stack>
+                                                                    </Link>
+                                                                )
                                                             )
-
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {user?.user?.company_name}
+                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : user?.user?.company_name}
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
                                                     }} >
-                                                        {user?.address ?
+                                                        {user?.sosType === 'ARMED_SOS' ? (
                                                             <Box sx={{
                                                                 display: 'flex',
                                                                 alignItems: 'center',
                                                                 justifyContent: 'space-between',
                                                             }}>
-                                                                {user?.address}
+                                                                {`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`}
 
                                                                 <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
                                                                     <IconButton
                                                                         onClick={() => {
-                                                                            setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks[0]?._id}`);
+                                                                            setTextToCopy(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`);
                                                                             handleCopy();
                                                                         }}
                                                                         sx={copyButtonStyles}
@@ -604,9 +661,31 @@ const Home = ({ isMapLoaded, }) => {
                                                                     </IconButton>
                                                                 </Tooltip>
                                                             </Box>
-                                                            :
-                                                            "-"
-                                                        }
+                                                        ) : (
+                                                            user?.address ?
+                                                                <Box sx={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'space-between',
+                                                                }}>
+                                                                    {user?.address}
+
+                                                                    <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                        <IconButton
+                                                                            onClick={() => {
+                                                                                setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id}`);
+                                                                                handleCopy();
+                                                                            }}
+                                                                            sx={copyButtonStyles}
+                                                                            aria-label="copy address"
+                                                                        >
+                                                                            <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                </Box>
+                                                                :
+                                                                "-"
+                                                        )}
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
                                                         <Link
@@ -633,13 +712,13 @@ const Home = ({ isMapLoaded, }) => {
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
-                                                        {user?.type?.display_title || "-"}
+                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.type?.display_title || "-")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {moment(user?.createdAt).format('HH:mm:ss')}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
-                                                        {!user?.help_received &&
+                                                        {(!(user?.sosType === 'ARMED_SOS' ? user?.armedSosstatus : user?.help_received)) &&
                                                             <div className="select-container">
                                                                 <select
                                                                     name="help_received"
@@ -659,7 +738,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
-                                                        {user?.deepLinks[0]?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
+                                                        {user?.deepLinks?.[0]?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
                                                     </TableCell>
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
@@ -1305,6 +1384,35 @@ const Home = ({ isMapLoaded, }) => {
                         </DialogActions>
                     </>
                 }
+            </Dialog>
+
+            {/* Audio Permission Modal */}
+            <Dialog open={openAudioModal} onClose={() => { }} disableEscapeKeyDown>
+                <DialogTitle>Enable Audio Alerts</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        To receive real-time SOS audio alerts, please click "Enable" to grant permission for sound playback.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => {
+                        const enableAudio = async () => {
+                            try {
+                                if (audioRef.current) {
+                                    audioRef.current.currentTime = 0;
+                                    await audioRef.current.play();
+                                    // We let it play so user hears the confirmation
+                                }
+                                setOpenAudioModal(false);
+                            } catch (e) {
+                                console.error("Permission grant failed", e);
+                            }
+                        }
+                        enableAudio();
+                    }} color="primary" variant="contained">
+                        Enable Audio
+                    </Button>
+                </DialogActions>
             </Dialog>
         </Box >
     );

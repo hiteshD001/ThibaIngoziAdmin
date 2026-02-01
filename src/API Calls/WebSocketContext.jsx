@@ -47,7 +47,54 @@ export const WebSocketProvider = ({ children }) => {
             // Ignore heartbeat pong
             if (data?.type === "pong") return;
 
-            // New SOS notification from backend
+            // --- New Real-time SOS Handlers ---
+
+            // INITIAL_DATA or NEW_SOS: Replace/Append list
+            if (data?.type === 'INITIAL_DATA' || data?.type === 'NEW_SOS') {
+                const payload = data.data;
+                let processedList = [];
+
+                if (Array.isArray(payload)) {
+                    processedList = payload;
+                    setActiveUserLists(processedList);
+                } else if (payload && typeof payload === 'object') {
+                    // It's a single SOS object, append it to the current list
+                    processedList = [payload]; // Treat as a list for valid check below
+                    setActiveUserLists(prev => {
+                        // Prevent duplicates if appending
+                        const exists = prev.find(item => item._id === payload._id);
+                        if (exists) return prev;
+                        return [payload, ...prev];
+                    });
+                }
+
+                // Trigger Sound for NEW_SOS (if we have valid data)
+                if (data?.type === 'NEW_SOS' && (Array.isArray(payload) ? payload.length > 0 : !!payload)) {
+                    setnewSOS((prev) => ({ count: prev.count + 1, type: "new_sos" }));
+                }
+                return;
+            }
+
+            // SOS_UPDATE: Full list update
+            if (data?.type === 'SOS_UPDATE') {
+                if (Array.isArray(data.data)) {
+                    setActiveUserLists(data.data);
+                }
+                return;
+            }
+
+            // SOS_RESOLVED: Remove specific ID
+            if (data?.type === 'SOS_RESOLVED') {
+                const resolvedId = data.resolvedId;
+                if (resolvedId) {
+                    setActiveUserLists(prev => prev.filter(item => item._id !== resolvedId));
+                }
+                return;
+            }
+
+            // --- Legacy / Existing Handlers (Keep if needed for compatibility) ---
+
+            // New SOS notification from backend (Legacy - keeping for safety if backend still sends this format)
             if (data?.new_sos) {
                 setnewSOS((prev) => ({ count: prev.count + 1, type: "new_sos" }));
                 return;
@@ -66,6 +113,10 @@ export const WebSocketProvider = ({ children }) => {
                     ...prev,
                     [sosId]: { ...prev[sosId], req_reach: count }
                 }));
+                // Also update the list if present
+                setActiveUserLists(prev => prev.map(item =>
+                    item._id === sosId ? { ...item, req_reach: count } : item
+                ));
                 return;
             }
 
@@ -76,6 +127,10 @@ export const WebSocketProvider = ({ children }) => {
                     ...prev,
                     [sosId]: { ...prev[sosId], req_accept: count }
                 }));
+                // Also update the list if present
+                setActiveUserLists(prev => prev.map(item =>
+                    item._id === sosId ? { ...item, req_accept: count } : item
+                ));
                 return;
             }
 
