@@ -209,6 +209,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
         },
         validationSchema: companyEditValidation,
         onSubmit: (values) => {
+           
             setedit(false);
             const formData = new FormData();
             Object.entries(values).forEach(([key, value]) => {
@@ -234,6 +235,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                     formData.append(key, value);
                 }
             });
+            
             mutate({ id: params.id, data: formData });
         },
     });
@@ -271,8 +273,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                 province: user.province?._id || user.province || "",
                 city: user.city?._id || user.city || "",
                 accountHolderName: user.account_holder_name || "",
-                customerCode: user.branch_code || "",
-                accountType: user.account_type || "",
+                customerCode: user.customerCode || "",
+                accountType: user.accountType || "",
                 bankId: user.bankId?._id || user.bankId || "",
                 accountNumber: user.accountNumber || "",
                 selfieImage: user?.selfieImage || "",
@@ -303,10 +305,12 @@ const CompanyInformation = ({ isMapLoaded }) => {
     }, [companyInfo.data?.data?.user, edit]);
 
     // security companies options
-    const securityCompanyOptions = securityList?.data?.data?.company?.map((item) => ({
+    const securityCompanyOptions = !securityList?.isLoading && securityList?.data?.data?.company?.map((item) => ({
         label: item.company_name,
-        value: item?._id,
+        value: item._id,
     })) || [];
+
+    
 
     // Company services options
     useLayoutEffect(() => {
@@ -476,6 +480,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     placeholder="Company Name"
                                     value={CompanyForm.values.company_name}
                                     onChange={CompanyForm.handleChange}
+                                    error={CompanyForm.touched.company_name && Boolean(CompanyForm.errors.company_name)}
+                                    helperText={CompanyForm.touched.company_name && CompanyForm.errors.company_name}
                                 />
                             ) : (
                                 <Typography >{companyInfo.data?.data.user.company_name}</Typography>
@@ -495,6 +501,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     placeholder="Contact Name"
                                     value={CompanyForm.values.contact_name}
                                     onChange={CompanyForm.handleChange}
+                                    error={CompanyForm.touched.contact_name && Boolean(CompanyForm.errors.contact_name)}
+                                    helperText={CompanyForm.touched.contact_name && CompanyForm.errors.contact_name}
                                 />
                             ) : (
                                 <Typography >{companyInfo.data?.data.user.contact_name || "-"}</Typography>
@@ -514,6 +522,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     placeholder="Company Reg No."
                                     value={CompanyForm.values.company_bio}
                                     onChange={CompanyForm.handleChange}
+                                    error={CompanyForm.touched.company_bio && Boolean(CompanyForm.errors.company_bio)}
+                                    helperText={CompanyForm.touched.company_bio && CompanyForm.errors.company_bio}
                                 />
                             ) : (
                                 <Typography >{companyInfo.data?.data.user.company_bio || "-"}</Typography>
@@ -533,6 +543,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     placeholder="Contact Email"
                                     value={CompanyForm.values.email}
                                     onChange={CompanyForm.handleChange}
+                                    error={CompanyForm.touched.email && Boolean(CompanyForm.errors.email)}
+                                    helperText={CompanyForm.touched.email && CompanyForm.errors.email}
                                 />
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.email}</Typography>
@@ -590,6 +602,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     placeholder="ID/Passport Number"
                                     value={CompanyForm.values.id_no}
                                     onChange={CompanyForm.handleChange}
+                                    error={CompanyForm.touched.id_no && Boolean(CompanyForm.errors.id_no)}
+                                    helperText={CompanyForm.touched.id_no && CompanyForm.errors.id_no}
                                 />
                             ) : (
                                 <Typography >{companyInfo.data?.data.user.id_no || "-"}</Typography>
@@ -789,7 +803,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         isMulti
                                         name="securityCompany"
                                         options={securityCompanyOptions}
-                                        isDisabled={CompanyForm.values.isArmed}
+                                        // isDisabled={CompanyForm.values.isArmed ? true : false}
                                         classNamePrefix="select"
                                         components={{ DropdownIndicator }}
                                         placeholder="Select Security Companies"
@@ -851,22 +865,70 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     />
                                 </Box>
                             ) : (
-                                CompanyForm.values.securityCompany.length > 0 && (
+                                (companyInfo.data?.data.user?.securityCompany?.length > 0 ) && (
                                     <Box mt={3}>
                                         <Typography variant="h6" fontWeight={550} mb={1}>
                                             Security Companies
                                         </Typography>
-                                        {(CompanyForm.values.isArmed !== true) && (
+                                        {/* {(CompanyForm.values.isArmed !== true) && ( */}
                                             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                                                {securityCompanyOptions
+                                                {console.log("Displaying security companies:", {
+                                                    savedData: companyInfo.data?.data.user?.securityCompany.map((s) => s.securityCompanyId?.company_name),
+                                                    formValues: CompanyForm.values.securityCompany,
+                                                    options: securityCompanyOptions
+                                                })}
+                                                {companyInfo.data?.data.user?.securityCompany?.map((securityItem, index) => (
+                                                    <Typography 
+                                                        key={index} 
+                                                        variant="body1"
+                                                        sx={{
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            margin: '2px',
+                                                            borderRadius: '8px',
+                                                            border: '1px solid var(--icon-gray)',
+                                                            color: 'black',
+                                                            backgroundColor: 'white',
+                                                            fontWeight: 500,
+                                                            fontSize: 13,
+                                                            padding: '4px 8px',
+                                                            borderBottomLeftRadius: '8px',
+                                                            borderTopLeftRadius: '8px',
+                                                            borderBottomRightRadius: '8px',
+                                                            borderTopRightRadius: '8px',
+                                                        }}
+                                                    >
+                                                        {securityItem.securityCompanyId?.company_name || "Unknown Company"}
+                                                    </Typography>
+                                                )) || 
+                                                securityCompanyOptions
                                                     .filter((opt) => CompanyForm.values.securityCompany.includes(opt.value))
                                                     .map((company, index) => (
-                                                        <Typography key={index} variant="body1">
-                                                            {company.label}
+                                                        <Typography 
+                                                            key={index} 
+                                                            variant="body1"
+                                                            sx={{
+                                                                display: 'inline-flex',
+                                                                alignItems: 'center',
+                                                                margin: '2px',
+                                                                borderRadius: '8px',
+                                                                border: '1px solid var(--icon-gray)',
+                                                                color: 'black',
+                                                                backgroundColor: 'white',
+                                                                fontWeight: 500,
+                                                                fontSize: 13,
+                                                                padding: '4px 8px',
+                                                                borderBottomLeftRadius: '8px',
+                                                                borderTopLeftRadius: '8px',
+                                                                borderBottomRightRadius: '8px',
+                                                                borderTopRightRadius: '8px',
+                                                            }}
+                                                        >
+                                                            {company.label || "---"}
                                                         </Typography>
                                                     ))}
                                             </Box>
-                                        )}
+                                        {/* )} */}
                                     </Box>
                                 )
                             )}
@@ -979,6 +1041,9 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.street || "-"}</Typography>
                             )}
+                            {CompanyForm.touched.street && CompanyForm.errors.street && (
+                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.street}</div>
+                            )}
                         </Grid>
 
                         {/* Postal Code */}
@@ -994,6 +1059,9 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                 />
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.postal_code || "-"}</Typography>
+                            )}
+                            {CompanyForm.touched.postal_code && CompanyForm.errors.postal_code && (
+                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.postal_code}</div>
                             )}
                         </Grid>
                     </Grid>
@@ -1021,6 +1089,9 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                 />
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.account_holder_name || "-"}</Typography>
+                            )}
+                            {CompanyForm.touched.accountHolderName && CompanyForm.errors.accountHolderName && (
+                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.accountHolderName}</div>
                             )}
                         </Grid>
 
@@ -1062,9 +1133,13 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     onChange={CompanyForm.handleChange}
                                 />
                             ) : (
-                                <Typography>{companyInfo.data?.data.user.branch_code || "-"}</Typography>
+                                <Typography>{companyInfo.data?.data.user.customerCode || "-"}</Typography>
+                            )}
+                            {CompanyForm.touched.customerCode && CompanyForm.errors.customerCode && (
+                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.customerCode}</div>
                             )}
                         </Grid>
+                        
 
                         {/* Account Type */}
                         <Grid size={{ xs: 12, sm: 6 }}>
@@ -1078,7 +1153,10 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     onChange={CompanyForm.handleChange}
                                 />
                             ) : (
-                                <Typography>{companyInfo.data?.data.user.account_type || "-"}</Typography>
+                                <Typography>{companyInfo.data?.data.user.accountType || "-"}</Typography>
+                            )}
+                            {CompanyForm.touched.accountType && CompanyForm.errors.accountType && (
+                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.accountType}</div>
                             )}
                         </Grid>
 
@@ -1096,6 +1174,9 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.accountNumber || "-"}</Typography>
                             )}
+                            {CompanyForm.touched.accountNumber && CompanyForm.errors.accountNumber && (
+                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.accountNumber}</div>
+                            )}
                         </Grid>
 
                         {/* Save / Cancel Buttons */}
@@ -1106,9 +1187,11 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         Cancel
                                     </Button>
                                     <Button
-                                        type="submit"
                                         variant="contained"
-                                        onClick={CompanyForm.handleSubmit}
+                                        onClick={() => {
+                                            
+                                            CompanyForm.handleSubmit();
+                                        }}
                                         sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                                     >
                                         Save
