@@ -112,7 +112,8 @@ export const companyValidation = yup.object({
     customerCode: yup.string().required("Branch Code is required"),
     accountType: yup.string().required("Account Type is required"),
     accountHolderName: yup.string().required("Account Holder Name is required"),
-    company_bio: yup.string().required("Bio is required")
+    company_bio: yup.string().required("Bio is required"),
+    isWeb : yup.boolean()
 })
 
 export const companyEditValidation = yup.object({

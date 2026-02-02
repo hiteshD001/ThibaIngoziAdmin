@@ -59,6 +59,7 @@ const AddCompany = () => {
 			accountType: "",
 			accountHolderName: "",
 			bankId: "",
+			isWeb : true
 		},
 		validationSchema: companyValidation,
 		onSubmit: (values) => {
@@ -71,6 +72,8 @@ const AddCompany = () => {
 						});
 					} else if (key === 'accountHolderName') {
 						formData.append("account_holder_name", values[key]);
+					} else if (key === 'isWeb') {
+						formData.append("isWeb", values[key]);
 					} else {
 						formData.append(key, values[key]);
 					}
