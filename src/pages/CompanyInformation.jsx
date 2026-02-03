@@ -230,6 +230,10 @@ const CompanyInformation = ({ isMapLoaded }) => {
                     }
                 } else if (key === 'accountHolderName') {
                     formData.append("account_holder_name", values[key]);
+                } else if (key === 'customerCode') {
+                    formData.append("branch_code", values[key]);
+                } else if (key === 'accountType') {
+                    formData.append("account_type", values[key]);
                 } else {
                     formData.append(key, value);
                 }
