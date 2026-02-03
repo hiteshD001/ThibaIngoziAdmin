@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useFormik } from "formik";
-import { useAssignRole, useGetRoles, useGetAdminUsers, useGetUserList, useGetRoleByIdWithCompany } from "../../API Calls/API";
+import { useAssignRole, useGetRoles, useGetAdminUsers, useGetUserList, useGetRoleByIdWithCompany, useGetRoleByIdWithCompanyId, useUpdateUserRole } from "../../API Calls/API";
 import { toast } from "react-toastify";
 import {
     Box,
@@ -42,6 +42,20 @@ const UserAssignment = () => {
 
     const { mutate: assignRole } = useAssignRole(onSuccess, onError);
 
+    // Define success and error handlers for role update
+    const onUpdateSuccess = () => {
+        toast.success("User Role Updated Successfully.");
+        setSelectedUsers([]);
+        userform.resetForm();
+        client.invalidateQueries(['companyUsers'], { exact: false });
+    };
+
+    const onUpdateError = (error) => {
+        toast.error(error?.response?.data?.message || "Something went wrong updating role");
+    };
+
+    const { mutate: updateUserRole } = useUpdateUserRole(onUpdateSuccess, onUpdateError);
+
     // Initialize form first
     const userform = useFormik({
         initialValues: {
@@ -58,35 +72,32 @@ const UserAssignment = () => {
                 return;
             }
 
-            const payload = {
-                roleId: values.role,
-                userId: selectedUsers,
-            };
+            // Update each selected user with the new role
+            const updatePromises = selectedUsers.map(userId => {
+                const payload = {
+                    userId: userId,
+                    roleId: values.role,
+                };
+                return updateUserRole(payload);
+            });
 
-            assignRole(payload);
+            // Execute all updates - the mutation's success handler will handle the success message
+            Promise.all(updatePromises)
+                .catch((error) => {
+                    onUpdateError(error);
+                });
         },
     });
 
     // Now use the API hook after form is initialized
-    const { data: roleData, isLoading: roleLoading } = useGetRoleByIdWithCompany(
-        userform.values.role,
+    const { data: roleData, isLoading: roleLoading } = useGetRoleByIdWithCompanyId(
         userform.values.company_id,
         filter // Pass the search filter to the API
     );
 
-    console.log("Roles data:", roles);
-    console.log("Role data with company filter:", roleData);
-
-    // Extract users from the role data response
-    const roleUsers = roleData?.data?.recentUsers || [];
+    // Extract users from the role data response - our API returns data.data with allUsers
+    const companyUsers = roleData?.data?.allUsers || [];
     
-    // For company users, we need to check if there are any companyUsers in the recentUsers
-    // Based on the API response, companyUsers are nested inside each user
-    const companyUsers = roleUsers.length > 0 && roleUsers[0]?.companyUsers ? roleUsers[0].companyUsers : [];
-
-    console.log("Role users:", roleUsers);
-    console.log("Company users:", companyUsers);
-
     // Convert API response to dropdown options
     const roleOptions =
         roles?.data?.data?.map((role) => ({
@@ -95,17 +106,14 @@ const UserAssignment = () => {
             description: role.description || "", // ✅ add description
         })) || [];
 
-    console.log("Role options:", roleOptions);
-
     if (isError) {
         toast.error("Failed to load roles");
     }
 
         const handleRoleChange = (e) => {
         const { value } = e.target;
-        console.log("Selected role:", value);
         userform.setFieldValue("role", value);
-        setSelectedUsers([]); // Clear selected users when role changes
+        // Don't clear selected users when role changes
     };
 
     const handleCompanyChange = (e) => {
@@ -185,13 +193,7 @@ const UserAssignment = () => {
                                 : roleOptions.length > 0
                                     ? roleOptions.map((role) => ({
                                         value: role.value,
-                                        label: (
-                                            <Box sx={{ display: "flex", flexDirection: "column" }}>
-                                                <Typography sx={{ fontWeight: 450 }}>
-                                                    {role.description ? role.description : role.label}
-                                                </Typography>
-                                            </Box>
-                                        ),
+                                        label: role.label,
                                     }))
                                     : [{ label: "No Roles Found", value: "" }]
                         }
@@ -271,16 +273,21 @@ const UserAssignment = () => {
                                         }}
                                     >
                                         <Checkbox
+                                            key={`checkbox-${user._id || user.id}-${selectedUsers.includes(user._id || user.id)}`}
                                             icon={<img src={unChecked} alt="unchecked" />}
                                             checkedIcon={<img src={checked} alt="checked" />}
                                             checked={selectedUsers.includes(user._id || user.id)}
-                                            onChange={() => {
+                                            onChange={(e) => {
+                                                e.stopPropagation();
                                                 const userId = user._id || user.id;
-                                                if (selectedUsers.includes(userId)) {
-                                                    setSelectedUsers(selectedUsers.filter(id => id !== userId));
-                                                } else {
-                                                    setSelectedUsers([...selectedUsers, userId]);
-                                                }
+                                                setSelectedUsers(prevSelected => {
+                                                    const isSelected = prevSelected.includes(userId);
+                                                    if (isSelected) {
+                                                        return prevSelected.filter(id => id !== userId);
+                                                    } else {
+                                                        return [...prevSelected, userId];
+                                                    }
+                                                });
                                             }}
                                         />
                                         <Avatar
@@ -291,10 +298,18 @@ const UserAssignment = () => {
                                         </Avatar>
                                         <Box sx={{ flex: 1 }}>
                                             <Typography variant="body2" fontWeight={500}>
-                                                {user.first_name} {user.last_name}
+                                                {user.first_name || '-'} {user.last_name || "-"}
                                             </Typography>
-                                            
-                                            
+                                    
+                                            <Typography variant="body2" fontWeight={500} >
+                                                Role : <Typography component="span" sx={{ 
+                                                    fontWeight: 600, 
+                                                    color: 'primary.main',
+                                                    textTransform: 'capitalize'
+                                                }}>
+                                                    {user.role}
+                                                </Typography>
+                                            </Typography>
                                         </Box>
                                     </Box>
                                 ))
@@ -303,11 +318,11 @@ const UserAssignment = () => {
                                     No users found for this company
                                 </Typography>
                             )
-                        ) : Array.isArray(roleUsers) && roleUsers.length > 0 ? (
-                            // Show role users when role is selected
-                            roleUsers.map((user) => (
+                        ) : Array.isArray(companyUsers) && companyUsers.length > 0 ? (
+                            // Show all users when no company is selected
+                            companyUsers.map((user) => (
                                 <Box
-                                    key={user.id}
+                                    key={user._id || user.id}
                                     sx={{
                                         display: "flex",
                                         alignItems: "center",
@@ -318,13 +333,16 @@ const UserAssignment = () => {
                                     <Checkbox
                                         icon={<img src={unChecked} alt="unchecked" />}
                                         checkedIcon={<img src={checked} alt="checked" />}
-                                        checked={selectedUsers.includes(user._id)}
+                                        checked={selectedUsers.some(id => id === (user._id || user.id))}
                                         onChange={() => {
-                                            if (selectedUsers.includes(user._id)) {
-                                                setSelectedUsers(selectedUsers.filter(id => id !== user._id));
-                                            } else {
-                                                setSelectedUsers([...selectedUsers, user._id]);
-                                            }
+                                            const userId = user._id || user.id;
+                                            setSelectedUsers(prevSelected => {
+                                                if (prevSelected.some(id => id === userId)) {
+                                                    return prevSelected.filter(id => id !== userId);
+                                                } else {
+                                                    return [...prevSelected, userId];
+                                                }
+                                            });
                                         }}
                                     />
                                     <Avatar
@@ -336,13 +354,22 @@ const UserAssignment = () => {
                                     <Box sx={{ flex: 1 }}>
                                         <Typography variant="body2" fontWeight={500}>
                                             {user.first_name} {user.last_name}
+                                        </Typography>
+                                        <Typography variant="body2" fontWeight={500} >
+                                            Role : <Typography component="span" sx={{ 
+                                                fontWeight: 600, 
+                                                color: 'primary.main',
+                                                textTransform: 'capitalize'
+                                            }}>
+                                                {user.role}
+                                            </Typography>
                                         </Typography>   
                                     </Box>
                                 </Box>
                             ))
                         ) : (
                             <Typography variant="body2" sx={{ textAlign: 'center', py: 2, color: 'text.secondary' }}>
-                                {userform.values.role ? 'No users found for this role' : 'Please select a role or company to view users'}
+                                {companyUsers.length === 0 ? 'No users found' : 'Please select a company to view users'}
                             </Typography>
                         )}
                     </Box>

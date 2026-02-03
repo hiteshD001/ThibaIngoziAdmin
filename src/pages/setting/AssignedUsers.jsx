@@ -1,30 +1,43 @@
 import { Tooltip, Box, Typography, Avatar } from "@mui/material";
 
 const AssignedUsers = ({ assignedUserCount }) => {
+    const role = assignedUserCount.role || {};
+    const users = role.name === 'sales_agent' 
+        ? (role.assignedInfluencers || [])
+        : (role.assignedUsers || []);
+    console.log("users", users);
+    const visibleUsers = users.slice(0, 2);
+    const extraCount = users.length - 2;
+
     return (
         <Tooltip
-            enterDelay={100}
-            leaveDelay={0}
-            // arrow
+            arrow
             placement="bottom-start"
             title={
-                <Box sx={{ p: 1.5, maxHeight: 250, overflowY: "auto" }}>
+                <Box sx={{ p: 1.5, maxHeight: 220, overflowY: "auto" }}>
                     <Typography sx={{ fontWeight: 600, mb: 1 }}>
-                        Assigned Users ({assignedUserCount?.count})
+                        Assigned Users ({users.length})
                     </Typography>
 
-                    {assignedUserCount?.rows.map((usr) => (
+                    {users.map((usr) => (
                         <Box
-                            key={usr.id}
+                            key={usr._id}
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 1.5,
+                                gap: 2,
                                 mb: 1
                             }}
                         >
-                            <Avatar src={usr.profile_img} sx={{ width: 36, height: 36 }} />
-                            <Typography>{usr.firstName} {usr.lastName}</Typography>
+                            <Avatar
+                                src={usr.profileImage}
+                                sx={{ width: 32, height: 32 }}
+                            >
+                                {usr.first_name?.[0]?.toUpperCase() || "U"}
+                            </Avatar>
+                            <Typography fontSize={14}>
+                                {usr.first_name} {usr.last_name}
+                            </Typography>
                         </Box>
                     ))}
                 </Box>
@@ -32,50 +45,56 @@ const AssignedUsers = ({ assignedUserCount }) => {
             componentsProps={{
                 tooltip: {
                     sx: {
-                        bgcolor: "white",
-                        color: "black",
+                        bgcolor: "#fff",
+                        color: "#000",
                         boxShadow: 3,
-                        borderRadius: 2,
-                        p: 0.5
+                        borderRadius: 2
                     }
                 }
             }}
         >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-                {/* {assignedUserCount?.count > 0 ? (
-                    <> */}
-                {assignedUserCount?.rows.slice(0, 3).map((usr) => (
+            <Box sx={{ display: "flex", alignItems: "center", pl: 1, gap: "7px" }}>
+                {visibleUsers.map((usr, index) => (
                     <Avatar
-                        key={usr.id}
-                        src={usr.profile_img}
-                        sx={{ width: 32, height: 32, ml: "-8px", border: "2px solid white" }}
-                    />
+                        key={usr._id}
+                        src={usr.profileImage}
+                        sx={{
+                            width: 35,
+                            height: 35,
+                            ml: index === 0 ? 0 : "-10px",
+                            border: "2px solid #fff",
+                            zIndex: visibleUsers.length - index
+                        }}
+                    >
+                        {usr.first_name?.[0]?.toUpperCase() || "U"}
+                    </Avatar>
                 ))}
 
-                {assignedUserCount?.count > 3 && (
+                {extraCount > 0 && (
                     <Box
                         sx={{
-                            width: 32,
-                            height: 32,
+                            width: 35,
+                            height: 35,
+                            ml: "-10px",
                             borderRadius: "50%",
-                            ml: "-8px",
-                            border: "2px solid white",
+                            border: "2px solid #fff",
                             fontSize: 12,
+                            fontWeight: 500,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            background: "#E4E4E7"
+                            bgcolor: "#E4E4E7",
+                            zIndex: 0
                         }}
                     >
-                        +{assignedUserCount?.count - 3}
+                        {extraCount}+
                     </Box>
                 )}
-                {/* </>
-                ) : (
-                    "-"
-                )} */}
-            </Box>
 
+                {users.length === 0 && (
+                    <Typography sx={{ color: "#9CA3AF" }}>-</Typography>
+                )}
+            </Box>
         </Tooltip>
     );
 };

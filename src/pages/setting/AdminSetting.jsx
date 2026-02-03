@@ -121,9 +121,10 @@ const AdminSetting = () => {
                                     </TableHead>
                                     <TableBody>
                                         {sideData?.data?.data?.rolesWithStats?.map((role) => (
+                                            console.log("role",role),
                                             <TableRow key={role._id}>
                                                 <TableCell>
-                                                    {role.name || "-"}
+                                                    {role.name ? role.name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : "-"}
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#878787' }}>
                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -155,15 +156,16 @@ const AdminSetting = () => {
                                                     </Box>
                                                 </TableCell>
                                                 <TableCell>
-                                                    <AssignedUsers assignedUserCount={{ count: role.userCount, rows: [] }} />
+                                                    <AssignedUsers assignedUserCount={{ count: role.userCount, rows: [] , role: role}} />
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#878787' }}>
                                                     {role.createdAt
                                                         ? (() => {
                                                             const date = new Date(role.createdAt);
-                                                            const utcDay = String(date.getUTCDate()).padStart(2, '0');
-                                                            const utcMonth = date.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
-                                                            return `${utcDay} ${utcMonth} ${date.getUTCFullYear()}`;
+                                                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                            const day = String(date.getDate()).padStart(2, '0');
+                                                            const year = date.getFullYear();
+                                                            return `${day}/${month}/${year}`;
                                                         })()
                                                         : "-"
                                                     }

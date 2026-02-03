@@ -61,6 +61,12 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         client.invalidateQueries('sideData')
         if (editRoleId) {
             toast.success("Role Updated Successfully.");
+            roleform.resetForm({
+    values: {
+      roleName: "",
+      permissionIds: activePermissionIds
+    }
+  });
             setEditRoleId(null); // Exit edit mode
         } else {
             toast.success("Role Created Successfully.");
@@ -83,8 +89,6 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
 
     const { data: permissions } = useGetPermissions();
     const {data : permission} = useGetPermission()
-
-    console.log("permission",permission)
     
     // Filter only active permissions
     const activePermissionIds = permission?.data?.data?.filter(perm => perm.status === 'active').map(perm => perm._id) || [];
@@ -129,8 +133,6 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
             }
         },
     });
-
-    console.log("roleform",roleform)
 
     const handlePermissionToggle = (permId) => {
         const current = roleform.values.permissionIds;

@@ -11,7 +11,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import whitePlus from "../../assets/images/whiteplus.svg";
 import GrayPlus from "../../assets/images/GrayPlus.svg";
-import { useGetCountryList, useGetProvinceList, useGetRoles, useCreateAdmin, useGetCityList } from "../../API Calls/API";
+import { useGetCountryList, useGetProvinceList, useGetRoles, useCreateAdmin, useGetCityList, useRegister } from "../../API Calls/API";
 import CloseIcon from "@mui/icons-material/Close";
 import {profileValidation_s } from "../../common/FormValidation";
 import { toast } from "react-toastify";
@@ -26,54 +26,58 @@ const AddUser = () => {
     // ✅ Formik setup
     const profileForm = useFormik({
         initialValues: {
-            firstName: "",
-            lastName: "",
+            first_name: "",
+            last_name: "",
             email: "",
-            phone: "",
-            countryCode: "+91",
+            mobile_no: "",
+            mobile_no_country_code: "+91",
             country: "",
             province: "",
             city: "",
             suburb: "",
-            streetAddress: "",
+            street: "",
             roleId: '',
-            postalCode: "",
-            profile_img: "",
-            password: ""
+            postal_code: "",
+            profileImg: "",
+            password: "",
         },
         validationSchema: profileValidation_s,
         onSubmit: (values) => {
             const formData = new FormData();
             Object.keys(values).forEach((key) => {
-                if (key !== "profile_img") {
+                if (key !== "profileImg") {
                     formData.append(key, values[key]);
                 }
             });
-            if (values.profile_img && values.profile_img instanceof File) {
-                formData.append("profile_img", values.profile_img);
+            if (values.profileImg && values.profileImg instanceof File) {
+                console.log("SUBMIT CALLED", values);
+                formData.append("profileImg", values.profileImg);
             }
             mutate(formData);
         },
     });
+
+    console.log("profileForm",profileForm)
     const countrylist = useGetCountryList();
     const cityList = useGetCityList(profileForm.values.province)
     const provincelist = useGetProvinceList(profileForm.values.country);
     const { data: roles, isLoading, isError } = useGetRoles(1, 10000);
     const onSuccess = () => {
         profileForm.resetForm();
-        client.invalidateQueries("AdminUsers")
+        // client.invalidateQueries("AdminUsers")
         setOpen(false)
         toast.success("User Created Successfully.");
     };
 
     const onError = (error) => {
+          console.error("API Error:", error);
         toast.error(error?.response?.data?.message || "Something went wrong");
     };
-    const { mutate } = useCreateAdmin(onSuccess, onError)
+    const { mutate } = useRegister(onSuccess, onError)
     const roleOptions =
         roles?.data?.data?.map((role) => ({
             label: role.name || role.roleName,
-            value: role.id,
+            value: role._id, // Fixed: use _id instead of id
             description: role.description || "",
         })) || [];
 
@@ -130,35 +134,35 @@ const AddUser = () => {
                             {/* First Name */}
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="firstName" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    <InputLabel shrink htmlFor="first_name" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
                                         First Name
                                     </InputLabel>
                                     <BootstrapInput
-                                        id="firstName"
-                                        name="firstName"
+                                        id="first_name"
+                                        name="first_name"
                                         placeholder="First Name"
-                                        value={profileForm.values.firstName}
+                                        value={profileForm.values.first_name}
                                         onChange={profileForm.handleChange}
                                     />
-                                    {profileForm.touched.firstName && <FormHelperText error>{profileForm.errors.firstName}</FormHelperText>}
+                                    {profileForm.touched.first_name && <FormHelperText error>{profileForm.errors.first_name}</FormHelperText>}
                                 </FormControl>
                             </Grid>
 
                             {/* Last Name */}
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="lastName" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    <InputLabel shrink htmlFor="last_name" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
                                         Last Name
                                     </InputLabel>
                                     <BootstrapInput
-                                        id="lastName"
-                                        name="lastName"
+                                        id="last_name"
+                                        name="last_name"
                                         placeholder="Last Name"
-                                        value={profileForm.values.lastName}
+                                        value={profileForm.values.last_name}
                                         onChange={profileForm.handleChange}
 
                                     />
-                                    {profileForm.touched.lastName && <FormHelperText error>{profileForm.errors.lastName}</FormHelperText>}
+                                    {profileForm.touched.last_name && <FormHelperText error>{profileForm.errors.last_name}</FormHelperText>}
                                 </FormControl>
                             </Grid>
 
@@ -186,46 +190,30 @@ const AddUser = () => {
                                     <label style={{ marginBottom: 5 }}>Phone Number</label>
                                     <PhoneInput
                                         country={"za"}
-                                        value={`${profileForm.values.countryCode ?? ''}${profileForm.values.phone ?? ''}`}
+                                        value={profileForm.values.mobile_no}
                                         onChange={(phone, countryData) => {
-                                            const withoutCountryCode = phone.startsWith(countryData.dialCode)
-                                                ? phone.slice(countryData.dialCode.length).trim()
-                                                : phone;
-
-                                            profileForm.setFieldValue("phone", withoutCountryCode);
-                                            profileForm.setFieldValue("countryCode", `+${countryData.dialCode}`);
+                                            profileForm.setFieldValue("mobile_no", phone);
+                                            profileForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
                                         }}
                                         inputStyle={{
                                             width: '100%',
                                             height: '46px',
                                             borderRadius: '6px',
                                             border: '1px solid #E0E3E7',
-                                            fontSize: '16px',
-                                            paddingLeft: '48px',
-                                            background: '#fff',
-                                            outline: 'none',
-                                            boxShadow: 'none',
-                                            borderColor: '#E0E3E7',
-                                        }}
-                                        buttonStyle={{
-                                            borderRadius: '6px 0 0 6px',
-                                            border: '1px solid #E0E3E7',
-                                            background: '#fff'
                                         }}
                                         containerStyle={{
                                             height: '46px',
                                             width: '100%',
                                             marginBottom: '8px'
                                         }}
-                                        specialLabel=""
                                         inputProps={{
-                                            name: 'phone',
+                                            name: 'mobile_no',
                                             required: true,
                                             autoFocus: false
                                         }}
                                     />
-                                    {profileForm.touched.phone && profileForm.errors.phone && (
-                                        <FormHelperText error>{profileForm.errors.phone}</FormHelperText>
+                                    {profileForm.touched.mobile_no && profileForm.errors.mobile_no && (
+                                        <FormHelperText error>{profileForm.errors.mobile_no}</FormHelperText>
                                     )}
                                 </FormControl>
                             </Grid>
@@ -349,33 +337,33 @@ const AddUser = () => {
                             </Grid>
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="streetAddress" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    <InputLabel shrink htmlFor="street" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
                                         Street
                                     </InputLabel>
                                     <BootstrapInput
-                                        id="streetAddress"
-                                        name="streetAddress"
+                                        id="street"
+                                        name="street"
                                         placeholder="Street"
-                                        value={profileForm.values.streetAddress}
+                                        value={profileForm.values.street}
                                         onChange={profileForm.handleChange}
                                     />
-                                    {profileForm.touched.streetAddress && <FormHelperText error>{profileForm.errors.streetAddress}</FormHelperText>}
+                                    {profileForm.touched.street && <FormHelperText error>{profileForm.errors.street}</FormHelperText>}
                                 </FormControl>
                             </Grid>
                             <Grid size={{ xs: 12, sm: 6 }}>
 
                                 <FormControl variant="standard" fullWidth >
-                                    <InputLabel shrink htmlFor="postalCode" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                    <InputLabel shrink htmlFor="postal_code" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
                                         Postal Code
                                     </InputLabel>
                                     <BootstrapInput
-                                        id="postalCode"
-                                        name="postalCode"
+                                        id="postal_code"
+                                        name="postal_code"
                                         placeholder="Postal Code"
-                                        value={profileForm.values.postalCode}
+                                        value={profileForm.values.postal_code}
                                         onChange={profileForm.handleChange}
                                     />
-                                    {profileForm.touched.postalCode && <FormHelperText error>{profileForm.errors.postalCode}</FormHelperText>}
+                                    {profileForm.touched.postal_code && <FormHelperText error>{profileForm.errors.postal_code}</FormHelperText>}
                                 </FormControl>
                             </Grid>
 
@@ -409,17 +397,17 @@ const AddUser = () => {
                                             type="file"
                                             accept="image/*"
                                             hidden
-                                            name="profile_img"
+                                            name="profileImg"
                                             onChange={(e) =>
                                                 profileForm.setFieldValue(
-                                                    "profile_img",
+                                                    "profileImg",
                                                     e.currentTarget.files[0]
                                                 )
                                             }
                                         />
-                                        {profileForm.values.profile_img ? (
+                                        {profileForm.values.profileImg ? (
                                             <img
-                                                src={URL.createObjectURL(profileForm.values.profile_img)}
+                                                src={URL.createObjectURL(profileForm.values.profileImg)}
                                                 alt="Preview"
                                                 style={{
                                                     height: 200,

@@ -210,7 +210,7 @@ export const salesAgent_menulist = (permissionsData) => {
             name: "Home",
             path: "/sales-home",
             image: Dashboard,
-            permission: "Sales Agent" // Home is always visible
+            permission: null // Home is always visible
         },
         {
             id: "logout",
@@ -262,7 +262,7 @@ export const Companyadmin_menulist = (permissionsData) => {
             add: "Add Drivers",
             info: "Vehicle Information",
             company: "Company Information",
-            permission: "Driver" // Requires "Driver" permission
+            permission: "Total Drivers" // Requires "Driver" permission
         },
         {
             id: "total-linked-trips",
@@ -294,7 +294,7 @@ export const Companyadmin_menulist = (permissionsData) => {
             path: "/home/total-users",
             image: users,
             company: "User Information",
-            permission: "User" // Requires "User" permission
+            permission: "Users" // Requires "User" permission
         },
         {
             id: "profile",

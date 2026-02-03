@@ -1552,6 +1552,18 @@ export const fetchProvince = () => {
 
 
 
+// Update user role
+export const useUpdateUserRole = (onSuccess, onError) => {
+    return useMutation({
+        mutationFn: async (data) => {
+            const response = await apiClient.put('/role-management/users', data);
+            return response.data;
+        },
+        onSuccess,
+        onError,
+    });
+};
+
 // create role
 export const useCreateRole = (onSuccess, onError) => {
     return useMutation({
@@ -1615,6 +1627,21 @@ export const useGetRoleByIdWithCompany = (roleId, companyId, search) => {
         },
         staleTime: Infinity,
         enabled: !!roleId,
+    });
+};
+
+export const useGetRoleByIdWithCompanyId = (companyId, search) => {
+    return useQuery({
+        queryKey: ['companyUsers', companyId, search],
+        queryFn: async () => {
+            const params = {};
+            if (companyId) params.company_id = companyId;
+            if (search) params.search = search;
+            const { data } = await apiClient.get(`/role-management/company-users`, { params });
+            return data;
+        },
+        staleTime: Infinity,
+        enabled: true, // Always enabled since we want to show all users when no companyId
     });
 };
 //  Update role by ID
