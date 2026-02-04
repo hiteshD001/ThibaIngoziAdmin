@@ -209,7 +209,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
         },
         validationSchema: companyEditValidation,
         onSubmit: (values) => {
-           
+
             setedit(false);
             const formData = new FormData();
             Object.entries(values).forEach(([key, value]) => {
@@ -239,7 +239,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                     formData.append(key, value);
                 }
             });
-            
+
             mutate({ id: params.id, data: formData });
         },
     });
@@ -314,7 +314,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
         value: item._id,
     })) || [];
 
-    
+
 
     // Company services options
     useLayoutEffect(() => {
@@ -881,47 +881,47 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     )}
                                 </Box>
                             ) : (
-                                (companyInfo.data?.data.user?.securityCompany?.length > 0 ) && (
+                                (companyInfo.data?.data.user?.securityCompany?.length > 0) && (
                                     <Box mt={3}>
                                         <Typography variant="h6" fontWeight={550} mb={1}>
                                             Security Companies
                                         </Typography>
                                         {/* {(CompanyForm.values.isArmed !== true) && ( */}
-                                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                                                {console.log("Displaying security companies:", {
-                                                    savedData: companyInfo.data?.data.user?.securityCompany.map((s) => s.securityCompanyId?.company_name),
-                                                    formValues: CompanyForm.values.securityCompany,
-                                                    options: securityCompanyOptions
-                                                })}
-                                                {companyInfo.data?.data.user?.securityCompany?.map((securityItem, index) => (
-                                                    <Typography 
-                                                        key={index} 
-                                                        variant="body1"
-                                                        sx={{
-                                                            display: 'inline-flex',
-                                                            alignItems: 'center',
-                                                            margin: '2px',
-                                                            borderRadius: '8px',
-                                                            border: '1px solid var(--icon-gray)',
-                                                            color: 'black',
-                                                            backgroundColor: 'white',
-                                                            fontWeight: 500,
-                                                            fontSize: 13,
-                                                            padding: '4px 8px',
-                                                            borderBottomLeftRadius: '8px',
-                                                            borderTopLeftRadius: '8px',
-                                                            borderBottomRightRadius: '8px',
-                                                            borderTopRightRadius: '8px',
-                                                        }}
-                                                    >
-                                                        {securityItem.securityCompanyId?.company_name || "Unknown Company"}
-                                                    </Typography>
-                                                )) || 
+                                        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                                            {console.log("Displaying security companies:", {
+                                                savedData: companyInfo.data?.data.user?.securityCompany.map((s) => s.securityCompanyId?.company_name),
+                                                formValues: CompanyForm.values.securityCompany,
+                                                options: securityCompanyOptions
+                                            })}
+                                            {companyInfo.data?.data.user?.securityCompany?.map((securityItem, index) => (
+                                                <Typography
+                                                    key={index}
+                                                    variant="body1"
+                                                    sx={{
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        margin: '2px',
+                                                        borderRadius: '8px',
+                                                        border: '1px solid var(--icon-gray)',
+                                                        color: 'black',
+                                                        backgroundColor: 'white',
+                                                        fontWeight: 500,
+                                                        fontSize: 13,
+                                                        padding: '4px 8px',
+                                                        borderBottomLeftRadius: '8px',
+                                                        borderTopLeftRadius: '8px',
+                                                        borderBottomRightRadius: '8px',
+                                                        borderTopRightRadius: '8px',
+                                                    }}
+                                                >
+                                                    {securityItem.securityCompanyId?.company_name || "Unknown Company"}
+                                                </Typography>
+                                            )) ||
                                                 securityCompanyOptions
                                                     .filter((opt) => CompanyForm.values.securityCompany.includes(opt.value))
                                                     .map((company, index) => (
-                                                        <Typography 
-                                                            key={index} 
+                                                        <Typography
+                                                            key={index}
                                                             variant="body1"
                                                             sx={{
                                                                 display: 'inline-flex',
@@ -943,7 +943,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                                             {company.label || "---"}
                                                         </Typography>
                                                     ))}
-                                            </Box>
+                                        </Box>
                                         {/* )} */}
                                     </Box>
                                 )
@@ -1075,9 +1075,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.street || "-"}</Typography>
                             )}
-                            {CompanyForm.touched.street && CompanyForm.errors.street && (
-                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.street}</div>
-                            )}
+
                         </Grid>
 
                         {/* Postal Code */}
@@ -1100,9 +1098,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.postal_code || "-"}</Typography>
                             )}
-                            {CompanyForm.touched.postal_code && CompanyForm.errors.postal_code && (
-                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.postal_code}</div>
-                            )}
+
                         </Grid>
                     </Grid>
                 </Paper>
@@ -1136,9 +1132,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.account_holder_name || "-"}</Typography>
                             )}
-                            {CompanyForm.touched.accountHolderName && CompanyForm.errors.accountHolderName && (
-                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.accountHolderName}</div>
-                            )}
+
                         </Grid>
 
                         {/* Bank */}
@@ -1189,11 +1183,9 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.customerCode || "-"}</Typography>
                             )}
-                            {CompanyForm.touched.customerCode && CompanyForm.errors.customerCode && (
-                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.customerCode}</div>
-                            )}
+
                         </Grid>
-                        
+
 
                         {/* Account Type */}
                         <Grid size={{ xs: 12, sm: 6 }}>
@@ -1215,9 +1207,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.accountType || "-"}</Typography>
                             )}
-                            {CompanyForm.touched.accountType && CompanyForm.errors.accountType && (
-                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.accountType}</div>
-                            )}
+
                         </Grid>
 
                         {/* Account Number */}
@@ -1240,9 +1230,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.accountNumber || "-"}</Typography>
                             )}
-                            {CompanyForm.touched.accountNumber && CompanyForm.errors.accountNumber && (
-                                <div style={{ color: 'red', fontSize: 12 }}>{CompanyForm.errors.accountNumber}</div>
-                            )}
+
                         </Grid>
 
                         {/* Save / Cancel Buttons */}
@@ -1255,7 +1243,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     <Button
                                         variant="contained"
                                         onClick={() => {
-                                            
+
                                             CompanyForm.handleSubmit();
                                         }}
                                         sx={{ width: 130, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
