@@ -156,7 +156,18 @@ const Home = ({ isMapLoaded, }) => {
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
-    const activeUserList = activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data;
+
+    // Filter Logic: Use WebSocket data ONLY when in "Default View" (no filters/sorts/paging)
+    const isDefaultDate = moment(startDateSos).isSame(moment().startOf('year'), 'day');
+    const isDefaultView =
+        filter === "" &&
+        selectedNotification === "all" &&
+        sortBy2 === "createdAt" &&
+        sortOrder2 === "desc" &&
+        activePage === 1 &&
+        isDefaultDate;
+
+    const activeUserList = (isDefaultView && activeUserLists?.length > 0) ? activeUserLists : activeSos?.data?.data?.data;
 
     const prevLengthRef = useRef(activeUserList?.length);
 
