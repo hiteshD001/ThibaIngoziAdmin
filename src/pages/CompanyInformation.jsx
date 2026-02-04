@@ -480,6 +480,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     placeholder="Company Name"
                                     value={CompanyForm.values.company_name}
                                     onChange={CompanyForm.handleChange}
+                                    error={CompanyForm.touched.company_name && Boolean(CompanyForm.errors.company_name)}
+                                    helperText={CompanyForm.touched.company_name && CompanyForm.errors.company_name}
                                 />
                             ) : (
                                 <Typography >{companyInfo.data?.data.user.company_name}</Typography>
@@ -499,6 +501,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     placeholder="Contact Name"
                                     value={CompanyForm.values.contact_name}
                                     onChange={CompanyForm.handleChange}
+                                    error={CompanyForm.touched.contact_name && Boolean(CompanyForm.errors.contact_name)}
+                                    helperText={CompanyForm.touched.contact_name && CompanyForm.errors.contact_name}
                                 />
                             ) : (
                                 <Typography >{companyInfo.data?.data.user.contact_name || "-"}</Typography>
@@ -518,6 +522,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     placeholder="Company Reg No."
                                     value={CompanyForm.values.company_bio}
                                     onChange={CompanyForm.handleChange}
+                                    error={CompanyForm.touched.company_bio && Boolean(CompanyForm.errors.company_bio)}
+                                    helperText={CompanyForm.touched.company_bio && CompanyForm.errors.company_bio}
                                 />
                             ) : (
                                 <Typography >{companyInfo.data?.data.user.company_bio || "-"}</Typography>
@@ -537,6 +543,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     placeholder="Contact Email"
                                     value={CompanyForm.values.email}
                                     onChange={CompanyForm.handleChange}
+                                    error={CompanyForm.touched.email && Boolean(CompanyForm.errors.email)}
+                                    helperText={CompanyForm.touched.email && CompanyForm.errors.email}
                                 />
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.email}</Typography>
@@ -550,32 +558,39 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             </Typography>
                             {edit ? (
                                 // Use PhoneInput logic if preferred or simple TextField as placeholder
-                                <PhoneInput
-                                    country="za"
-                                    value={String(CompanyForm.values.mobile_no || "")}
-                                    onChange={(value, countryData) => {
-                                        CompanyForm.setFieldValue("mobile_no", value);
-                                        CompanyForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
-                                    }}
-                                    inputStyle={{
-                                        width: '100%',
-                                        height: '40px', // Match size='small' height
-                                        borderRadius: '4px',
-                                        border: '1px solid #c4c4c4',
-                                        fontSize: '16px',
-                                        paddingLeft: '48px',
-                                        background: '#fff',
-                                    }}
-                                    buttonStyle={{
-                                        borderRadius: '4px 0 0 4px',
-                                        border: '1px solid #c4c4c4',
-                                        background: '#fff'
-                                    }}
-                                    containerStyle={{
-                                        height: '40px',
-                                        width: '100%',
-                                    }}
-                                />
+                                <Box>
+                                    <PhoneInput
+                                        country="za"
+                                        value={String(CompanyForm.values.mobile_no || "")}
+                                        onChange={(value, countryData) => {
+                                            CompanyForm.setFieldValue("mobile_no", value);
+                                            CompanyForm.setFieldValue("mobile_no_country_code", `+${countryData.dialCode}`);
+                                        }}
+                                        inputStyle={{
+                                            width: '100%',
+                                            height: '40px', // Match size='small' height
+                                            borderRadius: '4px',
+                                            border: '1px solid #c4c4c4',
+                                            fontSize: '16px',
+                                            paddingLeft: '48px',
+                                            background: '#fff',
+                                        }}
+                                        buttonStyle={{
+                                            borderRadius: '4px 0 0 4px',
+                                            border: '1px solid #c4c4c4',
+                                            background: '#fff'
+                                        }}
+                                        containerStyle={{
+                                            height: '40px',
+                                            width: '100%',
+                                        }}
+                                    />
+                                    {CompanyForm.touched.mobile_no && CompanyForm.errors.mobile_no && (
+                                        <Typography color="error" variant="caption" display="block" sx={{ mt: 0.5 }}>
+                                            {CompanyForm.errors.mobile_no}
+                                        </Typography>
+                                    )}
+                                </Box>
                             ) : (
                                 <Typography >{companyInfo.data?.data.user.mobile_no}</Typography>
                             )}
@@ -594,6 +609,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     placeholder="ID/Passport Number"
                                     value={CompanyForm.values.id_no}
                                     onChange={CompanyForm.handleChange}
+                                    error={CompanyForm.touched.id_no && Boolean(CompanyForm.errors.id_no)}
+                                    helperText={CompanyForm.touched.id_no && CompanyForm.errors.id_no}
                                 />
                             ) : (
                                 <Typography >{companyInfo.data?.data.user.id_no || "-"}</Typography>
@@ -853,6 +870,11 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                             }),
                                         }}
                                     />
+                                    {CompanyForm.touched.securityCompany && CompanyForm.errors.securityCompany && (
+                                        <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
+                                            {typeof CompanyForm.errors.securityCompany === 'string' ? CompanyForm.errors.securityCompany : 'Security Company is required'}
+                                        </Typography>
+                                    )}
                                 </Box>
                             ) : (
                                 CompanyForm.values.securityCompany.length > 0 && (
@@ -909,6 +931,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         value: country._id,
                                         label: country.country_name
                                     })) || []}
+                                    error={CompanyForm.touched.country && Boolean(CompanyForm.errors.country)}
+                                    helperText={CompanyForm.touched.country && CompanyForm.errors.country}
                                 />
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.country?.country_name || companyInfo.data?.data.user.country || "-"}</Typography>
@@ -928,6 +952,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         label: province.province_name
                                     })) || []}
                                     disabled={!CompanyForm.values.country}
+                                    error={CompanyForm.touched.province && Boolean(CompanyForm.errors.province)}
+                                    helperText={CompanyForm.touched.province && CompanyForm.errors.province}
                                 />
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.province?.province_name || companyInfo.data?.data.user.province || "-"}</Typography>
@@ -947,6 +973,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         label: city.city_name
                                     })) || []}
                                     disabled={!CompanyForm.values.country || !CompanyForm.values.province}
+                                    error={CompanyForm.touched.city && Boolean(CompanyForm.errors.city)}
+                                    helperText={CompanyForm.touched.city && CompanyForm.errors.city}
                                 />
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.city?.city_name || companyInfo.data?.data.user.city || "-"}</Typography>
@@ -957,13 +985,19 @@ const CompanyInformation = ({ isMapLoaded }) => {
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Suburb</Typography>
                             {edit ? (
-                                <BootstrapInput
-                                    id="suburb"
-                                    name="suburb"
-                                    placeholder="Enter Suburb"
-                                    value={CompanyForm.values.suburb}
-                                    onChange={CompanyForm.handleChange}
-                                />
+                                <Box>
+                                    <BootstrapInput
+                                        id="suburb"
+                                        name="suburb"
+                                        placeholder="Enter Suburb"
+                                        value={CompanyForm.values.suburb}
+                                        onChange={CompanyForm.handleChange}
+                                        error={CompanyForm.touched.suburb && Boolean(CompanyForm.errors.suburb)}
+                                    />
+                                    {CompanyForm.touched.suburb && CompanyForm.errors.suburb && (
+                                        <Typography color="error" variant="caption" display="block" sx={{ mt: 0.5 }}>{CompanyForm.errors.suburb}</Typography>
+                                    )}
+                                </Box>
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.suburb || "-"}</Typography>
                             )}
@@ -973,13 +1007,19 @@ const CompanyInformation = ({ isMapLoaded }) => {
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Street</Typography>
                             {edit ? (
-                                <BootstrapInput
-                                    id="street"
-                                    name="street"
-                                    placeholder="Street"
-                                    value={CompanyForm.values.street}
-                                    onChange={CompanyForm.handleChange}
-                                />
+                                <Box>
+                                    <BootstrapInput
+                                        id="street"
+                                        name="street"
+                                        placeholder="Street"
+                                        value={CompanyForm.values.street}
+                                        onChange={CompanyForm.handleChange}
+                                        error={CompanyForm.touched.street && Boolean(CompanyForm.errors.street)}
+                                    />
+                                    {CompanyForm.touched.street && CompanyForm.errors.street && (
+                                        <Typography color="error" variant="caption" display="block" sx={{ mt: 0.5 }}>{CompanyForm.errors.street}</Typography>
+                                    )}
+                                </Box>
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.street || "-"}</Typography>
                             )}
@@ -989,13 +1029,19 @@ const CompanyInformation = ({ isMapLoaded }) => {
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Postal Code</Typography>
                             {edit ? (
-                                <BootstrapInput
-                                    id="postal_code"
-                                    name="postal_code"
-                                    placeholder="Enter Postal Code"
-                                    value={CompanyForm.values.postal_code}
-                                    onChange={CompanyForm.handleChange}
-                                />
+                                <Box>
+                                    <BootstrapInput
+                                        id="postal_code"
+                                        name="postal_code"
+                                        placeholder="Enter Postal Code"
+                                        value={CompanyForm.values.postal_code}
+                                        onChange={CompanyForm.handleChange}
+                                        error={CompanyForm.touched.postal_code && Boolean(CompanyForm.errors.postal_code)}
+                                    />
+                                    {CompanyForm.touched.postal_code && CompanyForm.errors.postal_code && (
+                                        <Typography color="error" variant="caption" display="block" sx={{ mt: 0.5 }}>{CompanyForm.errors.postal_code}</Typography>
+                                    )}
+                                </Box>
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.postal_code || "-"}</Typography>
                             )}
@@ -1016,13 +1062,19 @@ const CompanyInformation = ({ isMapLoaded }) => {
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Account Holder Name</Typography>
                             {edit ? (
-                                <BootstrapInput
-                                    id="accountHolderName"
-                                    name="accountHolderName"
-                                    placeholder="Enter Account Holder Name"
-                                    value={CompanyForm.values.accountHolderName}
-                                    onChange={CompanyForm.handleChange}
-                                />
+                                <Box>
+                                    <BootstrapInput
+                                        id="accountHolderName"
+                                        name="accountHolderName"
+                                        placeholder="Enter Account Holder Name"
+                                        value={CompanyForm.values.accountHolderName}
+                                        onChange={CompanyForm.handleChange}
+                                        error={CompanyForm.touched.accountHolderName && Boolean(CompanyForm.errors.accountHolderName)}
+                                    />
+                                    {CompanyForm.touched.accountHolderName && CompanyForm.errors.accountHolderName && (
+                                        <Typography color="error" variant="caption" display="block" sx={{ mt: 0.5 }}>{CompanyForm.errors.accountHolderName}</Typography>
+                                    )}
+                                </Box>
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.account_holder_name || "-"}</Typography>
                             )}
@@ -1047,6 +1099,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         value: bank._id,
                                         label: bank.bank_name
                                     })) || []}
+                                    error={CompanyForm.touched.bankId && Boolean(CompanyForm.errors.bankId)}
+                                    helperText={CompanyForm.touched.bankId && CompanyForm.errors.bankId}
                                 />
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.bankId?.bank_name || "-"}</Typography>
@@ -1057,14 +1111,20 @@ const CompanyInformation = ({ isMapLoaded }) => {
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Branch Code</Typography>
                             {edit ? (
-                                <BootstrapInput
-                                    id="customerCode"
-                                    name="customerCode"
-                                    placeholder="Branch Code"
-                                    readOnly
-                                    value={CompanyForm.values.customerCode}
-                                    onChange={CompanyForm.handleChange}
-                                />
+                                <Box>
+                                    <BootstrapInput
+                                        id="customerCode"
+                                        name="customerCode"
+                                        placeholder="Branch Code"
+                                        readOnly
+                                        value={CompanyForm.values.customerCode}
+                                        onChange={CompanyForm.handleChange}
+                                        error={CompanyForm.touched.customerCode && Boolean(CompanyForm.errors.customerCode)}
+                                    />
+                                    {CompanyForm.touched.customerCode && CompanyForm.errors.customerCode && (
+                                        <Typography color="error" variant="caption" display="block" sx={{ mt: 0.5 }}>{CompanyForm.errors.customerCode}</Typography>
+                                    )}
+                                </Box>
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.branch_code || "-"}</Typography>
                             )}
@@ -1074,13 +1134,19 @@ const CompanyInformation = ({ isMapLoaded }) => {
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Account Type</Typography>
                             {edit ? (
-                                <BootstrapInput
-                                    id="accountType"
-                                    name="accountType"
-                                    placeholder="Enter Account Type"
-                                    value={CompanyForm.values.accountType}
-                                    onChange={CompanyForm.handleChange}
-                                />
+                                <Box>
+                                    <BootstrapInput
+                                        id="accountType"
+                                        name="accountType"
+                                        placeholder="Enter Account Type"
+                                        value={CompanyForm.values.accountType}
+                                        onChange={CompanyForm.handleChange}
+                                        error={CompanyForm.touched.accountType && Boolean(CompanyForm.errors.accountType)}
+                                    />
+                                    {CompanyForm.touched.accountType && CompanyForm.errors.accountType && (
+                                        <Typography color="error" variant="caption" display="block" sx={{ mt: 0.5 }}>{CompanyForm.errors.accountType}</Typography>
+                                    )}
+                                </Box>
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.account_type || "-"}</Typography>
                             )}
@@ -1090,13 +1156,19 @@ const CompanyInformation = ({ isMapLoaded }) => {
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">Account Number</Typography>
                             {edit ? (
-                                <BootstrapInput
-                                    id="accountNumber"
-                                    name="accountNumber"
-                                    placeholder="Enter Account Number"
-                                    value={CompanyForm.values.accountNumber}
-                                    onChange={CompanyForm.handleChange}
-                                />
+                                <Box>
+                                    <BootstrapInput
+                                        id="accountNumber"
+                                        name="accountNumber"
+                                        placeholder="Enter Account Number"
+                                        value={CompanyForm.values.accountNumber}
+                                        onChange={CompanyForm.handleChange}
+                                        error={CompanyForm.touched.accountNumber && Boolean(CompanyForm.errors.accountNumber)}
+                                    />
+                                    {CompanyForm.touched.accountNumber && CompanyForm.errors.accountNumber && (
+                                        <Typography color="error" variant="caption" display="block" sx={{ mt: 0.5 }}>{CompanyForm.errors.accountNumber}</Typography>
+                                    )}
+                                </Box>
                             ) : (
                                 <Typography>{companyInfo.data?.data.user.accountNumber || "-"}</Typography>
                             )}
