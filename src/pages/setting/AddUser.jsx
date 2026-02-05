@@ -22,6 +22,7 @@ const AddUser = () => {
     const [open, setOpen] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const client = useQueryClient()
+    const [role,setRole] = useState()
 
     // ✅ Formik setup
     const profileForm = useFormik({
@@ -38,25 +39,29 @@ const AddUser = () => {
             street: "",
             roleId: '',
             postal_code: "",
-            profileImg: "",
+            fullImage: "",
             password: "",
+            role: "",
+            type : "email_pass"
         },
         validationSchema: profileValidation_s,
         onSubmit: (values) => {
             const formData = new FormData();
             Object.keys(values).forEach((key) => {
-                if (key !== "profileImg") {
+                if (key !== "fullImage") {
                     formData.append(key, values[key]);
                 }
             });
-            if (values.profileImg && values.profileImg instanceof File) {
+            if (values.fullImage && values.fullImage instanceof File) {
                 console.log("SUBMIT CALLED", values);
-                formData.append("profileImg", values.profileImg);
+                formData.append("fullImage", values.fullImage);
             }
+
+            
             mutate(formData);
         },
     });
-
+    console.log("role",role)
     console.log("profileForm",profileForm)
     const countrylist = useGetCountryList();
     const cityList = useGetCityList(profileForm.values.province)
@@ -80,6 +85,7 @@ const AddUser = () => {
             value: role._id, // Fixed: use _id instead of id
             description: role.description || "",
         })) || [];
+        console.log("roleOptions",roleOptions)
 
     return (
         <>
@@ -254,6 +260,9 @@ const AddUser = () => {
                                     value={profileForm.values.roleId}
                                     onChange={(e) => {
                                         profileForm.setFieldValue("roleId", e.target.value);
+                                        const selectedRole = roleOptions.find(role => role.value === e.target.value);
+                                        setRole(selectedRole?.label || '');
+                                        profileForm.setFieldValue("role", selectedRole?.label || '');
                                     }}
                                     options={
                                         isLoading
@@ -397,17 +406,17 @@ const AddUser = () => {
                                             type="file"
                                             accept="image/*"
                                             hidden
-                                            name="profileImg"
+                                            name="fullImage"
                                             onChange={(e) =>
                                                 profileForm.setFieldValue(
-                                                    "profileImg",
+                                                    "fullImage",
                                                     e.currentTarget.files[0]
                                                 )
                                             }
                                         />
-                                        {profileForm.values.profileImg ? (
+                                        {profileForm.values.fullImage ? (
                                             <img
-                                                src={URL.createObjectURL(profileForm.values.profileImg)}
+                                                src={URL.createObjectURL(profileForm.values.fullImage)}
                                                 alt="Preview"
                                                 style={{
                                                     height: 200,

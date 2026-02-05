@@ -70,7 +70,7 @@ export const profileValidation_s = yup.object({
   suburb: yup.string().required("Suburb is required"),
   street: yup.string().required("Street is required"),
   postal_code: yup.string().required("Postal Code is required"),
-  profileImage: yup.string().required("Profile Image is required"),
+  fullImage: yup.string().required("Profile Image is required"),
   roleId: yup.string().required("Role is required"),
   password: yup.string()
     .required("Password is Required")
