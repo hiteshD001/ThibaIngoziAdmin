@@ -42,14 +42,15 @@ export const WebSocketProvider = ({ children }) => {
 
         socket.onmessage = (event) => {
             let data;
-
+            // console.log("WebSocket message:", event);
             try {
                 data = JSON.parse(event.data);
+                // console.log("WebSocket data:", data);
             } catch (err) {
                 console.log("Invalid WS message", err);
                 return;
             }
-
+            // console.log("WebSocket data:", data?.type);
             // Ignore heartbeat pong
             if (data?.type === "pong") return;
 
@@ -58,11 +59,13 @@ export const WebSocketProvider = ({ children }) => {
             // INITIAL_DATA or NEW_SOS: Replace/Append list
             if (data?.type === 'INITIAL_DATA' || data?.type === 'NEW_SOS') {
                 const payload = data.data;
+                console.log(`[WS] Received ${data?.type}, payload length:`, Array.isArray(payload) ? payload.length : 1);
                 let processedList = [];
 
                 if (Array.isArray(payload)) {
                     processedList = payload;
                     setActiveUserLists(processedList);
+                    console.log('[WS] Set activeUserLists with array, count:', processedList.length);
                 } else if (payload && typeof payload === 'object') {
                     // It's a single SOS object, append it to the current list
                     processedList = [payload];
@@ -73,7 +76,9 @@ export const WebSocketProvider = ({ children }) => {
                             // If it exists, update it with new data (to reflect status changes)
                             return prev.map(item => item._id === payload._id ? payload : item);
                         }
-                        return [payload, ...prev];
+                        const newList = [payload, ...prev];
+                        console.log('[WS] Added new SOS to list, new count:', newList.length);
+                        return newList;
                     });
                 }
 
@@ -130,28 +135,64 @@ export const WebSocketProvider = ({ children }) => {
             // Request reached users update
             if (data?.request_reached_update) {
                 const { sosId, count } = data.request_reached_update;
-                setRequestCounts(prev => ({
-                    ...prev,
-                    [sosId]: { ...prev[sosId], req_reach: count }
-                }));
-                // Also update the list if present
-                setActiveUserLists(prev => prev.map(item =>
-                    item._id === sosId ? { ...item, req_reach: count } : item
-                ));
+
+                // Check if this SOS exists in our list
+                const existsInList = activeUserListsRef.current.find(item => item._id === sosId);
+
+                if (existsInList) {
+                    // SOS exists, just update the count
+                    setRequestCounts(prev => ({
+                        ...prev,
+                        [sosId]: { ...prev[sosId], req_reach: count }
+                    }));
+                    setActiveUserLists(prev => prev.map(item =>
+                        item._id === sosId ? { ...item, req_reach: count } : item
+                    ));
+                } else {
+                    // This is a NEW SOS - trigger a refetch signal
+                    // console.log('[WS] New SOS detected via request_reached_update:', sosId, 'Triggering refetch');
+
+                    // Trigger alert sound and refetch signal
+                    setnewSOS((prev) => ({ count: prev.count + 1, type: "new_sos", sosId: sosId }));
+
+                    // Also update the count for when the data arrives
+                    setRequestCounts(prev => ({
+                        ...prev,
+                        [sosId]: { ...prev[sosId], req_reach: count }
+                    }));
+                }
                 return;
             }
 
             // Request accepted users update
             if (data?.request_accepted_update) {
                 const { sosId, count } = data.request_accepted_update;
-                setRequestCounts(prev => ({
-                    ...prev,
-                    [sosId]: { ...prev[sosId], req_accept: count }
-                }));
-                // Also update the list if present
-                setActiveUserLists(prev => prev.map(item =>
-                    item._id === sosId ? { ...item, req_accept: count } : item
-                ));
+
+                // Check if this SOS exists in our list
+                const existsInList = activeUserListsRef.current.find(item => item._id === sosId);
+
+                if (existsInList) {
+                    // SOS exists, just update the count
+                    setRequestCounts(prev => ({
+                        ...prev,
+                        [sosId]: { ...prev[sosId], req_accept: count }
+                    }));
+                    setActiveUserLists(prev => prev.map(item =>
+                        item._id === sosId ? { ...item, req_accept: count } : item
+                    ));
+                } else {
+                    // This is a NEW SOS - trigger a refetch signal
+                    // console.log('[WS] New SOS detected via request_accepted_update:', sosId, 'Triggering refetch');
+
+                    // Trigger alert sound and refetch signal
+                    setnewSOS((prev) => ({ count: prev.count + 1, type: "new_sos", sosId: sosId }));
+
+                    // Also update the count for when the data arrives
+                    setRequestCounts(prev => ({
+                        ...prev,
+                        [sosId]: { ...prev[sosId], req_accept: count }
+                    }));
+                }
                 return;
             }
 
@@ -229,7 +270,7 @@ export const WebSocketProvider = ({ children }) => {
             socketRef
         }}>
             {children}
-        </WebSocketContext.Provider>
+        </WebSocketContext.Provider >
     );
 };
 

@@ -156,18 +156,8 @@ const Home = ({ isMapLoaded, }) => {
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
-
-    // Filter Logic: Use WebSocket data ONLY when in "Default View" (no filters/sorts/paging)
-    const isDefaultDate = moment(startDateSos).isSame(moment().startOf('year'), 'day');
-    const isDefaultView =
-        filter === "" &&
-        selectedNotification === "all" &&
-        sortBy2 === "createdAt" &&
-        sortOrder2 === "desc" &&
-        activePage === 1 &&
-        isDefaultDate;
-
-    const activeUserList = (isDefaultView && activeUserLists?.length > 0) ? activeUserLists : activeSos?.data?.data?.data;
+    const activeUserList = activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data;
+    console.log('[Home] activeUserLists length:', activeUserLists?.length, 'Using WS:', activeUserLists?.length > 0, 'activeUserList length:', activeUserList?.length);
 
     const prevLengthRef = useRef(activeUserList?.length);
 
@@ -203,28 +193,36 @@ const Home = ({ isMapLoaded, }) => {
 
     // Refetch active SOS when we receive new SOS notification from WebSocket
     useEffect(() => {
+        console.log('[Home Alert Effect] newSOS changed:', { count: newSOS.count, type: newSOS.type, sosId: newSOS.sosId });
+
         if (!newSOS.type || newSOS.count === 0) return;
 
         // Throttle API calls to prevent spamming active/sos/data
         const now = Date.now();
         if (now - lastFetchTime.current < 2000) {
+            console.log('[Home Alert Effect] Throttled - too soon since last fetch');
             return;
         }
         lastFetchTime.current = now;
 
         const handleAlert = async () => {
             try {
+                console.log('[Home Alert Effect] activeUserLists.length:', activeUserLists?.length);
+
                 // If we have WebSocket data, we trust the NEW_SOS signal
                 if (activeUserLists?.length > 0) {
+                    console.log('[Home Alert Effect] Using WebSocket data path');
                     const playAudio = async () => {
                         try {
                             // Respect user preference for audio
                             const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
+                            console.log('[Home Alert Effect] Audio enabled:', isAudioEnabled);
 
                             if (isAudioEnabled && audioRef.current) {
                                 audioRef.current.loop = false; // Ensure play once
                                 audioRef.current.currentTime = 0;
                                 await audioRef.current.play();
+                                console.log('[Home Alert Effect] Audio played');
                             }
                             setIsPlaying(true);
                         } catch (e) {
@@ -236,38 +234,50 @@ const Home = ({ isMapLoaded, }) => {
                     playAudio();
                     toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
                 } else {
-                    const { data: res } = await activeSos.refetch();
-                    const newList = res?.data?.data || [];
+                    console.log('[Home Alert Effect] Using API refetch path');
+                    const res = await activeSos.refetch();
 
-                    // Check for new IDs that we haven't notified about yet
-                    let hasNew = false;
-                    for (const item of newList) {
-                        if (!notifiedSosIds.current.has(item._id)) {
-                            hasNew = true;
-                            notifiedSosIds.current.add(item._id); // Update immediately
-                        }
-                    }
+                    if (res?.data?.data?.data) {
+                        const newList = res.data.data.data || [];
+                        console.log('[Home Alert Effect] Refetched data, count:', newList.length);
 
-                    if (hasNew) {
-                        const playAudio = async () => {
-                            try {
-                                // Respect user preference for audio
-                                const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
+                        // Check for new IDs that we haven't notified about yet
+                        let hasNew = false;
+                        const newIds = [];
 
-                                if (isAudioEnabled && audioRef.current) {
-                                    audioRef.current.loop = false; // Ensure play once
-                                    audioRef.current.currentTime = 0;
-                                    await audioRef.current.play();
-                                }
-                                setIsPlaying(true);
-                            } catch (e) {
-                                console.error("Audio playback failed:", e);
-                                // User requested to remove the "Click to enable" toast.
-                                // If blocked by policy, we just fail silently (preserving the visual notification below).
+                        for (const item of newList) {
+                            if (!notifiedSosIds.current.has(item._id)) {
+                                hasNew = true;
+                                newIds.push(item._id);
                             }
                         }
-                        playAudio();
-                        toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+
+                        console.log('[Home] hasNew:', hasNew, 'newIds count:', newIds.length, 'sosAudioEnabled:', localStorage.getItem("sosAudioEnabled"));
+
+                        if (hasNew) {
+                            const playAudio = async () => {
+                                try {
+                                    // Respect user preference for audio
+                                    const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
+
+                                    if (isAudioEnabled && audioRef.current) {
+                                        audioRef.current.loop = false; // Ensure play once
+                                        audioRef.current.currentTime = 0;
+                                        await audioRef.current.play();
+                                    }
+                                    setIsPlaying(true);
+                                } catch (e) {
+                                    console.error("Audio playback failed:", e);
+                                    // User requested to remove the "Click to enable" toast.
+                                    // If blocked by policy, we just fail silently (preserving the visual notification below).
+                                }
+                            }
+                            playAudio();
+                            toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
+
+                            // Mark these IDs as notified AFTER playing the alert
+                            newIds.forEach(id => notifiedSosIds.current.add(id));
+                        }
                     }
                 }
             } catch (error) {
@@ -281,9 +291,9 @@ const Home = ({ isMapLoaded, }) => {
     useEffect(() => {
         if (!Array.isArray(activeUserList)) return;
 
-        // Sync notifiedSosIds with current list to avoid re-alerting on known items
-        const currentIds = new Set(activeUserList.map(item => item._id));
-        notifiedSosIds.current = currentIds;
+        // NOTE: We do NOT auto-sync notifiedSosIds here anymore
+        // because it prevents the alert sound from playing for new SOS.
+        // IDs are now added to notifiedSosIds only after the alert plays.
 
         const currentLength = activeUserList.length;
         const previousLength = prevLengthRef.current;
