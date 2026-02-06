@@ -20,7 +20,7 @@ import {
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { startOfYear } from "date-fns";
 import calender from '../assets/images/calender.svg';
 import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
@@ -158,6 +158,19 @@ const Home = ({ isMapLoaded, }) => {
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
     const activeUserList = activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data;
     console.log('[Home] activeUserLists length:', activeUserLists?.length, 'Using WS:', activeUserLists?.length > 0, 'activeUserList length:', activeUserList?.length);
+
+    // Apply pagination slicing for display
+    const paginatedActiveUserList = useMemo(() => {
+        if (!Array.isArray(activeUserList)) return [];
+        // Only slice if using WebSocket data (client-side pagination)
+        // API data is already paginated server-side
+        if (activeUserLists?.length > 0) {
+            const startIndex = (activePage - 1) * activeLimit;
+            const endIndex = startIndex + activeLimit;
+            return activeUserList.slice(startIndex, endIndex);
+        }
+        return activeUserList;
+    }, [activeUserList, activePage, activeLimit, activeUserLists]);
 
     const prevLengthRef = useRef(activeUserList?.length);
 
@@ -403,7 +416,8 @@ const Home = ({ isMapLoaded, }) => {
         setStatus('')
     };
 
-    const totalActiveItems = activeSos?.data?.data?.totalItems || 0
+    // Calculate total items: use activeUserList length for WebSocket data, activeSos data for API
+    const totalActiveItems = activeUserLists?.length > 0 ? (activeUserList?.length || 0) : (activeSos?.data?.data?.totalItems || 0);
     const totalActivePages = Math.ceil(totalActiveItems / activeLimit)
     const totalRecentItems = recentSos?.data?.totalItems
     const totalRecentPages = Math.ceil(totalRecentItems / recentLimit)
@@ -592,9 +606,7 @@ const Home = ({ isMapLoaded, }) => {
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Trip Type</TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
-                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>    </TableCell>
                                     </TableRow>
                                 </TableHead>
 
@@ -605,8 +617,8 @@ const Home = ({ isMapLoaded, }) => {
                                                 <Loader />
                                             </TableCell>
                                         </TableRow>
-                                        : (activeUserList?.length > 0 ?
-                                            activeUserList?.map((user) => (
+                                        : (paginatedActiveUserList?.length > 0 ?
+                                            paginatedActiveUserList?.map((user) => (
                                                 <TableRow key={user._id}>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
@@ -619,34 +631,32 @@ const Home = ({ isMapLoaded, }) => {
                                                                     {user?.armedUserId?.first_name || ''} {user?.armedUserId?.last_name || ''}
                                                                 </Stack>
                                                             ) : (
-                                                                user?.user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user?._id}`} className="link">
+                                                                user?.role === "driver" ? (
+                                                                    <Link to={`/home/total-drivers/driver-information/${user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={
-                                                                                    user?.user
-                                                                                        ?.selfieImage ||
+                                                                                    user?.selfieImage ||
                                                                                     nouser
                                                                                 }
                                                                                 sx={{ '&:hover': { textDecoration: 'none' } }}
                                                                                 alt="User"
                                                                             />
 
-                                                                            {user?.user?.first_name || ''} {user?.user?.last_name || ''}
+                                                                            {user?.first_name || ''} {user?.last_name || ''}
                                                                         </Stack>
                                                                     </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${user?.user?._id}`} className="link">
+                                                                    <Link to={`/home/total-users/user-information/${user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={
-                                                                                    user?.user
-                                                                                        ?.selfieImage ||
+                                                                                    user?.selfieImage ||
                                                                                     nouser
                                                                                 }
                                                                                 alt="User"
                                                                             />
 
-                                                                            {user?.user?.first_name || ''} {user?.user?.last_name || ''}
+                                                                            {user?.first_name || ''} {user?.last_name || ''}
                                                                         </Stack>
                                                                     </Link>
                                                                 )
@@ -654,7 +664,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : user?.user?.company_name}
+                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.company_name || "-")}
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
@@ -763,9 +773,6 @@ const Home = ({ isMapLoaded, }) => {
                                                             </div>
                                                         }
                                                     </TableCell>
-                                                    <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
-                                                        {user?.deepLinks?.[0]?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
-                                                    </TableCell>
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
@@ -775,41 +782,6 @@ const Home = ({ isMapLoaded, }) => {
                                                             </Tooltip>
                                                         </Box>
                                                     </TableCell>
-                                                    {user?.type?.type === "linked_sos" ? (
-                                                        <TableCell>
-                                                            <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
-                                                                {user?.otherUser?._id ? (
-                                                                    <Tooltip title="Other User" arrow placement="top">
-                                                                        <Button
-                                                                            variant="contained"
-                                                                            sx={{
-                                                                                display: "flex",
-                                                                                alignItems: "center",
-                                                                                gap: "6px",
-                                                                                textTransform: "none",
-                                                                                fontWeight: 500,
-                                                                                fontSize: "14px",
-                                                                                color: "#fff",
-                                                                                backgroundColor: "#1E73E8", // same as your image blue
-                                                                                borderRadius: "8px",
-                                                                                padding: "6px 14px",
-                                                                                whiteSpace: "nowrap",
-                                                                                minWidth: "auto",
-                                                                                "&:hover": { backgroundColor: "#1864c7" },
-                                                                            }}
-                                                                            onClick={() =>
-                                                                                nav(`total-drivers/driver-information/${user?.otherUser?._id}`)
-                                                                            }
-                                                                        >
-                                                                            Other User
-                                                                        </Button>
-                                                                    </Tooltip>
-                                                                ) : (
-                                                                    "-"
-                                                                )}
-                                                            </Box>
-                                                        </TableCell>
-                                                    ) : <TableCell sx={{ textAlign: 'center' }}>-</TableCell>}
                                                 </TableRow>
                                             ))
                                             :
