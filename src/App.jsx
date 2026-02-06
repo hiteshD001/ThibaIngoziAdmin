@@ -65,6 +65,10 @@ import AdminSetting from './pages/setting/AdminSetting'
 import ListOfSubscription from "./pages/subscription/ListOfSubscription";
 import SubscriptionInfo from "./pages/subscription/SubscriptionInfo";
 import RequestUsers from "./pages/RequestUsers";
+import ListOfChatGroups from "./pages/Chat Groups/ListOfChatGroups";
+import ChatGroupDetails from "./pages/Chat Groups/ChatGroupDetails";
+import AddChatGroup from "./pages/Chat Groups/AddChatGroup";
+import ArchievedChats from "./pages/Chat Groups/ArchievedChats";
 
 // Define your map loader options once here
 const mapLoaderOptions = {
@@ -341,8 +345,6 @@ function App() {
                         {
                             path: "",
                             element: <ListOfStolenCars />
-                            // element: <WorkInProgress />
-
                         },
                         {
                             path: 'stolen-car/:id',
@@ -351,6 +353,27 @@ function App() {
                         {
                             path: "view-archeived-vehicale",
                             element: <ListOfViewArcheivedMissingVehicale />
+                        },
+                    ]
+                },
+                {
+                    path: "chat-groups",
+                    children: [
+                        {
+                            path: "",
+                            element: <ListOfChatGroups />
+                        },
+                        {
+                            path: 'add-chat-group',
+                            element: <AddChatGroup />
+                        },
+                        {
+                            path: 'chat-group/:id',
+                            element: <ChatGroupDetails />
+                        },
+                        {
+                            path: "view-archeived-chats",
+                            element: <ArchievedChats />
                         },
                     ]
                 },

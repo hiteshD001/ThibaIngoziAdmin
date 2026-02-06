@@ -147,6 +147,14 @@ export const driverValidation = yup.object({
     // primary_e_hailing_company: String,
 })
 
+export const chatValidation = yup.object({
+    group_name: String,
+    province: String,
+    city: String,
+    suburb: String,
+    country: String,
+})
+
 export const vehicleValidation = yup.object({
     first_name: Username,
     last_name: Username,

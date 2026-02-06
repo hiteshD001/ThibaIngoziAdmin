@@ -12,6 +12,7 @@ import salesagent from '../assets/images/salesagent.svg'
 import settings from "../assets/images/settings.svg";
 import Flagged from '../assets/images/Flagged.svg'
 import StolenCarIcon from '../assets/images/StolenCarIcon.svg'
+import ChatGroup from '../assets/images/chat_grp.svg'
 import MissingPersonIcon from '../assets/images/MissingPersonIcon.svg'
 import SuspectIcon from '../assets/images/SuspectIcon.svg'
 import subscription from '../assets/images/subscription.svg'
@@ -140,6 +141,14 @@ export const superadmin_menulist = [
         path: "/home/total-stolen-cars",
         image: StolenCarIcon,
         company: "Stolen Car Sighting Details"
+    },
+    {
+        id: "chat-groups",
+        name: "Chat Groups",
+        path: "/home/chat-groups",
+        image: ChatGroup,
+        add: "Create New Group",
+        company: "Group Information"
     },
     {
         id: "crime-reports",
