@@ -131,7 +131,7 @@ const GoogleMaps = ({ isMapLoaded }) => {
 
     const handleConfirm = () => {
         setConfirm(false);
-        nav("/home/total-drivers");
+        nav("/home");
     };
 
     if (!isMapLoaded) return <p>Loading Map...</p>;

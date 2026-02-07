@@ -82,7 +82,7 @@ const Home = ({ isMapLoaded, }) => {
     const { newSOS, requestCounts, activeUserLists } = useWebSocket();
     const location = useLocation();
 
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient(); activeUserLists
     const notificationTypes = useGetNotificationType();
     // Recent SOS pagination
     const [recentPage, setRecentPage] = useState(1);
@@ -656,7 +656,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                                 alt="User"
                                                                             />
 
-                                                                            {user?.first_name || ''} {user?.last_name || ''}
+                                                                            {user?.user_id?.first_name || ''} {user?.user_id?.last_name || ''}
                                                                         </Stack>
                                                                     </Link>
                                                                 )
@@ -664,7 +664,8 @@ const Home = ({ isMapLoaded, }) => {
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.company_name || "-")}
+                                                        {console.log(user, "users-data")}
+                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.user_id?.company_name || "-")}
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
