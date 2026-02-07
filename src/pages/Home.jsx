@@ -89,7 +89,7 @@ const Home = ({ isMapLoaded, }) => {
     const [recentLimit, setRecentLimit] = useState(10);
     // Active SOS pagination
     const [activePage, setActivePage] = useState(1);
-    const [activeLimit, setActiveLimit] = useState(10);
+    const [activeLimit, setActiveLimit] = useState(20);
 
     // Audio Control
     const audioRef = useRef(new Audio(tone));
