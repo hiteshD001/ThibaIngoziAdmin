@@ -156,9 +156,11 @@ const Home = ({ isMapLoaded, }) => {
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
-    const activeUserList = activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data;
+    console.log(activeSos, "activeSos");
+    const activeUserList = activeSos?.data?.data?.data;
     console.log('[Home] activeUserLists length:', activeUserLists?.length, 'Using WS:', activeUserLists?.length > 0, 'activeUserList length:', activeUserList?.length);
 
+    console.log(activeUserList, "activeUserList");
     // Apply pagination slicing for display
     const paginatedActiveUserList = useMemo(() => {
         if (!Array.isArray(activeUserList)) return [];
@@ -628,7 +630,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                         src={nouser} // No selfie field mentioned for armedUserId, using default or check armedUserId.selfieImage?
                                                                         alt="User"
                                                                     />
-                                                                    {user?.armedUserId?.first_name || ''} {user?.armedUserId?.last_name || ''}
+                                                                    {user?.user?.first_name} {user?.user?.last_name}
                                                                 </Stack>
                                                             ) : (
                                                                 user?.role === "driver" ? (
@@ -643,7 +645,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                                 alt="User"
                                                                             />
 
-                                                                            {user?.first_name || ''} {user?.last_name || ''}
+                                                                            {user?.user?.first_name} {user?.user?.last_name}
                                                                         </Stack>
                                                                     </Link>) : (
                                                                     <Link to={`/home/total-users/user-information/${user?._id}`} className="link">
@@ -656,7 +658,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                                 alt="User"
                                                                             />
 
-                                                                            {user?.user_id?.first_name || ''} {user?.user_id?.last_name || ''}
+                                                                            {user?.user?.first_name} {user?.user?.last_name}
                                                                         </Stack>
                                                                     </Link>
                                                                 )
@@ -665,7 +667,7 @@ const Home = ({ isMapLoaded, }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {console.log(user, "users-data")}
-                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.user_id?.company_name || "-")}
+                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.user?.company_name || "-")}
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
