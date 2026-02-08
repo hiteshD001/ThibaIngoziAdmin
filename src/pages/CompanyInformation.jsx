@@ -308,6 +308,12 @@ const CompanyInformation = ({ isMapLoaded }) => {
         }
     }, [companyInfo.data?.data?.user, edit]);
 
+    const displayField = (label, value) => (
+        <Box mb={3}>
+            <Typography sx={{ fontSize: '1.1rem', fontWeight: 400, mb: 1 }}>{label}</Typography>
+        </Box>
+    );
+
     // security companies options
     const securityCompanyOptions = !securityList?.isLoading && securityList?.data?.data?.company?.map((item) => ({
         label: item.company_name,
@@ -987,7 +993,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     helperText={CompanyForm.touched.country && CompanyForm.errors.country}
                                 />
                             ) : (
-                                <Typography>{companyInfo.data?.data.user.country?.country_name || companyInfo.data?.data.user.country || "-"}</Typography>
+                                displayField(countrylist.data?.data.data?.find(c => c._id === companyInfo.data?.data.user.country)?.country_name)
                             )}
                         </Grid>
 
@@ -1008,7 +1014,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     helperText={CompanyForm.touched.province && CompanyForm.errors.province}
                                 />
                             ) : (
-                                <Typography>{companyInfo.data?.data.user.province?.province_name || companyInfo.data?.data.user.province || "-"}</Typography>
+                                displayField(provincelist.data?.data.data?.find(c => c._id === companyInfo.data?.data.user.province)?.province_name)
                             )}
                         </Grid>
 
@@ -1029,7 +1035,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                     helperText={CompanyForm.touched.city && CompanyForm.errors.city}
                                 />
                             ) : (
-                                <Typography>{companyInfo.data?.data.user.city?.city_name || companyInfo.data?.data.user.city || "-"}</Typography>
+                                displayField(cityList.data?.data.data?.find(c => c._id === companyInfo.data?.data.user.city)?.city_name)
                             )}
                         </Grid>
 
