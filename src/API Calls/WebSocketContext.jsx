@@ -231,57 +231,74 @@ export const WebSocketProvider = ({ children }) => {
             }
 
             // Handle { sos_update: true, data: [...] } format
-            if (data?.sos_update === true && Array.isArray(data?.data)) {
+            if ((data?.sos_update === true || data?.sos_update === 'true') && Array.isArray(data?.data)) {
                 console.log('[WS] Received sos_update: true, count:', data.data.length);
                 const updates = data.data;
 
-                // Update active list and request counts
-                updates.forEach(updatedItem => {
-                    // Check if the SOS is resolved (cancelled or help received)
-                    const isResolved = updatedItem.sosType === 'ARMED_SOS'
-                        ? !!updatedItem.armedSosstatus
-                        : !!updatedItem.help_received;
+                // 1. Calculate new Active List
+                setActiveUserLists(prevList => {
+                    let newList = [...prevList];
 
-                    if (isResolved) {
-                        // Remove from active list if resolved
-                        setActiveUserLists(prev => prev.filter(item => item._id !== updatedItem._id));
-                    } else {
-                        // Update Request Counts if available or fallback to existing
-                        setRequestCounts(prev => {
-                            const currentCounts = prev[updatedItem._id] || {};
-                            const newReqAccept = updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : currentCounts.req_accept;
-                            const newReqReach = updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : currentCounts.req_reach;
+                    updates.forEach(updatedItem => {
+                        // Check resolution
+                        const isResolved = updatedItem.sosType === 'ARMED_SOS'
+                            ? !!updatedItem.armedSosstatus
+                            : !!updatedItem.help_received;
 
-                            // Only update if we have new data or existing data to preserve
-                            if (newReqAccept !== undefined || newReqReach !== undefined) {
-                                return {
-                                    ...prev,
-                                    [updatedItem._id]: {
-                                        req_accept: newReqAccept || 0,
-                                        req_reach: newReqReach || 0
-                                    }
+                        if (isResolved) {
+                            // Remove
+                            newList = newList.filter(item => item._id !== updatedItem._id);
+                        } else {
+                            // Update or Add? Usually Update.
+                            const index = newList.findIndex(item => item._id === updatedItem._id);
+                            if (index !== -1) {
+                                // Merge
+                                newList[index] = {
+                                    ...newList[index],
+                                    ...updatedItem,
+                                    // Ensure nested fields like reqAcceptUserIds.length updates map to flat props if needed
+                                    // But usually we rely on requestCounts for the counters
+                                    req_accept: updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : newList[index].req_accept,
+                                    req_reach: updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : newList[index].req_reach
                                 };
                             }
-                            return prev;
-                        });
-
-                        // Update the item in the active list
-                        setActiveUserLists(prev => {
-                            return prev.map(item => {
-                                if (item._id === updatedItem._id) {
-                                    // Merge the update. Ensure we update the counts on the object itself too for safety
-                                    return {
-                                        ...item,
-                                        ...updatedItem,
-                                        req_accept: updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : item.req_accept,
-                                        req_reach: updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : item.req_reach
-                                    };
-                                }
-                                return item;
-                            });
-                        });
-                    }
+                        }
+                    });
+                    return newList;
                 });
+
+                // 2. Calculate new Request Counts
+                setRequestCounts(prevCounts => {
+                    const newCounts = { ...prevCounts };
+
+                    updates.forEach(updatedItem => {
+                        // Skip if we removed it? 
+                        // Actually, we can just update the counts regardless, it's safer.
+
+                        const currentCountObj = newCounts[updatedItem._id] || {};
+                        let hasChange = false;
+
+                        // Check Reached
+                        if (updatedItem.reqReachedUserIds && Array.isArray(updatedItem.reqReachedUserIds)) {
+                            currentCountObj.req_reach = updatedItem.reqReachedUserIds.length;
+                            hasChange = true;
+                        }
+
+                        // Check Accepted
+                        if (updatedItem.reqAcceptUserIds && Array.isArray(updatedItem.reqAcceptUserIds)) {
+                            currentCountObj.req_accept = updatedItem.reqAcceptUserIds.length;
+                            hasChange = true;
+                        }
+
+                        if (hasChange) {
+                            newCounts[updatedItem._id] = { ...currentCountObj }; // Ensure new reference
+                            // console.log(`[WS] Updated counts for ${updatedItem._id}:`, newCounts[updatedItem._id]);
+                        }
+                    });
+
+                    return newCounts;
+                });
+
                 return;
             }
         };
