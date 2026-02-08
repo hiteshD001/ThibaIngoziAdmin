@@ -235,6 +235,17 @@ export const WebSocketProvider = ({ children }) => {
                 console.log('[WS] Received sos_update: true, count:', data.data.length);
                 const updates = data.data;
 
+                // Debug log to check the first item's structure
+                if (updates.length > 0) {
+                    console.log('[WS] First update item sample:', {
+                        _id: updates[0]._id,
+                        reqAcceptUserIds_Type: Array.isArray(updates[0].reqAcceptUserIds) ? 'Array' : typeof updates[0].reqAcceptUserIds,
+                        reqAcceptUserIds_Len: updates[0].reqAcceptUserIds?.length,
+                        reqReachedUserIds_Type: Array.isArray(updates[0].reqReachedUserIds) ? 'Array' : typeof updates[0].reqReachedUserIds,
+                        reqReachedUserIds_Len: updates[0].reqReachedUserIds?.length
+                    });
+                }
+
                 // 1. Calculate new Active List
                 setActiveUserLists(prevList => {
                     let newList = [...prevList];
