@@ -260,6 +260,7 @@ export const WebSocketProvider = ({ children }) => {
         <WebSocketContext.Provider value={{
             isConnected,
             activeUserLists,
+            setActiveUserLists,
             pagination,
             currentPage,
             newSOS,

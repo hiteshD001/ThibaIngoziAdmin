@@ -79,7 +79,7 @@ const Home = ({ isMapLoaded, }) => {
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all");
     const [updatingId, setUpdatingId] = useState(""); // Track which ID is being updated
-    const { newSOS, requestCounts, activeUserLists } = useWebSocket();
+    const { newSOS, requestCounts, activeUserLists, setActiveUserLists } = useWebSocket();
     const location = useLocation();
 
     const queryClient = useQueryClient();
@@ -342,6 +342,12 @@ const Home = ({ isMapLoaded, }) => {
 
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
+
+        // Optimistically update the local activeUserLists if available (WebSocket source)
+        if (activeUserLists?.length > 0 && setActiveUserLists) {
+            setActiveUserLists(prev => prev.filter(item => item._id !== selectedId));
+        }
+
         setStatusUpdate(false);
         setSelectedId("");
         setUpdatingId(""); // Clear loader
