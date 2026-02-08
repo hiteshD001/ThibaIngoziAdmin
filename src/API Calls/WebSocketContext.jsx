@@ -229,6 +229,51 @@ export const WebSocketProvider = ({ children }) => {
                 setActiveUserLists(data);
                 return;
             }
+
+            // Handle { sos_update: true, data: [...] } format
+            if (data?.sos_update === true && Array.isArray(data?.data)) {
+                console.log('[WS] Received sos_update: true, count:', data.data.length);
+                const updates = data.data;
+
+                // Update active list and request counts
+                updates.forEach(updatedItem => {
+                    // Update Request Counts if available or fallback to existing
+                    setRequestCounts(prev => {
+                        const currentCounts = prev[updatedItem._id] || {};
+                        const newReqAccept = updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : currentCounts.req_accept;
+                        const newReqReach = updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : currentCounts.req_reach;
+
+                        // Only update if we have new data or existing data to preserve
+                        if (newReqAccept !== undefined || newReqReach !== undefined) {
+                            return {
+                                ...prev,
+                                [updatedItem._id]: {
+                                    req_accept: newReqAccept || 0,
+                                    req_reach: newReqReach || 0
+                                }
+                            };
+                        }
+                        return prev;
+                    });
+
+                    // Update the item in the active list
+                    setActiveUserLists(prev => {
+                        return prev.map(item => {
+                            if (item._id === updatedItem._id) {
+                                // Merge the update. Ensure we update the counts on the object itself too for safety
+                                return {
+                                    ...item,
+                                    ...updatedItem,
+                                    req_accept: updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : item.req_accept,
+                                    req_reach: updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : item.req_reach
+                                };
+                            }
+                            return item;
+                        });
+                    });
+                });
+                return;
+            }
         };
 
         return () => {
