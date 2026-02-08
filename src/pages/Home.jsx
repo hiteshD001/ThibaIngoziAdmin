@@ -208,19 +208,12 @@ const Home = ({ isMapLoaded, }) => {
 
         if (!newSOS.type || newSOS.count === 0) return;
 
-        // Throttle API calls to prevent spamming active/sos/data
-        const now = Date.now();
-        if (now - lastFetchTime.current < 2000) {
-            console.log('[Home Alert Effect] Throttled - too soon since last fetch');
-            return;
-        }
-        lastFetchTime.current = now;
-
         const handleAlert = async () => {
             try {
                 console.log('[Home Alert Effect] activeUserLists.length:', activeUserLists?.length);
 
                 // If we have WebSocket data, we trust the NEW_SOS signal
+                // WE REMOVED THROTTLING HERE to ensure audio plays for every alert
                 if (activeUserLists?.length > 0) {
                     console.log('[Home Alert Effect] Using WebSocket data path');
                     const playAudio = async () => {
@@ -238,13 +231,20 @@ const Home = ({ isMapLoaded, }) => {
                             setIsPlaying(true);
                         } catch (e) {
                             console.error("Audio playback failed:", e);
-                            // User requested to remove the "Click to enable" toast.
-                            // If blocked by policy, we just fail silently (preserving the visual notification below).
                         }
                     }
                     playAudio();
                     toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
                 } else {
+                    // Start Throttle for API calls
+                    const now = Date.now();
+                    if (now - lastFetchTime.current < 2000) {
+                        console.log('[Home Alert Effect] Throttled API call - too soon');
+                        return;
+                    }
+                    lastFetchTime.current = now;
+                    // End Throttle
+
                     console.log('[Home Alert Effect] Using API refetch path');
                     const res = await activeSos.refetch();
 
@@ -279,8 +279,6 @@ const Home = ({ isMapLoaded, }) => {
                                     setIsPlaying(true);
                                 } catch (e) {
                                     console.error("Audio playback failed:", e);
-                                    // User requested to remove the "Click to enable" toast.
-                                    // If blocked by policy, we just fail silently (preserving the visual notification below).
                                 }
                             }
                             playAudio();
