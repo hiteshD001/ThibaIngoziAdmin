@@ -156,11 +156,7 @@ const Home = ({ isMapLoaded, }) => {
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
-    console.log(activeSos, "activeSos");
-    const activeUserList = activeSos?.data?.data?.data;
-    console.log('[Home] activeUserLists length:', activeUserLists?.length, 'Using WS:', activeUserLists?.length > 0, 'activeUserList length:', activeUserList?.length);
-
-    console.log(activeUserList, "activeUserList");
+    const activeUserList = activeUserLists?.length > 0 ? activeUserLists.filter((item) => item?.user_id?._id === userId) : activeSos?.data?.data?.data;
     // Apply pagination slicing for display
     const paginatedActiveUserList = useMemo(() => {
         if (!Array.isArray(activeUserList)) return [];
@@ -645,7 +641,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                                 alt="User"
                                                                             />
 
-                                                                            {user?.user?.first_name} {user?.user?.last_name}
+                                                                            {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>) : (
                                                                     <Link to={`/home/total-users/user-information/${user?._id}`} className="link">
@@ -658,7 +654,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                                 alt="User"
                                                                             />
 
-                                                                            {user?.user?.first_name} {user?.user?.last_name}
+                                                                            {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>
                                                                 )
@@ -666,8 +662,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {console.log(user, "users-data")}
-                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.user?.company_name || "-")}
+                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.user?.company_name || user?.user_id?.company_name || "-")}
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
