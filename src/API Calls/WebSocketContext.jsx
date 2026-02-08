@@ -237,40 +237,50 @@ export const WebSocketProvider = ({ children }) => {
 
                 // Update active list and request counts
                 updates.forEach(updatedItem => {
-                    // Update Request Counts if available or fallback to existing
-                    setRequestCounts(prev => {
-                        const currentCounts = prev[updatedItem._id] || {};
-                        const newReqAccept = updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : currentCounts.req_accept;
-                        const newReqReach = updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : currentCounts.req_reach;
+                    // Check if the SOS is resolved (cancelled or help received)
+                    const isResolved = updatedItem.sosType === 'ARMED_SOS'
+                        ? !!updatedItem.armedSosstatus
+                        : !!updatedItem.help_received;
 
-                        // Only update if we have new data or existing data to preserve
-                        if (newReqAccept !== undefined || newReqReach !== undefined) {
-                            return {
-                                ...prev,
-                                [updatedItem._id]: {
-                                    req_accept: newReqAccept || 0,
-                                    req_reach: newReqReach || 0
-                                }
-                            };
-                        }
-                        return prev;
-                    });
+                    if (isResolved) {
+                        // Remove from active list if resolved
+                        setActiveUserLists(prev => prev.filter(item => item._id !== updatedItem._id));
+                    } else {
+                        // Update Request Counts if available or fallback to existing
+                        setRequestCounts(prev => {
+                            const currentCounts = prev[updatedItem._id] || {};
+                            const newReqAccept = updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : currentCounts.req_accept;
+                            const newReqReach = updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : currentCounts.req_reach;
 
-                    // Update the item in the active list
-                    setActiveUserLists(prev => {
-                        return prev.map(item => {
-                            if (item._id === updatedItem._id) {
-                                // Merge the update. Ensure we update the counts on the object itself too for safety
+                            // Only update if we have new data or existing data to preserve
+                            if (newReqAccept !== undefined || newReqReach !== undefined) {
                                 return {
-                                    ...item,
-                                    ...updatedItem,
-                                    req_accept: updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : item.req_accept,
-                                    req_reach: updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : item.req_reach
+                                    ...prev,
+                                    [updatedItem._id]: {
+                                        req_accept: newReqAccept || 0,
+                                        req_reach: newReqReach || 0
+                                    }
                                 };
                             }
-                            return item;
+                            return prev;
                         });
-                    });
+
+                        // Update the item in the active list
+                        setActiveUserLists(prev => {
+                            return prev.map(item => {
+                                if (item._id === updatedItem._id) {
+                                    // Merge the update. Ensure we update the counts on the object itself too for safety
+                                    return {
+                                        ...item,
+                                        ...updatedItem,
+                                        req_accept: updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : item.req_accept,
+                                        req_reach: updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : item.req_reach
+                                    };
+                                }
+                                return item;
+                            });
+                        });
+                    }
                 });
                 return;
             }
