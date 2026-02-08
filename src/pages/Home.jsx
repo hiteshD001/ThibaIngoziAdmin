@@ -82,7 +82,7 @@ const Home = ({ isMapLoaded, }) => {
     const { newSOS, requestCounts, activeUserLists } = useWebSocket();
     const location = useLocation();
 
-    const queryClient = useQueryClient(); activeUserLists
+    const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
     // Recent SOS pagination
     const [recentPage, setRecentPage] = useState(1);
