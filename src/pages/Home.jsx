@@ -156,7 +156,7 @@ const Home = ({ isMapLoaded, }) => {
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
-    const activeUserList = activeUserLists?.length > 0 ? activeUserLists.filter((item) => item?.user_id?._id === userId) : activeSos?.data?.data?.data;
+    const activeUserList = activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data;
     // Apply pagination slicing for display
     const paginatedActiveUserList = useMemo(() => {
         if (!Array.isArray(activeUserList)) return [];
