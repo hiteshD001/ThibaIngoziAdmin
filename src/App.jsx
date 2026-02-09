@@ -357,8 +357,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <ListOfSuspect />
-                            // element: <WorkInProgress />
+                            // element: <ListOfSuspect />
+                            element: <WorkInProgress />
 
                         },
                         {
@@ -383,8 +383,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <ListOfCrimeReports />
-                            // element: <WorkInProgress />
+                            // element: <ListOfCrimeReports />
+                            element: <WorkInProgress />
 
                         },
                         {

@@ -140,7 +140,7 @@ export const superadmin_menulist = (permissionsData) => {
             path: "/home/total-stolen-cars",
             image: StolenCarIcon,
             company: "Stolen Car Sighting Details",
-            permission: "Stolen Car" // Requires "Stolen Car Management" permission
+            permission: "Stolen Cars" // Requires "Stolen Car Management" permission
         },
         {
             id: "crime-reports",
