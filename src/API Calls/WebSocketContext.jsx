@@ -214,6 +214,72 @@ export const WebSocketProvider = ({ children }) => {
                 setActiveUserLists(data);
                 return;
             }
+
+            // Handle { sos_update: true, data: [...] } format
+            if ((data?.sos_update === true || data?.sos_update === 'true') && Array.isArray(data?.data)) {
+                // console.log('[WS] Received sos_update: true, count:', data.data.length);
+                const updates = data.data;
+
+                // 1. Calculate new Active List
+                setActiveUserLists(prevList => {
+                    let newList = [...prevList];
+
+                    updates.forEach(updatedItem => {
+                        // Check resolution
+                        const isResolved = updatedItem.sosType === 'ARMED_SOS'
+                            ? !!updatedItem.armedSosstatus
+                            : !!updatedItem.help_received;
+
+                        if (isResolved) {
+                            // Remove
+                            newList = newList.filter(item => item._id !== updatedItem._id);
+                        } else {
+                            // Update or Add
+                            const index = newList.findIndex(item => item._id === updatedItem._id);
+                            if (index !== -1) {
+                                // Merge
+                                newList[index] = {
+                                    ...newList[index],
+                                    ...updatedItem,
+                                    req_accept: updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : newList[index].req_accept,
+                                    req_reach: updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : newList[index].req_reach
+                                };
+                            }
+                        }
+                    });
+                    return newList;
+                });
+
+                // 2. Calculate new Request Counts
+                setRequestCounts(prevCounts => {
+                    const newCounts = { ...prevCounts };
+
+                    updates.forEach(updatedItem => {
+                        const currentCountObj = newCounts[updatedItem._id] || {};
+                        let hasChange = false;
+
+                        // Check Reached
+                        if (updatedItem.reqReachedUserIds && Array.isArray(updatedItem.reqReachedUserIds)) {
+                            currentCountObj.req_reach = updatedItem.reqReachedUserIds.length;
+                            hasChange = true;
+                        }
+
+                        // Check Accepted
+                        if (updatedItem.reqAcceptUserIds && Array.isArray(updatedItem.reqAcceptUserIds)) {
+                            currentCountObj.req_accept = updatedItem.reqAcceptUserIds.length;
+                            hasChange = true;
+                        }
+
+                        if (hasChange) {
+                            newCounts[updatedItem._id] = { ...currentCountObj };
+                        }
+                    });
+
+                    return newCounts;
+                });
+
+                return;
+            }
         };
 
         return () => {
@@ -260,6 +326,7 @@ export const WebSocketProvider = ({ children }) => {
         <WebSocketContext.Provider value={{
             isConnected,
             activeUserLists,
+            setActiveUserLists,
             pagination,
             currentPage,
             newSOS,

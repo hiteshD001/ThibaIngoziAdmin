@@ -207,7 +207,14 @@ const Home = ({ isMapLoaded, }) => {
     };
 
     // Refetch active SOS when we receive new SOS notification from WebSocket
+    const isFirstRun = useRef(true);
+
     useEffect(() => {
+        if (isFirstRun.current) {
+            isFirstRun.current = false;
+            return;
+        }
+
         console.log('[Home Alert Effect] newSOS changed:', { count: newSOS.count, type: newSOS.type, sosId: newSOS.sosId });
 
         if (!newSOS.type || newSOS.count === 0) return;
