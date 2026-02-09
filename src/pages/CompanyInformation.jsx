@@ -1,6 +1,6 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, FormControl, InputLabel, Tooltip, TableSortLabel, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, FormControl, InputLabel, Tooltip, TableSortLabel } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import HotspotSection from "../common/HotspotSection";
@@ -62,23 +62,19 @@ import { toastOption } from "../common/ToastOptions";
 import search from "../assets/images/search.svg";
 import nouser from "../assets/images/NoUser.png";
 
-import activeStatus from '../assets/images/activeStatus.svg'
-import inactiveStatus from '../assets/images/inactiveStatus.svg'
-
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 
 const CompanyInformation = ({ isMapLoaded }) => {
     // useStates
-    const [edit, setedit] = useState(true);
+    const [edit, setedit] = useState(false);
     const [isArmedLocal, setIsArmedLocal] = useState(false);
     const [popup, setpopup] = useState(false);
     const client = useQueryClient();
     const nav = useNavigate();
     const params = useParams();
     const [selectedNotification, setSelectedNotification] = useState("");
-    const [showpopup, setShowpopup] = useState(false);
     const [role] = useState(localStorage.getItem("role"));
     const [filter, setfilter] = useState("");
     const [confirmation, setconfirmation] = useState("");
@@ -210,7 +206,6 @@ const CompanyInformation = ({ isMapLoaded }) => {
             accountNumber: "",
             selfieImage: "",
             fullImage: "",
-            isActive: false
         },
         validationSchema: companyEditValidation,
         onSubmit: (values) => {
@@ -288,7 +283,6 @@ const CompanyInformation = ({ isMapLoaded }) => {
                 accountNumber: user.accountNumber || "",
                 selfieImage: user?.selfieImage || "",
                 fullImage: user?.fullImage || "",
-                isActive: user?.isActive || "",
                 services:
                     user.services?.filter((s) => s.serviceId?.isService).map((s) => s.serviceId?._id) ||
                     [],
@@ -355,7 +349,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
         toast.error(error.response?.data?.message || "Something went Wrong", toastOption);
     };
 
-    const { mutate, mutateAsync } = useUpdateUser(onSuccess, onError);
+    const { mutate } = useUpdateUser(onSuccess, onError);
     const PayoutForm = useFormik({
         initialValues: {
             firstName: "",
@@ -467,22 +461,6 @@ const CompanyInformation = ({ isMapLoaded }) => {
                 {props.selectProps.menuIsOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
             </components.DropdownIndicator>
         );
-    };
-
-    const handleStatusUpdate = async () => {
-        try {
-            const response = await mutateAsync({ id: params.id, data: { isActive: !CompanyForm.values.isActive } });
-
-            if (response.data) {
-                toast.success(`Company status updated successfully`);
-                client.invalidateQueries(["user", params.id]);
-            }
-        } catch (error) {
-            toast.error('Failed to update company status');
-            console.error('Error updating company status:', error);
-        } finally {
-            setShowpopup(false);
-        }
     };
 
     return (
@@ -978,6 +956,16 @@ const CompanyInformation = ({ isMapLoaded }) => {
                             )}
                         </Grid>
                     </Grid>
+
+
+                    {/* Save / Edit */}
+                    <Box mt={3} textAlign="right">
+                        {!edit && (
+                            <Button variant="contained" sx={{ width: 120, height: 45, borderRadius: '10px', backgroundColor: 'var(--Blue)' }} onClick={() => setedit(true)}>
+                                Edit
+                            </Button>
+                        )}
+                    </Box>
                 </Paper>
 
                 {/* Address Section */}
@@ -1251,18 +1239,10 @@ const CompanyInformation = ({ isMapLoaded }) => {
 
                         </Grid>
 
-                        {/* Save / Edit */}
                         {/* Save / Cancel Buttons */}
-                        <Grid size={12} sx={{ mt: 1 }}>
-                            {edit ? (
+                        {edit && (
+                            <Grid size={12} sx={{ mt: 1 }}>
                                 <Box display="flex" justifyContent="flex-end" gap={2}>
-                                    <Button
-                                        variant="outlined"
-                                        sx={{ height: 48, borderRadius: '10px', border: "none", color: CompanyForm.values.isActive ? "#EB5757" : "#166534", bgcolor: CompanyForm.values.isActive ? "#EB57571A" : "#DCFCE7" }}
-                                        onClick={() => setShowpopup(true)}
-                                    >
-                                        {CompanyForm.values.isActive ? "Deactivate Company" : "Active Company"}
-                                    </Button>
                                     <Button variant="outlined" sx={{ width: 130, height: 48, borderRadius: '10px', color: 'black', borderColor: '#E0E3E7' }} onClick={() => setedit(false)}>
                                         Cancel
                                     </Button>
@@ -1277,14 +1257,8 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         Save
                                     </Button>
                                 </Box>
-                            ) : (
-                                <Box textAlign="right">
-                                    <Button variant="contained" sx={{ width: 120, height: 45, borderRadius: '10px', backgroundColor: 'var(--Blue)' }} onClick={() => setedit(true)}>
-                                        Edit
-                                    </Button>
-                                </Box>
-                            )}
-                        </Grid>
+                            </Grid>
+                        )}
                     </Grid>
                 </Paper>
                 <Grid container gap={{ xs: 0, lg: 4 }} sx={{ mb: 1 }}>
@@ -1441,44 +1415,6 @@ const CompanyInformation = ({ isMapLoaded }) => {
                     </Grid>
                 </Grid>
             </Box>
-
-            <Dialog open={showpopup} onClose={() => showpopup(false)} maxWidth="xs" fullWidth>
-                <DialogTitle sx={{ display: 'flex', flexDirection: 'column', alignItems: "center", gap: 1.5 }}>
-                    <img src={CompanyForm.values.isActive ? inactiveStatus : activeStatus} style={{ maxHeight: "64px", maxWidth: "64px" }} />
-                    <Typography
-                        variant="h6"
-                        fontSize="1.5rem"
-                        fontWeight="700"
-                        color="#0E0E0E"
-                    >
-                        {CompanyForm.values.isActive ? "Deactivate Company?" : "Activate Company?"}
-                    </Typography>
-                </DialogTitle>
-                <DialogContent sx={{ textAlign: "center" }}>
-                    {
-                        CompanyForm.values.isActive ?
-                            <Typography color="#4B5563">Are you sure you want to deactivate <span style={{ fontWeight: 700 }}>{`${CompanyForm.values.company_name ?? "This Company"}`}</span>? All drivers, trips, and services for this company will be paused.</Typography>
-                            :
-                            <Typography color="#4B5563">Activating <span style={{ fontWeight: 700 }}>{`${CompanyForm.values.company_name ?? "This Company"}`}</span> will allow the company to resume all services.</Typography>
-                    }
-                </DialogContent>
-                <DialogActions style={{ padding: "20px 24px" }}>
-                    <Button
-                        sx={{ borderRadius: '8px', color: 'black', border: '1px solid rgb(175, 179, 189)' }}
-                        variant="outlined"
-                        onClick={() => setShowpopup(false)}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        variant="contained"
-                        onClick={handleStatusUpdate}
-                        sx={{ backgroundColor: CompanyForm.values.isActive ? '#EB5757' : '#367BE0', borderRadius: '8px' }}
-                    >
-                        {CompanyForm.values.isActive ? "Deactivate" : "Active"}
-                    </Button>
-                </DialogActions>
-            </Dialog>
 
             {/* chart */}
             <Grid container gap={4}>

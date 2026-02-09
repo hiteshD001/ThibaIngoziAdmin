@@ -62,7 +62,6 @@ import AgentInformation from "./pages/SalesAgent/AgentInformation";
 import SalesAgentHome from "./pages/SalesAgentHome";
 import Reset2FAPage from './pages/Reset2FAPage';
 import RequestUsers from "./pages/RequestUsers";
-import AdminSetting from './pages/setting/AdminSetting'
 
 // Define your map loader options once here
 const mapLoaderOptions = {
@@ -113,8 +112,7 @@ function App() {
         },
         {
             path: "/home",
-            // element: <AuthGuard><Layout /></AuthGuard>,
-            element:<Layout />,
+            element: <AuthGuard><Layout /></AuthGuard>,
             children: [
                 {
                     path: "",
@@ -315,8 +313,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <ListOfSapsWanted />
-                            // element: <WorkInProgress />
+                            // element: <ListOfSapsWanted />
+                            element: <WorkInProgress />
 
                         },
                         {
@@ -372,8 +370,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <FlaggedReport />
-                            // element: <WorkInProgress />
+                            // element: <FlaggedReport />
+                            element: <WorkInProgress />
 
                         },
                     ]
@@ -399,15 +397,6 @@ function App() {
                         }
                     ]
                 },
-                //  {
-                //     path: "subscription",
-                //     children: [
-                //         {
-                //             path: "",
-                //             element: <ListOfSubscription />
-                //         },
-                //     ]
-                // },
                 {
                     path: "hardware-management",
                     element: <RouteGuard><HardwareManagement /></RouteGuard>
@@ -419,11 +408,7 @@ function App() {
                 {
                     path: 'work-in-progress',
                     element: <WorkInProgress />
-                },
-                  {
-                    path: "settings",
-                    element: <AdminSetting />
-                },
+                }
             ]
         },
         {

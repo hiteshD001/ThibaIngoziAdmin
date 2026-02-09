@@ -102,7 +102,11 @@ export const WebSocketProvider = ({ children }) => {
                 return;
             }
 
-
+            if (data?.sos_update === true) {
+                if (Array.isArray(data.data)) {
+                    setActiveUserLists(data.data);
+                }
+            }
 
             // SOS_UPDATE: Full list update OR Single Update
             if (data?.type === 'SOS_UPDATE') {
@@ -148,9 +152,7 @@ export const WebSocketProvider = ({ children }) => {
             }
 
 
-            if (data?.sos_update === true) {
-                setActiveUserLists(data.data)
-            }
+
             // Request reached users update
             if (data?.request_reached_update) {
                 const { sosId, count } = data.request_reached_update;
@@ -235,70 +237,87 @@ export const WebSocketProvider = ({ children }) => {
             }
 
             // Handle { sos_update: true, data: [...] } format
-            if ((data?.sos_update === true || data?.sos_update === 'true') && Array.isArray(data?.data)) {
-                // console.log('[WS] Received sos_update: true, count:', data.data.length);
-                const updates = data.data;
+            // if ((data?.sos_update === true || data?.sos_update === 'true') && Array.isArray(data?.data)) {
+            //     console.log('[WS] Received sos_update: true, count:', data.data.length);
+            //     const updates = data.data;
 
-                // 1. Calculate new Active List
-                setActiveUserLists(prevList => {
-                    let newList = [...prevList];
+            //     // Debug log to check the first item's structure
+            //     if (updates.length > 0) {
+            //         console.log('[WS] First update item sample:', {
+            //             _id: updates[0]._id,
+            //             reqAcceptUserIds_Type: Array.isArray(updates[0].reqAcceptUserIds) ? 'Array' : typeof updates[0].reqAcceptUserIds,
+            //             reqAcceptUserIds_Len: updates[0].reqAcceptUserIds?.length,
+            //             reqReachedUserIds_Type: Array.isArray(updates[0].reqReachedUserIds) ? 'Array' : typeof updates[0].reqReachedUserIds,
+            //             reqReachedUserIds_Len: updates[0].reqReachedUserIds?.length
+            //         });
+            //     }
 
-                    updates.forEach(updatedItem => {
-                        // Check resolution
-                        const isResolved = updatedItem.sosType === 'ARMED_SOS'
-                            ? !!updatedItem.armedSosstatus
-                            : !!updatedItem.help_received;
+            //     // 1. Calculate new Active List
+            //     setActiveUserLists(prevList => {
+            //         let newList = [...prevList];
 
-                        if (isResolved) {
-                            // Remove
-                            newList = newList.filter(item => item._id !== updatedItem._id);
-                        } else {
-                            // Update or Add
-                            const index = newList.findIndex(item => item._id === updatedItem._id);
-                            if (index !== -1) {
-                                // Merge
-                                newList[index] = {
-                                    ...newList[index],
-                                    ...updatedItem,
-                                    req_accept: updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : newList[index].req_accept,
-                                    req_reach: updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : newList[index].req_reach
-                                };
-                            }
-                        }
-                    });
-                    return newList;
-                });
+            //         updates.forEach(updatedItem => {
+            //             // Check resolution
+            //             const isResolved = updatedItem.sosType === 'ARMED_SOS'
+            //                 ? !!updatedItem.armedSosstatus
+            //                 : !!updatedItem.help_received;
 
-                // 2. Calculate new Request Counts
-                setRequestCounts(prevCounts => {
-                    const newCounts = { ...prevCounts };
+            //             if (isResolved) {
+            //                 // Remove
+            //                 newList = newList.filter(item => item._id !== updatedItem._id);
+            //             } else {
+            //                 // Update or Add? Usually Update.
+            //                 const index = newList.findIndex(item => item._id === updatedItem._id);
+            //                 if (index !== -1) {
+            //                     // Merge
+            //                     newList[index] = {
+            //                         ...newList[index],
+            //                         ...updatedItem,
+            //                         // Ensure nested fields like reqAcceptUserIds.length updates map to flat props if needed
+            //                         // But usually we rely on requestCounts for the counters
+            //                         req_accept: updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : newList[index].req_accept,
+            //                         req_reach: updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : newList[index].req_reach
+            //                     };
+            //                 }
+            //             }
+            //         });
+            //         return newList;
+            //     });
 
-                    updates.forEach(updatedItem => {
-                        const currentCountObj = newCounts[updatedItem._id] || {};
-                        let hasChange = false;
+            //     // 2. Calculate new Request Counts
+            //     setRequestCounts(prevCounts => {
+            //         const newCounts = { ...prevCounts };
 
-                        // Check Reached
-                        if (updatedItem.reqReachedUserIds && Array.isArray(updatedItem.reqReachedUserIds)) {
-                            currentCountObj.req_reach = updatedItem.reqReachedUserIds.length;
-                            hasChange = true;
-                        }
+            //         updates.forEach(updatedItem => {
+            //             // Skip if we removed it? 
+            //             // Actually, we can just update the counts regardless, it's safer.
 
-                        // Check Accepted
-                        if (updatedItem.reqAcceptUserIds && Array.isArray(updatedItem.reqAcceptUserIds)) {
-                            currentCountObj.req_accept = updatedItem.reqAcceptUserIds.length;
-                            hasChange = true;
-                        }
+            //             const currentCountObj = newCounts[updatedItem._id] || {};
+            //             let hasChange = false;
 
-                        if (hasChange) {
-                            newCounts[updatedItem._id] = { ...currentCountObj };
-                        }
-                    });
+            //             // Check Reached
+            //             if (updatedItem.reqReachedUserIds && Array.isArray(updatedItem.reqReachedUserIds)) {
+            //                 currentCountObj.req_reach = updatedItem.reqReachedUserIds.length;
+            //                 hasChange = true;
+            //             }
 
-                    return newCounts;
-                });
+            //             // Check Accepted
+            //             if (updatedItem.reqAcceptUserIds && Array.isArray(updatedItem.reqAcceptUserIds)) {
+            //                 currentCountObj.req_accept = updatedItem.reqAcceptUserIds.length;
+            //                 hasChange = true;
+            //             }
 
-                return;
-            }
+            //             if (hasChange) {
+            //                 newCounts[updatedItem._id] = { ...currentCountObj }; // Ensure new reference
+            //                 // console.log(`[WS] Updated counts for ${updatedItem._id}:`, newCounts[updatedItem._id]);
+            //             }
+            //         });
+
+            //         return newCounts;
+            //     });
+
+            //     return;
+            // }
         };
 
         return () => {
