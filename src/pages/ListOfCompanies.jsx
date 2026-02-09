@@ -14,8 +14,12 @@ import {
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import whiteplus from '../assets/images/whiteplus.svg';
-import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
+import editBtn from '../assets/images/editBtn.svg'
+import pauseBtn from '../assets/images/pauseBtn.svg'
+import playBtn from '../assets/images/playBtn.svg'
+import activeStatus from '../assets/images/activeStatus.svg'
+import inactiveStatus from '../assets/images/inactiveStatus.svg'
 // import icon from "../assets/images/icon.png";
 import search from '../assets/images/search.svg';
 import arrowup from '../assets/images/arrowup.svg';
@@ -36,9 +40,13 @@ import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
 import apiClient from '../API Calls/APIClient'
 import calender from '../assets/images/calender.svg';
 import { startOfYear } from "date-fns";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 const ListOfCompanies = () => {
+
+  const client = useQueryClient();
+
   const nav = useNavigate();
   const [range, setRange] = useState([
     {
@@ -70,24 +78,36 @@ const ListOfCompanies = () => {
   const [statusUpdate, setStatusUpdate] = useState(false);
   const [selectedId, setSelectedId] = useState("");
   const [statusConfirmation, setStatusConfirmation] = useState({ show: false, userId: null, newStatus: null });
-const [isRange, setIsRange] = useState(false);
+  const [isRange, setIsRange] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const startDate = isRange ? "" : (range[0]?.startDate?.toISOString() || "");
-    const endDate = isRange ? "" : (range[0]?.endDate?.toISOString() || "");
+  const endDate = isRange ? "" : (range[0]?.endDate?.toISOString() || "");
   const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder)
   const totalCompany = companyList.data?.data?.totalUsers || 0;
   const totalPages = Math.ceil(totalCompany / rowsPerPage);
-     
+
+  const getFlagColor = (status) => {
+    switch (status) {
+      case true:
+        return { bg: "#DCFCE7", text: "#166534" }
+
+      case false:
+        return { bg: "#E5565A1A", text: "#E5565A" }
+
+      default:
+        return { bg: "#F3F4F6", text: "#4B5563" }
+    }
+  }
 
   const handleStatusUpdate = async () => {
     const { userId, newStatus } = statusConfirmation;
-    
+
     try {
       const response = await apiClient.put(`${import.meta.env.VITE_BASEURL}/users/${userId}`, {
-        isActive : newStatus === 'true'
+        isActive: newStatus
       });
-      
+
       if (response.data) {
         toast.success(`Company status updated successfully`);
         // Refetch the company list to get updated data
@@ -102,10 +122,9 @@ const [isRange, setIsRange] = useState(false);
   };
 
   const handleDateRangeChange = (newRange) => {
-        setRange(newRange);
-        setIsRange(false); // Reset isRange when specific dates are selected
-    }
-
+    setRange(newRange);
+    setIsRange(false); // Reset isRange when specific dates are selected
+  }
 
   const handleExport = async ({ startDate, endDate, format }) => {
     try {
@@ -180,6 +199,7 @@ const [isRange, setIsRange] = useState(false);
       toast.error("Export failed.");
     }
   };
+
   return (
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
@@ -234,17 +254,17 @@ const [isRange, setIsRange] = useState(false);
                 Add Company
               </Button>
               <Button variant="outlined" onClick={() => {
-                                setfilter("");
-                                setSortBy("first_name");
-                                setSortOrder("asc");
-                                setCurrentPage(1);
-                                setRowsPerPage(5);
-                                setIsRange(true)
-                                
-                                client.removeQueries(['userListFilters']);
-                            }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
-                                View All
-                            </Button>
+                setfilter("");
+                setSortBy("first_name");
+                setSortOrder("asc");
+                setCurrentPage(1);
+                setRowsPerPage(5);
+                setIsRange(true)
+
+                client.removeQueries(['userListFilters']);
+              }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
+                View All
+              </Button>
             </Box>
 
           </Grid>
@@ -347,29 +367,42 @@ const [isRange, setIsRange] = useState(false);
 
                         <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
                           {localStorage.getItem('role') === 'super_admin' && (
-                            <div className="select-container">
-                              <select
-                                name="active"
-                                className="my-custom-select"
-                                style={{
-                                  width: '100px',
-                                  padding: '7px',
-                                }}
-                                value={user?.isActive === true ? true : false}
-                                onChange={(e) => {
-                                  const newStatus = e.target.value;
-                                  if (newStatus === "") return; // Don't show confirmation for placeholder
-                                  
-                                  setStatus(newStatus);
-                                  setSelectedId(user._id);
-                                  setStatusConfirmation({ show: true, userId: user._id, newStatus });
-                                }}
-                              >
-                                <option value="" hidden> Select </option>
-                                <option value="true"> Active  </option>
-                                <option value="false"> Inactive </option>
-                              </select>
-                            </div>
+                            <Typography
+                              sx={{
+                                marginX: "auto",
+                                width: "fit-content",
+                                borderRadius: "6rem",
+                                padding: "0.4rem 0.8rem",
+                                textTransform: "capitalize",
+                                bgcolor: getFlagColor(user?.isActive)?.bg,
+                                color: getFlagColor(user?.isActive)?.text
+                              }}
+                            >
+                              {user?.isActive ? "Active" : "Inactive"}
+                            </Typography>
+                            // <div className="select-container">
+                            //   <select
+                            //     name="active"
+                            //     className="my-custom-select"
+                            //     style={{
+                            //       width: '100px',
+                            //       padding: '7px',
+                            //     }}
+                            //     value={user?.isActive === true ? true : false}
+                            //     onChange={(e) => {
+                            //       const newStatus = e.target.value;
+                            //       if (newStatus === "") return; // Don't show confirmation for placeholder
+
+                            //       setStatus(newStatus);
+                            //       setSelectedId(user._id);
+                            //       setStatusConfirmation({ show: true, userId: user._id, newStatus });
+                            //     }}
+                            //   >
+                            //     <option value="" hidden> Select </option>
+                            //     <option value="true"> Active  </option>
+                            //     <option value="false"> Inactive </option>
+                            //   </select>
+                            // </div>
                           )}
                         </TableCell>
 
@@ -379,16 +412,21 @@ const [isRange, setIsRange] = useState(false);
                             display: 'flex',
                             flexDirection: 'row',
                           }}>
-                            <Tooltip title="View" arrow placement="top">
+                            <Tooltip title="Edit" arrow placement="top">
                               <IconButton onClick={() =>
                                 nav(`/home/total-companies/company-information/${user?._id}`)
                               }>
-                                <img src={ViewBtn} alt="view button" />
+                                <img src={editBtn} alt="view button" />
                               </IconButton>
                             </Tooltip>
                             <Tooltip title="Delete" arrow placement="top">
                               <IconButton onClick={() => setconfirmation(user?._id)}>
                                 <img src={delBtn} alt="delete button" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Status" arrow placement="top">
+                              <IconButton onClick={() => setStatusConfirmation({ show: true, userId: user._id, newStatus: !user?.isActive })}>
+                                <img src={user?.isActive ? pauseBtn : playBtn} alt="status button" />
                               </IconButton>
                             </Tooltip>
                             {confirmation === user?._id && (
@@ -398,26 +436,39 @@ const [isRange, setIsRange] = useState(false);
 
                           {statusConfirmation.show && statusConfirmation.userId === user._id && (
                             <Dialog open={true} onClose={() => setStatusConfirmation({ show: false, userId: null, newStatus: null })} maxWidth="xs" fullWidth>
-                              <DialogTitle sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
-                                <Typography variant="h6">Status</Typography>
+                              <DialogTitle sx={{ display: 'flex', flexDirection: 'column', alignItems: "center", gap: 1.5 }}>
+                                <img src={user?.isActive ? inactiveStatus : activeStatus} style={{ maxHeight: "64px", maxWidth: "64px" }} />
+                                <Typography
+                                  variant="h6"
+                                  fontSize="1.5rem"
+                                  fontWeight="700"
+                                  color="#0E0E0E"
+                                >
+                                  {user?.isActive ? "Deactivate Company?" : "Activate Company?"}
+                                </Typography>
                               </DialogTitle>
-                              <DialogContent>
-                                <Typography>{`Are you sure you want to set this company to ${statusConfirmation.newStatus === 'true' ? 'active' : 'inactive'}?`}</Typography>
+                              <DialogContent sx={{ textAlign: "center" }}>
+                                {
+                                  user?.isActive ?
+                                    <Typography color="#4B5563">Are you sure you want to deactivate <span style={{ fontWeight: 700 }}>{`${user.company_name ?? "This Company"}`}</span>? All drivers, trips, and services for this company will be paused.</Typography>
+                                    :
+                                    <Typography color="#4B5563">Activating <span style={{ fontWeight: 700 }}>{`${user.company_name ?? "This Company"}`}</span> will allow the company to resume all services.</Typography>
+                                }
                               </DialogContent>
-                              <DialogActions>
+                              <DialogActions style={{ padding: "20px 24px" }}>
                                 <Button
                                   sx={{ borderRadius: '8px', color: 'black', border: '1px solid rgb(175, 179, 189)' }}
                                   variant="outlined"
                                   onClick={() => setStatusConfirmation({ show: false, userId: null, newStatus: null })}
                                 >
-                                  No
+                                  Cancel
                                 </Button>
                                 <Button
                                   variant="contained"
                                   onClick={handleStatusUpdate}
-                                  sx={{ backgroundColor: '#EB5757', borderRadius: '8px' }}
+                                  sx={{ backgroundColor: user?.isActive ? '#EB5757' : '#367BE0', borderRadius: '8px' }}
                                 >
-                                  Yes
+                                  {user?.isActive ? "Deactivate" : "Active"}
                                 </Button>
                               </DialogActions>
                             </Dialog>
