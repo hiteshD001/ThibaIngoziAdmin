@@ -148,7 +148,9 @@ export const WebSocketProvider = ({ children }) => {
             }
 
 
-
+            if (data?.sos_update === true) {
+                setActiveUserLists(data.data)
+            }
             // Request reached users update
             if (data?.request_reached_update) {
                 const { sosId, count } = data.request_reached_update;
