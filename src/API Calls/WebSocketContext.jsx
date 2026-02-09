@@ -102,7 +102,11 @@ export const WebSocketProvider = ({ children }) => {
                 return;
             }
 
-
+            if (data?.sos_update === true) {
+                if (Array.isArray(data.data)) {
+                    setActiveUserLists(data.data);
+                }
+            }
 
             // SOS_UPDATE: Full list update OR Single Update
             if (data?.type === 'SOS_UPDATE') {
@@ -148,9 +152,7 @@ export const WebSocketProvider = ({ children }) => {
             }
 
 
-            if (data?.sos_update === true) {
-                setActiveUserLists(data.data)
-            }
+
             // Request reached users update
             if (data?.request_reached_update) {
                 const { sosId, count } = data.request_reached_update;

@@ -79,10 +79,10 @@ const Home = ({ isMapLoaded, }) => {
     const [selectedNotification, setSelectedNotification] = useState("all");
     const [recentNotification, setRecentNotification] = useState("all");
     const [updatingId, setUpdatingId] = useState(""); // Track which ID is being updated
-    const { newSOS, requestCounts, activeUserLists } = useWebSocket();
+    const { newSOS, requestCounts, activeUserLists, setActiveUserLists } = useWebSocket();
     const location = useLocation();
 
-    const queryClient = useQueryClient(); activeUserLists
+    const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
     // Recent SOS pagination
     const [recentPage, setRecentPage] = useState(1);
@@ -156,11 +156,7 @@ const Home = ({ isMapLoaded, }) => {
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
     const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
-    console.log(activeSos, "activeSos");
-    const activeUserList = activeSos?.data?.data?.data;
-    console.log('[Home] activeUserLists length:', activeUserLists?.length, 'Using WS:', activeUserLists?.length > 0, 'activeUserList length:', activeUserList?.length);
-
-    console.log(activeUserList, "activeUserList");
+    const activeUserList = activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data;
     // Apply pagination slicing for display
     const paginatedActiveUserList = useMemo(() => {
         if (!Array.isArray(activeUserList)) return [];
@@ -219,19 +215,12 @@ const Home = ({ isMapLoaded, }) => {
 
         if (!newSOS.type || newSOS.count === 0) return;
 
-        // Throttle API calls to prevent spamming active/sos/data
-        const now = Date.now();
-        if (now - lastFetchTime.current < 2000) {
-            console.log('[Home Alert Effect] Throttled - too soon since last fetch');
-            return;
-        }
-        lastFetchTime.current = now;
-
         const handleAlert = async () => {
             try {
                 console.log('[Home Alert Effect] activeUserLists.length:', activeUserLists?.length);
 
                 // If we have WebSocket data, we trust the NEW_SOS signal
+                // WE REMOVED THROTTLING HERE to ensure audio plays for every alert
                 if (activeUserLists?.length > 0) {
                     console.log('[Home Alert Effect] Using WebSocket data path');
 
@@ -265,13 +254,20 @@ const Home = ({ isMapLoaded, }) => {
 
                         } catch (e) {
                             console.error("Audio playback failed:", e);
-                            // User requested to remove the "Click to enable" toast.
-                            // If blocked by policy, we just fail silently (preserving the visual notification below).
                         }
                     }
                     playAudio();
                     toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
                 } else {
+                    // Start Throttle for API calls
+                    const now = Date.now();
+                    if (now - lastFetchTime.current < 2000) {
+                        console.log('[Home Alert Effect] Throttled API call - too soon');
+                        return;
+                    }
+                    lastFetchTime.current = now;
+                    // End Throttle
+
                     console.log('[Home Alert Effect] Using API refetch path');
                     const res = await activeSos.refetch();
 
@@ -306,8 +302,6 @@ const Home = ({ isMapLoaded, }) => {
                                     setIsPlaying(true);
                                 } catch (e) {
                                     console.error("Audio playback failed:", e);
-                                    // User requested to remove the "Click to enable" toast.
-                                    // If blocked by policy, we just fail silently (preserving the visual notification below).
                                 }
                             }
                             playAudio();
@@ -369,6 +363,12 @@ const Home = ({ isMapLoaded, }) => {
 
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
+
+        // Optimistically update the local activeUserLists if available (WebSocket source)
+        if (activeUserLists?.length > 0 && setActiveUserLists) {
+            setActiveUserLists(prev => prev.filter(item => item._id !== selectedId));
+        }
+
         setStatusUpdate(false);
         setSelectedId("");
         setUpdatingId(""); // Clear loader
@@ -668,7 +668,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                                 alt="User"
                                                                             />
 
-                                                                            {user?.user?.first_name} {user?.user?.last_name}
+                                                                            {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>) : (
                                                                     <Link to={`/home/total-users/user-information/${user?._id}`} className="link">
@@ -681,7 +681,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                                 alt="User"
                                                                             />
 
-                                                                            {user?.user?.first_name} {user?.user?.last_name}
+                                                                            {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>
                                                                 )
@@ -689,8 +689,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {console.log(user, "users-data")}
-                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.user?.company_name || "-")}
+                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.user?.company_name || user?.user_id?.company_name || "-")}
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
