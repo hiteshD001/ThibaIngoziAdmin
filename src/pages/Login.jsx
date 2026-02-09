@@ -5,9 +5,9 @@ import { loginValidation_salesAgent } from "../common/FormValidation";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
-import { useUserLogin } from "../API Calls/API";
+import { useUserLogin, useGetPermissionsByRoleId } from "../API Calls/API";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TwoFactorAuth from "../components/TwoFactorAuth";
 import ForgotPassword from "../components/ForgotPassword";
 
@@ -18,6 +18,41 @@ export const Login = () => {
     const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [tempToken, setTempToken] = useState('');
     const [loginData, setLoginData] = useState({ email: '', password: '' });
+    const [roleId, setRoleId] = useState(null);
+
+    const { data: permissionsData, isLoading: permissionsLoading } = useGetPermissionsByRoleId(roleId);
+
+    console.log("permissionsData:", permissionsData);
+    console.log("permissionsLoading:", permissionsLoading);
+
+    // Handle permissions data when it arrives
+    useEffect(() => {
+        console.log("permissionsData in useEffect:", permissionsData);
+        console.log("permissionsData structure:", JSON.stringify(permissionsData, null, 2));
+        
+        if (permissionsData) {
+            if (permissionsData.data) {
+                console.log("permissionsData.data:", permissionsData.data);
+                if (permissionsData.data.success && permissionsData.data.data.permissions) {
+                    console.log("Found permissions array:", permissionsData.data.data.permissions);
+                    // Store only active permissions
+                    const activePermissions = permissionsData.data.data.permissions
+                        .filter(permission => permission.status === 'active')
+                        .map(permission => permission.name);
+                    localStorage.setItem("userPermissions", JSON.stringify(activePermissions));
+                    console.log("Stored permissions:", activePermissions);
+                    
+                    // Also log current localStorage for verification
+                    const storedPermissions = localStorage.getItem("userPermissions");
+                    console.log("Current localStorage permissions:", storedPermissions);
+                } else {
+                    console.warn("Permissions API response structure unexpected:", permissionsData.data);
+                }
+            } else if (permissionsData.error) {
+                console.error("Permissions API error:", permissionsData.error);
+            }
+        }
+    }, [permissionsData]);
 
     const togglePasswordVisibility = () => {
         setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -61,10 +96,28 @@ export const Login = () => {
         localStorage.setItem("role", res.data.user.role);
         localStorage.setItem("selfiImage", res.data.user.selfieImage);
         localStorage.setItem("contact_name", res.data.user.contact_name);
-        if (res.data.role === "sales_agent") {
-            nav("/sales-home", { state: { from: "login" } });
+        localStorage.setItem("roleId", res.data.user.roleId);
+        
+        // Set roleId to trigger permissions fetch
+        if (res.data.user.roleId) {
+            console.log("Setting roleId:", res.data.user.roleId);
+            setRoleId(res.data.user.roleId);
+            
+            // Delay navigation to allow permissions to be fetched
+            setTimeout(() => {
+                if (res.data.role === "sales_agent") {
+                    nav("/sales-home", { state: { from: "login" } });
+                } else {
+                    nav("/home", { state: { from: "login" } });
+                }
+            }, 1000); // 1 second delay
         } else {
-            nav("/home", { state: { from: "login" } });
+            // Navigate immediately if no roleId
+            if (res.data.role === "sales_agent") {
+                nav("/sales-home", { state: { from: "login" } });
+            } else {
+                nav("/home", { state: { from: "login" } });
+            }
         }
     };
 
