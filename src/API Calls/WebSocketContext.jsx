@@ -102,21 +102,42 @@ export const WebSocketProvider = ({ children }) => {
                 return;
             }
 
+            if (data?.sos_update === true) {
+                if (Array.isArray(data.data)) {
+                    setActiveUserLists(data.data);
+                }
+            }
+
             // SOS_UPDATE: Full list update OR Single Update
             if (data?.type === 'SOS_UPDATE') {
                 if (Array.isArray(data.data)) {
                     setActiveUserLists(data.data);
                 } else if (data.data && typeof data.data === 'object') {
-                    // Handle single item update
-                    setActiveUserLists(prev => {
-                        const exists = prev.find(item => item._id === data.data._id);
-                        if (exists) {
-                            return prev.map(item => item._id === data.data._id ? data.data : item);
-                        }
-                        // If it's an update but we don't have it, we probably should add it (or ignore depending on logic).
-                        // Adding it is safer for sync.
-                        return [data.data, ...prev];
-                    });
+                    const updatedSOS = data.data;
+
+                    // Check if the SOS is resolved (cancelled or help received)
+                    // Logic adapted from Home.jsx display condition:
+                    //For ARMED_SOS: check armedSosstatus
+                    // For others: check help_received
+                    const isResolved = updatedSOS.sosType === 'ARMED_SOS'
+                        ? !!updatedSOS.armedSosstatus
+                        : !!updatedSOS.help_received;
+
+                    if (isResolved) {
+                        // Remove from list if resolved
+                        setActiveUserLists(prev => prev.filter(item => item._id !== updatedSOS._id));
+                    } else {
+                        // Handle single item update (Update or Add)
+                        setActiveUserLists(prev => {
+                            const exists = prev.find(item => item._id === updatedSOS._id);
+                            if (exists) {
+                                return prev.map(item => item._id === updatedSOS._id ? updatedSOS : item);
+                            }
+                            // If it's an update but we don't have it, we probably should add it (or ignore depending on logic).
+                            // Adding it is safer for sync.
+                            return [updatedSOS, ...prev];
+                        });
+                    }
                 }
                 return;
             }
