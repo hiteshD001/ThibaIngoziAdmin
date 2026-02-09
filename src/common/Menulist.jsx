@@ -110,22 +110,22 @@ export const superadmin_menulist = (permissionsData) => {
             info: "Sales Agent Information",
             permission: "Sales Agent" // Requires "Sales Agent Management" permission
         },
-        {
-            id: "total-saps-wanted",
-            name: "SAPS Wanted",
-            path: "/home/total-saps-wanted",
-            image: SapsWanted,
-            add: "Add Saps Member",
-            info: "Suspect Information",
-            permission: "SAPS Wanted" // Requires "SAPS Management" permission
-        },
-        {
-            id: "reports",
-            name: "Reports",
-            path: "/home/reports",
-            image: Report,
-            permission: "Reports" // Requires "Reports Management" permission
-        },
+        // {
+        //     id: "total-saps-wanted",
+        //     name: "SAPS Wanted",
+        //     path: "/home/total-saps-wanted",
+        //     image: SapsWanted,
+        //     add: "Add Saps Member",
+        //     info: "Suspect Information",
+        //     permission: "SAPS Wanted" // Requires "SAPS Management" permission
+        // },
+        // {
+        //     id: "reports",
+        //     name: "Reports",
+        //     path: "/home/reports",
+        //     image: Report,
+        //     permission: "Reports" // Requires "Reports Management" permission
+        // },
         {
             id: "total-missing-person",
             name: "Missing Persons",
