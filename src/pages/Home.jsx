@@ -172,7 +172,7 @@ const Home = ({ isMapLoaded, }) => {
 
     const prevLengthRef = useRef(activeUserList?.length);
 
-    const notifiedSosIds = useRef(new Set());
+    const notifiedSosIds = useRef(new Set(activeUserLists?.map(u => u._id) || []));
     const lastFetchTime = useRef(0);
 
     const handle2FAToggle = async (e) => {
@@ -203,7 +203,14 @@ const Home = ({ isMapLoaded, }) => {
     };
 
     // Refetch active SOS when we receive new SOS notification from WebSocket
+    const isFirstRun = useRef(true);
+
     useEffect(() => {
+        if (isFirstRun.current) {
+            isFirstRun.current = false;
+            return;
+        }
+
         console.log('[Home Alert Effect] newSOS changed:', { count: newSOS.count, type: newSOS.type, sosId: newSOS.sosId });
 
         if (!newSOS.type || newSOS.count === 0) return;
@@ -216,6 +223,13 @@ const Home = ({ isMapLoaded, }) => {
                 // WE REMOVED THROTTLING HERE to ensure audio plays for every alert
                 if (activeUserLists?.length > 0) {
                     console.log('[Home Alert Effect] Using WebSocket data path');
+
+                    // Check if the specific new SOS ID has already been notified
+                    if (newSOS.sosId && notifiedSosIds.current.has(newSOS.sosId)) {
+                        console.log('[Home Alert Effect] Alert already notified for this ID, skipping sound.');
+                        return;
+                    }
+
                     const playAudio = async () => {
                         try {
                             // Respect user preference for audio
@@ -229,6 +243,15 @@ const Home = ({ isMapLoaded, }) => {
                                 console.log('[Home Alert Effect] Audio played');
                             }
                             setIsPlaying(true);
+
+                            // Mark as notified
+                            if (newSOS.sosId) {
+                                notifiedSosIds.current.add(newSOS.sosId);
+                            } else {
+                                // If generic update, mark all current as notified to prevent replay
+                                activeUserLists.forEach(u => notifiedSosIds.current.add(u._id));
+                            }
+
                         } catch (e) {
                             console.error("Audio playback failed:", e);
                         }
