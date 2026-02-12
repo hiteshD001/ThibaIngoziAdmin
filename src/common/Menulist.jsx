@@ -180,13 +180,13 @@ export const superadmin_menulist = (permissionsData) => {
             image: Logout,
             permission: null // Logout is always visible
         },
-        {
-            id: "e-hailing-view",
-            name: "e-Hailing View",
-            path: "/home/e-hailing-view",
-            image: eHailing,
-            company: "e-Hailing Views"
-        }
+        // {
+        //     id: "e-hailing-view",
+        //     name: "e-Hailing View",
+        //     path: "/home/e-hailing-view",
+        //     image: eHailing,
+        //     company: "e-Hailing Views"
+        // }
     ];
 
     // Filter menu items based on user permissions
