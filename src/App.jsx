@@ -63,6 +63,7 @@ import SalesAgentHome from "./pages/SalesAgentHome";
 import Reset2FAPage from './pages/Reset2FAPage';
 import RequestUsers from "./pages/RequestUsers";
 import AdminSetting from './pages/setting/AdminSetting'
+import EHailingView from "./pages/e-hailing view/EHailingView";
 
 // Define your map loader options once here
 const mapLoaderOptions = {
@@ -114,7 +115,7 @@ function App() {
         {
             path: "/home",
             // element: <AuthGuard><Layout /></AuthGuard>,
-            element:<Layout />,
+            element: <Layout />,
             children: [
                 {
                     path: "",
@@ -420,9 +421,13 @@ function App() {
                     path: 'work-in-progress',
                     element: <WorkInProgress />
                 },
-                  {
+                {
                     path: "settings",
                     element: <AdminSetting />
+                },
+                {
+                    path: "e-hailing-view",
+                    element: <EHailingView isMapLoaded={isLoaded} />
                 },
             ]
         },

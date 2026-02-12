@@ -9,7 +9,8 @@ import arrowLeft from "../assets/images/arrow-left.png";
 import ArmedSos from '../assets/images/ArmedSos.svg'
 import SapsWanted from '../assets/images/SapsWanted.svg'
 import salesagent from '../assets/images/salesagent.svg'
-import settings from "../assets/images/settings.png";
+import settings from "../assets/images/setting-2.svg";
+import eHailing from "../assets/images/eHailing.svg";
 import Flagged from '../assets/images/Flagged.svg'
 import StolenCarIcon from '../assets/images/StolenCarIcon.svg'
 import MissingPersonIcon from '../assets/images/MissingPersonIcon.svg'
@@ -25,7 +26,7 @@ import WorkInProgress from './WorkInProgress';
 export const superadmin_menulist = (permissionsData) => {
     // Process permissions data if provided
     let activePermissions = [];
-    
+
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
         // Extract active permission names from API response
         activePermissions = permissionsData.data.data.permissions
@@ -178,6 +179,13 @@ export const superadmin_menulist = (permissionsData) => {
             name: "Logout",
             image: Logout,
             permission: null // Logout is always visible
+        },
+        {
+            id: "e-hailing-view",
+            name: "e-Hailing View",
+            path: "/home/e-hailing-view",
+            image: eHailing,
+            company: "e-Hailing Views"
         }
     ];
 
@@ -195,7 +203,7 @@ export const superadmin_menulist = (permissionsData) => {
 export const salesAgent_menulist = (permissionsData) => {
     // Process permissions data if provided
     let activePermissions = [];
-    
+
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
         // Extract active permission names from API response
         activePermissions = permissionsData.data.data.permissions
@@ -233,17 +241,17 @@ export const salesAgent_menulist = (permissionsData) => {
 
 export const Companyadmin_menulist = (permissionsData) => {
     const id = localStorage.getItem("userID");
-    
+
     // Process permissions data if provided
     let activePermissions = [];
-    
+
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
         // Extract active permission names from API response
         activePermissions = permissionsData.data.data.permissions
             .filter(permission => permission.status === 'active')
             .map(permission => permission.name);
     }
-    
+
 
     // Define all menu items with their required permissions
     const allMenuItems = [

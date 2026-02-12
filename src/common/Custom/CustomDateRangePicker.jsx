@@ -49,6 +49,7 @@ const CustomDateRangePicker = ({
                             borderWidth: '1px',
                             justifyContent: 'space-between',
                             borderColor: borderColor,
+                            color: "#4B5563",
                             borderStyle: 'solid',
                             '&:hover': {
                                 borderColor: borderColor,
