@@ -29,7 +29,7 @@ export const Login = () => {
     useEffect(() => {
         console.log("permissionsData in useEffect:", permissionsData);
         console.log("permissionsData structure:", JSON.stringify(permissionsData, null, 2));
-        
+
         if (permissionsData) {
             if (permissionsData.data) {
                 console.log("permissionsData.data:", permissionsData.data);
@@ -41,7 +41,7 @@ export const Login = () => {
                         .map(permission => permission.name);
                     localStorage.setItem("userPermissions", JSON.stringify(activePermissions));
                     console.log("Stored permissions:", activePermissions);
-                    
+
                     // Also log current localStorage for verification
                     const storedPermissions = localStorage.getItem("userPermissions");
                     console.log("Current localStorage permissions:", storedPermissions);
@@ -96,13 +96,13 @@ export const Login = () => {
         localStorage.setItem("role", res.data.user.role);
         localStorage.setItem("selfiImage", res.data.user.selfieImage);
         localStorage.setItem("contact_name", res.data.user.contact_name);
-        localStorage.setItem("roleId", res.data.user.roleId);
-        
+        localStorage.setItem("roleId", res.data.user.roleId._id);
+
         // Set roleId to trigger permissions fetch
-        if (res.data.user.roleId) {
-            console.log("Setting roleId:", res.data.user.roleId);
-            setRoleId(res.data.user.roleId);
-            
+        if (res.data.user.roleId._id) {
+            // console.log("Setting roleId:", res.data.user.roleId_id);
+            setRoleId(res.data.user.roleId._id);
+
             // Delay navigation to allow permissions to be fetched
             setTimeout(() => {
                 if (res.data.role === "sales_agent") {
