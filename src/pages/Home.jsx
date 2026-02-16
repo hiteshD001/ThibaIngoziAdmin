@@ -807,6 +807,7 @@ const Home = ({ isMapLoaded, }) => {
                                                             </Tooltip>
                                                         </Box>
                                                     </TableCell>
+                                                    {console.log(user?.type?.type,"typee")}
                                                     {user?.type?.type === "linked_sos" ? (
                                                         <TableCell>
                                                             <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
