@@ -807,6 +807,41 @@ const Home = ({ isMapLoaded, }) => {
                                                             </Tooltip>
                                                         </Box>
                                                     </TableCell>
+                                                    {user?.type?.type === "linked_sos" ? (
+                                                        <TableCell>
+                                                            <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
+                                                                {user?.otherUser?._id ? (
+                                                                    <Tooltip title="Other User" arrow placement="top">
+                                                                        <Button
+                                                                            variant="contained"
+                                                                            sx={{
+                                                                                display: "flex",
+                                                                                alignItems: "center",
+                                                                                gap: "6px",
+                                                                                textTransform: "none",
+                                                                                fontWeight: 500,
+                                                                                fontSize: "14px",
+                                                                                color: "#fff",
+                                                                                backgroundColor: "#1E73E8", // same as your image blue
+                                                                                borderRadius: "8px",
+                                                                                padding: "6px 14px",
+                                                                                whiteSpace: "nowrap",
+                                                                                minWidth: "auto",
+                                                                                "&:hover": { backgroundColor: "#1864c7" },
+                                                                            }}
+                                                                            onClick={() =>
+                                                                                nav(`total-drivers/driver-information/${row?.otherUser?._id}`)
+                                                                            }
+                                                                        >
+                                                                            Other User
+                                                                        </Button>
+                                                                    </Tooltip>
+                                                                ) : (
+                                                                    "-"
+                                                                )}
+                                                            </Box>
+                                                        </TableCell>
+                                                    ) : <TableCell sx={{ textAlign: 'center' }}>-</TableCell>}
                                                 </TableRow>
                                             ))
                                             :
