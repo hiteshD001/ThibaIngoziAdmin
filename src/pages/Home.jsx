@@ -831,8 +831,8 @@ const Home = ({ isMapLoaded, }) => {
                                                                                 "&:hover": { backgroundColor: "#1864c7" },
                                                                             }}
                                                                             onClick={() =>
-                                                                                nav(`total-drivers/driver-information/${row?.otherUser?._id}`)
-                                                                            }
+                                                                                    nav(`total-drivers/driver-information/${user?.otherUser?._id}`)
+                                                                                }
                                                                         >
                                                                             Other User
                                                                         </Button>
