@@ -657,7 +657,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                 </Stack>
                                                             ) : (
                                                                 user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${user?._id}`} className="link">
+                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id || user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={
@@ -671,7 +671,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${user?._id}`} className="link">
+                                                                    <Link to={`/home/total-users/user-information/${user?.user_id?._id || user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={
@@ -807,7 +807,6 @@ const Home = ({ isMapLoaded, }) => {
                                                             </Tooltip>
                                                         </Box>
                                                     </TableCell>
-                                                    {console.log(user?.type?.type,"typee")}
                                                     {user?.type?.type === "linked_sos" ? (
                                                         <TableCell>
                                                             <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
@@ -831,8 +830,8 @@ const Home = ({ isMapLoaded, }) => {
                                                                                 "&:hover": { backgroundColor: "#1864c7" },
                                                                             }}
                                                                             onClick={() =>
-                                                                                    nav(`total-drivers/driver-information/${user?.otherUser?._id}`)
-                                                                                }
+                                                                                nav(`total-drivers/driver-information/${user?.otherUser?._id}`)
+                                                                            }
                                                                         >
                                                                             Other User
                                                                         </Button>
