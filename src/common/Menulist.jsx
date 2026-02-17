@@ -85,13 +85,6 @@ const allMenuItems = [
         permission: "Armed Sos Amount" // Requires "SOS Management" permission
     },
     {
-        id: "settings",
-        name: "Settings",
-        path: "/home/settings",
-        image: settings,
-        permission: "Settings" // Requires "Settings Management" permission
-    },
-    {
         id: "total-sales-agent",
         name: "Sales Agent",
         path: "/home/total-sales-agent",
@@ -147,6 +140,13 @@ const allMenuItems = [
         image: SuspectIcon,
         company: "Suspect Sighting Details",
         permission: "Suspect Sightings" // Requires "Suspect Management" permission
+    },
+    {
+        id: "settings",
+        name: "Settings",
+        path: "/home/settings",
+        image: settings,
+        permission: "Settings" // Requires "Settings Management" permission
     },
     {
         id: "flagged-report",
