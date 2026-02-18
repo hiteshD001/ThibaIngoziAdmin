@@ -280,7 +280,6 @@ export const useGetPermissionsByRoleId = (roleId) => {
         },
     });
 
-    console.log("Permissions query result:", res);
     return res;
 };
 
@@ -601,7 +600,6 @@ export const useDeleteMissingPerson = (onSuccess, onError) => {
 
 export const usePatchArchivedMissingPerson = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
-        console.log(data)
         return await apiClient.patch(
             `${import.meta.env.VITE_BASEURL}/missingPerson/archive/${id}`,
             data
@@ -619,7 +617,6 @@ export const usePatchArchivedMissingPerson = (onSuccess, onError) => {
 
 export const usePatchUnArchivedMissingPerson = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
-        console.log(data)
         return await apiClient.patch(
             `${import.meta.env.VITE_BASEURL}/missingPerson/unarchive/${id}`,
             data
@@ -678,7 +675,6 @@ export const useGetMissingVehicaleList = (key, page = 1, limit = 10, filter, sta
 
 export const usePatchArchivedMissingVehicale = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
-        console.log(data)
         return await apiClient.patch(
             `${import.meta.env.VITE_BASEURL}/missingVehicle/archive/${id}`,
             data
@@ -696,7 +692,6 @@ export const usePatchArchivedMissingVehicale = (onSuccess, onError) => {
 
 export const usePatchUnArchivedMissingVehicale = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
-        console.log(data)
         return await apiClient.patch(
             `${import.meta.env.VITE_BASEURL}/missingVehicle/unarchive/${id}`,
             data
@@ -1233,7 +1228,6 @@ export const useResetPassword = (onSuccess, onError) => {
             { newPassword: password }
         );
 
-        console.log("response", response)
         return response.data
     };
 
@@ -1568,7 +1562,6 @@ export const fetchRecentSosData = async ({
     limit = 100000
 }) => {
     try {
-        console.log(type);
         const response = await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`,
             {

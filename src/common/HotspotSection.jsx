@@ -65,7 +65,6 @@ function HotspotSection({ isMapLoaded, hideCategories = false }) {
       const provinceId = item?.province?._id || "";
       if (!provinceId) return;
 
-      // console.log(groupedHotspots);
       if (!grouped[provinceId]) {
         grouped[provinceId] = {
           province: item?.province?.province_name,

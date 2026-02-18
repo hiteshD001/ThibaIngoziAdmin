@@ -200,7 +200,6 @@ const EHialingView = ({ isMapLoaded }) => {
         const handleAlert = async () => {
             try {
                 if (activeUserLists?.length > 0) {
-                    console.log('[Home Alert Effect] Using WebSocket data path');
 
                     if (newSOS.sosId && notifiedSosIds.current.has(newSOS.sosId)) return;
 
@@ -212,7 +211,6 @@ const EHialingView = ({ isMapLoaded }) => {
                                 audioRef.current.loop = false;
                                 audioRef.current.currentTime = 0;
                                 await audioRef.current.play();
-                                console.log('[Home Alert Effect] Audio played');
                             }
 
                             if (newSOS.sosId) {

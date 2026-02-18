@@ -22,29 +22,19 @@ export const Login = () => {
 
     const { data: permissionsData, isLoading: permissionsLoading } = useGetPermissionsByRoleId(roleId);
 
-    console.log("permissionsData:", permissionsData);
-    console.log("permissionsLoading:", permissionsLoading);
-
     // Handle permissions data when it arrives
     useEffect(() => {
-        console.log("permissionsData in useEffect:", permissionsData);
-        console.log("permissionsData structure:", JSON.stringify(permissionsData, null, 2));
-
         if (permissionsData) {
             if (permissionsData.data) {
-                console.log("permissionsData.data:", permissionsData.data);
                 if (permissionsData.data.success && permissionsData.data.data.permissions) {
-                    console.log("Found permissions array:", permissionsData.data.data.permissions);
                     // Store only active permissions
                     const activePermissions = permissionsData.data.data.permissions
                         .filter(permission => permission.status === 'active')
                         .map(permission => permission.name);
                     localStorage.setItem("userPermissions", JSON.stringify(activePermissions));
-                    console.log("Stored permissions:", activePermissions);
 
                     // Also log current localStorage for verification
                     const storedPermissions = localStorage.getItem("userPermissions");
-                    console.log("Current localStorage permissions:", storedPermissions);
                 } else {
                     console.warn("Permissions API response structure unexpected:", permissionsData.data);
                 }
@@ -86,7 +76,6 @@ export const Login = () => {
 
     const handleLoginSuccess = (res) => {
         toast.success("Logged In successfully.");
-        console.log(res, "res");
         localStorage.clear();
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem('currentlat', res.data.user.current_lat);
@@ -100,7 +89,6 @@ export const Login = () => {
 
         // Set roleId to trigger permissions fetch
         if (res.data.user.roleId._id) {
-            // console.log("Setting roleId:", res.data.user.roleId_id);
             setRoleId(res.data.user.roleId._id);
 
             // Delay navigation to allow permissions to be fetched

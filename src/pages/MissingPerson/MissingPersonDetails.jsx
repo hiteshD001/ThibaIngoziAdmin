@@ -37,7 +37,6 @@ const MissingPersonDetails = () => {
 
     const updateMissingPerson = usePutMissingPerson(
         () => {
-            console.log("Missing Person Updated Successfully");
             getMissingPersonById.refetch();
         },
         (err) => {
@@ -45,7 +44,6 @@ const MissingPersonDetails = () => {
         }
     );
 
-    console.log(getMissingPersonById.data?.data)
     const user = getMissingPersonById?.data?.data;
 
 
@@ -192,25 +190,25 @@ const MissingPersonDetails = () => {
                         variant="contained"
                         sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: user?.MarkFound ? '#b71c1c' : '#259157' }}
                         onClick={() => {
-                          
+
                             updateMissingPerson.mutate({
                                 id: user?._id,
-                                data: { MarkFound : !user?.MarkFound }
+                                data: { MarkFound: !user?.MarkFound }
                             })
                         }}
-                       
+
                         startIcon={<img src={WhiteTick} alt="white tick" />}
 
                     >
-                      {user?.MarkFound ? "Mark as Founded" : "Mark as Found"}
+                        {user?.MarkFound ? "Mark as Founded" : "Mark as Found"}
                     </Button>
                     <Button
                         variant="contained"
-                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor:  user?.MarkNotReviewed ? 'var(--Blue)' : '#b71c1c' }}
+                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: user?.MarkNotReviewed ? 'var(--Blue)' : '#b71c1c' }}
                         onClick={() => {
                             updateMissingPerson.mutate({
                                 id: user?._id,
-                                data: { MarkNotReviewed : !user?.MarkNotReviewed }
+                                data: { MarkNotReviewed: !user?.MarkNotReviewed }
                             })
                         }}
                         startIcon={<img src={WhiteTick} alt="white tick" />}

@@ -13,7 +13,7 @@ import whitePlus from "../../assets/images/whiteplus.svg";
 import GrayPlus from "../../assets/images/GrayPlus.svg";
 import { useGetCountryList, useGetProvinceList, useGetRoles, useCreateAdmin, useGetCityList, useRegister } from "../../API Calls/API";
 import CloseIcon from "@mui/icons-material/Close";
-import {profileValidation_s } from "../../common/FormValidation";
+import { profileValidation_s } from "../../common/FormValidation";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query"
 
@@ -22,7 +22,7 @@ const AddUser = () => {
     const [open, setOpen] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const client = useQueryClient()
-    const [role,setRole] = useState()
+    const [role, setRole] = useState()
 
     // ✅ Formik setup
     const profileForm = useFormik({
@@ -42,7 +42,7 @@ const AddUser = () => {
             fullImage: "",
             password: "",
             role: "",
-            type : "email_pass"
+            type: "email_pass"
         },
         validationSchema: profileValidation_s,
         onSubmit: (values) => {
@@ -53,16 +53,13 @@ const AddUser = () => {
                 }
             });
             if (values.fullImage && values.fullImage instanceof File) {
-                console.log("SUBMIT CALLED", values);
                 formData.append("fullImage", values.fullImage);
             }
 
-            
+
             mutate(formData);
         },
     });
-    console.log("role",role)
-    console.log("profileForm",profileForm)
     const countrylist = useGetCountryList();
     const cityList = useGetCityList(profileForm.values.province)
     const provincelist = useGetProvinceList(profileForm.values.country);
@@ -75,7 +72,7 @@ const AddUser = () => {
     };
 
     const onError = (error) => {
-          console.error("API Error:", error);
+        console.error("API Error:", error);
         toast.error(error?.response?.data?.message || "Something went wrong");
     };
     const { mutate } = useRegister(onSuccess, onError)
@@ -85,7 +82,6 @@ const AddUser = () => {
             value: role._id, // Fixed: use _id instead of id
             description: role.description || "",
         })) || [];
-        console.log("roleOptions",roleOptions)
 
     return (
         <>
@@ -286,49 +282,49 @@ const AddUser = () => {
                             </Grid>
 
                             <Grid size={{ xs: 12, sm: 6 }}>
-                                                        <CustomSelect
-                                                            label="Country"
-                                                            name="country"
-                                                            value={profileForm.values.country}
-                                                            onChange={profileForm.handleChange}
-                                                            options={countrylist.data?.data.data?.map(country => ({
-                                                                value: country._id,
-                                                                label: country.country_name
-                                                            })) || []}
-                                                            error={profileForm.errors.country && profileForm.touched.country}
-                                                            helperText={profileForm.errors.country}
-                                                        />
-                                                    </Grid>
-                                                    <Grid size={{ xs: 12, sm: 6 }}>
-                                                        <CustomSelect
-                                                            label="Province"
-                                                            name="province"
-                                                            value={profileForm.values.province}
-                                                            onChange={profileForm.handleChange}
-                                                            options={provincelist.data?.data.data?.map(province => ({
-                                                                value: province._id,
-                                                                label: province.province_name
-                                                            })) || []}
-                                                            error={profileForm.errors.province && profileForm.touched.province}
-                                                            helperText={profileForm.touched.province ? profileForm.errors.province : ''}
-                                                            disabled={!profileForm.values.country}
-                                                        />
-                                                    </Grid>
-                                                    <Grid size={{ xs: 12, sm: 6 }}>
-                                                        <CustomSelect
-                                                            label="City"
-                                                            name="city"
-                                                            value={profileForm.values.city}
-                                                            onChange={profileForm.handleChange}
-                                                            options={cityList.data?.data.data?.map(city => ({
-                                                                value: city._id,
-                                                                label: city.city_name
-                                                            })) || []}
-                                                            error={profileForm.errors.city && profileForm.touched.city}
-                                                            helperText={profileForm.touched.city ? profileForm.errors.city : ''}
-                                                            disabled={!profileForm.values.country || !profileForm.values.province}
-                                                        />
-                                                    </Grid>
+                                <CustomSelect
+                                    label="Country"
+                                    name="country"
+                                    value={profileForm.values.country}
+                                    onChange={profileForm.handleChange}
+                                    options={countrylist.data?.data.data?.map(country => ({
+                                        value: country._id,
+                                        label: country.country_name
+                                    })) || []}
+                                    error={profileForm.errors.country && profileForm.touched.country}
+                                    helperText={profileForm.errors.country}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <CustomSelect
+                                    label="Province"
+                                    name="province"
+                                    value={profileForm.values.province}
+                                    onChange={profileForm.handleChange}
+                                    options={provincelist.data?.data.data?.map(province => ({
+                                        value: province._id,
+                                        label: province.province_name
+                                    })) || []}
+                                    error={profileForm.errors.province && profileForm.touched.province}
+                                    helperText={profileForm.touched.province ? profileForm.errors.province : ''}
+                                    disabled={!profileForm.values.country}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <CustomSelect
+                                    label="City"
+                                    name="city"
+                                    value={profileForm.values.city}
+                                    onChange={profileForm.handleChange}
+                                    options={cityList.data?.data.data?.map(city => ({
+                                        value: city._id,
+                                        label: city.city_name
+                                    })) || []}
+                                    error={profileForm.errors.city && profileForm.touched.city}
+                                    helperText={profileForm.touched.city ? profileForm.errors.city : ''}
+                                    disabled={!profileForm.values.country || !profileForm.values.province}
+                                />
+                            </Grid>
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <FormControl variant="standard" fullWidth >
                                     <InputLabel shrink htmlFor="suburb" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>

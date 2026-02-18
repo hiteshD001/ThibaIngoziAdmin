@@ -45,7 +45,6 @@ const CustomExportMenu = ({ role, onExport, loading }) => {
     const handleClose = () => setAnchorEl(null);
 
     const handleExport = () => {
-        console.log(province, "province4444")
         const startDate = range[0].startDate.toISOString();
         const endDate = range[0].endDate.toISOString();
         onExport({ startDate, endDate, exportFormat, province, category });

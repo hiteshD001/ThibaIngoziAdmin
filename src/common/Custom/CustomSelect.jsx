@@ -4,6 +4,7 @@ import { FormControl, Select, MenuItem, FormHelperText } from '@mui/material';
 
 const CustomSelect = ({
     label,
+    placeholder,
     name,
     value,
     onChange,
@@ -13,7 +14,8 @@ const CustomSelect = ({
     ...props
 }) => (
     <FormControl fullWidth error={!!error}>
-        {label && <label style={{ marginBottom: 4 }}>{label}</label>}
+        {label &&
+            <label style={{ marginBottom: "10px", fontWeight: 500, fontSize: "16px", lineHeight: 1 }}>{label}</label>}
         <Select
             name={name}
             value={value}
@@ -43,7 +45,7 @@ const CustomSelect = ({
             {...props}
         >
             <MenuItem value="">
-                <em>Select {label}</em>
+                <em>{placeholder ?? `Select ${label}`}</em>
             </MenuItem>
             {options.map((option) => (
                 <MenuItem key={option.value} value={option.value}>

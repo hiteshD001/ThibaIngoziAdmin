@@ -94,7 +94,6 @@ const Notification = () => {
         }
     ]);
     const handleFilterApply = (filters) => {
-        console.log('Filters applied:', filters);
     };
     const IconDisplay = ({ tag, seen }) => {
         let iconToDisplay;

@@ -211,22 +211,18 @@ const Home = ({ isMapLoaded, }) => {
             return;
         }
 
-        console.log('[Home Alert Effect] newSOS changed:', { count: newSOS.count, type: newSOS.type, sosId: newSOS.sosId });
 
         if (!newSOS.type || newSOS.count === 0) return;
 
         const handleAlert = async () => {
             try {
-                console.log('[Home Alert Effect] activeUserLists.length:', activeUserLists?.length);
 
                 // If we have WebSocket data, we trust the NEW_SOS signal
                 // WE REMOVED THROTTLING HERE to ensure audio plays for every alert
                 if (activeUserLists?.length > 0) {
-                    console.log('[Home Alert Effect] Using WebSocket data path');
 
                     // Check if the specific new SOS ID has already been notified
                     if (newSOS.sosId && notifiedSosIds.current.has(newSOS.sosId)) {
-                        console.log('[Home Alert Effect] Alert already notified for this ID, skipping sound.');
                         return;
                     }
 
@@ -234,13 +230,11 @@ const Home = ({ isMapLoaded, }) => {
                         try {
                             // Respect user preference for audio
                             const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
-                            console.log('[Home Alert Effect] Audio enabled:', isAudioEnabled);
 
                             if (isAudioEnabled && audioRef.current) {
                                 audioRef.current.loop = false; // Ensure play once
                                 audioRef.current.currentTime = 0;
                                 await audioRef.current.play();
-                                console.log('[Home Alert Effect] Audio played');
                             }
                             setIsPlaying(true);
 
@@ -262,18 +256,15 @@ const Home = ({ isMapLoaded, }) => {
                     // Start Throttle for API calls
                     const now = Date.now();
                     if (now - lastFetchTime.current < 2000) {
-                        console.log('[Home Alert Effect] Throttled API call - too soon');
                         return;
                     }
                     lastFetchTime.current = now;
                     // End Throttle
 
-                    console.log('[Home Alert Effect] Using API refetch path');
                     const res = await activeSos.refetch();
 
                     if (res?.data?.data?.data) {
                         const newList = res.data.data.data || [];
-                        console.log('[Home Alert Effect] Refetched data, count:', newList.length);
 
                         // Check for new IDs that we haven't notified about yet
                         let hasNew = false;
@@ -286,7 +277,6 @@ const Home = ({ isMapLoaded, }) => {
                             }
                         }
 
-                        console.log('[Home] hasNew:', hasNew, 'newIds count:', newIds.length, 'sosAudioEnabled:', localStorage.getItem("sosAudioEnabled"));
 
                         if (hasNew) {
                             const playAudio = async () => {

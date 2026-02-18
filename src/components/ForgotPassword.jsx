@@ -19,7 +19,6 @@ const ForgotPassword = ({ onBack }) => {
     // API Hooks
     const forgotPassword = useForgotPassword(
         (res) => {
-            console.log(res);
             toast.success(res.data.message || "Verification code sent to your email", toastOption);
             setStep(2);
         },
@@ -28,7 +27,6 @@ const ForgotPassword = ({ onBack }) => {
 
     const verifyCode = useVerifyCode(
         (res) => {
-            console.log(res);
             toast.success(res.data.message || "Code verified successfully", toastOption);
             setStep(3);
         },
@@ -37,7 +35,6 @@ const ForgotPassword = ({ onBack }) => {
 
     const resetPassword = useResetPasswordByCode(
         (res) => {
-            console.log(res);
             toast.success(res.data.message || "Password reset successfully", toastOption);
             onBack(); // Go back to login
         },

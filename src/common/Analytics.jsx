@@ -97,7 +97,6 @@ const Analytics = ({ id, activePage,
     }, [range])
 
 
-    // console.log("chartData", chartData?.data?.data)
 
     // useEffect(()=>{
     //     if(selectedNotification === 'all'){
@@ -183,16 +182,15 @@ const Analytics = ({ id, activePage,
             // Get notification types data for export
             const notificationTypesData = notificationTypes.data?.data || [];
             var selectedCategoryData = null;
-            
+
             // Use the category parameter from CustomExport if provided, otherwise use selectedNotification
             const categoryId = category || selectedNotification;
-            
+
             // Only find category data if not "all" and notification types are loaded
             if (categoryId !== "all" && notificationTypesData.length > 0) {
                 selectedCategoryData = notificationTypesData.find((type) => type._id === categoryId);
-                console.log("selectedCategoryData", selectedCategoryData);
             }
-            
+
             // If no specific category is selected, create a default "All Categories" entry
             if (!selectedCategoryData) {
                 selectedCategoryData = {
@@ -202,12 +200,12 @@ const Analytics = ({ id, activePage,
                 };
             }
 
-            const hotspot = await fetchHotspot({ startDate, endDate,  type: selectedCategoryData._id ? selectedCategoryData._id : category, province });
+            const hotspot = await fetchHotspot({ startDate, endDate, type: selectedCategoryData._id ? selectedCategoryData._id : category, province });
             const activeSosData = await fetchActiveSosData({ startDate, endDate, searchKey, type: selectedCategoryData._id ? selectedCategoryData._id : category, page: 1, limit: 100000 });
-            const recentSosResponse = await fetchRecentSosData({ startDate, endDate,searchKey,  type: selectedCategoryData._id ? selectedCategoryData._id : category, page: 1, limit: 100000 });
+            const recentSosResponse = await fetchRecentSosData({ startDate, endDate, searchKey, type: selectedCategoryData._id ? selectedCategoryData._id : category, page: 1, limit: 100000 });
             const recentSos = recentSosResponse?.items || [];
 
-            
+
 
             const TotalData = [
                 { Type: "Total Companies", Count: (companyList.data?.data.totalUsers || 0), Percentage: companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2) },
@@ -236,7 +234,7 @@ const Analytics = ({ id, activePage,
                     Type: user?.type?.type || "",
                     Time: moment(user?.createdAt).format("HH:mm:ss"),
                     Status: user?.help_received,
-                    Trip_Type : user?.deepLinks?.[0]?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"
+                    Trip_Type: user?.deepLinks?.[0]?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"
                 })
             });
 
@@ -296,7 +294,7 @@ const Analytics = ({ id, activePage,
                 addSheetWithHeader(TotalData, "Totals");
                 addSheetWithHeader(sosData, "SOS Requests Over Time");
                 // Add only selected category
-               
+
                 addSheetWithHeader(sosAlertData, "Active SOS Alerts");
                 addSheetWithHeader(sosLocationsData, "Top SOS Locations");
                 addSheetWithHeader(sosClosedData, "Recently Closed SOS Alerts");
@@ -318,7 +316,7 @@ const Analytics = ({ id, activePage,
                     { title: "Totals", data: TotalData },
                     { title: "SOS Requests Over Time", data: sosData },
                     // Add only selected category
-                
+
                     { title: "Active SOS Alerts", data: sosAlertData },
                     { title: "Top SOS Locations", data: sosLocationsData },
                     { title: "Recently Closed SOS Alerts", data: sosClosedData },
@@ -409,9 +407,6 @@ const Analytics = ({ id, activePage,
         }
     };
 
-    const handleFilterApply = (filters) => {
-        console.log('Filters applied:', filters);
-    };
     const username = localStorage.getItem("userName")
     const contact_name = localStorage.getItem("contact_name")
     return (

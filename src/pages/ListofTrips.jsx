@@ -77,7 +77,6 @@ const ListOfTrips = () => {
   const updateTripMutation = usePutUserTrip(
     (id, data) => {
 
-      console.log('Trip updated successfully:', Data);
 
       toast.success("User Archived Successfully")
 
@@ -197,7 +196,7 @@ const ListOfTrips = () => {
 
         // Table content
         autoTable(doc, {
-          head: [['Driver', 'Passanger','Trip Type', 'Started At', 'Ended At', 'Ended By', 'Status']],
+          head: [['Driver', 'Passanger', 'Trip Type', 'Started At', 'Ended At', 'Ended By', 'Status']],
           body: allUsers.map(user => [
             user.driver?.first_name ?? 'NA',
             user.passenger?.first_name ?? 'NA',
@@ -299,7 +298,7 @@ const ListOfTrips = () => {
                       Passenger
                     </TableSortLabel>
                   </TableCell>
-                   <TableCell sx={{ color: '#4B5563' }}>
+                  <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
                       id="trip_type"
                       active={sortBy === 'trip_type'}
@@ -382,7 +381,7 @@ const ListOfTrips = () => {
                               {data.passenger.first_name}
                             </Link>
                           </TableCell>
-                          <TableCell sx={{ color:  '#FF7043' }}>
+                          <TableCell sx={{ color: '#FF7043' }}>
                             {data?.trip_type?.tripTypeName || "-"}
                           </TableCell>
                           <TableCell>{format(data?.createdAt, "HH:mm:ss - dd/MM/yyyy")}</TableCell>
@@ -431,14 +430,14 @@ const ListOfTrips = () => {
                                   <img src={Listtrip} alt="view button" />
                                 </IconButton>
                               </Tooltip>
-                              {role !== 'company' &&(
+                              {role !== 'company' && (
                                 <Tooltip title="Delete" arrow placement="top">
-                                <IconButton onClick={() => setConfirmation(data._id)}>
-                                  <img src={delBtn} alt="Delete" />
-                                </IconButton>
-                              </Tooltip>
+                                  <IconButton onClick={() => setConfirmation(data._id)}>
+                                    <img src={delBtn} alt="Delete" />
+                                  </IconButton>
+                                </Tooltip>
                               )}
-                              
+
                             </Box>
                             {confirmation === data._id && (
                               <DeleteConfirm id={data._id} setconfirmation={setConfirmation} trip="trip" />
@@ -477,7 +476,7 @@ const ListOfTrips = () => {
                     '& .MuiSelect-select': { padding: '4px 10px' },
                   }}
                 >
-                  {[5, 10, 15, 20,50,100].map((num) => (
+                  {[5, 10, 15, 20, 50, 100].map((num) => (
                     <MenuItem key={num} value={num}>{num}</MenuItem>
                   ))}
                 </Select>

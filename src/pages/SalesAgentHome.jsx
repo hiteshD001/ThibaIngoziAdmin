@@ -118,7 +118,6 @@ const SalesAgentHome = () => {
     const endDate = range[0].endDate.toISOString();
 
     const userinfo = useGetAgent(localStorage.getItem("userID"));
-    console.log("userinfo", userinfo?.data?.data)
     const listOfSalesAgentUsers = useGetUserByInfluncer(page, 10, startDate, endDate, userinfo?.data?.data?.data?._id)
     // const totalUsers = listOfSalesAgentUsers.data?.data?.data?.totalCount || 0;
     // const totalPages = Math.ceil(totalUsers / rowsPerPage);

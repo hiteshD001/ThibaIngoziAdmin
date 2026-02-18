@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useFormik } from "formik";
-import { useAssignRole, useGetRoles, useGetAdminUsers, useGetUserList, useGetRoleByIdWithCompany, useGetRoleByIdWithCompanyId, useUpdateUserRole } from "../../API Calls/API";
+import { useGetRoles, useGetUserList, useGetRoleByIdWithCompanyId, useUpdateUserRole } from "../../API Calls/API";
 import { toast } from "react-toastify";
 import {
     Box,
@@ -11,6 +11,7 @@ import {
     Checkbox,
     Avatar,
     Button,
+    Divider,
 } from "@mui/material";
 import search from "../../assets/images/search.png";
 import CustomSelect from "../../common/Custom/CustomSelect";
@@ -25,22 +26,7 @@ const UserAssignment = () => {
     const client = useQueryClient()
 
     const { data: roles, isLoading, isError } = useGetRoles();
-    const { data: users } = useGetAdminUsers()
     const companyList = useGetUserList("company list", "company");
-
-    // Define success and error handlers first
-    const onSuccess = () => {
-        toast.success("Role Assigned Successfully.");
-        client.invalidateQueries(['roles'], { exact: false })
-        setSelectedUsers([]);
-        userform.resetForm();
-    };
-
-    const onError = (error) => {
-        toast.error(error?.response?.data?.message || "Something went wrong");
-    };
-
-    const { mutate: assignRole } = useAssignRole(onSuccess, onError);
 
     // Define success and error handlers for role update
     const onUpdateSuccess = () => {
@@ -97,7 +83,7 @@ const UserAssignment = () => {
 
     // Extract users from the role data response - our API returns data.data with allUsers
     const companyUsers = roleData?.data?.allUsers || [];
-    
+
     // Convert API response to dropdown options
     const roleOptions =
         roles?.data?.data?.map((role) => ({
@@ -110,7 +96,7 @@ const UserAssignment = () => {
         toast.error("Failed to load roles");
     }
 
-        const handleRoleChange = (e) => {
+    const handleRoleChange = (e) => {
         const { value } = e.target;
         userform.setFieldValue("role", value);
         // Don't clear selected users when role changes
@@ -133,250 +119,185 @@ const UserAssignment = () => {
         userform.resetForm();
     };
 
+
     return (
-        <>
-            <Grid
-                size={{ xs: 12 }}
-                sx={{
-                    backgroundColor: "rgb(253, 253, 253)",
-                    p: 3,
-                    borderRadius: "10px",
-                    boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)",
-                    mb: 3,
-                }}
-            >
-                <Typography variant="h6" fontWeight={550} mb={2}>
-                    User Assignment
-                </Typography>
+        <Grid
+            size={{ xs: 12 }}
+            sx={{
+                backgroundColor: "rgb(253, 253, 253)",
+                p: 3,
+                borderRadius: "10px",
+                boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)",
+                mb: 3,
+            }}
+        >
+            <Typography variant="h6" fontWeight={550} mb={2}>
+                User Assignment
+            </Typography>
 
-                {/* Select Role */}
-                <Box sx={{ mb: 2,display:'flex',flexDirection:'row',gap:2 }}>
-                    <CustomSelect
-                        label="Company"
-                        name="company_id"
-                        value={userform.values.company_id}
-                        onChange={handleCompanyChange}
-                        // options={companyList?.data?.data?.users?.map(user => ({
-                        //     value: user._id,
-                        //     label: user.company_name
-                        // })) || []}
+            <Divider sx={{ borderColor: "#E0E3E7", opacity: 1 }} />
 
-                        options={
-                            isLoading
-                                ? [{ label: "Loading...", value: "" }]
-                                : companyList.data?.data?.users?.length > 0
-                                    ? companyList.data?.data?.users.map((company) => ({
-                                        value: company._id,
-                                        label: (
-                                            <Box sx={{ display: "flex", flexDirection: "column" }}>
-                                                <Typography sx={{ fontWeight: 450 }}>
-                                                    {company.company_name}
-                                                </Typography>
-                                            </Box>
-                                        ),
-                                    }))
-                                    : [{ label: "No Companies Found", value: "" }]
-                        }
-                        
-                        error={userform.errors.company_id}
-                        helperText={userform.errors.company_id}
-                    />
-                    <CustomSelect
-                        id="role"
-                        name="role"
-                        label="Add New Role"
-                        value={userform.values.role}
-                        onChange={handleRoleChange}
-                        options={
-                            isLoading
-                                ? [{ label: "Loading...", value: "" }]
-                                : roleOptions.length > 0
-                                    ? roleOptions.map((role) => ({
-                                        value: role.value,
-                                        label: role.label,
-                                    }))
-                                    : [{ label: "No Roles Found", value: "" }]
-                        }
-                        error={userform.errors.role}
-                    />
-                    
-                </Box>
+            {/* Select Role */}
+            <Box sx={{ my: 2, display: 'flex', flexDirection: 'row', gap: 2 }}>
+                <CustomSelect
+                    label="Select Company"
+                    placeholder="Select Company"
+                    name="company_id"
+                    value={userform.values.company_id}
+                    onChange={handleCompanyChange}
 
-                {/* Assign Users */}
-                <Box sx={{ mb: 2 }}>
-                    <Typography variant="body1" fontWeight={400} mb={2}>
-                        Assign Users
-                    </Typography>
-
-                    <Box
-                        sx={{
-                            border: "1px solid #E0E3E7",
-                            borderBottom: "none",
-                            borderTopLeftRadius: "6px",
-                            borderTopRightRadius: "6px",
-                            p: 2,
-                        }}
-                    >
-                        <TextField
-                            variant="outlined"
-                            placeholder="Search"
-                            value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
-                            fullWidth
-                            sx={{
-                                width: "100%",
-                                height: "40px",
-                                borderRadius: "8px",
-                                "& .MuiInputBase-root": {
-                                    height: "40px",
-                                    fontSize: "14px",
-                                },
-                                "& .MuiOutlinedInput-input": {
-                                    padding: "10px 14px",
-                                },
-                            }}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <img src={search} alt="search icon" />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        />
-                    </Box>
-
-                    <Box
-                        sx={{
-                            border: "1px solid #E0E3E7",
-                            borderBottomLeftRadius: "6px",
-                            borderBottomRightRadius: "6px",
-                            p: 2,
-                            maxHeight: 250,
-                            overflowY: "auto",
-                        }}
-                    >
-                        {roleLoading ? (
-                            <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
-                                <Loader />
-                            </Box>
-                        ) : userform.values.company_id ? (
-                            // Show company users when company is selected
-                            Array.isArray(companyUsers) && companyUsers.length > 0 ? (
-                                companyUsers.map((user) => (
-                                    <Box
-                                        key={user._id || user.id}
-                                        sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 1.5,
-                                            mb: 1.5,
-                                        }}
-                                    >
-                                        <Checkbox
-                                            key={`checkbox-${user._id || user.id}-${selectedUsers.includes(user._id || user.id)}`}
-                                            icon={<img src={unChecked} alt="unchecked" />}
-                                            checkedIcon={<img src={checked} alt="checked" />}
-                                            checked={selectedUsers.includes(user._id || user.id)}
-                                            onChange={(e) => {
-                                                e.stopPropagation();
-                                                const userId = user._id || user.id;
-                                                setSelectedUsers(prevSelected => {
-                                                    const isSelected = prevSelected.includes(userId);
-                                                    if (isSelected) {
-                                                        return prevSelected.filter(id => id !== userId);
-                                                    } else {
-                                                        return [...prevSelected, userId];
-                                                    }
-                                                });
-                                            }}
-                                        />
-                                        <Avatar
-                                            src={user.profileImage}
-                                            sx={{ width: 36, height: 36 }}
-                                        >
-                                            {user.first_name?.[0]?.toUpperCase() || "U"}
-                                        </Avatar>
-                                        <Box sx={{ flex: 1 }}>
-                                            <Typography variant="body2" fontWeight={500}>
-                                                {user.first_name || '-'} {user.last_name || "-"}
-                                            </Typography>
-                                    
-                                            <Typography variant="body2" fontWeight={500} >
-                                                Role : <Typography component="span" sx={{ 
-                                                    fontWeight: 600, 
-                                                    color: 'primary.main',
-                                                    textTransform: 'capitalize'
-                                                }}>
-                                                    {user.role}
-                                                </Typography>
+                    options={
+                        isLoading
+                            ? [{ label: "Loading...", value: "" }]
+                            : companyList.data?.data?.users?.length > 0
+                                ? companyList.data?.data?.users.map((company) => ({
+                                    value: company._id,
+                                    label: (
+                                        <Box sx={{ display: "flex", flexDirection: "column" }}>
+                                            <Typography sx={{ fontWeight: 450 }}>
+                                                {company.company_name}
                                             </Typography>
                                         </Box>
-                                    </Box>
-                                ))
-                            ) : (
-                                <Typography variant="body2" sx={{ textAlign: 'center', py: 2, color: 'text.secondary' }}>
-                                    No users found for this company
-                                </Typography>
-                            )
-                        ) : Array.isArray(companyUsers) && companyUsers.length > 0 ? (
-                            // Show all users when no company is selected
-                            companyUsers.map((user) => (
-                                <Box
-                                    key={user._id || user.id}
-                                    sx={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 1.5,
-                                        mb: 1.5,
-                                    }}
-                                >
-                                    <Checkbox
-                                        icon={<img src={unChecked} alt="unchecked" />}
-                                        checkedIcon={<img src={checked} alt="checked" />}
-                                        checked={selectedUsers.some(id => id === (user._id || user.id))}
-                                        onChange={() => {
-                                            const userId = user._id || user.id;
-                                            setSelectedUsers(prevSelected => {
-                                                if (prevSelected.some(id => id === userId)) {
-                                                    return prevSelected.filter(id => id !== userId);
-                                                } else {
-                                                    return [...prevSelected, userId];
-                                                }
-                                            });
-                                        }}
-                                    />
-                                    <Avatar
-                                        src={user.profileImage}
-                                        sx={{ width: 36, height: 36 }}
-                                    >
-                                        {user.first_name?.[0]?.toUpperCase() || "U"}
-                                    </Avatar>
-                                    <Box sx={{ flex: 1 }}>
-                                        <Typography variant="body2" fontWeight={500}>
-                                            {user.first_name} {user.last_name}
-                                        </Typography>
-                                        <Typography variant="body2" fontWeight={500} >
-                                            Role : <Typography component="span" sx={{ 
-                                                fontWeight: 600, 
-                                                color: 'primary.main',
-                                                textTransform: 'capitalize'
-                                            }}>
-                                                {user.role}
-                                            </Typography>
-                                        </Typography>   
-                                    </Box>
-                                </Box>
-                            ))
-                        ) : (
-                            <Typography variant="body2" sx={{ textAlign: 'center', py: 2, color: 'text.secondary' }}>
-                                {companyUsers.length === 0 ? 'No users found' : 'Please select a company to view users'}
-                            </Typography>
-                        )}
-                    </Box>
-                </Box>
-            </Grid>
+                                    ),
+                                }))
+                                : [{ label: "No Companies Found", value: "" }]
+                    }
 
-            {/* Buttons */}
+                    error={userform.errors.company_id}
+                    helperText={userform.errors.company_id}
+                />
+                <CustomSelect
+                    id="role"
+                    name="role"
+                    label="Add New Role"
+                    placeholder="Administrator"
+                    value={userform.values.role}
+                    onChange={handleRoleChange}
+                    options={
+                        isLoading
+                            ? [{ label: "Loading...", value: "" }]
+                            : roleOptions.length > 0
+                                ? roleOptions.map((role) => ({
+                                    value: role.value,
+                                    label: role.label,
+                                }))
+                                : [{ label: "No Roles Found", value: "" }]
+                    }
+                    error={userform.errors.role}
+                />
+
+            </Box>
+
+            {/* Assign Users */}
+            <Box sx={{ mb: 2 }}>
+                <Typography variant="body1" fontWeight={500} fontSize={"16px"} mb={1.5}>
+                    Assign Users
+                </Typography>
+
+                {/* Search */}
+                <Box
+                    sx={{
+                        border: "1px solid #E0E3E7",
+                        borderBottom: "none",
+                        borderTopLeftRadius: "6px",
+                        borderTopRightRadius: "6px",
+                        p: 2,
+                    }}
+                >
+                    <TextField
+                        variant="outlined"
+                        placeholder="Search"
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                        fullWidth
+                        sx={{
+                            width: "100%",
+                            height: "40px",
+                            borderRadius: "8px",
+                            "& .MuiInputBase-root": {
+                                height: "40px",
+                                fontSize: "14px",
+                            },
+                            "& .MuiOutlinedInput-input": {
+                                padding: "10px 14px",
+                            },
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <img src={search} alt="search icon" />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </Box>
+
+                <Box
+                    sx={{
+                        border: "1px solid #E0E3E7",
+                        borderBottomLeftRadius: "6px",
+                        borderBottomRightRadius: "6px",
+                        p: 2,
+                        maxHeight: 250,
+                        overflowY: "auto",
+                    }}
+                >
+                    {roleLoading ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+                            <Loader />
+                        </Box>
+                    ) : Array.isArray(companyUsers) && companyUsers.length > 0 ? (
+                        companyUsers.map((user) => (
+                            <Box
+                                key={user._id || user.id}
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1.5,
+                                    mb: 1.5,
+                                }}
+                            >
+                                <Checkbox
+                                    key={`checkbox-${user._id}-${selectedUsers.includes(user._id)}`}
+                                    icon={<img src={unChecked} alt="unchecked" />}
+                                    checkedIcon={<img src={checked} alt="checked" />}
+                                    checked={selectedUsers.includes(user._id)}
+                                    onClick={() => {
+                                        setSelectedUsers(prevSelected => {
+                                            const isSelected = prevSelected.includes(user._id);
+                                            if (isSelected) {
+                                                return prevSelected.filter(id => id !== user._id);
+                                            } else {
+                                                return [...prevSelected, user._id];
+                                            }
+                                        });
+                                    }}
+                                />
+                                <Avatar
+                                    src={user.profileImage}
+                                    sx={{ width: 32, height: 32 }}
+                                >
+                                    {user.first_name?.[0]?.toUpperCase() || "U"}
+                                </Avatar>
+                                <Box sx={{ flex: 1 }}>
+                                    <Typography variant="body2" fontWeight={500} fontSize={"14px"}>
+                                        {user.first_name || '-'} {user.last_name || "-"}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        ))
+                    ) : (
+                        <Typography variant="body2" sx={{ textAlign: 'center', py: 2, color: 'text.secondary' }}>
+                            {userform.values.company_id ?
+                                "No users found for this company" :
+                                companyUsers.length === 0 ? "No users found" :
+                                    "Please select a company to view users"
+                            }
+                        </Typography>
+                    )}
+                </Box>
+            </Box>
+
             <Grid
                 size={12}
                 sx={{
@@ -418,7 +339,7 @@ const UserAssignment = () => {
                     Save Settings
                 </Button>
             </Grid>
-        </>
+        </Grid>
     );
 };
 

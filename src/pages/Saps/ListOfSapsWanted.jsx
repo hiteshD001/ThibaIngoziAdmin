@@ -159,7 +159,6 @@ const ListOfSapsWanted = () => {
     const nav = useNavigate()
 
     const handleFilterApply = (filters) => {
-        console.log('Filters applied:', filters);
     };
     const [anchorEl, setAnchorEl] = useState(null);
 
@@ -172,7 +171,6 @@ const ListOfSapsWanted = () => {
     };
     const handleProvinceChange = (event) => {
         setSelectedProvince(event.target.value);
-        console.log("Selected Province:", event.target.value);
     };
     return (
         <Box>
@@ -653,7 +651,7 @@ const ListOfSapsWanted = () => {
                                                     setCurrentPage(1);
                                                 }}
                                             >
-                                                {[5, 10, 15, 20,50,100].map((num) => (
+                                                {[5, 10, 15, 20, 50, 100].map((num) => (
                                                     <MenuItem key={num} value={num}>
                                                         {num}
                                                     </MenuItem>
@@ -839,7 +837,7 @@ const ListOfSapsWanted = () => {
                                                     setCurrentPage(1);
                                                 }}
                                             >
-                                                {[5, 10, 15, 20,50,100].map((num) => (
+                                                {[5, 10, 15, 20, 50, 100].map((num) => (
                                                     <MenuItem key={num} value={num}>
                                                         {num}
                                                     </MenuItem>

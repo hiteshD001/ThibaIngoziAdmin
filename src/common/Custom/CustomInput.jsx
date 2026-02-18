@@ -12,7 +12,7 @@ const CustomInput = ({ label, placeholder, name, formik, readOnly = false, type 
                     htmlFor={name}
                     sx={{
                         fontSize: "1.3rem",
-                        fontWeight: 450,
+                        fontWeight: 500,
                         color: "rgba(0,0,0,0.8)",
                         '&.Mui-focused': { color: 'black' }
                     }}

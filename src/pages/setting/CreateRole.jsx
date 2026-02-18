@@ -1,7 +1,7 @@
 import { useFormik } from "formik";
-import { Grid, Box, Typography, } from "@mui/material";
+import { Grid, Box, Typography, Divider, } from "@mui/material";
 import { toast } from "react-toastify";
-import { useGetPermissions, useCreateRole, useTogglePermission, useGetPermissionsByRoleId, useUpdateRole, useGetPermission } from "../../API Calls/API"; 
+import { useGetPermissions, useCreateRole, useTogglePermission, useGetPermissionsByRoleId, useUpdateRole, useGetPermission } from "../../API Calls/API";
 // import { BootstrapInput, CustomSwitch } from "../../common/custom"; 
 import CustomSwitch from "../../common/Custom/CustomSwitch"
 import AddUser from "./AddUser"
@@ -10,49 +10,25 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useEffect } from "react";
 
 // assets
-import Dashboard from '../../assets/images/Dashboard.svg'
-import Driver from "../../assets/images/Driver.svg";
-import users from '../../assets/images/users.svg'
-import MeetingLink from '../../assets/images/MeetingLink.svg'
-import Report from '../../assets/images/Report.svg'
-import Trip from '../../assets/images/Trip.svg'
-import Crime from '../../assets/images/crime.svg'
-import ArmedSos from '../../assets/images/ArmedSos.svg'
-import SapsWanted from '../../assets/images/SapsWanted.svg'
-import salesagent from '../../assets/images/salesagent.svg'
-import settings from "../../assets/images/settings.png";
-import Flagged from '../../assets/images/Flagged.svg'
-import StolenCarIcon from '../../assets/images/StolenCarIcon.svg'
-import MissingPersonIcon from '../../assets/images/MissingPersonIcon.svg'
-import SuspectIcon from '../../assets/images/SuspectIcon.svg'
-import changePasswordIcon from '../../assets/images/changePasswordIcon.svg'
-import Company from "../../assets/images/Company.svg";
+import changepassword from "../../assets/images/permission/change-password.svg"
+import crimereports from "../../assets/images/permission/crime-reports.svg"
+import flaggedreport from "../../assets/images/permission/flagged-report.svg"
+import home from "../../assets/images/permission/home.svg"
+import reports from "../../assets/images/permission/reports.svg"
+import settings from "../../assets/images/permission/settings.svg"
+import totalchatgroups from "../../assets/images/permission/total-chat-groups.svg"
+import totalcompanies from "../../assets/images/permission/total-companies.svg"
+import totaldrivers from "../../assets/images/permission/total-drivers.svg"
+import totallinkedtrips from "../../assets/images/permission/total-linked-trips.svg"
+import totalmeetinglinks from "../../assets/images/permission/total-meeting-links.svg"
+import totalmissingperson from "../../assets/images/permission/total-missing-person.svg"
+import totalsalesagent from "../../assets/images/permission/total-sales-agent.svg"
+import totalsapswanted from "../../assets/images/permission/total-saps-wanted.svg"
+import totalsosamount from "../../assets/images/permission/total-sos-amount.svg"
+import totalstolencars from "../../assets/images/permission/total-stolen-cars.svg"
+import totalsuspect from "../../assets/images/permission/total-suspect.svg"
+import totalusers from "../../assets/images/permission/total-users.svg"
 
-
-export const iconMap = {
-  home: Dashboard,
-
-  "total-companies": Company,
-  "total-drivers": Driver,
-  "total-linked-trips": Trip,
-  "total-meeting-links": MeetingLink,
-  "total-users": users,
-  "total-sos-amount": ArmedSos,
-
-  settings: settings,
-  "total-sales-agent": salesagent,
-  "total-saps-wanted": SapsWanted,
-
-  reports: Report,
-
-  "total-missing-person": MissingPersonIcon,
-  "total-stolen-cars": StolenCarIcon,
-  "crime-reports": Crime,
-  "total-suspect": SuspectIcon,
-  "flagged-report": Flagged,
-
-  "change-password": changePasswordIcon,
-};
 const CreateRole = ({ editRoleId, setEditRoleId }) => {
     const client = useQueryClient()
 
@@ -62,11 +38,11 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         if (editRoleId) {
             toast.success("Role Updated Successfully.");
             roleform.resetForm({
-    values: {
-      roleName: "",
-      permissionIds: activePermissionIds
-    }
-  });
+                values: {
+                    roleName: "",
+                    permissionIds: activePermissionIds
+                }
+            });
             setEditRoleId(null); // Exit edit mode
         } else {
             toast.success("Role Created Successfully.");
@@ -88,12 +64,12 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
     };
 
     const { data: permissions } = useGetPermissions();
-    const {data : permission} = useGetPermission()
-    
+    const { data: permission } = useGetPermission()
+
     // Filter only active permissions
     const activePermissionIds = permission?.data?.data?.filter(perm => perm.status === 'active').map(perm => perm._id) || [];
-    
-    
+
+
     const { data: roleData } = useGetPermissionsByRoleId(editRoleId);
     const { mutate: createRole } = useCreateRole(onSuccessRole, onErrorRole);
     const { mutate: updateRole } = useUpdateRole(onSuccessRole, onErrorRole);
@@ -114,8 +90,8 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
     }, [editRoleId, roleData]);
 
     useEffect(() => {
-  roleform.setFieldValue("permissionIds", activePermissionIds);
-}, [permission?.data?.data]);
+        roleform.setFieldValue("permissionIds", activePermissionIds);
+    }, [permission?.data?.data]);
 
 
     const roleform = useFormik({
@@ -125,14 +101,18 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         },
         onSubmit: (values) => {
             if (editRoleId) {
-                
+
                 updateRole({ id: editRoleId, data: { permissionIds: values.permissionIds } });
             } else {
-               
-                createRole({ roleName: values.roleName,  permissionIds: values.permissionIds });
+
+                createRole({ roleName: values.roleName, permissionIds: values.permissionIds });
             }
         },
     });
+
+    const getIcon = (name) => {
+        return icons?.find(i => i.name === name)?.icon
+    }
 
     const handlePermissionToggle = (permId) => {
         const current = roleform.values.permissionIds;
@@ -148,38 +128,35 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         }
     };
 
-   const handlePermissionStatusToggle = (perm) => {
-  const newStatus = perm.status === "active" ? "inactive" : "active";
+    const handlePermissionStatusToggle = (perm) => {
+        const newStatus = perm.status === "active" ? "inactive" : "active";
 
-  togglePermission(
-    { permissionId: perm._id, status: newStatus },
-    {
-      onSuccess: () => {
-        // If permission turned inactive → remove from role
-        if (newStatus === "inactive") {
-          roleform.setFieldValue(
-            "permissionIds",
-            roleform.values.permissionIds.filter(id => id !== perm._id)
-          );
-        }
-      }
-    }
-  );
-};
+        togglePermission(
+            { permissionId: perm._id, status: newStatus },
+            {
+                onSuccess: () => {
+                    // If permission turned inactive → remove from role
+                    if (newStatus === "inactive") {
+                        roleform.setFieldValue(
+                            "permissionIds",
+                            roleform.values.permissionIds.filter(id => id !== perm._id)
+                        );
+                    }
+                }
+            }
+        );
+    };
 
-const handleCancel = () => {
-  setEditRoleId(null);
+    const handleCancel = () => {
+        setEditRoleId(null);
 
-  roleform.resetForm({
-    values: {
-      roleName: "",
-      permissionIds: activePermissionIds
-    }
-  });
-};
-
-
-
+        roleform.resetForm({
+            values: {
+                roleName: "",
+                permissionIds: activePermissionIds
+            }
+        });
+    };
 
     return (
         <Grid
@@ -191,7 +168,7 @@ const handleCancel = () => {
                 boxShadow: "-3px 4px 23px rgba(0, 0, 0, 0.1)",
                 mb: 3,
             }}
-            className="main-content" 
+            className="main-content"
         >
             <Box
                 sx={{
@@ -200,7 +177,7 @@ const handleCancel = () => {
                     flexDirection: { xs: "column", sm: "row" },
                     mb: 2,
                 }}
-                
+
             >
                 <Typography variant="h6" fontWeight={550} mb={1}>
                     {editRoleId ? "Edit Role" : "Create New Role"}
@@ -208,11 +185,13 @@ const handleCancel = () => {
                 <AddUser />
             </Box>
 
+            <Divider sx={{ borderColor: "#E0E3E7", opacity: 1 }} />
+
             {/* Role Name Input */}
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ my: 2 }}>
                 <CustomInput
-                    label="Role Name"
-                    placeholder="Enter Role Name"
+                    label="Country"
+                    placeholder="You can define a new custom role here"
                     name="roleName"
                     formik={roleform}
                     mb={2}
@@ -222,7 +201,7 @@ const handleCancel = () => {
 
             {/* Permissions */}
             <Box sx={{ mb: 2 }}>
-                <Typography variant="body1" fontWeight={450} mb={2}>
+                <Typography variant="body1" fontWeight={500} mb={2}>
                     Assign Permissions
                 </Typography>
 
@@ -238,7 +217,7 @@ const handleCancel = () => {
                 >
                     {permissions?.data?.data?.length > 0 ? (
                         permissions.data.data.map((perm) => {
-                            const iconSrc = iconMap[perm.key] ||  Dashboard;
+                            // const iconSrc = iconMap[perm.key] || Dashboard;
                             const isChecked = roleform.values.permissionIds.includes(perm._id);
 
                             return (
@@ -255,9 +234,9 @@ const handleCancel = () => {
                                         border: "1px solid #E5E7EB",
                                     }}
                                 >
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mx: 1 }}>
                                         <img
-                                            src={iconSrc}
+                                            src={getIcon(perm.name)}
                                             alt={perm.name}
                                             style={{ width: 25, height: 25 }}
                                         />
@@ -330,7 +309,7 @@ const handleCancel = () => {
                     onClick={roleform.handleSubmit}
                     style={{
                         border: "1px solid var(--Blue)",
-                        backgroundColor:  "var(--Blue)",
+                        backgroundColor: "var(--Blue)",
                         color: "white",
                         padding: "10px 20px",
                         borderRadius: "6px",
@@ -347,3 +326,78 @@ const handleCancel = () => {
 };
 
 export default CreateRole;
+
+const icons = [
+    {
+        name: "Change Password",
+        icon: changepassword
+    },
+    {
+        name: "Flag Reports",
+        icon: flaggedreport
+    },
+    {
+        name: "Settings",
+        icon: settings
+    },
+    {
+        name: "Suspect Sightings",
+        icon: totalsuspect
+    },
+    {
+        name: "Crime Reporting",
+        icon: crimereports
+    },
+    {
+        name: "Chats Groups",
+        icon: totalchatgroups
+    },
+    {
+        name: "Stolen Cars",
+        icon: totalstolencars
+    },
+    {
+        name: "Missing Persons",
+        icon: totalmissingperson
+    },
+    {
+        name: "Reports",
+        icon: reports
+    },
+    {
+        name: "SAPS Wanted",
+        icon: totalsapswanted
+    },
+    {
+        name: "Total Drivers",
+        icon: totaldrivers
+    },
+    {
+        name: "Total Companies",
+        icon: totalcompanies
+    },
+    {
+        name: "SOS Dashboard Access",
+        icon: home
+    },
+    {
+        name: "Armed Sos Amount",
+        icon: totalsosamount
+    },
+    {
+        name: "Total Meeting Links",
+        icon: totalmeetinglinks
+    },
+    {
+        name: "Total Linked Trips",
+        icon: totallinkedtrips
+    },
+    {
+        name: "Sales Agent",
+        icon: totalsalesagent
+    },
+    {
+        name: "Users",
+        icon: totalusers
+    }
+]

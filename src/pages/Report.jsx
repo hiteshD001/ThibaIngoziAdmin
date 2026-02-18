@@ -120,11 +120,9 @@ const Report = ({ id }) => {
     }, [notificationTypes]);
 
     const handleFilterApply = (filters) => {
-        console.log('Filters applied:', filters);
     };
     const handleProvinceChange = (event) => {
         setSelectedProvince(event.target.value);
-        console.log("Selected Province:", event.target.value);
     };
     return (
         <Box>
@@ -218,7 +216,6 @@ const Report = ({ id }) => {
                                         >
                                             <MenuItem value="">All Categories</MenuItem>
                                             {notificationTypes.data?.data?.map((type) => (
-                                                console.log("type ", type),
                                                 <MenuItem key={type._id} value={type._id}>
                                                     {type.display_title}
                                                 </MenuItem>
@@ -466,7 +463,7 @@ const Report = ({ id }) => {
                                                     setCurrentPage(1);
                                                 }}
                                             >
-                                                {[5, 10, 15, 20,50,100].map((num) => (
+                                                {[5, 10, 15, 20, 50, 100].map((num) => (
                                                     <MenuItem key={num} value={num}>
                                                         {num}
                                                     </MenuItem>

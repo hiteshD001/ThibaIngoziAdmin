@@ -1,21 +1,24 @@
 // import bell from "../assets/images/bell.png";
 // import search from "../assets/images/search.png"
 // import icon from "../assets/images/icon.png"
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Avatar, Box, Divider, Typography, IconButton } from "@mui/material";
-import { useGetUser } from "../API Calls/API";
+import { useGetPermissionsByRoleId, useGetUser } from "../API Calls/API";
 import notificationIcon from '../assets/images/notificationIcon.svg';
-import { Companyadmin_menulist, superadmin_menulist } from "./Menulist";
+import { Companyadmin_menulist, driver_menulist, passenger_menulist, salesAgent_menulist, superadmin_menulist } from "./Menulist";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IoIosMenu } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
 const Navbar = ({ setActive, isActive }) => {
-    const [role] = useState(localStorage.getItem("role"))
+    const role = localStorage.getItem('role')
+    const roleId = localStorage.getItem('roleId')
+
+    // const [role] = useState(localStorage.getItem("role"))
     const [userName] = useState(localStorage.getItem('userName'))
     const [selfieImage] = useState(localStorage.getItem('selfieImage'))
     const [contact_name] = useState(localStorage.getItem('contact_name'))
 
-    const [menulist] = useState(role === 'super_admin' ? superadmin_menulist : Companyadmin_menulist())
+    // const [menulist] = useState(role === 'super_admin' ? superadmin_menulist() : Companyadmin_menulist())
     const [pageTitle, setPageTitle] = useState("Dashboard");
     const [isSubMenu, setIsSubMenu] = useState(false);
     const [currentMenu, setCurrentMenu] = useState("Home")
@@ -24,6 +27,16 @@ const Navbar = ({ setActive, isActive }) => {
     const location = useLocation()
     const nav = useNavigate();
 
+    const { data: permissionsData } = useGetPermissionsByRoleId(roleId);
+
+    const menulist = useMemo(() => {
+        if (role === 'super_admin') return superadmin_menulist(permissionsData);
+        if (role === 'company') return Companyadmin_menulist(permissionsData);
+        if (role === 'sales_agent') return salesAgent_menulist(permissionsData);
+        if (role === 'passenger' || role === 'Passanger') return passenger_menulist(permissionsData);
+        if (role === 'driver' || role === 'Driver') return driver_menulist(permissionsData);
+        return [];
+    }, [role, permissionsData]);
 
     useEffect(() => {
         const pathParts = location.pathname.split("/").filter(part => part);
@@ -48,7 +61,14 @@ const Navbar = ({ setActive, isActive }) => {
             setIsSubMenu(false);
             const menuId = pathParts.length > 1 ? pathParts[1] : pathParts[0];
             const currentMenu = menulist.find(menu => menu.id === menuId);
+
             setPageTitle(currentMenu ? currentMenu.name : "Dashboard");
+
+            if (menuId === "settings") {
+                setPageTitle("Settings & Configurations")
+                setIsSubMenu(true);
+            }
+
         }
 
     }, [location, menulist]);
@@ -70,7 +90,7 @@ const Navbar = ({ setActive, isActive }) => {
                 {isSubMenu ? (
                     <>
                         <IconButton onClick={() => nav(-1)} className="me-2">
-                            <IoArrowBack size={24} />
+                            <IoArrowBack size={24} color="#0E0E0E" />
                         </IconButton>
                     </>
                 ) : (

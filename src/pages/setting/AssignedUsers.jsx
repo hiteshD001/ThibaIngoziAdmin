@@ -2,26 +2,24 @@ import { Tooltip, Box, Typography, Avatar } from "@mui/material";
 
 const AssignedUsers = ({ assignedUserCount }) => {
     const role = assignedUserCount.role || {};
-    const users = role.name === 'sales_agent' 
+    const users = role.name === 'sales_agent'
         ? (role.assignedInfluencers || [])
         : (role.assignedUsers || []);
-    console.log("users", users);
     const visibleUsers = users.slice(0, 2);
     const extraCount = users.length - 2;
 
     return (
         <Tooltip
-            arrow
-            placement="bottom-start"
+            placement="bottom"
             title={
                 <Box sx={{ p: 1.5, maxHeight: 220, overflowY: "auto" }}>
                     <Typography sx={{ fontWeight: 600, mb: 1 }}>
                         Assigned Users ({users.length})
                     </Typography>
 
-                    {users.map((usr) => (
+                    {users.map((user) => (
                         <Box
-                            key={usr._id}
+                            key={user._id}
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
@@ -30,13 +28,13 @@ const AssignedUsers = ({ assignedUserCount }) => {
                             }}
                         >
                             <Avatar
-                                src={usr.profileImage}
+                                src={user.profileImage}
                                 sx={{ width: 32, height: 32 }}
                             >
-                                {usr.first_name?.[0]?.toUpperCase() || "U"}
+                                {user.first_name?.[0]?.toUpperCase() || "U"}
                             </Avatar>
                             <Typography fontSize={14}>
-                                {usr.first_name} {usr.last_name}
+                                {user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : "-"}
                             </Typography>
                         </Box>
                     ))}
@@ -45,7 +43,7 @@ const AssignedUsers = ({ assignedUserCount }) => {
             componentsProps={{
                 tooltip: {
                     sx: {
-                        bgcolor: "#fff",
+                        bgcolor: "#fff !important",
                         color: "#000",
                         boxShadow: 3,
                         borderRadius: 2
@@ -53,20 +51,20 @@ const AssignedUsers = ({ assignedUserCount }) => {
                 }
             }}
         >
-            <Box sx={{ display: "flex", alignItems: "center", pl: 1, gap: "7px" }}>
-                {visibleUsers.map((usr, index) => (
+            <Box sx={{ display: "flex", alignItems: "center", pl: 1 }}>
+                {visibleUsers.map((user, index) => (
                     <Avatar
-                        key={usr._id}
-                        src={usr.profileImage}
+                        key={user._id}
+                        src={user.profileImage}
                         sx={{
                             width: 35,
                             height: 35,
                             ml: index === 0 ? 0 : "-10px",
-                            border: "2px solid #fff",
-                            zIndex: visibleUsers.length - index
+                            border: "3px solid #fff",
+                            zIndex: visibleUsers.length + index
                         }}
                     >
-                        {usr.first_name?.[0]?.toUpperCase() || "U"}
+                        {user.first_name?.[0]?.toUpperCase() || "U"}
                     </Avatar>
                 ))}
 
@@ -77,14 +75,14 @@ const AssignedUsers = ({ assignedUserCount }) => {
                             height: 35,
                             ml: "-10px",
                             borderRadius: "50%",
-                            border: "2px solid #fff",
+                            border: "3px solid #fff",
                             fontSize: 12,
                             fontWeight: 500,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             bgcolor: "#E4E4E7",
-                            zIndex: 0
+                            zIndex: visibleUsers.length * 2
                         }}
                     >
                         {extraCount}+

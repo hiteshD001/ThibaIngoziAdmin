@@ -42,15 +42,11 @@ export const WebSocketProvider = ({ children }) => {
 
         socket.onmessage = (event) => {
             let data;
-            // console.log("WebSocket message:", event);
             try {
                 data = JSON.parse(event.data);
-                // console.log("WebSocket data:", data);
             } catch (err) {
-                console.log("Invalid WS message", err);
                 return;
             }
-            // console.log("WebSocket data:", data?.type);
             // Ignore heartbeat pong
             if (data?.type === "pong") return;
 
@@ -59,13 +55,11 @@ export const WebSocketProvider = ({ children }) => {
             // INITIAL_DATA or NEW_SOS: Replace/Append list
             if (data?.type === 'INITIAL_DATA' || data?.type === 'NEW_SOS') {
                 const payload = data.data;
-                console.log(`[WS] Received ${data?.type}, payload length:`, Array.isArray(payload) ? payload.length : 1);
                 let processedList = [];
 
                 if (Array.isArray(payload)) {
                     processedList = payload;
                     setActiveUserLists(processedList);
-                    console.log('[WS] Set activeUserLists with array, count:', processedList.length);
                 } else if (payload && typeof payload === 'object') {
                     // It's a single SOS object, append it to the current list
                     processedList = [payload];
@@ -77,7 +71,6 @@ export const WebSocketProvider = ({ children }) => {
                             return prev.map(item => item._id === payload._id ? payload : item);
                         }
                         const newList = [payload, ...prev];
-                        console.log('[WS] Added new SOS to list, new count:', newList.length);
                         return newList;
                     });
                 }
@@ -169,7 +162,6 @@ export const WebSocketProvider = ({ children }) => {
                     ));
                 } else {
                     // This is a NEW SOS - trigger a refetch signal
-                    // console.log('[WS] New SOS detected via request_reached_update:', sosId, 'Triggering refetch');
 
                     // Trigger alert sound and refetch signal
                     setnewSOS((prev) => ({ count: prev.count + 1, type: "new_sos", sosId: sosId }));
@@ -201,7 +193,6 @@ export const WebSocketProvider = ({ children }) => {
                     ));
                 } else {
                     // This is a NEW SOS - trigger a refetch signal
-                    // console.log('[WS] New SOS detected via request_accepted_update:', sosId, 'Triggering refetch');
 
                     // Trigger alert sound and refetch signal
                     setnewSOS((prev) => ({ count: prev.count + 1, type: "new_sos", sosId: sosId }));
@@ -236,7 +227,6 @@ export const WebSocketProvider = ({ children }) => {
 
             // Handle { sos_update: true, data: [...] } format
             if ((data?.sos_update === true || data?.sos_update === 'true') && Array.isArray(data?.data)) {
-                // console.log('[WS] Received sos_update: true, count:', data.data.length);
                 const updates = data.data;
 
                 // 1. Calculate new Active List

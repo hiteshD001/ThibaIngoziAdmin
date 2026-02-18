@@ -65,7 +65,6 @@ const AgentInformation = () => {
             setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
         }
     }
-    // console.log("tieUsers", tieUsers);
     const agentForm = useFormik({
         initialValues: {
             referralCode: "",
@@ -102,7 +101,6 @@ const AgentInformation = () => {
     const driverList = useGetUserByInfluncer(page, 10, startDate, endDate, params.id, filter, sortBy, sortOrder)
     const totalUsers = driverList.data?.data?.data?.totalCount || 0;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
-    // console.log('test',driverList.data?.data?.data?.influencersData)
     const UserInfo = useGetAgent(params.id)
     const onSuccess = () => {
         toast.success("Agent Updated Successfully.");
@@ -233,7 +231,6 @@ const AgentInformation = () => {
                 return null;
         }
     };
-    // console.log('test',UserInfo.data?.data?.data)
 
     const handleExport = async ({ startDate, endDate, exportFormat }) => {
         try {

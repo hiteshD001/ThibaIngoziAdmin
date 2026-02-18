@@ -30,22 +30,19 @@ const StolenCarDetails = () => {
 
     const params = useParams()
 
-    const missingVehicaleById = useDeleteMissingVehicaleById("missingVehicaleById",params.id)
+    const missingVehicaleById = useDeleteMissingVehicaleById("missingVehicaleById", params.id)
 
     const vehicale = missingVehicaleById?.data?.data
 
     const updateMissingVehicale = usePutMissingVehicale(
-        (data)=>{
-            console.log("data",data)
+        (data) => {
             missingVehicaleById.refetch()
         },
-        (error)=>{
-            console.log("error",error)
+        (error) => {
+            console.log("error", error)
         }
     )
 
-    console.log("missingVehicaleData",vehicale)
-    
     return (
         <Box px={2} sx={{ display: 'flex', gap: 3, flexDirection: 'column' }}>
             <Paper
@@ -121,8 +118,8 @@ const StolenCarDetails = () => {
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={0.5}>
                             {vehicale?.createdAt
-                                                            ? moment(vehicale.createdAt).format('MMM D, YYYY - HH:mm A')
-                                                            : '-'}
+                                ? moment(vehicale.createdAt).format('MMM D, YYYY - HH:mm A')
+                                : '-'}
                         </Typography>
                     </Box>
                 </Box>
@@ -158,38 +155,38 @@ const StolenCarDetails = () => {
                         Evidence
                     </Typography>
                     <Grid container spacing={2} mt={2}>
-                            <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
-                                <Box
-                                    component="img"
-                                    src={vehicale?.image_1}
-                                    alt={`Placeholder ${vehicale?.name}`}
-                                    sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
-                                />
-                            </Grid>
-                            <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
-                                <Box
-                                    component="img"
-                                    src={vehicale?.image_2}
-                                    alt={`Placeholder ${vehicale?.name}`}
-                                    sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
-                                />
-                            </Grid>
-                            <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
-                                <Box
-                                    component="img"
-                                    src={vehicale?.image_3}
-                                    alt={`Placeholder ${vehicale?.name}`}
-                                    sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
-                                />
-                            </Grid>
-                            <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
-                                <Box
-                                    component="img"
-                                    src={vehicale?.image_4}
-                                    alt={`Placeholder ${vehicale?.name}`}
-                                    sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
-                                />
-                            </Grid>
+                        <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
+                            <Box
+                                component="img"
+                                src={vehicale?.image_1}
+                                alt={`Placeholder ${vehicale?.name}`}
+                                sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
+                            <Box
+                                component="img"
+                                src={vehicale?.image_2}
+                                alt={`Placeholder ${vehicale?.name}`}
+                                sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
+                            <Box
+                                component="img"
+                                src={vehicale?.image_3}
+                                alt={`Placeholder ${vehicale?.name}`}
+                                sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 6, sm: 3 }} key={vehicale?._id}>
+                            <Box
+                                component="img"
+                                src={vehicale?.image_4}
+                                alt={`Placeholder ${vehicale?.name}`}
+                                sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                            />
+                        </Grid>
                     </Grid>
                 </Box>
                 <Box sx={{ mt: 4, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', gap: 2 }}>
@@ -207,7 +204,7 @@ const StolenCarDetails = () => {
                         onClick={() => {
                             updateMissingVehicale.mutate({
                                 id: vehicale?._id,
-                                data: { MarkFound : !vehicale?.MarkFound }
+                                data: { MarkFound: !vehicale?.MarkFound }
                             })
                         }}
                         startIcon={<img src={WhiteTick} alt="white tick" />}
@@ -221,7 +218,7 @@ const StolenCarDetails = () => {
                         onClick={() => {
                             updateMissingVehicale.mutate({
                                 id: vehicale?._id,
-                                data: { MarkNotReviewed : !vehicale?.MarkNotReviewed }
+                                data: { MarkNotReviewed: !vehicale?.MarkNotReviewed }
                             })
                         }}
                         startIcon={<img src={WhiteTick} alt="white tick" />}

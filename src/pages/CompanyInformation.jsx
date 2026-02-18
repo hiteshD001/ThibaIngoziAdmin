@@ -264,7 +264,6 @@ const CompanyInformation = ({ isMapLoaded }) => {
     useEffect(() => {
         const user = companyInfo.data?.data?.user;
         if (user) {
-            console.log("user", user)
             CompanyForm.setValues({
                 company_name: user.company_name || "",
                 mobile_no: String(user.mobile_no || ""),
@@ -916,11 +915,6 @@ const CompanyInformation = ({ isMapLoaded }) => {
                                         </Typography>
                                         {/* {(CompanyForm.values.isArmed !== true) && ( */}
                                         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                                            {console.log("Displaying security companies:", {
-                                                savedData: companyInfo.data?.data.user?.securityCompany.map((s) => s.securityCompanyId?.company_name),
-                                                formValues: CompanyForm.values.securityCompany,
-                                                options: securityCompanyOptions
-                                            })}
                                             {companyInfo.data?.data.user?.securityCompany?.map((securityItem, index) => (
                                                 <Typography
                                                     key={index}

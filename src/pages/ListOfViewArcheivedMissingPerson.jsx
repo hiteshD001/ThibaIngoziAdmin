@@ -118,8 +118,6 @@ const ListofMissingPerson = () => {
         true,
     );
 
-    console.log("MissingPersons", MissingPersons)
-
     const totalUsers = MissingPersons?.data?.data?.total;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
 
@@ -298,7 +296,6 @@ const ListofMissingPerson = () => {
                                     </TableRow>
                                     : (MissingPersons?.data?.data?.data?.length > 0 ?
                                         MissingPersons?.data?.data?.data?.map((user) => (
-                                            console.log("user", user),
                                             <TableRow key={user?._id}>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Stack direction="row" alignItems="center" gap={1}>

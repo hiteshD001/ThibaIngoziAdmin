@@ -254,7 +254,6 @@ const VehicleInformation = () => {
                     ].filter(Boolean),
                 });
             }
-            // console.log('driver', driverform.values)
         }
     }, [vehicleInfo.data]);
 
@@ -299,8 +298,6 @@ const VehicleInformation = () => {
         (res) => {
             // Extract JSON data from Axios response
             const responseData = res.data;
-
-            console.log(responseData, "response")
 
             if (responseData?.success === true && responseData?.data?.payouts?.length > 0) {
                 const payout = responseData.data.payouts[0];

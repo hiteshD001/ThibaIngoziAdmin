@@ -155,7 +155,6 @@ const ListOfSalesAgent = () => {
         setIsExporting(true);
         try {
             const allUsers = await fetchAllUsers();
-            console.log("allUsers", allUsers)
             setIsExporting(false);
 
             if (!allUsers || allUsers.length === 0) {
@@ -334,8 +333,6 @@ const ListOfSalesAgent = () => {
 
         if (data) {
             setMenuUserId(null)
-            console.log("working")
-            console.log(menuUserId)
         }
     }, [UserList?.data?.data?.data])
 
@@ -371,7 +368,6 @@ const ListOfSalesAgent = () => {
     const unpaid = getTrendData("unpaid");
     const paid = getTrendData("paid");
     const userTrend = getTrendData("user");
-    console.log(userTrend, "userTrend");
     return (
         <Box p={2}>
             <Grid container spacing={2}>
@@ -748,7 +744,7 @@ const ListOfSalesAgent = () => {
                                                                     alt="user"
                                                                     sx={{ width: 32, height: 32 }}
                                                                 />
-                                                                {user.first_name || "-"} {user.last_name }
+                                                                {user.first_name || "-"} {user.last_name}
 
                                                             </Stack>
                                                         </TableCell>

@@ -23,10 +23,8 @@ const ResetPassword = () => {
         validationSchema: resetPasswordValidation,
         onSubmit: (val) => {
             const token = p.get('token') ? p.get('token') : localStorage.getItem('accessToken');
-            
-            // const token = localStorage.getItem('accessToken')
 
-            console.log("tokennnn",token)
+            // const token = localStorage.getItem('accessToken')
             if (!token) {
                 toast.error("Invalid or expired reset link", toastOption);
                 return;
@@ -38,16 +36,15 @@ const ResetPassword = () => {
 
     const resetpass = useResetPassword(
         (data) => {
-            
+
             setResetSuccessful(true);
-            console.log("data",data?.message)
             toast.success(data?.message, toastOption);
 
         },
-        (error) => toast.error(error.response.data.message || "Error", toastOption), 
+        (error) => toast.error(error.response.data.message || "Error", toastOption),
     );
 
-    
+
     if (resetSuccessful) {
 
         return (

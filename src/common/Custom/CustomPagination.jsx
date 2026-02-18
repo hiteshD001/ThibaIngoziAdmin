@@ -58,7 +58,7 @@ const styles = {
         alignItems: "center",
         marginTop: "20px",
         padding: "10px 0",
-        borderTop: "1px solid #ddd",
+        // borderTop: "1px solid #ddd",
         flexWrap: "wrap",
     },
     left: {

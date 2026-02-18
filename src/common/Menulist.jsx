@@ -23,7 +23,7 @@ import trip from "../assets/images/trip.png"
 import { useState } from "react";
 import WorkInProgress from './WorkInProgress';
 
-const allMenuItems = [
+export const allMenuItems = [
     {
         id: "home",
         name: "Dashboard",
@@ -226,7 +226,6 @@ export const salesAgent_menulist = (permissionsData) => {
 };
 
 export const Companyadmin_menulist = (permissionsData) => {
-    const id = localStorage.getItem("userID");
 
     // Process permissions data if provided
     let activePermissions = [];
@@ -246,12 +245,8 @@ export const Companyadmin_menulist = (permissionsData) => {
         if (!item.permission) {
             return true;
         }
-        console.log(item.permission, "item.permission")
         return activePermissions.includes(item.permission);
     });
-    console.log(allMenuItems, "allMenuItems")
-    console.log(activePermissions, "activePermissions");
-    console.log(filteredMenuItems, "filtered")
 
     return filteredMenuItems;
 };

@@ -305,10 +305,8 @@ const ListOfDrivers = () => {
 
     const handlePopup = (event, type, payoutType, driverData = null) => {
         event.stopPropagation();
-        console.log(driverData, "driverData")
         // If driverData is provided, use individual driver info
         if (driverData) {
-            console.log(driverData.bankId?.branchCode, "driverData.bankId?.branchCode")
             PayoutForm.setValues({
                 user_id: driverData?._id ?? "",
                 firstName: driverData.first_name || "",
@@ -322,7 +320,6 @@ const ListOfDrivers = () => {
             setSelectedDriver(driverData);
         } else {
             // Use company-level data
-            console.log(companyInfo.data?.data.user.bankId?.branchCode, "companyInfo.data?.data.user.bankId?.branchCode")
             const isCompany = payoutType === "company";
             const selectedAmount = isCompany
                 ? companyInfo.data?.data.totalCompanyAmount

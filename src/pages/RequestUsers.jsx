@@ -40,14 +40,9 @@ const RequestUsers = () => {
     const locationData = useGetLocationId(locationId, page, rowsPerPage, debouncedFilter);
     const location = locationData.data?.data;
 
-    console.log("Full API response:", locationData);
-    console.log("Location data:", location);
-    console.log("reqReachUsers:", location?.reqReachUsers);
-    console.log("reqAcceptUsers:", location?.reqAcceptUsers);
-
     // Determine which user list to show based on route
     const isReachedUsers = locationPath.pathname.includes('request-reached-users');
-    
+
     // Access user list and pagination data from response
     const userList = isReachedUsers ? location?.reqReachUsers : location?.reqAcceptUsers;
     const paginationData = isReachedUsers ? location?.reqReachUsersPagination : location?.reqAcceptUsersPagination;
@@ -69,12 +64,12 @@ const RequestUsers = () => {
     const sortedUsers = userList ? [...userList].sort((a, b) => {
         let aValue = a[sortBy] || '';
         let bValue = b[sortBy] || '';
-        
+
         if (typeof aValue === 'string') {
             aValue = aValue.toLowerCase();
             bValue = bValue.toLowerCase();
         }
-        
+
         if (sortOrder === 'asc') {
             return aValue > bValue ? 1 : -1;
         } else {
@@ -111,8 +106,8 @@ const RequestUsers = () => {
             {/* Header */}
             <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                 <Grid>
-                    <Typography variant="h6"  sx={{ mt: 0.5 }} fontWeight={590}>
-                        Total Users : {totalCount} 
+                    <Typography variant="h6" sx={{ mt: 0.5 }} fontWeight={590}>
+                        Total Users : {totalCount}
                     </Typography>
                 </Grid>
             </Grid>
@@ -122,8 +117,8 @@ const RequestUsers = () => {
                 {/* Search Bar */}
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                     <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                                                <Typography variant="h6" fontWeight={590}> {isReachedUsers ? 'Request Reached Users' : 'Request Accepted Users'}</Typography>
-                                            </Grid>
+                        <Typography variant="h6" fontWeight={590}> {isReachedUsers ? 'Request Reached Users' : 'Request Accepted Users'}</Typography>
+                    </Grid>
                     <Grid size={{ xs: 12, md: 8 }}>
                         <TextField
                             variant="outlined"
@@ -170,7 +165,7 @@ const RequestUsers = () => {
                                         User Name
                                     </TableSortLabel>
                                 </TableCell>
-                                
+
                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                     Contact
                                 </TableCell>
@@ -245,11 +240,11 @@ const RequestUsers = () => {
                                                         }}>
                                                         {user.first_name || '-'} {user.last_name || ''}
                                                     </Typography>
-                                                   
+
                                                 </Box>
                                             </Stack>
                                         </TableCell>
-                                        
+
                                         <TableCell sx={{ color: '#4B5563' }}>
                                             <Typography variant="body2">
                                                 {user.mobile_no || '-'}
@@ -262,17 +257,17 @@ const RequestUsers = () => {
                                         </TableCell>
                                         <TableCell sx={{ color: '#4B5563' }}>
                                             <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-                                                 <Chip
-                                                                        label={user.isEnroll ? "Active" : "Inactive"}
-                                                                        sx={{
-                                                                            backgroundColor: user.isEnroll ? '#DCFCE7' : '#E5565A1A',
-                                                                            '& .MuiChip-label': {
-                                                                                textTransform: 'capitalize',
-                                                                                fontWeight: 500,
-                                                                                color: user.isEnroll ? '#15803D' : '#E5565A',
-                                                                            }
-                                                                        }}
-                                                                    />
+                                                <Chip
+                                                    label={user.isEnroll ? "Active" : "Inactive"}
+                                                    sx={{
+                                                        backgroundColor: user.isEnroll ? '#DCFCE7' : '#E5565A1A',
+                                                        '& .MuiChip-label': {
+                                                            textTransform: 'capitalize',
+                                                            fontWeight: 500,
+                                                            color: user.isEnroll ? '#15803D' : '#E5565A',
+                                                        }
+                                                    }}
+                                                />
                                             </Typography>
                                         </TableCell>
                                         <TableCell >
@@ -282,12 +277,12 @@ const RequestUsers = () => {
                                                         <img src={ViewBtn} alt="view button" />
                                                     </IconButton>
                                                 </Tooltip>
-    
+
                                             </Box>
 
 
                                         </TableCell>
-                                                                
+
                                     </TableRow>
                                 ))
                             ) : (
@@ -302,7 +297,7 @@ const RequestUsers = () => {
                                                 No {isReachedUsers ? 'reached' : 'accepted'} users found
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                {isReachedUsers 
+                                                {isReachedUsers
                                                     ? 'No users were reached for this SOS request.'
                                                     : 'No users have accepted this SOS request.'
                                                 }
@@ -316,57 +311,57 @@ const RequestUsers = () => {
                 </TableContainer>
 
                 {/* Pagination */}
-            
-                    <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
-                        <Grid>
-                            <Box display="flex" alignItems="center" gap={2}>
-                                <Typography variant="body2">
-                                    Rows per page:
-                                </Typography>
-                                <FormControl size="small" sx={{ minWidth: 80 }}>
-                                    <Select
-                                        value={rowsPerPage}
-                                        onChange={handleRowsPerPageChange}
-                                        sx={{
-                                            height: '32px',
-                                            fontSize: '14px',
-                                        }}
-                                    >
-                                        <MenuItem value={5}>5</MenuItem>
-                                        <MenuItem value={10}>10</MenuItem>
-                                        <MenuItem value={20}>20</MenuItem>
-                                        <MenuItem value={50}>50</MenuItem>
-                                        <MenuItem value={100}>100</MenuItem>
 
-                                    </Select>
-                                </FormControl>
-                            </Box>
-                        </Grid>
-                        <Grid>
-                            <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
-                                <Typography variant="body2">
-                                    {currentPageFromServer} / {totalPages}
-                                </Typography>
-                                <IconButton
-                                    disabled={!paginationData?.hasPrev}
-                                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                    <Grid>
+                        <Box display="flex" alignItems="center" gap={2}>
+                            <Typography variant="body2">
+                                Rows per page:
+                            </Typography>
+                            <FormControl size="small" sx={{ minWidth: 80 }}>
+                                <Select
+                                    value={rowsPerPage}
+                                    onChange={handleRowsPerPageChange}
+                                    sx={{
+                                        height: '32px',
+                                        fontSize: '14px',
+                                    }}
                                 >
-                                    <NavigateBeforeIcon fontSize="small" sx={{
-                                        color: !paginationData?.hasPrev ? '#BDBDBD !important' : '#1976d2 !important'
-                                    }} />
-                                </IconButton>
-                                <IconButton
-                                    disabled={!paginationData?.hasNext}
-                                    onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                                >
-                                    <NavigateNextIcon fontSize="small" sx={{
-                                        color: !paginationData?.hasNext ? '#BDBDBD !important' : '#1976d2 !important'
-                                    }} />
-                                </IconButton>
-                            </Box>
-                        </Grid>
+                                    <MenuItem value={5}>5</MenuItem>
+                                    <MenuItem value={10}>10</MenuItem>
+                                    <MenuItem value={20}>20</MenuItem>
+                                    <MenuItem value={50}>50</MenuItem>
+                                    <MenuItem value={100}>100</MenuItem>
+
+                                </Select>
+                            </FormControl>
+                        </Box>
                     </Grid>
-                
+                    <Grid>
+                        <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                            <Typography variant="body2">
+                                {currentPageFromServer} / {totalPages}
+                            </Typography>
+                            <IconButton
+                                disabled={!paginationData?.hasPrev}
+                                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                            >
+                                <NavigateBeforeIcon fontSize="small" sx={{
+                                    color: !paginationData?.hasPrev ? '#BDBDBD !important' : '#1976d2 !important'
+                                }} />
+                            </IconButton>
+                            <IconButton
+                                disabled={!paginationData?.hasNext}
+                                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                            >
+                                <NavigateNextIcon fontSize="small" sx={{
+                                    color: !paginationData?.hasNext ? '#BDBDBD !important' : '#1976d2 !important'
+                                }} />
+                            </IconButton>
+                        </Box>
+                    </Grid>
+                </Grid>
+
             </Paper>
         </Box>
     );
