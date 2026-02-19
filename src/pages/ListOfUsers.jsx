@@ -57,7 +57,7 @@ const ListOfUsers = () => {
             key: 'selection'
         }
     ]);
-    
+
     // Calculate startDate and endDate reactively from range state
     const startDate = isRange ? "" : (range[0]?.startDate?.toISOString() || "");
     const endDate = isRange ? "" : (range[0]?.endDate?.toISOString() || "");
@@ -285,7 +285,7 @@ const ListOfUsers = () => {
                                 setCurrentPage(1);
                                 setRowsPerPage(5);
                                 setIsRange(true)
-                                
+
                                 client.removeQueries(['userListFilters']);
                             }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
                                 View All
@@ -347,11 +347,11 @@ const ListOfUsers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="isEnroll"
-                                            active={sortBy === 'isEnroll'}
+                                            id="is_enroll"
+                                            active={sortBy === 'is_enroll'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'isEnroll' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'is_enroll' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Subscription Status
                                         </TableSortLabel>

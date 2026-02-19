@@ -70,24 +70,24 @@ const ListOfCompanies = () => {
   const [statusUpdate, setStatusUpdate] = useState(false);
   const [selectedId, setSelectedId] = useState("");
   const [statusConfirmation, setStatusConfirmation] = useState({ show: false, userId: null, newStatus: null });
-const [isRange, setIsRange] = useState(false);
+  const [isRange, setIsRange] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const startDate = isRange ? "" : (range[0]?.startDate?.toISOString() || "");
-    const endDate = isRange ? "" : (range[0]?.endDate?.toISOString() || "");
+  const endDate = isRange ? "" : (range[0]?.endDate?.toISOString() || "");
   const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder)
   const totalCompany = companyList.data?.data?.totalUsers || 0;
   const totalPages = Math.ceil(totalCompany / rowsPerPage);
-     
+
 
   const handleStatusUpdate = async () => {
     const { userId, newStatus } = statusConfirmation;
-    
+
     try {
       const response = await apiClient.put(`${import.meta.env.VITE_BASEURL}/users/${userId}`, {
-        isActive : newStatus === 'true'
+        isActive: newStatus === 'true'
       });
-      
+
       if (response.data) {
         toast.success(`Company status updated successfully`);
         // Refetch the company list to get updated data
@@ -102,9 +102,9 @@ const [isRange, setIsRange] = useState(false);
   };
 
   const handleDateRangeChange = (newRange) => {
-        setRange(newRange);
-        setIsRange(false); // Reset isRange when specific dates are selected
-    }
+    setRange(newRange);
+    setIsRange(false); // Reset isRange when specific dates are selected
+  }
 
 
   const handleExport = async ({ startDate, endDate, format }) => {
@@ -234,17 +234,17 @@ const [isRange, setIsRange] = useState(false);
                 Add Company
               </Button>
               <Button variant="outlined" onClick={() => {
-                                setfilter("");
-                                setSortBy("first_name");
-                                setSortOrder("asc");
-                                setCurrentPage(1);
-                                setRowsPerPage(5);
-                                setIsRange(true)
-                                
-                                client.removeQueries(['userListFilters']);
-                            }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
-                                View All
-                            </Button>
+                setfilter("");
+                setSortBy("first_name");
+                setSortOrder("asc");
+                setCurrentPage(1);
+                setRowsPerPage(5);
+                setIsRange(true)
+
+                client.removeQueries(['userListFilters']);
+              }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
+                View All
+              </Button>
             </Box>
 
           </Grid>
@@ -300,7 +300,17 @@ const [isRange, setIsRange] = useState(false);
                     </TableSortLabel>
                   </TableCell>
                   {localStorage.getItem('role') === 'super_admin' && (
-                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Status</TableCell>
+                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>
+                      <TableSortLabel
+                        id="isActive"
+                        active={sortBy === 'isActive'}
+                        direction={sortOrder}
+                        onClick={changeSortOrder}
+                        IconComponent={() => <img src={sortBy === 'isActive' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      >
+                        Status
+                      </TableSortLabel>
+                    </TableCell>
                   )}
                   <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                 </TableRow>
@@ -359,7 +369,7 @@ const [isRange, setIsRange] = useState(false);
                                 onChange={(e) => {
                                   const newStatus = e.target.value;
                                   if (newStatus === "") return; // Don't show confirmation for placeholder
-                                  
+
                                   setStatus(newStatus);
                                   setSelectedId(user._id);
                                   setStatusConfirmation({ show: true, userId: user._id, newStatus });
