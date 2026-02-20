@@ -28,7 +28,7 @@ import { autoTable } from 'jspdf-autotable'
 import * as XLSX from 'xlsx';
 import { toast } from "react-toastify";
 import apiClient from '../API Calls/APIClient'
-import { startOfYear } from "date-fns";
+import { startOfYear, startOfDay, endOfDay } from "date-fns";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
@@ -59,8 +59,9 @@ const ListOfUsers = () => {
     ]);
 
     // Calculate startDate and endDate reactively from range state
-    const startDate = isRange ? "" : (range[0]?.startDate?.toISOString() || "");
-    const endDate = isRange ? "" : (range[0]?.endDate?.toISOString() || "");
+    // Use startOfDay/endOfDay to normalize to local day boundaries before converting to ISO
+    const startDate = isRange ? "" : (range[0]?.startDate ? startOfDay(range[0].startDate).toISOString() : "");
+    const endDate = isRange ? "" : (range[0]?.endDate ? endOfDay(range[0].endDate).toISOString() : "");
 
     // Sort 1
     const [sortBy, setSortBy] = useState("first_name");
