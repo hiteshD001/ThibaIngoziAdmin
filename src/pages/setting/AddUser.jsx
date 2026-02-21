@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import {
-    Box, Button, Typography, Dialog, DialogContent, DialogTitle, Grid, FormControl, InputLabel, FormHelperText, IconButton
+    Box, Button, Typography, Dialog, DialogContent, DialogTitle, Grid, FormControl, InputLabel, FormHelperText, IconButton, CircularProgress
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -75,11 +75,15 @@ const AddUser = () => {
         console.error("API Error:", error);
         toast.error(error?.response?.data?.message || "Something went wrong");
     };
-    const { mutate } = useRegister(onSuccess, onError)
+    const { mutate, isPending } = useRegister(onSuccess, onError)
+    const formatRoleLabel = (name) =>
+        (name || "").replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
     const roleOptions =
         roles?.data?.data?.map((role) => ({
-            label: role.name || role.roleName,
-            value: role._id, // Fixed: use _id instead of id
+            label: formatRoleLabel(role.name || role.roleName),
+            rawName: role.name || role.roleName, // original lowercase name for API
+            value: role._id,
             description: role.description || "",
         })) || [];
 
@@ -130,7 +134,26 @@ const AddUser = () => {
                 </DialogTitle>
 
 
-                <DialogContent>
+                <DialogContent sx={{ position: "relative" }}>
+                    {/* Full-form overlay loader while submitting */}
+                    {isPending && (
+                        <Box
+                            sx={{
+                                position: "absolute",
+                                inset: 0,
+                                zIndex: 10,
+                                backgroundColor: "rgba(255, 255, 255, 0.75)",
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 2,
+                                borderRadius: 1,
+                            }}
+                        >
+                            <CircularProgress size={48} sx={{ color: "var(--Blue)" }} />
+                        </Box>
+                    )}
                     <form onSubmit={profileForm.handleSubmit}>
                         <Grid container spacing={2}>
                             {/* First Name */}
@@ -258,7 +281,8 @@ const AddUser = () => {
                                         profileForm.setFieldValue("roleId", e.target.value);
                                         const selectedRole = roleOptions.find(role => role.value === e.target.value);
                                         setRole(selectedRole?.label || '');
-                                        profileForm.setFieldValue("role", selectedRole?.label || '');
+                                        // Send raw lowercase name to API (e.g. "passanger", not "Passanger")
+                                        profileForm.setFieldValue("role", selectedRole?.rawName || '');
                                     }}
                                     options={
                                         isLoading
@@ -386,7 +410,9 @@ const AddUser = () => {
                                     </label>
                                     <Box
                                         sx={{
-                                            border: "2px dashed #E0E3E7",
+                                            border: profileForm.touched.fullImage && profileForm.errors.fullImage
+                                                ? "2px dashed #d32f2f"
+                                                : "2px dashed #E0E3E7",
                                             borderRadius: "12px",
                                             minHeight: 180,
                                             display: "flex",
@@ -431,6 +457,11 @@ const AddUser = () => {
                                             </>
                                         )}
                                     </Box>
+                                    {profileForm.touched.fullImage && profileForm.errors.fullImage && (
+                                        <FormHelperText error sx={{ mt: 0.5 }}>
+                                            {profileForm.errors.fullImage}
+                                        </FormHelperText>
+                                    )}
                                 </Grid>
                             </Grid>
 
@@ -455,6 +486,7 @@ const AddUser = () => {
                                     <Button
                                         type="submit"
                                         variant="contained"
+                                        disabled={isPending}
                                         sx={{
                                             width: 130,
                                             height: 48,
@@ -464,7 +496,9 @@ const AddUser = () => {
                                             fontSize: "16px",
                                         }}
                                     >
-                                        Save User
+                                        {isPending ? (
+                                            <CircularProgress size={20} sx={{ color: "white" }} />
+                                        ) : "Save User"}
                                     </Button>
                                 </Box>
                             </Grid>

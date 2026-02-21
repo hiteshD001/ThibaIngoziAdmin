@@ -75,6 +75,15 @@ export const Login = () => {
     };
 
     const handleLoginSuccess = (res) => {
+        const userRole = res.data.user.role;
+
+        // Block app-only users from accessing the admin dashboard
+        const appOnlyRoles = ['driver', 'passanger', 'passenger'];
+        if (appOnlyRoles.includes(userRole)) {
+            toast.error("Access denied. Drivers and Passengers can only access the mobile app.", toastOption);
+            return;
+        }
+
         toast.success("Logged In successfully.");
         localStorage.clear();
         localStorage.setItem("accessToken", res.data.accessToken);
@@ -108,6 +117,7 @@ export const Login = () => {
             }
         }
     };
+
 
     const handle2FABack = () => {
         setShow2FA(false);

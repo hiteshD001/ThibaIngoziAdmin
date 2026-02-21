@@ -190,7 +190,7 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
             {/* Role Name Input */}
             <Box sx={{ my: 2 }}>
                 <CustomInput
-                    label="Country"
+                    label="Role Name"
                     placeholder="You can define a new custom role here"
                     name="roleName"
                     formik={roleform}
@@ -205,84 +205,88 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                     Assign Permissions
                 </Typography>
 
-                <Grid
-                    container
-                    sx={{
-                        border: "1px solid #E5E7EB",
-                        backgroundColor: "#F9FAFB",
-                        borderRadius: "6px",
-                        p: 3,
-                    }}
-                    spacing={2}
-                >
-                    {permissions?.data?.data?.length > 0 ? (
-                        permissions.data.data.map((perm) => {
-                            // const iconSrc = iconMap[perm.key] || Dashboard;
-                            const isChecked = roleform.values.permissionIds.includes(perm._id);
-
-                            return (
-                                <Grid
-                                    key={perm._id}
-                                    size={{ xs: 12, md: 6 }}
-                                    sx={{
-                                        p: 1,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        backgroundColor: "white",
-                                        borderRadius: "10px",
-                                        border: "1px solid #E5E7EB",
-                                    }}
-                                >
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mx: 1 }}>
-                                        <img
-                                            src={getIcon(perm.name)}
-                                            alt={perm.name}
-                                            style={{ width: 25, height: 25 }}
-                                        />
-                                        <Typography
-                                            variant="subtitle1"
-                                            sx={{ color: "#384141", fontWeight: 500 }}
-                                        >
-                                            {perm.name}
-                                        </Typography>
-                                    </Box>
-
-                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                        {/* Single Switch for role assignment (permission must be active to assign) */}
-                                        {editRoleId ?
-                                            <CustomSwitch
-                                                checked={isChecked}
-                                                disabled={perm.status !== "active"}
-                                                onChange={() => {
-                                                    // Only toggle role assignment if permission is active
-                                                    if (perm.status === "active") {
-                                                        handlePermissionToggle(perm._id);
-                                                    }
-                                                }}
-                                                size="small"
-                                            /> :
-                                            <CustomSwitch
-                                                checked={roleform.values.permissionIds.includes(perm._id)}
-                                                disabled={perm.status !== "active"}
-                                                onChange={() => handlePermissionStatusToggle(perm)}
-                                                size="small"
-                                            />}
-                                    </Box>
-                                </Grid>
-                            );
-                        })
-                    ) : (
-                        <Typography
-                            variant="body2"
-                            align="center"
-                            sx={{ width: "100%", color: "text.secondary", py: 2 }}
+                {(() => {
+                    const isAppOnlyRole = editRoleId && ['driver', 'passanger', 'passenger'].includes(roleData?.data?.data?.name);
+                    return (
+                        <Grid
+                            container
+                            sx={{
+                                border: "1px solid #E5E7EB",
+                                backgroundColor: "#F9FAFB",
+                                borderRadius: "6px",
+                                p: 3,
+                            }}
+                            spacing={2}
                         >
-                            No permissions available
-                        </Typography>
-                    )}
-                </Grid>
+                            {permissions?.data?.data?.length > 0 ? (
+                                permissions.data.data.map((perm) => {
+                                    const isChecked = isAppOnlyRole ? false : roleform.values.permissionIds.includes(perm._id);
+                                    const isDisabled = isAppOnlyRole || perm.status !== "active";
+
+                                    return (
+                                        <Grid
+                                            key={perm._id}
+                                            size={{ xs: 12, md: 6 }}
+                                            sx={{
+                                                p: 1,
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "space-between",
+                                                backgroundColor: "white",
+                                                borderRadius: "10px",
+                                                border: "1px solid #E5E7EB",
+                                            }}
+                                        >
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mx: 1 }}>
+                                                <img
+                                                    src={getIcon(perm.name)}
+                                                    alt={perm.name}
+                                                    style={{ width: 25, height: 25 }}
+                                                />
+                                                <Typography
+                                                    variant="subtitle1"
+                                                    sx={{ color: "#384141", fontWeight: 500 }}
+                                                >
+                                                    {perm.name}
+                                                </Typography>
+                                            </Box>
+
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                                {editRoleId ?
+                                                    <CustomSwitch
+                                                        checked={isChecked}
+                                                        disabled={isDisabled}
+                                                        onChange={() => {
+                                                            if (!isAppOnlyRole && perm.status === "active") {
+                                                                handlePermissionToggle(perm._id);
+                                                            }
+                                                        }}
+                                                        size="small"
+                                                    /> :
+                                                    <CustomSwitch
+                                                        checked={roleform.values.permissionIds.includes(perm._id)}
+                                                        disabled={perm.status !== "active"}
+                                                        onChange={() => handlePermissionStatusToggle(perm)}
+                                                        size="small"
+                                                    />}
+                                            </Box>
+                                        </Grid>
+                                    );
+                                })
+                            ) : (
+                                <Typography
+                                    variant="body2"
+                                    align="center"
+                                    sx={{ width: "100%", color: "text.secondary", py: 2 }}
+                                >
+                                    No permissions available
+                                </Typography>
+                            )}
+                        </Grid>
+                    );
+                })()}
             </Box>
+
 
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
                 {editRoleId && (

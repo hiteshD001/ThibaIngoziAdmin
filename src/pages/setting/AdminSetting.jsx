@@ -79,7 +79,7 @@ const AdminSetting = () => {
                     />
                 </Grid>
                 {/* ---------------- User Assignment ---------------- */}
-                <UserAssignment />
+                <UserAssignment editRoleId={editRoleId} />
             </Grid >
 
             {/* Exisiting Roles */}
@@ -171,7 +171,7 @@ const AdminSetting = () => {
                                                                 >
                                                                     <img src={edit} alt="edit" style={{ width: 30, height: 30 }} />
                                                                 </IconButton>
-                                                                {!['company', "passanger", "super_admin", "driver", "sales_agent", "passenger"].includes(role.name) && (
+                                                                {!['super_admin', 'driver', 'passanger', 'company', 'sales_agent'].includes(role.name) && (
                                                                     <IconButton
                                                                         size="medium"
                                                                         onClick={() => {

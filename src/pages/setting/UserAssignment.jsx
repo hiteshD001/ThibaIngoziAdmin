@@ -20,7 +20,7 @@ import checked from "../../assets/images/checkboxIcon.svg";
 import { useQueryClient } from "@tanstack/react-query";
 import Loader from "../../common/Loader";
 
-const UserAssignment = () => {
+const UserAssignment = ({ editRoleId }) => {
     const [filter, setFilter] = useState("");
     const [selectedUsers, setSelectedUsers] = useState([]);
     const client = useQueryClient()
@@ -163,6 +163,7 @@ const UserAssignment = () => {
                                 : [{ label: "No Companies Found", value: "" }]
                     }
 
+                    disabled={!!editRoleId}
                     error={userform.errors.company_id}
                     helperText={userform.errors.company_id}
                 />
@@ -183,6 +184,7 @@ const UserAssignment = () => {
                                 }))
                                 : [{ label: "No Roles Found", value: "" }]
                     }
+                    disabled={!!editRoleId}
                     error={userform.errors.role}
                 />
 

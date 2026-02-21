@@ -59,26 +59,28 @@ export const salesAgentValidation = yup.object({
 })
 
 export const profileValidation_s = yup.object({
-  first_name: yup.string().required("This is a required field"),
-  last_name: yup.string().required("This is a required field"),
-  email: yup.string().required("Email is Required").email("Invalid email"),
-  mobile_no: yup.string().required("Mobile Number is Required"),
-  mobile_no_country_code: yup.string().required(),
-  country: yup.string().required("Country is required"),
-  province: yup.string().required("Province is required"),
-  city: yup.string().required("City is required"),
-  suburb: yup.string().required("Suburb is required"),
-  street: yup.string().required("Street is required"),
-  postal_code: yup.string().required("Postal Code is required"),
-  fullImage: yup.string().required("Profile Image is required"),
-  roleId: yup.string().required("Role is required"),
-  password: yup.string()
-    .required("Password is Required")
-    .min(8)
-    .matches(/[A-Z]/)
-    .matches(/[a-z]/)
-    .matches(/[0-9]/)
-    .matches(/[!@#$%^&*]/),
+    first_name: yup.string().required("This is a required field"),
+    last_name: yup.string().required("This is a required field"),
+    email: yup.string().required("Email is Required").email("Invalid email"),
+    mobile_no: yup.string().required("Mobile Number is Required"),
+    mobile_no_country_code: yup.string().required(),
+    country: yup.string().required("Country is required"),
+    province: yup.string().required("Province is required"),
+    city: yup.string().required("City is required"),
+    suburb: yup.string().required("Suburb is required"),
+    street: yup.string().required("Street is required"),
+    postal_code: yup.string().required("Postal Code is required"),
+    fullImage: yup.mixed()
+        .required("Profile Image is required")
+        .test("is-valid-image", "Profile Image is required", (value) => !!value),
+    roleId: yup.string().required("Role is required"),
+    password: yup.string()
+        .required("Password is Required")
+        .min(8)
+        .matches(/[A-Z]/)
+        .matches(/[a-z]/)
+        .matches(/[0-9]/)
+        .matches(/[!@#$%^&*]/),
 });
 
 export const sales_agent_e = yup.object({
@@ -124,7 +126,7 @@ export const companyValidation = yup.object({
     accountType: yup.string().required("Account Type is required"),
     accountHolderName: yup.string().required("Account Holder Name is required"),
     company_bio: yup.string().required("Bio is required"),
-    isWeb : yup.boolean()
+    isWeb: yup.boolean()
 })
 
 export const companyEditValidation = yup.object({
