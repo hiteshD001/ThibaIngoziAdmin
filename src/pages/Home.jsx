@@ -802,7 +802,6 @@ const Home = ({ isMapLoaded, }) => {
                                                     <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
                                                         {user?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
                                                     </TableCell>
-                                                    {console.log(user, "user")}
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
