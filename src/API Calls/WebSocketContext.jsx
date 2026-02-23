@@ -25,7 +25,9 @@ export const WebSocketProvider = ({ children }) => {
     }, [activeUserLists]);
 
     useEffect(() => {
-        const socket = new WebSocket(url);
+        const token = localStorage.getItem("accessToken");
+        const wsUrl = token ? `${url}?token=${token}` : url;
+        const socket = new WebSocket(wsUrl);
         socketRef.current = socket;
 
         socket.onopen = () => {
