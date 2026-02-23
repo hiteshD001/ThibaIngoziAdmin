@@ -631,6 +631,7 @@ const Home = ({ isMapLoaded, }) => {
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Trip Type</TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -798,6 +799,10 @@ const Home = ({ isMapLoaded, }) => {
                                                             </div>
                                                         }
                                                     </TableCell>
+                                                    <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
+                                                        {user?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
+                                                    </TableCell>
+                                                    {console.log(user, "user")}
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
