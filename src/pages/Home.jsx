@@ -1223,7 +1223,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         {row?.type?.display_title}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {row?.help_received}
+                                                        {row?.help_received === "help_received" ? "Help Received" : row?.help_received === 'cancel' ? "Cancel" : "-"}
                                                     </TableCell>
                                                     <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
                                                         {row?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
