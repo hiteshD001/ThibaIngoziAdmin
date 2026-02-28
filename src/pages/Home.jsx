@@ -638,6 +638,7 @@ const Home = ({ isMapLoaded, }) => {
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Trip Type</TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -664,7 +665,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                 </Stack>
                                                             ) : (
                                                                 user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${user?._id}`} className="link">
+                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id || user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={
@@ -678,7 +679,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${user?._id}`} className="link">
+                                                                    <Link to={`/home/total-users/user-information/${user?.user_id?._id || user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={
@@ -805,6 +806,9 @@ const Home = ({ isMapLoaded, }) => {
                                                             </div>
                                                         }
                                                     </TableCell>
+                                                    <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
+                                                        {user?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
+                                                    </TableCell>
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
@@ -814,6 +818,41 @@ const Home = ({ isMapLoaded, }) => {
                                                             </Tooltip>
                                                         </Box>
                                                     </TableCell>
+                                                    {user?.type?.type === "linked_sos" ? (
+                                                        <TableCell>
+                                                            <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
+                                                                {user?.otherUser?._id ? (
+                                                                    <Tooltip title="Other User" arrow placement="top">
+                                                                        <Button
+                                                                            variant="contained"
+                                                                            sx={{
+                                                                                display: "flex",
+                                                                                alignItems: "center",
+                                                                                gap: "6px",
+                                                                                textTransform: "none",
+                                                                                fontWeight: 500,
+                                                                                fontSize: "14px",
+                                                                                color: "#fff",
+                                                                                backgroundColor: "#1E73E8", // same as your image blue
+                                                                                borderRadius: "8px",
+                                                                                padding: "6px 14px",
+                                                                                whiteSpace: "nowrap",
+                                                                                minWidth: "auto",
+                                                                                "&:hover": { backgroundColor: "#1864c7" },
+                                                                            }}
+                                                                            onClick={() =>
+                                                                                nav(`total-drivers/driver-information/${user?.otherUser?._id}`)
+                                                                            }
+                                                                        >
+                                                                            Other User
+                                                                        </Button>
+                                                                    </Tooltip>
+                                                                ) : (
+                                                                    "-"
+                                                                )}
+                                                            </Box>
+                                                        </TableCell>
+                                                    ) : <TableCell sx={{ textAlign: 'center' }}>-</TableCell>}
                                                 </TableRow>
                                             ))
                                             :
@@ -1191,7 +1230,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         {row?.type?.display_title}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {row?.help_received}
+                                                        {row?.help_received === "help_received" ? "Help Received" : row?.help_received === 'cancel' ? "Cancel" : "-"}
                                                     </TableCell>
                                                     <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
                                                         {row?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}

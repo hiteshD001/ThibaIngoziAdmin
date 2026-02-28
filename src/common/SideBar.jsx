@@ -1,8 +1,7 @@
 import logo4 from "../assets/images/logo4.svg";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { superadmin_menulist, Companyadmin_menulist, salesAgent_menulist, passenger_menulist, driver_menulist } from "./Menulist";
-import { useGetPermissionsByRoleId } from "../API Calls/API";
 import { LogoutConfirm } from "./ConfirmationPOPup";
 
 const SideBar = ({ setActive, isActive, sidebarRef }) => {

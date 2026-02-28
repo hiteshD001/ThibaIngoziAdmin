@@ -190,4 +190,3 @@ export const vehicleValidation = yup.object({
     hijakingPass: yup.string().optional().matches(/^\d{6}$/, 'password should be last 6 digits of IMEI number'),
     passport_no: yup.string().optional()
 })
-

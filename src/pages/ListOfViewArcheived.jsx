@@ -43,11 +43,11 @@ const ListOfViewArcheived = () => {
   ]);
 
   // Sort 1
-  const [sortBy, setSortBy] = useState("first_name");
-  const [sortOrder, setSortOrder] = useState("asc");
-   const role = localStorage.getItem("role");
-   const companyId = role === 'company' ? localStorage.getItem("userID") : null;
-  
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const role = localStorage.getItem("role");
+  const companyId = role === 'company' ? localStorage.getItem("userID") : null;
+
 
   const changeSortOrder = (e) => {
     const field = e.target.id;
@@ -62,7 +62,7 @@ const ListOfViewArcheived = () => {
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate, archived, sortBy, sortOrder,companyId);
+  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate, archived, sortBy, sortOrder, companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
@@ -374,14 +374,14 @@ const ListOfViewArcheived = () => {
                                   <img src={Listtrip} alt="view button" />
                                 </IconButton>
                               </Tooltip>
-                              {role !== 'company' &&(
+                              {role !== 'company' && (
                                 <Tooltip title="Delete" arrow placement="top">
-                                <IconButton onClick={() => setConfirmation(data._id)}>
-                                  <img src={delBtn} alt="Delete" />
-                                </IconButton>
-                              </Tooltip>
+                                  <IconButton onClick={() => setConfirmation(data._id)}>
+                                    <img src={delBtn} alt="Delete" />
+                                  </IconButton>
+                                </Tooltip>
                               )}
-                              
+
                             </Box>
                             {confirmation === data._id && (
                               <DeleteConfirm id={data._id} setconfirmation={setConfirmation} trip="trip" />
@@ -420,7 +420,7 @@ const ListOfViewArcheived = () => {
                     '& .MuiSelect-select': { padding: '4px 10px' },
                   }}
                 >
-                  {[5, 10, 15, 20,50,100].map((num) => (
+                  {[5, 10, 15, 20, 50, 100].map((num) => (
                     <MenuItem key={num} value={num}>{num}</MenuItem>
                   ))}
                 </Select>

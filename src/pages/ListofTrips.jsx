@@ -45,8 +45,8 @@ const ListOfTrips = () => {
   ]);
 
   // Sort 1
-  const [sortBy, setSortBy] = useState("first_name");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
   const role = localStorage.getItem("role");
 
   const changeSortOrder = (e) => {

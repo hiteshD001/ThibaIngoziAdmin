@@ -5,9 +5,9 @@ import { loginValidation_salesAgent } from "../common/FormValidation";
 import { toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import Loader from "../common/Loader";
-import { useUserLogin, useGetPermissionsByRoleId } from "../API Calls/API";
+import { useUserLogin } from "../API Calls/API";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import TwoFactorAuth from "../components/TwoFactorAuth";
 import ForgotPassword from "../components/ForgotPassword";
 

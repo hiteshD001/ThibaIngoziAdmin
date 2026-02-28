@@ -14,12 +14,8 @@ import {
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import whiteplus from '../assets/images/whiteplus.svg';
+import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
-import editBtn from '../assets/images/editBtn.svg'
-import pauseBtn from '../assets/images/pauseBtn.svg'
-import playBtn from '../assets/images/playBtn.svg'
-import activeStatus from '../assets/images/activeStatus.svg'
-import inactiveStatus from '../assets/images/inactiveStatus.svg'
 // import icon from "../assets/images/icon.png";
 import search from '../assets/images/search.svg';
 import arrowup from '../assets/images/arrowup.svg';
@@ -40,13 +36,9 @@ import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
 import apiClient from '../API Calls/APIClient'
 import calender from '../assets/images/calender.svg';
 import { startOfYear } from "date-fns";
-import { useQueryClient } from "@tanstack/react-query";
 
 
 const ListOfCompanies = () => {
-
-  const client = useQueryClient();
-
   const nav = useNavigate();
   const [range, setRange] = useState([
     {
@@ -87,25 +79,13 @@ const ListOfCompanies = () => {
   const totalCompany = companyList.data?.data?.totalUsers || 0;
   const totalPages = Math.ceil(totalCompany / rowsPerPage);
 
-  const getFlagColor = (status) => {
-    switch (status) {
-      case true:
-        return { bg: "#DCFCE7", text: "#166534" }
-
-      case false:
-        return { bg: "#E5565A1A", text: "#E5565A" }
-
-      default:
-        return { bg: "#F3F4F6", text: "#4B5563" }
-    }
-  }
 
   const handleStatusUpdate = async () => {
     const { userId, newStatus } = statusConfirmation;
 
     try {
       const response = await apiClient.put(`${import.meta.env.VITE_BASEURL}/users/${userId}`, {
-        isActive: newStatus
+        isActive: newStatus === 'true'
       });
 
       if (response.data) {
@@ -125,6 +105,7 @@ const ListOfCompanies = () => {
     setRange(newRange);
     setIsRange(false); // Reset isRange when specific dates are selected
   }
+
 
   const handleExport = async ({ startDate, endDate, format }) => {
     try {
@@ -199,7 +180,6 @@ const ListOfCompanies = () => {
       toast.error("Export failed.");
     }
   };
-
   return (
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
@@ -320,7 +300,17 @@ const ListOfCompanies = () => {
                     </TableSortLabel>
                   </TableCell>
                   {localStorage.getItem('role') === 'super_admin' && (
-                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Status</TableCell>
+                    <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>
+                      <TableSortLabel
+                        id="isActive"
+                        active={sortBy === 'isActive'}
+                        direction={sortOrder}
+                        onClick={changeSortOrder}
+                        IconComponent={() => <img src={sortBy === 'isActive' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      >
+                        Status
+                      </TableSortLabel>
+                    </TableCell>
                   )}
                   <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                 </TableRow>
@@ -367,42 +357,29 @@ const ListOfCompanies = () => {
 
                         <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
                           {localStorage.getItem('role') === 'super_admin' && (
-                            <Typography
-                              sx={{
-                                marginX: "auto",
-                                width: "fit-content",
-                                borderRadius: "6rem",
-                                padding: "0.4rem 0.8rem",
-                                textTransform: "capitalize",
-                                bgcolor: getFlagColor(user?.isActive)?.bg,
-                                color: getFlagColor(user?.isActive)?.text
-                              }}
-                            >
-                              {user?.isActive ? "Active" : "Inactive"}
-                            </Typography>
-                            // <div className="select-container">
-                            //   <select
-                            //     name="active"
-                            //     className="my-custom-select"
-                            //     style={{
-                            //       width: '100px',
-                            //       padding: '7px',
-                            //     }}
-                            //     value={user?.isActive === true ? true : false}
-                            //     onChange={(e) => {
-                            //       const newStatus = e.target.value;
-                            //       if (newStatus === "") return; // Don't show confirmation for placeholder
+                            <div className="select-container">
+                              <select
+                                name="active"
+                                className="my-custom-select"
+                                style={{
+                                  width: '100px',
+                                  padding: '7px',
+                                }}
+                                value={user?.isActive === true ? true : false}
+                                onChange={(e) => {
+                                  const newStatus = e.target.value;
+                                  if (newStatus === "") return; // Don't show confirmation for placeholder
 
-                            //       setStatus(newStatus);
-                            //       setSelectedId(user._id);
-                            //       setStatusConfirmation({ show: true, userId: user._id, newStatus });
-                            //     }}
-                            //   >
-                            //     <option value="" hidden> Select </option>
-                            //     <option value="true"> Active  </option>
-                            //     <option value="false"> Inactive </option>
-                            //   </select>
-                            // </div>
+                                  setStatus(newStatus);
+                                  setSelectedId(user._id);
+                                  setStatusConfirmation({ show: true, userId: user._id, newStatus });
+                                }}
+                              >
+                                <option value="" hidden> Select </option>
+                                <option value="true"> Active  </option>
+                                <option value="false"> Inactive </option>
+                              </select>
+                            </div>
                           )}
                         </TableCell>
 
@@ -412,21 +389,16 @@ const ListOfCompanies = () => {
                             display: 'flex',
                             flexDirection: 'row',
                           }}>
-                            <Tooltip title="Edit" arrow placement="top">
+                            <Tooltip title="View" arrow placement="top">
                               <IconButton onClick={() =>
                                 nav(`/home/total-companies/company-information/${user?._id}`)
                               }>
-                                <img src={editBtn} alt="view button" />
+                                <img src={ViewBtn} alt="view button" />
                               </IconButton>
                             </Tooltip>
                             <Tooltip title="Delete" arrow placement="top">
                               <IconButton onClick={() => setconfirmation(user?._id)}>
                                 <img src={delBtn} alt="delete button" />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Status" arrow placement="top">
-                              <IconButton onClick={() => setStatusConfirmation({ show: true, userId: user._id, newStatus: !user?.isActive })}>
-                                <img src={user?.isActive ? pauseBtn : playBtn} alt="status button" />
                               </IconButton>
                             </Tooltip>
                             {confirmation === user?._id && (
@@ -436,39 +408,26 @@ const ListOfCompanies = () => {
 
                           {statusConfirmation.show && statusConfirmation.userId === user._id && (
                             <Dialog open={true} onClose={() => setStatusConfirmation({ show: false, userId: null, newStatus: null })} maxWidth="xs" fullWidth>
-                              <DialogTitle sx={{ display: 'flex', flexDirection: 'column', alignItems: "center", gap: 1.5 }}>
-                                <img src={user?.isActive ? inactiveStatus : activeStatus} style={{ maxHeight: "64px", maxWidth: "64px" }} />
-                                <Typography
-                                  variant="h6"
-                                  fontSize="1.5rem"
-                                  fontWeight="700"
-                                  color="#0E0E0E"
-                                >
-                                  {user?.isActive ? "Deactivate Company?" : "Activate Company?"}
-                                </Typography>
+                              <DialogTitle sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+                                <Typography variant="h6">Status</Typography>
                               </DialogTitle>
-                              <DialogContent sx={{ textAlign: "center" }}>
-                                {
-                                  user?.isActive ?
-                                    <Typography color="#4B5563">Are you sure you want to deactivate <span style={{ fontWeight: 700 }}>{`${user.company_name ?? "This Company"}`}</span>? All drivers, trips, and services for this company will be paused.</Typography>
-                                    :
-                                    <Typography color="#4B5563">Activating <span style={{ fontWeight: 700 }}>{`${user.company_name ?? "This Company"}`}</span> will allow the company to resume all services.</Typography>
-                                }
+                              <DialogContent>
+                                <Typography>{`Are you sure you want to set this company to ${statusConfirmation.newStatus === 'true' ? 'active' : 'inactive'}?`}</Typography>
                               </DialogContent>
-                              <DialogActions style={{ padding: "20px 24px" }}>
+                              <DialogActions>
                                 <Button
                                   sx={{ borderRadius: '8px', color: 'black', border: '1px solid rgb(175, 179, 189)' }}
                                   variant="outlined"
                                   onClick={() => setStatusConfirmation({ show: false, userId: null, newStatus: null })}
                                 >
-                                  Cancel
+                                  No
                                 </Button>
                                 <Button
                                   variant="contained"
                                   onClick={handleStatusUpdate}
-                                  sx={{ backgroundColor: user?.isActive ? '#EB5757' : '#367BE0', borderRadius: '8px' }}
+                                  sx={{ backgroundColor: '#EB5757', borderRadius: '8px' }}
                                 >
-                                  {user?.isActive ? "Deactivate" : "Active"}
+                                  Yes
                                 </Button>
                               </DialogActions>
                             </Dialog>

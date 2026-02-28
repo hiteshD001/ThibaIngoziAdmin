@@ -19,7 +19,7 @@ import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
 import calender from '../assets/images/calender.svg';
 import { useQueryClient } from "@tanstack/react-query";
 import jsPDF from 'jspdf';
-import { startOfYear } from "date-fns";
+import { startOfYear, format } from "date-fns";
 import { autoTable } from 'jspdf-autotable'
 import * as XLSX from 'xlsx';
 import { toast } from "react-toastify";
@@ -1042,11 +1042,11 @@ const ListOfDrivers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="isEnroll"
-                                            active={sortBy === 'isEnroll'}
+                                            id="subscription_status"
+                                            active={sortBy === 'subscription_status'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'isEnroll' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'subscription_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Subscription Status
                                         </TableSortLabel>
@@ -1135,11 +1135,15 @@ const ListOfDrivers = () => {
                                                 </TableCell>
 
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    {driver.tag_connection || "-"}
+                                                    {driver.tag_connection
+                                                        ? format(new Date(driver.tag_connection), 'HH:mm:ss - dd/MM/yyyy')
+                                                        : "-"}
                                                 </TableCell>
 
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    {driver.tag_disconnection || "-"}
+                                                    {driver.tag_disconnection
+                                                        ? format(new Date(driver.tag_disconnection), 'HH:mm:ss - dd/MM/yyyy')
+                                                        : "-"}
                                                 </TableCell>
 
                                                 <TableCell>

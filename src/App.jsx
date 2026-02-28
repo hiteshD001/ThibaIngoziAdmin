@@ -316,8 +316,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <ListOfSapsWanted />
-                            // element: <WorkInProgress />
+                            // element: <ListOfSapsWanted />
+                            element: <WorkInProgress />
 
                         },
                         {
@@ -373,8 +373,8 @@ function App() {
                     children: [
                         {
                             path: "",
-                            element: <FlaggedReport />
-                            // element: <WorkInProgress />
+                            // element: <FlaggedReport />
+                            element: <WorkInProgress />
 
                         },
                     ]
@@ -400,15 +400,6 @@ function App() {
                         }
                     ]
                 },
-                //  {
-                //     path: "subscription",
-                //     children: [
-                //         {
-                //             path: "",
-                //             element: <ListOfSubscription />
-                //         },
-                //     ]
-                // },
                 {
                     path: "hardware-management",
                     element: <RouteGuard><HardwareManagement /></RouteGuard>
