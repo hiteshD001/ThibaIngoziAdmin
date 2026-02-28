@@ -310,6 +310,13 @@ const Home = ({ isMapLoaded, }) => {
         handleAlert();
     }, [newSOS.count]);
 
+    // Stop audio helper
+    const stopAudio = () => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setIsPlaying(false);
+    };
+
     useEffect(() => {
         if (!Array.isArray(activeUserList)) return;
 
@@ -321,26 +328,25 @@ const Home = ({ isMapLoaded, }) => {
         const previousLength = prevLengthRef.current;
 
         // First run setup
-        if (previousLength === null) {
+        if (previousLength === null || previousLength === undefined) {
             prevLengthRef.current = currentLength;
             return;
         }
 
         // Trigger only when count changes
         if (previousLength !== currentLength) {
+            // If the number of active SOS requests decreases (meaning one was resolved)
+            // we stop the continuous ringing.
+            if (currentLength < previousLength) {
+                stopAudio();
+            }
+
             prevLengthRef.current = currentLength;   // update stored length
             refetchRecentSOS();
             queryClient.invalidateQueries(['chartData'], { exact: false });
             queryClient.invalidateQueries(['hotspot'], { exact: false });
         }
     }, [activeUserList, refetchRecentSOS]); // Removed activeUserList.length to track content updates
-
-    // Stop audio helper
-    const stopAudio = () => {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-        setIsPlaying(false);
-    };
 
     useEffect(() => {
         const status = userinfo?.data?.data?.user?.twoFactorAuth?.enabled
