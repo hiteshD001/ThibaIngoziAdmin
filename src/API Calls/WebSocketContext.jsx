@@ -110,12 +110,15 @@ export const WebSocketProvider = ({ children }) => {
                 }
             }
 
-            // SOS_UPDATE: Full list update OR Single Update
-            if (data?.type === 'SOS_UPDATE') {
-                if (Array.isArray(data.data)) {
-                    setActiveUserLists(data.data);
-                } else if (data.data && typeof data.data === 'object') {
-                    const updatedSOS = data.data;
+            // SOS_UPDATE or ACTIVE_SOS_UPDATE: Full list update OR Single Update
+            if (data?.type === 'SOS_UPDATE' || data?.type === 'ACTIVE_SOS_UPDATE') {
+                const payloadData = data.data || data.payload;
+                if (Array.isArray(payloadData)) {
+                    setActiveUserLists(payloadData.filter(item => {
+                        return item.sosType === 'ARMED_SOS' ? !item.armedSosstatus : !item.help_received;
+                    }));
+                } else if (payloadData && typeof payloadData === 'object') {
+                    const updatedSOS = payloadData;
 
                     // Check if the SOS is resolved (cancelled or help received)
                     // Logic adapted from Home.jsx display condition:
@@ -228,7 +231,9 @@ export const WebSocketProvider = ({ children }) => {
 
             // Backend structured payload
             if (data?.type === "ACTIVE_SOS" && Array.isArray(data?.payload)) {
-                setActiveUserLists(data.payload); // replace
+                setActiveUserLists(data.payload.filter(item => {
+                    return item.sosType === 'ARMED_SOS' ? !item.armedSosstatus : !item.help_received;
+                })); // replace
                 return;
             }
 
