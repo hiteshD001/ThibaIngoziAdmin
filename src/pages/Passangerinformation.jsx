@@ -3,14 +3,14 @@ import { useParams } from "react-router-dom"
 import { useFormik } from "formik"
 import { vehicleValidation } from "../common/FormValidation"
 import { useQueryClient } from "@tanstack/react-query"
-import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser, useGetCityList, useGetVehicleTypeList } from "../API Calls/API"
+import { useGetCountryList, useGetProvinceList, useGetUser, useGetUserList, useUpdateUser, useGetCityList, useGetVehicleTypeList, useGetSubscriptionTypes, useInitializeEnrolmentPayment } from "../API Calls/API"
 import { toast } from "react-toastify"
 import { toastOption } from "../common/ToastOptions"
 import PhoneInput from "react-phone-input-2"
 import {
     Box, Button, Typography, InputLabel, FormControl, FormHelperText, Grid, Paper, Chip,
-    FormControlLabel,
-    Checkbox,
+    FormControlLabel, Checkbox,
+    Dialog, DialogTitle, DialogContent, DialogActions, Radio, RadioGroup, CircularProgress,
 } from "@mui/material";
 import { BootstrapInput } from "../common/BootstrapInput";
 import CustomSelect from "../common/Custom/CustomSelect";
@@ -40,7 +40,12 @@ const PassangerInformation = () => {
         label: ''
     });
     const params = useParams();
-    const client = useQueryClient()
+    const client = useQueryClient();
+
+    // Enrolment payment dialog state
+    const [enrolDialogOpen, setEnrolDialogOpen] = useState(false);
+    const [selectedPlanId, setSelectedPlanId] = useState('');
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('CARD');
 
     const driverform = useFormik({
         initialValues: {
@@ -191,10 +196,36 @@ const PassangerInformation = () => {
     }, [vehicleInfo?.data]);
 
 
-    const vehicleTypeList = useGetVehicleTypeList()
+    const vehicleTypeList = useGetVehicleTypeList();
+    const subscriptionTypes = useGetSubscriptionTypes();
+    const plans = subscriptionTypes.data?.data?.data || [];
 
+    const initPaymentMutation = useInitializeEnrolmentPayment(
+        (data) => {
+            if (data?.paymentUrl) {
+                window.open(data.paymentUrl, '_blank');
+            }
+            setEnrolDialogOpen(false);
+            toast.success('Payment initiated – complete it in the new tab.');
+        },
+        (err) => {
+            toast.error(err?.response?.data?.message || 'Failed to initiate payment');
+        }
+    );
 
-
+    const handleEnrolSubmit = () => {
+        const user = vehicleInfo.data?.data?.user;
+        if (!user) return;
+        const plan = plans.find(p => p._id === selectedPlanId);
+        if (!plan) { toast.error('Please select a plan'); return; }
+        initPaymentMutation.mutate({
+            amount: plan.amount,
+            currency: 'ZAR',
+            userId: user._id,
+            enroll_type_id: plan._id,
+            paymentMethod: selectedPaymentMethod,
+        });
+    };
 
     const vehicleForm = useFormik({
         initialValues: {
@@ -426,6 +457,23 @@ const PassangerInformation = () => {
                             <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                                 {displayField("Enrolment Type", driverform.values.EnrollType || 'N/A')}
                             </Grid>
+
+                            {/* Enrol Now button — only shown when user is NOT currently enrolled */}
+                            {!driverform.values.isEnroll && (
+                                <Grid size={12}>
+                                    <Button
+                                        variant="contained"
+                                        sx={{ borderRadius: '10px', backgroundColor: 'var(--Blue)', height: 44 }}
+                                        onClick={() => {
+                                            setSelectedPlanId('');
+                                            setSelectedPaymentMethod('CARD');
+                                            setEnrolDialogOpen(true);
+                                        }}
+                                    >
+                                        Enrol Now
+                                    </Button>
+                                </Grid>
+                            )}
 
                             <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
                                 {
@@ -1250,6 +1298,81 @@ const PassangerInformation = () => {
                 ) : null}
 
             </Box>
+
+            {/* Enrolment Payment Dialog */}
+            <Dialog open={enrolDialogOpen} onClose={() => setEnrolDialogOpen(false)} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ fontWeight: 600 }}>Enrol User – Select Plan & Payment Method</DialogTitle>
+                <DialogContent dividers>
+                    <Typography variant="subtitle2" gutterBottom sx={{ mb: 1 }}>
+                        Enrolment Plan
+                    </Typography>
+                    {subscriptionTypes.isLoading ? (
+                        <Box display="flex" justifyContent="center" py={2}><CircularProgress size={24} /></Box>
+                    ) : (
+                        <RadioGroup
+                            value={selectedPlanId}
+                            onChange={(e) => setSelectedPlanId(e.target.value)}
+                        >
+                            {plans.map((plan) => (
+                                <FormControlLabel
+                                    key={plan._id}
+                                    value={plan._id}
+                                    control={<Radio />}
+                                    label={
+                                        <Box>
+                                            <Typography variant="body1" fontWeight={500}>{plan.name}</Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                R{plan.amount} ZAR · {plan.type}
+                                            </Typography>
+                                        </Box>
+                                    }
+                                    sx={{ mb: 1, border: selectedPlanId === plan._id ? '1px solid #367BE0' : '1px solid #e0e0e0', borderRadius: '8px', px: 1.5, py: 0.5 }}
+                                />
+                            ))}
+                        </RadioGroup>
+                    )}
+
+                    <Typography variant="subtitle2" gutterBottom sx={{ mt: 3, mb: 1 }}>
+                        Payment Method
+                    </Typography>
+                    <RadioGroup
+                        value={selectedPaymentMethod}
+                        onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                    >
+                        {[
+                            { value: 'CARD', label: 'Card', description: 'Debit / Credit card – supports recurring auto-debit' },
+                            { value: 'CAPITECPAY', label: 'Capitec Pay', description: 'Pay via Capitec banking app – supports recurring auto-debit' },
+                            { value: 'APPLE PAY', label: 'Apple Pay', description: 'Pay via Apple Pay – once-off per period, no auto-debit' },
+                        ].map((method) => (
+                            <FormControlLabel
+                                key={method.value}
+                                value={method.value}
+                                control={<Radio />}
+                                label={
+                                    <Box>
+                                        <Typography variant="body1" fontWeight={500}>{method.label}</Typography>
+                                        <Typography variant="body2" color="text.secondary">{method.description}</Typography>
+                                    </Box>
+                                }
+                                sx={{ mb: 1, border: selectedPaymentMethod === method.value ? '1px solid #367BE0' : '1px solid #e0e0e0', borderRadius: '8px', px: 1.5, py: 0.5 }}
+                            />
+                        ))}
+                    </RadioGroup>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
+                    <Button variant="outlined" onClick={() => setEnrolDialogOpen(false)} sx={{ borderRadius: '8px', height: 42 }}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        disabled={!selectedPlanId || initPaymentMutation.isPending}
+                        onClick={handleEnrolSubmit}
+                        sx={{ borderRadius: '8px', height: 42, backgroundColor: 'var(--Blue)', minWidth: 140 }}
+                    >
+                        {initPaymentMutation.isPending ? <CircularProgress size={20} color="inherit" /> : 'Proceed to Payment'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     )
 }
