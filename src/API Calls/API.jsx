@@ -1854,3 +1854,35 @@ export const useCreateAdmin = (onSuccess, onError) => {
         onError,
     });
 };
+
+// Get all subscription / enrolment plan types
+export const useGetSubscriptionTypes = () => {
+    const queryFn = async () => {
+        return await apiClient.get('/enrollType');
+    };
+
+    return useQuery({
+        queryKey: ['subscriptionTypes'],
+        queryFn,
+        staleTime: 30 * 60 * 1000,
+    });
+};
+
+// Initiate a Peach Payments checkout for enrolment
+// paymentMethod: "CARD" | "CAPITECPAY" | "APPLE PAY"
+export const useInitializeEnrolmentPayment = (onSuccess, onError) => {
+    return useMutation({
+        mutationFn: async ({ amount, currency = 'ZAR', userId, enroll_type_id, paymentMethod }) => {
+            const response = await apiClient.post('/payment/initialize-payment', {
+                amount,
+                currency,
+                userId,
+                enroll_type_id,
+                paymentMethod,
+            });
+            return response.data;
+        },
+        onSuccess,
+        onError,
+    });
+};
