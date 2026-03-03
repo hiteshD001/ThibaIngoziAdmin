@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { superadmin_menulist, Companyadmin_menulist, salesAgent_menulist, passenger_menulist, driver_menulist } from "./Menulist";
 import { LogoutConfirm } from "./ConfirmationPOPup";
+import { useGetPermissionsByRoleId } from "../API Calls/API";
+import { useMemo } from "react";
 
 const SideBar = ({ setActive, isActive, sidebarRef }) => {
     const [confirm, setconfirm] = useState(false)
