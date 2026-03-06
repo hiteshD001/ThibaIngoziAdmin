@@ -29,11 +29,11 @@ import CustomDateRangePicker from "./Custom/CustomDateRangePicker";
 // Import the Hotspot Map component
 import HotspotMap from './HotspotMap';
 
-function HotspotSection({ isMapLoaded, hideCategories = false }) {
+function HotspotSection({ isMapLoaded, hideCategories = false, company_id = null, ehailing = false }) {
   const nav = useNavigate();
   const [selectedNotification, setSelectedNotification] = useState("all");
   const [time, setTime] = useState(new Date().toISOString());
-  const [id, setId] = useState("");
+  const [id, setId] = useState(company_id);
   const [range, setRange] = useState([
     {
       startDate: startOfYear(new Date()),
@@ -46,7 +46,7 @@ function HotspotSection({ isMapLoaded, hideCategories = false }) {
 
   const notificationTypes = useGetNotificationType();
 
-  const hotspot = useGetHotspot(startDate, endDate, id, selectedNotification);
+  const hotspot = useGetHotspot(startDate, endDate, id, selectedNotification, ehailing);
 
   const handleNotificationChange = (event) => {
     setSelectedNotification(event.target.value);

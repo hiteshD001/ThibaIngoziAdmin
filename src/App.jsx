@@ -416,10 +416,10 @@ function App() {
                     path: "settings",
                     element: <AdminSetting />
                 },
-                // {
-                //     path: "e-hailing-view",
-                //     element: <EHailingView isMapLoaded={isLoaded} />
-                // },
+                {
+                    path: "e-hailing-view",
+                    element: <EHailingView isMapLoaded={isLoaded} />
+                },
             ]
         },
         {

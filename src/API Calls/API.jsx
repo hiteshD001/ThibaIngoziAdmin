@@ -980,7 +980,7 @@ export const useGetUser = (userId) => {
 
 
 
-export const useGetRecentSOS = (page = 1, limit = 20, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id) => {
+export const useGetRecentSOS = ({ page = 1, limit = 20, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id }) => {
     const queryFn = async () => {
         return await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/location/recent-sos-locations`, {
@@ -1044,7 +1044,7 @@ export const useGetActiveSOS = () => {
 
 
 // get chart data
-export const useGetChartData = (company_id, time, startDate, endDate, notificationType) => {
+export const useGetChartData = (company_id, time, startDate, endDate, notificationType, ehailing = false) => {
     const queryFn = async () => {
         const params = {
             time,
@@ -1061,12 +1061,9 @@ export const useGetChartData = (company_id, time, startDate, endDate, notificati
             params.company_id = company_id;
         }
 
-        return await apiClient.get(
-            `${import.meta.env.VITE_BASEURL}/location/sos-month`,
-            {
-                params
-            }
-        );
+        const req_url = ehailing ? `${import.meta.env.VITE_BASEURL}/ehailing-location/sos-month` : `${import.meta.env.VITE_BASEURL}/location/sos-month`
+
+        return await apiClient.get(req_url, { params });
     };
 
     const res = useQuery({
@@ -1090,18 +1087,18 @@ export const useGetChartData = (company_id, time, startDate, endDate, notificati
 
 // get active sos 
 
-export const useGetActiveSosData = (page = 1, limit = 10, startDate, endDate, searchKey, type, sortBy, sortOrder) => {
+export const useGetActiveSosData = ({ page = 1, limit = 10, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id }) => {
 
     const queryFn = async () => {
         return await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/location/active/sos/data`, {
-            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder
+            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder, company_id
         }
         );
     };
 
     const res = useQuery({
-        queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder],
+        queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id],
         queryFn: queryFn,
         placeholderData: keepPreviousData,
         staleTime: 15 * 60 * 1000,
@@ -1112,7 +1109,7 @@ export const useGetActiveSosData = (page = 1, limit = 10, startDate, endDate, se
 
 // get hotspot
 
-export const useGetHotspot = (startDate, endDate, company_id, notificationType) => {
+export const useGetHotspot = (startDate, endDate, company_id, notificationType, ehailing = false) => {
     const params = {};
     params.startDate = startDate;
     params.endDate = endDate
@@ -1122,13 +1119,11 @@ export const useGetHotspot = (startDate, endDate, company_id, notificationType) 
     if (company_id) {
         params.company_id = company_id;
     }
+
+    const req_url = ehailing ? `${import.meta.env.VITE_BASEURL}/ehailing-location/hotspot` : `${import.meta.env.VITE_BASEURL}/location/hotspot`
+
     const queryFn = async () => {
-        return await apiClient.get(
-            `${import.meta.env.VITE_BASEURL}/location/hotspot`,
-            {
-                params,
-            }
-        );
+        return await apiClient.get(req_url, { params });
     };
 
     const res = useQuery({

@@ -154,7 +154,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
     // react queries
     const companyInfo = useGetUser(params.id);
     const company_id = params.id
-    const { data: recentSos, isFetching, refetch } = useGetRecentSOS(pagination.recentSos.page, pagination.recentSos.rowsPerPage, startDate, endDate, "", "", sortBy, sortOrder, company_id);
+    const { data: recentSos, isFetching, refetch } = useGetRecentSOS({ page: pagination.recentSos.page, limit: pagination.recentSos.rowsPerPage, startDate, endDate, sortBy, sortOrder, company_id });
     const driverList = useGetUserList("driver list", "driver", params.id, pagination.driver.page, pagination.driver.rowsPerPage, filter, "", "", "", sortBy2, sortOrder2);
     const userList = useGetUserList("user list", "passanger", params.id, pagination.user.page, pagination.user.rowsPerPage, filter, "", "", "", sortBy3, sortOrder3);
     const notificationTypes = useGetNotificationType();

@@ -154,8 +154,8 @@ const Home = ({ isMapLoaded, }) => {
     const role = localStorage.getItem("role");
     const userinfo = useGetUser(localStorage.getItem("userID"));
 
-    const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, recentFilter, recentNotification, sortBy, sortOrder);
-    const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, filter, selectedNotification, sortBy2, sortOrder2);
+    const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS({ page: recentPage, limit: recentLimit, startDate, endDate, searchKey: recentFilter, type: recentNotification, sortBy, sortOrder });
+    const activeSos = useGetActiveSosData({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, searchKey: filter, type: selectedNotification, sortBy: sortBy2, sortOrder: sortOrder2 });
     const activeUserList = activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data;
     // Apply pagination slicing for display
     const paginatedActiveUserList = useMemo(() => {

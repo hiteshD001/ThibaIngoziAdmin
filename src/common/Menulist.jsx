@@ -163,18 +163,19 @@ export const allMenuItems = [
         permission: "Change Password" // Change password is always visible
     },
     {
+        id: "e-hailing-view",
+        name: "e-Hailing View",
+        path: "/home/e-hailing-view",
+        image: eHailing,
+        company: "e-Hailing Views",
+        permission: "e-Hailing View"
+    },
+    {
         id: "logout",
         name: "Logout",
         image: Logout,
         permission: null // Logout is always visible
     },
-    // {
-    //     id: "e-hailing-view",
-    //     name: "e-Hailing View",
-    //     path: "/home/e-hailing-view",
-    //     image: eHailing,
-    //     company: "e-Hailing Views"
-    // }
 ];
 
 export const superadmin_menulist = (permissionsData) => {
@@ -187,8 +188,6 @@ export const superadmin_menulist = (permissionsData) => {
             .filter(permission => permission.status === 'active')
             .map(permission => permission.name);
     }
-
-
 
     // Filter menu items based on user permissions
     const filteredMenuItems = allMenuItems.filter(item => {

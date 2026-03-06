@@ -28,6 +28,7 @@ import totalsosamount from "../../assets/images/permission/total-sos-amount.svg"
 import totalstolencars from "../../assets/images/permission/total-stolen-cars.svg"
 import totalsuspect from "../../assets/images/permission/total-suspect.svg"
 import totalusers from "../../assets/images/permission/total-users.svg"
+import ehailing from "../../assets/images/permission/e-hailing-view.svg"
 
 const CreateRole = ({ editRoleId, setEditRoleId }) => {
     const client = useQueryClient()
@@ -403,5 +404,9 @@ const icons = [
     {
         name: "Users",
         icon: totalusers
+    },
+    {
+        name: "e-Hailing View",
+        icon: ehailing
     }
 ]

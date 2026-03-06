@@ -89,9 +89,9 @@ const EHialingView = ({ isMapLoaded }) => {
     const endDateSos = rangeSos[0].endDate.toISOString();
 
     const userinfo = useGetUser(localStorage.getItem("userID"));
-    const activeSos = useGetActiveSosData(activePage, activeLimit, startDateSos, endDateSos, "", "", sortBy2, sortOrder2);
-    const recentSos = useGetRecentSOS(recentPage, recentLimit, startDate, endDate, "", "", sortBy, sortOrder);
-    const chartData = useGetChartData(role !== "super_admin" ? userId : null, null, range[0]?.startDate, range[0]?.endDate, "");
+    const activeSos = useGetActiveSosData({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, company_id: localStorage.getItem("userID") });
+    const recentSos = useGetRecentSOS({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, company_id: localStorage.getItem("userID") });
+    const chartData = useGetChartData(localStorage.getItem("userID"), null, range[0]?.startDate, range[0]?.endDate, "", true);
     const {
         newSOS,
         requestCounts,
@@ -684,7 +684,12 @@ const EHialingView = ({ isMapLoaded }) => {
                 </Paper>
 
                 {/* hotspot */}
-                <HotspotSection isMapLoaded={isMapLoaded} hideCategories={true} />
+                <HotspotSection
+                    isMapLoaded={isMapLoaded}
+                    hideCategories={true}
+                    company_id={localStorage.getItem("userID")}
+                    ehailing={true}
+                />
 
 
                 {/* recently closed sos */}
@@ -812,8 +817,8 @@ const EHialingView = ({ isMapLoaded }) => {
                                                 <Loader />
                                             </TableCell>
                                         </TableRow>
-                                        : (recentSos?.data?.items?.length > 0 ?
-                                            recentSos?.data?.items?.map((row) => (
+                                        : (recentSos?.data?.data?.items?.length > 0 ?
+                                            recentSos?.data?.data?.items?.map((row) => (
                                                 <TableRow key={row?._id}>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
@@ -956,7 +961,7 @@ const EHialingView = ({ isMapLoaded }) => {
                             </Table>
                         </TableContainer>
 
-                        {recentSos?.data?.items?.length > 0 && !recentSos.isFetching && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                        {recentSos?.data?.data?.items?.length > 0 && !recentSos.isFetching && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
                             <Grid>
                                 <Typography variant="body2">
                                     Rows per page:&nbsp;
