@@ -1,5 +1,5 @@
 import { useFormik } from "formik";
-import { Grid, Box, Typography, Divider, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { Grid, Box, Typography, Divider, Select, MenuItem, FormControl, InputLabel, Skeleton } from "@mui/material";
 import { toast } from "react-toastify";
 import { useGetPermissions, useCreateRole, useTogglePermission, useGetPermissionsByRoleId, useUpdateRole, useGetPermission, useGeteHailingList } from "../../API Calls/API";
 // import { BootstrapInput, CustomSwitch } from "../../common/custom"; 
@@ -71,7 +71,7 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         toast.error(error?.response?.data?.message || "Failed to toggle permission");
     };
 
-    const { data: permissions } = useGetPermissions();
+    const { data: permissions, isLoading: permissionsLoading } = useGetPermissions();
     const { data: permission } = useGetPermission();
     const { data: eHailingCompanies } = useGeteHailingList();
 
@@ -103,8 +103,11 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
     }, [editRoleId, roleData]);
 
     useEffect(() => {
-        roleform.setFieldValue("permissionIds", activePermissionIds);
-    }, [permission?.data?.data]);
+        // Only pre-populate permissions when editing a role — in create mode all start as unchecked
+        if (editRoleId) {
+            roleform.setFieldValue("permissionIds", activePermissionIds);
+        }
+    }, [permission?.data?.data, editRoleId]);
 
 
     const roleform = useFormik({
@@ -241,90 +244,117 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                                 backgroundColor: "#F9FAFB",
                                 borderRadius: "6px",
                                 p: 3,
+                                alignItems: "flex-start",
                             }}
                             spacing={2}
                         >
                             {permissions?.data?.data?.length > 0 ? (
-                                permissions.data.data.map((perm) => {
-                                    const isChecked = isAppOnlyRole ? false : roleform.values.permissionIds.includes(perm._id);
-                                    const isDisabled = isAppOnlyRole || perm.status !== "active";
-                                    const isEHailing = perm.name === "e-Hailing View";
-                                    const isEHailingOn = roleform.values.permissionIds.includes(perm._id);
+                                [...permissions.data.data]
+                                    .sort((a, b) => (a.name === "e-Hailing View" ? 1 : b.name === "e-Hailing View" ? -1 : 0))
+                                    .map((perm) => {
+                                        const isChecked = isAppOnlyRole ? false : roleform.values.permissionIds.includes(perm._id);
+                                        const isDisabled = isAppOnlyRole || perm.status !== "active";
+                                        const isEHailing = perm.name === "e-Hailing View";
+                                        const isEHailingOn = roleform.values.permissionIds.includes(perm._id);
 
-                                    return (
-                                        <Grid
-                                            key={perm._id}
-                                            size={{ xs: 12, md: 6 }}
-                                            sx={{
-                                                p: 1,
-                                                display: "flex",
-                                                flexDirection: "column",
-                                                backgroundColor: "white",
-                                                borderRadius: "10px",
-                                                border: "1px solid #E5E7EB",
-                                            }}
-                                        >
-                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mx: 1 }}>
-                                                    <img
-                                                        src={getIcon(perm.name)}
-                                                        alt={perm.name}
-                                                        style={{ width: 25, height: 25 }}
-                                                    />
-                                                    <Typography
-                                                        variant="subtitle1"
-                                                        sx={{ color: "#384141", fontWeight: 500 }}
-                                                    >
-                                                        {perm.name}
-                                                    </Typography>
-                                                </Box>
-
-                                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                                    {editRoleId ?
-                                                        <CustomSwitch
-                                                            checked={isChecked}
-                                                            disabled={isDisabled}
-                                                            onChange={() => {
-                                                                if (!isAppOnlyRole && perm.status === "active") {
-                                                                    handlePermissionToggle(perm._id);
-                                                                }
-                                                            }}
-                                                            size="small"
-                                                        /> :
-                                                        <CustomSwitch
-                                                            checked={roleform.values.permissionIds.includes(perm._id)}
-                                                            disabled={perm.status !== "active"}
-                                                            onChange={() => handlePermissionStatusToggle(perm)}
-                                                            size="small"
-                                                        />}
-                                                </Box>
-                                            </Box>
-
-                                            {/* Company dropdown — shown only for e-Hailing View when switch is ON */}
-                                            {isEHailing && isEHailingOn && (
-                                                <Box sx={{ mt: 1.5, px: 1 }}>
-                                                    <FormControl fullWidth size="small">
-                                                        <InputLabel id={`ehailing-company-label-${perm._id}`}>Select Company</InputLabel>
-                                                        <Select
-                                                            labelId={`ehailing-company-label-${perm._id}`}
-                                                            label="Select Company"
-                                                            value={roleform?.values?.companyIds?.[0] || ""}
-                                                            onChange={(e) => roleform.setFieldValue("companyIds", e.target.value ? [e.target.value] : [])}
-                                                            displayEmpty
+                                        return (
+                                            <Grid
+                                                key={perm._id}
+                                                size={{ xs: 12, md: 6 }}
+                                                sx={{
+                                                    p: 1,
+                                                    display: "flex",
+                                                    flexDirection: "column",
+                                                    backgroundColor: "white",
+                                                    borderRadius: "10px",
+                                                    border: "1px solid #E5E7EB",
+                                                }}
+                                            >
+                                                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mx: 1 }}>
+                                                        <img
+                                                            src={getIcon(perm.name)}
+                                                            alt={perm.name}
+                                                            style={{ width: 25, height: 25 }}
+                                                        />
+                                                        <Typography
+                                                            variant="subtitle1"
+                                                            sx={{ color: "#384141", fontWeight: 500 }}
                                                         >
-                                                            <MenuItem value=""><em>None</em></MenuItem>
-                                                            {eHailingCompanies?.data?.data?.map((company) => (
-                                                                <MenuItem key={company._id} value={company._id}>
-                                                                    {company.name || company.company_name || company._id}
-                                                                </MenuItem>
-                                                            ))}
-                                                        </Select>
-                                                    </FormControl>
+                                                            {perm.name}
+                                                        </Typography>
+                                                    </Box>
+
+                                                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                                        {editRoleId ?
+                                                            <CustomSwitch
+                                                                checked={isChecked}
+                                                                disabled={isDisabled}
+                                                                onChange={() => {
+                                                                    if (!isAppOnlyRole && perm.status === "active") {
+                                                                        handlePermissionToggle(perm._id);
+                                                                    }
+                                                                }}
+                                                                size="small"
+                                                            /> :
+                                                            <CustomSwitch
+                                                                checked={roleform.values.permissionIds.includes(perm._id)}
+                                                                disabled={perm.status !== "active"}
+                                                                onChange={() => handlePermissionToggle(perm._id)}
+                                                                size="small"
+                                                            />}
+                                                    </Box>
                                                 </Box>
-                                            )}
-                                        </Grid>
-                                    );
-                                })
+
+                                                {/* Company dropdown — shown only for e-Hailing View when switch is ON */}
+                                                {isEHailing && isEHailingOn && (
+                                                    <Box sx={{ mt: 1.5, px: 1 }}>
+                                                        <FormControl fullWidth size="small">
+                                                            <InputLabel id={`ehailing-company-label-${perm._id}`}>Select Company</InputLabel>
+                                                            <Select
+                                                                labelId={`ehailing-company-label-${perm._id}`}
+                                                                label="Select Company"
+                                                                value={roleform?.values?.companyIds?.[0] || ""}
+                                                                onChange={(e) => roleform.setFieldValue("companyIds", e.target.value ? [e.target.value] : [])}
+                                                                displayEmpty
+                                                            >
+                                                                {/* <MenuItem value=""><em>None</em></MenuItem> */}
+                                                                {eHailingCompanies?.data?.data?.map((company) => (
+                                                                    <MenuItem key={company._id} value={company._id}>
+                                                                        {company.name || company.company_name || company._id}
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                        </FormControl>
+                                                    </Box>
+                                                )}
+                                            </Grid>
+                                        );
+                                    })
+                            ) : permissionsLoading ? (
+                                // Skeleton loading cards while permissions fetch
+                                [...Array(6)].map((_, i) => (
+                                    <Grid
+                                        key={i}
+                                        size={{ xs: 12, md: 6 }}
+                                        sx={{
+                                            p: 1,
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            backgroundColor: "white",
+                                            borderRadius: "10px",
+                                            border: "1px solid #E5E7EB",
+                                        }}
+                                    >
+                                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", px: 1 }}>
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                                <Skeleton variant="circular" width={25} height={25} />
+                                                <Skeleton variant="text" width={120} height={24} />
+                                            </Box>
+                                            <Skeleton variant="rounded" width={44} height={24} sx={{ borderRadius: "12px" }} />
+                                        </Box>
+                                    </Grid>
+                                ))
                             ) : (
                                 <Typography
                                     variant="body2"
