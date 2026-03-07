@@ -1110,24 +1110,31 @@ export const useGetActiveSosData = ({ page = 1, limit = 10, startDate, endDate, 
 // get hotspot
 
 export const useGetHotspot = (startDate, endDate, company_id, notificationType, ehailing = false) => {
-    const params = {};
-    params.startDate = startDate;
-    params.endDate = endDate
-    if (notificationType) {
-        params.notificationType = notificationType === "all" ? "" : notificationType;
-    }
-    if (company_id) {
-        params.company_id = company_id;
-    }
-
-    const req_url = ehailing ? `${import.meta.env.VITE_BASEURL}/ehailing-location/hotspot` : `${import.meta.env.VITE_BASEURL}/location/hotspot`
+    const req_url = ehailing
+        ? `${import.meta.env.VITE_BASEURL}/ehailing-location/hotspot`
+        : `${import.meta.env.VITE_BASEURL}/location/hotspot`;
 
     const queryFn = async () => {
+        if (ehailing) {
+            // /ehailing-location/hotspot expects companyId[] array format
+            const searchParams = new URLSearchParams();
+            if (startDate) searchParams.append('startDate', startDate);
+            if (endDate) searchParams.append('endDate', endDate);
+            if (notificationType && notificationType !== 'all') searchParams.append('notificationType', notificationType);
+            // Send as companyId[] even for a single value
+            if (company_id) searchParams.append('companyId[]', company_id);
+            return await apiClient.get(`${req_url}?${searchParams.toString()}`);
+        }
+
+        // Regular /location/hotspot uses plain params
+        const params = { startDate, endDate };
+        if (notificationType) params.notificationType = notificationType === 'all' ? '' : notificationType;
+        if (company_id) params.company_id = company_id;
         return await apiClient.get(req_url, { params });
     };
 
     const res = useQuery({
-        queryKey: ["hotspot", startDate, endDate, company_id, notificationType], // Add notificationType to the query key
+        queryKey: ["hotspot", startDate, endDate, company_id, notificationType, ehailing],
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
         placeholderData: [],

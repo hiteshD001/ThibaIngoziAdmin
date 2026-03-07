@@ -186,8 +186,8 @@ const EHialingView = ({ isMapLoaded }) => {
 
     const totalActiveItems = activeSos?.data?.data?.totalItems || 0;
     const totalActivePages = Math.ceil(totalActiveItems / activeLimit)
-    const totalRecentItems = recentSos?.data?.totalItems
-    const totalRecentPages = Math.ceil(totalRecentItems / recentLimit)
+    const totalRecentItems = recentSos?.data?.data?.totalItems || recentSos?.data?.totalItems || 0;
+    const totalRecentPages = Math.ceil(totalRecentItems / recentLimit) || 1;
 
 
     // On mount: remove stale global activeSOS2 cache so company-filtered data loads fresh
