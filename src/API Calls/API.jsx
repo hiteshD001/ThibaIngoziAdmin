@@ -1137,6 +1137,88 @@ export const useGetHotspot = (startDate, endDate, company_id, notificationType, 
 };
 
 
+// --------------------------------------------------- E-HAILING SPECIFIC HOOKS ---------------------------------------------------
+// These hooks call /ehailing-location/ routes with companyId[] array params
+
+// e-hailing active sos data
+export const useGetEHailingActiveSos = ({ page = 1, limit = 10, startDate, endDate, searchKey, type, sortBy, sortOrder, companyIds = [] }) => {
+    const queryFn = async () => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/ehailing-location/active/sos/data`,
+            { startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder, companyIds }
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["ehailingActiveSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, companyIds],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res;
+};
+
+// e-hailing recently closed sos
+export const useGetEHailingRecentSos = ({ page = 1, limit = 20, startDate, endDate, searchKey, type, sortBy, sortOrder, companyIds = [] }) => {
+    const queryFn = async () => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/ehailing-location/recent-sos-locations`,
+            { page, limit, startDate, endDate, searchKey, type: type === 'all' ? "" : type, sortBy, sortOrder, companyIds }
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["ehailingRecentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, companyIds],
+        queryFn: queryFn,
+        staleTime: 300000,
+        refetchOnWindowFocus: false,
+    });
+
+    return res;
+};
+
+// e-hailing chart data (sos-month)
+export const useGetEHailingChartData = (companyIds = [], time, startDate, endDate) => {
+    const queryFn = async () => {
+        const params = { time, startDate, endDate, showStatus: true };
+        // Serialize companyIds as repeated query params: companyId[]=id1&companyId[]=id2
+        const searchParams = new URLSearchParams();
+        Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') searchParams.append(k, v); });
+        companyIds.forEach(id => searchParams.append('companyId[]', id));
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/ehailing-location/sos-month?${searchParams.toString()}`);
+    };
+
+    const res = useQuery({
+        queryKey: ["ehailingChartData", companyIds, time, startDate, endDate],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res;
+};
+
+// e-hailing hotspot
+export const useGetEHailingHotspot = (startDate, endDate, companyIds = []) => {
+    const queryFn = async () => {
+        const searchParams = new URLSearchParams();
+        if (startDate) searchParams.append('startDate', startDate);
+        if (endDate) searchParams.append('endDate', endDate);
+        // Serialize companyIds as repeated query params: companyId[]=id1&companyId[]=id2
+        companyIds.forEach(id => searchParams.append('companyId[]', id));
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/ehailing-location/hotspot?${searchParams.toString()}`);
+    };
+
+    const res = useQuery({
+        queryKey: ["ehailingHotspot", startDate, endDate, companyIds],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        placeholderData: [],
+    });
+
+    return res;
+};
+
 // notifications
 export const useCreateNotificationType = (onSuccess, onError) => {
     const mutationFn = async (data) => {

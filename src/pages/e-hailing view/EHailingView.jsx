@@ -17,7 +17,7 @@ import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 
 import { useWebSocket } from '../../API Calls/WebSocketContext';
-import { useGetRecentSOS, useGetUser, useGetActiveSosData, useUpdateLocationStatus, useGetChartData } from '../../API Calls/API';
+import { useGetUser, useUpdateLocationStatus, useGetEHailingActiveSos, useGetEHailingRecentSos, useGetEHailingChartData } from '../../API Calls/API';
 
 import Loader from '../../common/Loader';
 import CustomChart from '../../common/CustomChart';
@@ -46,6 +46,11 @@ const EHialingView = ({ isMapLoaded }) => {
 
     const role = localStorage.getItem("role");
     const userId = localStorage.getItem("userID");
+
+    // Parse ehailingCompanyIds from localStorage into an array
+    const rawEhailingCompanyIds = localStorage.getItem("ehailingCompanyIds") || "";
+    const ehailingCompanyId = rawEhailingCompanyIds.split(",").filter(Boolean)[0] || "";
+    const ehailingCompanyIds = rawEhailingCompanyIds.split(",").filter(Boolean);
 
 
     const [status, setStatus] = useState('')
@@ -89,9 +94,9 @@ const EHialingView = ({ isMapLoaded }) => {
     const endDateSos = rangeSos[0].endDate.toISOString();
 
     const userinfo = useGetUser(localStorage.getItem("userID"));
-    const activeSos = useGetActiveSosData({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, company_id: localStorage.getItem("userID") });
-    const recentSos = useGetRecentSOS({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, company_id: localStorage.getItem("userID") });
-    const chartData = useGetChartData(localStorage.getItem("userID"), null, range[0]?.startDate, range[0]?.endDate, "", true);
+    const activeSos = useGetEHailingActiveSos({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: ehailingCompanyIds });
+    const recentSos = useGetEHailingRecentSos({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, companyIds: ehailingCompanyIds });
+    const chartData = useGetEHailingChartData(ehailingCompanyIds, null, range[0]?.startDate, range[0]?.endDate);
     const {
         newSOS,
         requestCounts,
@@ -687,7 +692,7 @@ const EHialingView = ({ isMapLoaded }) => {
                 <HotspotSection
                     isMapLoaded={isMapLoaded}
                     hideCategories={true}
-                    company_id={localStorage.getItem("userID")}
+                    companyIds={ehailingCompanyIds}
                     ehailing={true}
                 />
 

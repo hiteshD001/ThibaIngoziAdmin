@@ -1,7 +1,7 @@
 import { useFormik } from "formik";
-import { Grid, Box, Typography, Divider, } from "@mui/material";
+import { Grid, Box, Typography, Divider, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { toast } from "react-toastify";
-import { useGetPermissions, useCreateRole, useTogglePermission, useGetPermissionsByRoleId, useUpdateRole, useGetPermission } from "../../API Calls/API";
+import { useGetPermissions, useCreateRole, useTogglePermission, useGetPermissionsByRoleId, useUpdateRole, useGetPermission, useGeteHailingList } from "../../API Calls/API";
 // import { BootstrapInput, CustomSwitch } from "../../common/custom"; 
 import CustomSwitch from "../../common/Custom/CustomSwitch"
 import AddUser from "./AddUser"
@@ -41,14 +41,21 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
             roleform.resetForm({
                 values: {
                     roleName: "",
-                    permissionIds: activePermissionIds
+                    permissionIds: activePermissionIds,
+                    companyIds: [],
                 }
             });
             setEditRoleId(null); // Exit edit mode
         } else {
             toast.success("Role Created Successfully.");
         }
-        roleform.resetForm();
+        roleform.resetForm({
+            values: {
+                roleName: "",
+                permissionIds: [],
+                companyIds: [],
+            }
+        });
     };
 
     const onErrorRole = (error) => {
@@ -65,7 +72,11 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
     };
 
     const { data: permissions } = useGetPermissions();
-    const { data: permission } = useGetPermission()
+    const { data: permission } = useGetPermission();
+    const { data: eHailingCompanies } = useGeteHailingList();
+
+    // Resolve e-Hailing permission ID early so onSubmit can reference it
+    const eHailingPermId = permissions?.data?.data?.find(p => p.name === "e-Hailing View")?._id;
 
     // Filter only active permissions
     const activePermissionIds = permission?.data?.data?.filter(perm => perm.status === 'active').map(perm => perm._id) || [];
@@ -82,7 +93,8 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
             const role = roleData.data.data;
             roleform.setValues({
                 roleName: role.name,
-                permissionIds: role.permissions.map(p => p._id)
+                permissionIds: role.permissions.map(p => p._id),
+                companyIds: role.companyIds?.length ? role.companyIds : (role.companyId ? [role.companyId] : [])
             });
         } else if (!editRoleId) {
             // Reset form for create mode
@@ -99,14 +111,22 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         initialValues: {
             roleName: "",
             permissionIds: [],
+            companyIds: [],
         },
         onSubmit: (values) => {
+            const isEHailingEnabled = !!eHailingPermId && values.permissionIds.includes(eHailingPermId);
             if (editRoleId) {
-
-                updateRole({ id: editRoleId, data: { permissionIds: values.permissionIds } });
+                const payload = { permissionIds: values.permissionIds };
+                if (isEHailingEnabled && values.companyIds.length > 0) {
+                    payload.companyIds = values.companyIds;
+                }
+                updateRole({ id: editRoleId, data: payload });
             } else {
-
-                createRole({ roleName: values.roleName, permissionIds: values.permissionIds });
+                const payload = { roleName: values.roleName, permissionIds: values.permissionIds };
+                if (isEHailingEnabled && values.companyIds.length > 0) {
+                    payload.companyIds = values.companyIds;
+                }
+                createRole(payload);
             }
         },
     });
@@ -123,6 +143,10 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                 "permissionIds",
                 current.filter((id) => id !== permId)
             );
+            // Clear companyIds if e-Hailing is being turned off
+            if (permId === eHailingPermId) {
+                roleform.setFieldValue("companyIds", []);
+            }
         } else {
             // Add to list
             roleform.setFieldValue("permissionIds", [...current, permId]);
@@ -154,7 +178,8 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         roleform.resetForm({
             values: {
                 roleName: "",
-                permissionIds: activePermissionIds
+                permissionIds: activePermissionIds,
+                companyIds: [],
             }
         });
     };
@@ -223,6 +248,8 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                                 permissions.data.data.map((perm) => {
                                     const isChecked = isAppOnlyRole ? false : roleform.values.permissionIds.includes(perm._id);
                                     const isDisabled = isAppOnlyRole || perm.status !== "active";
+                                    const isEHailing = perm.name === "e-Hailing View";
+                                    const isEHailingOn = roleform.values.permissionIds.includes(perm._id);
 
                                     return (
                                         <Grid
@@ -231,46 +258,70 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                                             sx={{
                                                 p: 1,
                                                 display: "flex",
-                                                alignItems: "center",
-                                                justifyContent: "space-between",
+                                                flexDirection: "column",
                                                 backgroundColor: "white",
                                                 borderRadius: "10px",
                                                 border: "1px solid #E5E7EB",
                                             }}
                                         >
-                                            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mx: 1 }}>
-                                                <img
-                                                    src={getIcon(perm.name)}
-                                                    alt={perm.name}
-                                                    style={{ width: 25, height: 25 }}
-                                                />
-                                                <Typography
-                                                    variant="subtitle1"
-                                                    sx={{ color: "#384141", fontWeight: 500 }}
-                                                >
-                                                    {perm.name}
-                                                </Typography>
+                                            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mx: 1 }}>
+                                                    <img
+                                                        src={getIcon(perm.name)}
+                                                        alt={perm.name}
+                                                        style={{ width: 25, height: 25 }}
+                                                    />
+                                                    <Typography
+                                                        variant="subtitle1"
+                                                        sx={{ color: "#384141", fontWeight: 500 }}
+                                                    >
+                                                        {perm.name}
+                                                    </Typography>
+                                                </Box>
+
+                                                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                                    {editRoleId ?
+                                                        <CustomSwitch
+                                                            checked={isChecked}
+                                                            disabled={isDisabled}
+                                                            onChange={() => {
+                                                                if (!isAppOnlyRole && perm.status === "active") {
+                                                                    handlePermissionToggle(perm._id);
+                                                                }
+                                                            }}
+                                                            size="small"
+                                                        /> :
+                                                        <CustomSwitch
+                                                            checked={roleform.values.permissionIds.includes(perm._id)}
+                                                            disabled={perm.status !== "active"}
+                                                            onChange={() => handlePermissionStatusToggle(perm)}
+                                                            size="small"
+                                                        />}
+                                                </Box>
                                             </Box>
 
-                                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                                {editRoleId ?
-                                                    <CustomSwitch
-                                                        checked={isChecked}
-                                                        disabled={isDisabled}
-                                                        onChange={() => {
-                                                            if (!isAppOnlyRole && perm.status === "active") {
-                                                                handlePermissionToggle(perm._id);
-                                                            }
-                                                        }}
-                                                        size="small"
-                                                    /> :
-                                                    <CustomSwitch
-                                                        checked={roleform.values.permissionIds.includes(perm._id)}
-                                                        disabled={perm.status !== "active"}
-                                                        onChange={() => handlePermissionStatusToggle(perm)}
-                                                        size="small"
-                                                    />}
-                                            </Box>
+                                            {/* Company dropdown — shown only for e-Hailing View when switch is ON */}
+                                            {isEHailing && isEHailingOn && (
+                                                <Box sx={{ mt: 1.5, px: 1 }}>
+                                                    <FormControl fullWidth size="small">
+                                                        <InputLabel id={`ehailing-company-label-${perm._id}`}>Select Company</InputLabel>
+                                                        <Select
+                                                            labelId={`ehailing-company-label-${perm._id}`}
+                                                            label="Select Company"
+                                                            value={roleform?.values?.companyIds?.[0] || ""}
+                                                            onChange={(e) => roleform.setFieldValue("companyIds", e.target.value ? [e.target.value] : [])}
+                                                            displayEmpty
+                                                        >
+                                                            <MenuItem value=""><em>None</em></MenuItem>
+                                                            {eHailingCompanies?.data?.data?.map((company) => (
+                                                                <MenuItem key={company._id} value={company._id}>
+                                                                    {company.name || company.company_name || company._id}
+                                                                </MenuItem>
+                                                            ))}
+                                                        </Select>
+                                                    </FormControl>
+                                                </Box>
+                                            )}
                                         </Grid>
                                     );
                                 })

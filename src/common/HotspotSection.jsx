@@ -19,7 +19,7 @@ import { FaLocationDot } from 'react-icons/fa6'; // Updated to fa6 for newer ico
 import { useNavigate } from 'react-router-dom';
 
 // Import your API hooks
-import { useGetHotspot, useGetNotificationType } from '../API Calls/API';
+import { useGetHotspot, useGetNotificationType, useGetEHailingHotspot } from '../API Calls/API';
 
 // Import your Loader component
 import Loader from './Loader'; // Assuming you have a Loader component
@@ -29,7 +29,7 @@ import CustomDateRangePicker from "./Custom/CustomDateRangePicker";
 // Import the Hotspot Map component
 import HotspotMap from './HotspotMap';
 
-function HotspotSection({ isMapLoaded, hideCategories = false, company_id = null, ehailing = false }) {
+function HotspotSection({ isMapLoaded, hideCategories = false, company_id = null, companyIds = [], ehailing = false }) {
   const nav = useNavigate();
   const [selectedNotification, setSelectedNotification] = useState("all");
   const [time, setTime] = useState(new Date().toISOString());
@@ -46,7 +46,10 @@ function HotspotSection({ isMapLoaded, hideCategories = false, company_id = null
 
   const notificationTypes = useGetNotificationType();
 
-  const hotspot = useGetHotspot(startDate, endDate, id, selectedNotification, ehailing);
+  // Use e-hailing specific hotspot hook when ehailing=true (sends companyId[] array params)
+  const ehailingHotspot = useGetEHailingHotspot(ehailing ? startDate : null, ehailing ? endDate : null, companyIds);
+  const regularHotspot = useGetHotspot(ehailing ? null : startDate, ehailing ? null : endDate, ehailing ? null : id, selectedNotification, false);
+  const hotspot = ehailing ? ehailingHotspot : regularHotspot;
 
   const handleNotificationChange = (event) => {
     setSelectedNotification(event.target.value);
