@@ -17,7 +17,7 @@ import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 
 import { useWebSocket } from '../../API Calls/WebSocketContext';
-import { useGetUser, useUpdateLocationStatus, useGetEHailingActiveSos, useGetEHailingRecentSos, useGetEHailingChartData } from '../../API Calls/API';
+import { useGetRecentSOS, useGetUser, useGetActiveSosData, useUpdateLocationStatus, useGetChartData } from '../../API Calls/API';
 
 import Loader from '../../common/Loader';
 import CustomChart from '../../common/CustomChart';
@@ -94,9 +94,9 @@ const EHialingView = ({ isMapLoaded }) => {
     const endDateSos = rangeSos[0].endDate.toISOString();
 
     const userinfo = useGetUser(localStorage.getItem("userID"));
-    const activeSos = useGetEHailingActiveSos({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: ehailingCompanyIds });
-    const recentSos = useGetEHailingRecentSos({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, companyIds: ehailingCompanyIds });
-    const chartData = useGetEHailingChartData(ehailingCompanyIds, null, range[0]?.startDate, range[0]?.endDate);
+    const activeSos = useGetActiveSosData({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, company_id: ehailingCompanyId });
+    const recentSos = useGetRecentSOS({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, company_id: ehailingCompanyId });
+    const chartData = useGetChartData(ehailingCompanyId, null, range[0]?.startDate, range[0]?.endDate, "", true);
     const {
         newSOS,
         requestCounts,
@@ -104,18 +104,14 @@ const EHialingView = ({ isMapLoaded }) => {
         setActiveUserLists
     } = useWebSocket();
 
-    const activeUserList = activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data;
+    // In e-hailing view, always use company-filtered API data — ignore global WebSocket activeUserLists
+    const activeUserList = activeSos?.data?.data?.data;
     const prevLengthRef = useRef(activeUserList?.length);
     const notifiedSosIds = useRef(new Set(activeUserLists?.map(u => u._id) || []));
     const paginatedActiveUserList = useMemo(() => {
         if (!Array.isArray(activeUserList)) return [];
-        if (activeUserLists?.length > 0) {
-            const startIndex = (activePage - 1) * activeLimit;
-            const endIndex = startIndex + activeLimit;
-            return activeUserList.slice(startIndex, endIndex);
-        }
         return activeUserList;
-    }, [activeUserList, activePage, activeLimit, activeUserLists]);
+    }, [activeUserList, activePage, activeLimit]);
 
     const onSuccess = () => {
         toast.success("Status Updated Successfully.");
@@ -188,11 +184,21 @@ const EHialingView = ({ isMapLoaded }) => {
         setStatus('')
     };
 
-    const totalActiveItems = activeUserLists?.length > 0 ? (activeUserList?.length || 0) : (activeSos?.data?.data?.totalItems || 0);
+    const totalActiveItems = activeSos?.data?.data?.totalItems || 0;
     const totalActivePages = Math.ceil(totalActiveItems / activeLimit)
     const totalRecentItems = recentSos?.data?.totalItems
     const totalRecentPages = Math.ceil(totalRecentItems / recentLimit)
 
+
+    // On mount: remove stale global activeSOS2 cache so company-filtered data loads fresh
+    // On unmount: clear again so main dashboard also gets fresh data
+    useEffect(() => {
+        queryClient.removeQueries({ queryKey: ["activeSOS2"] });
+        return () => {
+            queryClient.removeQueries({ queryKey: ["activeSOS2"] });
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         if (isFirstRun.current) {
