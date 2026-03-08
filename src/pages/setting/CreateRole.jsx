@@ -1,5 +1,5 @@
 import { useFormik } from "formik";
-import { Grid, Box, Typography, Divider, Select, MenuItem, FormControl, InputLabel, Skeleton } from "@mui/material";
+import { Grid, Box, Typography, Divider, Select, MenuItem, FormControl, InputLabel, Skeleton, CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
 import { useGetPermissions, useCreateRole, useTogglePermission, useGetPermissionsByRoleId, useUpdateRole, useGetPermission, useGeteHailingList } from "../../API Calls/API";
 // import { BootstrapInput, CustomSwitch } from "../../common/custom"; 
@@ -41,7 +41,7 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
             roleform.resetForm({
                 values: {
                     roleName: "",
-                    permissionIds: activePermissionIds,
+                    permissionIds: [],
                     companyIds: [],
                 }
             });
@@ -83,8 +83,8 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
 
 
     const { data: roleData } = useGetPermissionsByRoleId(editRoleId);
-    const { mutate: createRole } = useCreateRole(onSuccessRole, onErrorRole);
-    const { mutate: updateRole } = useUpdateRole(onSuccessRole, onErrorRole);
+    const { mutate: createRole, isPending: isCreating } = useCreateRole(onSuccessRole, onErrorRole);
+    const { mutate: updateRole, isPending: isUpdating } = useUpdateRole(onSuccessRole, onErrorRole);
     const { mutate: togglePermission } = useTogglePermission(onSuccessToggle, onErrorToggle);
 
     // Populate form when editing
@@ -102,12 +102,13 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         }
     }, [editRoleId, roleData]);
 
-    useEffect(() => {
-        // Only pre-populate permissions when editing a role — in create mode all start as unchecked
-        if (editRoleId) {
-            roleform.setFieldValue("permissionIds", activePermissionIds);
-        }
-    }, [permission?.data?.data, editRoleId]);
+    // Removed incorrect useEffect that overwrote permissionIds
+    // useEffect(() => {
+    //     // Only pre-populate permissions when editing a role — in create mode all start as unchecked
+    //     if (editRoleId) {
+    //         roleform.setFieldValue("permissionIds", activePermissionIds);
+    //     }
+    // }, [permission?.data?.data, editRoleId]);
 
 
     const roleform = useFormik({
@@ -181,7 +182,7 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         roleform.resetForm({
             values: {
                 roleName: "",
-                permissionIds: activePermissionIds,
+                permissionIds: [],
                 companyIds: [],
             }
         });
@@ -245,9 +246,29 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                                 borderRadius: "6px",
                                 p: 3,
                                 alignItems: "flex-start",
+                                position: "relative"
                             }}
                             spacing={2}
                         >
+                            {(isCreating || isUpdating) && (
+                                <Box
+                                    sx={{
+                                        position: "absolute",
+                                        top: 0,
+                                        left: 0,
+                                        width: "100%",
+                                        height: "100%",
+                                        backgroundColor: "rgba(255, 255, 255, 0.7)",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        zIndex: 10,
+                                        borderRadius: "6px"
+                                    }}
+                                >
+                                    <CircularProgress />
+                                </Box>
+                            )}
                             {permissions?.data?.data?.length > 0 ? (
                                 [...permissions.data.data]
                                     .sort((a, b) => (a.name === "e-Hailing View" ? 1 : b.name === "e-Hailing View" ? -1 : 0))
