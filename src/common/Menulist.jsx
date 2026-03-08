@@ -23,6 +23,8 @@ import trip from "../assets/images/trip.png"
 import { useState } from "react";
 import WorkInProgress from './WorkInProgress';
 
+const userId = localStorage.getItem('userID')
+
 export const allMenuItems = [
     {
         id: "home",
@@ -44,7 +46,7 @@ export const allMenuItems = [
     {
         id: "total-drivers",
         name: "Total Drivers",
-        path: "/home/total-drivers",
+        path: `/home/total-drivers/${userId}`,
         image: Driver,
         add: "Add Driver",
         info: "Driver Information",

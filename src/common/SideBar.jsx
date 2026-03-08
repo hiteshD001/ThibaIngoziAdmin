@@ -40,6 +40,7 @@ const SideBar = ({ setActive, isActive, sidebarRef }) => {
         const currentPath = location.pathname.split("/")
         setcurrentMenu(currentPath[2] ? currentPath[2] : currentPath[1])
     }, [location])
+    console.log(menulist, "menulist-menulist")
 
     return (
         <div ref={sidebarRef} className={`sidebar ${isActive ? "show" : ""}`}>

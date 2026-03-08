@@ -1,7 +1,7 @@
 import { useState, useLayoutEffect, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useDebounce from "../hooks/useDebounce";
-import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, Tooltip, TableSortLabel, Chip } from "@mui/material";
+import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, Tooltip, TableSortLabel, Chip, Skeleton } from "@mui/material";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import payIcon from '../assets/images/payIcon.svg';
@@ -42,7 +42,7 @@ import {
 } from "../API Calls/API";
 import CustomExportMenu from '../common/Custom/CustomExport'
 import PayoutPopup from "../common/Popup";
-import Loader from "../common/Loader";
+
 import Analytics from "../common/Analytics";
 import { DeleteConfirm } from "../common/ConfirmationPOPup";
 import ImportSheet from "../common/ImportSheet";
@@ -1084,11 +1084,44 @@ const ListOfDrivers = () => {
 
                             <TableBody>
                                 {driverList.isFetching ?
-                                    <TableRow>
-                                        <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={8} align="center">
-                                            <Loader />
-                                        </TableCell>
-                                    </TableRow>
+                                    Array.from({ length: rowsPerPage || 10 }).map((_, index) => (
+                                        <TableRow key={`skeleton-${index}`}>
+                                            <TableCell sx={{ color: "#4B5563", py: 2 }}>
+                                                <Stack direction="row" alignItems="center" gap={1.5}>
+                                                    <Skeleton variant="circular" width={32} height={32} />
+                                                    <Skeleton variant="text" width={100} height={20} />
+                                                </Stack>
+                                            </TableCell>
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                <Skeleton variant="text" width={80} height={20} />
+                                            </TableCell>
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                <Skeleton variant="text" width={120} height={20} />
+                                            </TableCell>
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                <Skeleton variant="text" width={100} height={20} />
+                                            </TableCell>
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                <Skeleton variant="text" width={150} height={20} />
+                                            </TableCell>
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                <Skeleton variant="rounded" width={80} height={28} sx={{ borderRadius: '16px' }} />
+                                            </TableCell>
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                <Skeleton variant="text" width={120} height={20} />
+                                            </TableCell>
+                                            <TableCell sx={{ color: "#4B5563" }}>
+                                                <Skeleton variant="text" width={120} height={20} />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Box align="center" sx={{ display: "flex", flexDirection: "row", gap: 0, justifyContent: 'center' }}>
+                                                    <Skeleton variant="circular" width={24} height={24} sx={{ mx: 0.5 }} />
+                                                    {role !== 'company' && <Skeleton variant="circular" width={24} height={24} sx={{ mx: 0.5 }} />}
+                                                    <Skeleton variant="circular" width={24} height={24} sx={{ mx: 0.5 }} />
+                                                </Box>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
                                     : (driverList.data?.data.users?.length > 0 ?
                                         driverList?.data?.data?.users?.map((driver) => (
                                             <TableRow key={driver._id}>
