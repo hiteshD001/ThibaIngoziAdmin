@@ -75,7 +75,7 @@ export const Login = () => {
     };
 
     const handleLoginSuccess = (res) => {
-        const userRole = res.data.user.role;
+        const userRole = res.data.user?.role;
 
         // Block app-only users from accessing the admin dashboard
         const appOnlyRoles = ['driver', 'passanger', 'passenger'];
