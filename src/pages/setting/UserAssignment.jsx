@@ -104,7 +104,8 @@ const UserAssignment = ({ editRoleId }) => {
 
     const handleCompanyChange = (e) => {
         const { name, value } = e.target;
-        const companyname = companyList?.data?.data?.users?.find(
+        const companyData = companyList?.data?.data?.users || companyList?.data?.data || [];
+        const companyname = companyData.find(
             (user) => user._id === value
         )?.company_name;
         userform.setFieldValue(name, value);
@@ -149,13 +150,13 @@ const UserAssignment = ({ editRoleId }) => {
                     options={
                         isLoading
                             ? [{ label: "Loading...", value: "" }]
-                            : companyList.data?.data?.users?.length > 0
-                                ? companyList.data?.data?.users.map((company) => ({
+                            : (companyList.data?.data?.users || companyList.data?.data)?.length > 0
+                                ? (companyList.data?.data?.users || companyList.data?.data).map((company) => ({
                                     value: company._id,
                                     label: (
                                         <Box sx={{ display: "flex", flexDirection: "column" }}>
                                             <Typography sx={{ fontWeight: 450 }}>
-                                                {company.company_name}
+                                                {company.company_name || company.name || company._id}
                                             </Typography>
                                         </Box>
                                     ),
