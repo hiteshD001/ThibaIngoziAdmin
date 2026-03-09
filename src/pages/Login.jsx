@@ -86,16 +86,16 @@ export const Login = () => {
 
         toast.success("Logged In successfully.");
         localStorage.clear();
-        localStorage.setItem("accessToken", res.data.accessToken);
-        localStorage.setItem('currentlat', res.data.user.current_lat);
-        localStorage.setItem('currentlong', res.data.user.current_long);
-        localStorage.setItem("userID", res.data.user._id);
-        localStorage.setItem("userName", res.data.user.first_name + " " + res.data.user.last_name);
-        localStorage.setItem("role", res.data.user.role);
-        localStorage.setItem("selfiImage", res.data.user.selfieImage);
-        localStorage.setItem("contact_name", res.data.user.contact_name);
-        localStorage.setItem("roleId", res.data.user.roleId._id);
-        localStorage.setItem("ehailingCompanyIds", res.data.user.roleId.ehailingCompanyIds);
+        localStorage.setItem("accessToken", res.data?.accessToken);
+        localStorage.setItem('currentlat', res.data.user?.current_lat);
+        localStorage.setItem('currentlong', res.data.user?.current_long);
+        localStorage.setItem("userID", res.data.user?._id);
+        localStorage.setItem("userName", res.data.user?.first_name + " " + res.data.user?.last_name);
+        localStorage.setItem("role", res.data.user?.role);
+        localStorage.setItem("selfiImage", res.data.user?.selfieImage);
+        localStorage.setItem("contact_name", res.data.user?.contact_name);
+        localStorage.setItem("roleId", res.data.user?.roleId?._id || res.data.user?.roleId);
+        localStorage.setItem("ehailingCompanyIds", res.data.user?.roleId?.ehailingCompanyIds);
 
         // Set roleId to trigger permissions fetch
         if (res.data.user.roleId._id) {
