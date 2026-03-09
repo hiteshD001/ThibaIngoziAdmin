@@ -1,7 +1,7 @@
 import logo4 from "../assets/images/logo4.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { superadmin_menulist, Companyadmin_menulist, salesAgent_menulist, passenger_menulist, driver_menulist } from "./Menulist";
+import { superadmin_menulist, Companyadmin_menulist, salesAgent_menulist, passenger_menulist, driver_menulist, allMenuItems } from "./Menulist";
 import { LogoutConfirm } from "./ConfirmationPOPup";
 import { useGetPermissionsByRoleId } from "../API Calls/API";
 import { useMemo } from "react";
@@ -21,7 +21,25 @@ const SideBar = ({ setActive, isActive, sidebarRef }) => {
         if (role === 'sales_agent') return salesAgent_menulist(permissionsData);
         if (role === 'passenger' || role === 'Passanger') return passenger_menulist(permissionsData);
         if (role === 'driver' || role === 'Driver') return driver_menulist(permissionsData);
-        return [];
+
+        // Fallback for custom roles or any other roles not explicitly mentioned above
+        let activePermissions = [];
+        if (permissionsData?.data?.data?.permissions) {
+            activePermissions = permissionsData.data.data.permissions
+                .filter(permission => permission.status === 'active')
+                .map(permission => permission.name);
+        }
+
+        return allMenuItems.filter(item => {
+            // Home and Logout must always be visible regardless of permissions
+            if (item.id === "home" || item.id === "logout") {
+                return true;
+            }
+            if (!item.permission) {
+                return true;
+            }
+            return activePermissions.includes(item.permission);
+        });
     }, [role, permissionsData]);
 
     const [currentMenu, setcurrentMenu] = useState(

@@ -568,7 +568,7 @@ const Home = ({ isMapLoaded, }) => {
                                                 onClick={changeSortOrder2}
                                                 IconComponent={() => <img src={sortBy2 === 'first_name' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                             >
-                                                Driver
+                                                User
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
