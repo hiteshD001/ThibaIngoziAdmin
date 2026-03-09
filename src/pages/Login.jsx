@@ -95,7 +95,7 @@ export const Login = () => {
         localStorage.setItem("selfiImage", res.data.user?.selfieImage);
         localStorage.setItem("contact_name", res.data.user?.contact_name);
         localStorage.setItem("roleId", res.data.user?.roleId?._id || res.data.user?.roleId);
-        localStorage.setItem("ehailingCompanyIds", res.data.user.roleId.companyIds || res.data.user?.roleId?.ehailingCompanyIds);
+        localStorage.setItem("ehailingCompanyIds", res.data.user.roleId?.companyIds || res.data.user?.roleId?.ehailingCompanyIds);
 
         // Set roleId to trigger permissions fetch
         if (res.data.user?.roleId?._id || res.data.user?.roleId) {
