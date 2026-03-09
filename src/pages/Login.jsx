@@ -98,8 +98,8 @@ export const Login = () => {
         localStorage.setItem("ehailingCompanyIds", res.data.user?.roleId?.ehailingCompanyIds);
 
         // Set roleId to trigger permissions fetch
-        if (res.data.user.roleId._id) {
-            setRoleId(res.data.user.roleId._id);
+        if (res.data.user?.roleId?._id || res.data.user?.roleId) {
+            setRoleId(res.data.user?.roleId?._id || res.data.user?.roleId);
 
             // Delay navigation to allow permissions to be fetched
             setTimeout(() => {
@@ -111,7 +111,7 @@ export const Login = () => {
             }, 1000); // 1 second delay
         } else {
             // Navigate immediately if no roleId
-            if (res.data.role === "sales_agent") {
+            if (res.data?.role === "sales_agent") {
                 nav("/sales-home", { state: { from: "login" } });
             } else {
                 nav("/home", { state: { from: "login" } });
