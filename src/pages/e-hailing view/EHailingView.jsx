@@ -459,6 +459,9 @@ const EHialingView = ({ isMapLoaded }) => {
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            Trip Type
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             Status
                                         </TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>
@@ -586,6 +589,9 @@ const EHialingView = ({ isMapLoaded }) => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {format(user?.createdAt, 'HH:mm:ss')}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {user?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
                                                         {(!(user?.sosType === 'ARMED_SOS' ? user?.armedSosstatus : user?.help_received)) &&
