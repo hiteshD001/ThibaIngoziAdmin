@@ -335,7 +335,7 @@ const EHialingView = ({ isMapLoaded }) => {
                         e-Hailing View Overview
                     </Typography>
                     <Typography variant="body1" mt={1} color="text.secondary">
-                        Monitor all Bolt-based trips, SOS alerts, and live incidents
+                        Monitor all your e-Hailing-based SOS trip alerts, and live incidents
                     </Typography>
                 </Grid>
 
