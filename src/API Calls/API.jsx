@@ -1107,6 +1107,26 @@ export const useGetActiveSosData = ({ page = 1, limit = 10, startDate, endDate, 
     return res;
 }
 
+export const useGetActiveSosDataEhailing = ({ page = 1, limit = 10, startDate, endDate, searchKey, type, sortBy, sortOrder, companyIds }) => {
+
+    const queryFn = async () => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/ehailing-location/active/sos/data`, {
+            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder, companyIds
+        }
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, companyIds],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        staleTime: 15 * 60 * 1000,
+    });
+
+    return res;
+}
+
 // get hotspot
 
 export const useGetHotspot = (startDate, endDate, company_id, notificationType, ehailing = false) => {
@@ -1192,7 +1212,7 @@ export const useGetEHailingChartData = (companyIds = [], time, startDate, endDat
         // Serialize companyIds as repeated query params: companyId[]=id1&companyId[]=id2
         const searchParams = new URLSearchParams();
         Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') searchParams.append(k, v); });
-        companyIds.forEach(id => searchParams.append('companyId[]', id));
+        companyIds.forEach(id => searchParams.append('company_id', id));
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/ehailing-location/sos-month?${searchParams.toString()}`);
     };
 
@@ -1212,7 +1232,7 @@ export const useGetEHailingHotspot = (startDate, endDate, companyIds = []) => {
         if (startDate) searchParams.append('startDate', startDate);
         if (endDate) searchParams.append('endDate', endDate);
         // Serialize companyIds as repeated query params: companyId[]=id1&companyId[]=id2
-        companyIds.forEach(id => searchParams.append('companyId[]', id));
+        companyIds.forEach(id => searchParams.append('companyIds', id));
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/ehailing-location/hotspot?${searchParams.toString()}`);
     };
 

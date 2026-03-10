@@ -17,7 +17,7 @@ import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 
 import { useWebSocket } from '../../API Calls/WebSocketContext';
-import { useGetRecentSOS, useGetUser, useGetActiveSosData, useUpdateLocationStatus, useGetChartData } from '../../API Calls/API';
+import { useGetEHailingRecentSos, useGetUser, useGetActiveSosDataEhailing, useUpdateLocationStatus, useGetEHailingChartData } from '../../API Calls/API';
 
 import Loader from '../../common/Loader';
 import CustomChart from '../../common/CustomChart';
@@ -94,15 +94,36 @@ const EHialingView = ({ isMapLoaded }) => {
     const endDateSos = rangeSos[0].endDate.toISOString();
 
     const userinfo = useGetUser(localStorage.getItem("userID"));
-    const activeSos = useGetActiveSosData({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, company_id: ehailingCompanyId });
-    const recentSos = useGetRecentSOS({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, company_id: ehailingCompanyId });
-    const chartData = useGetChartData(ehailingCompanyId, null, range[0]?.startDate, range[0]?.endDate, "", true);
+    const activeSos = useGetActiveSosDataEhailing({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: ehailingCompanyIds });
+    const recentSos = useGetEHailingRecentSos({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, companyIds: ehailingCompanyIds });
+    const chartData = useGetEHailingChartData(ehailingCompanyIds, null, range[0]?.startDate, range[0]?.endDate);
     const {
         newSOS,
         requestCounts,
         activeUserLists,
-        setActiveUserLists
+        setActiveUserLists,
+        socketRef,
+        isConnected
     } = useWebSocket();
+
+    // Subscribe to specific company data for SOS alerts via WebSocket
+    useEffect(() => {
+        if (isConnected && socketRef?.current?.readyState === WebSocket.OPEN) {
+            socketRef.current.send(JSON.stringify({
+                type: 'subscribe',
+                companyId: ehailingCompanyId
+            }));
+        }
+
+        return () => {
+            // Unsubscribe when leaving the e-Hailing view to revert to global WS
+            if (isConnected && socketRef?.current?.readyState === WebSocket.OPEN) {
+                socketRef.current.send(JSON.stringify({
+                    type: 'unsubscribe'
+                }));
+            }
+        };
+    }, [isConnected, ehailingCompanyId, socketRef]);
 
     // In e-hailing view, always use company-filtered API data — ignore global WebSocket activeUserLists
     const activeUserList = activeSos?.data?.data?.data;
