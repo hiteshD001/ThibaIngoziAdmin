@@ -156,19 +156,37 @@ const Home = ({ isMapLoaded, }) => {
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS({ page: recentPage, limit: recentLimit, startDate, endDate, searchKey: recentFilter, type: recentNotification, sortBy, sortOrder });
     const activeSos = useGetActiveSosData({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, searchKey: filter, type: selectedNotification, sortBy: sortBy2, sortOrder: sortOrder2 });
-    const activeUserList = activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data;
+    // Detect if any active SOS filter has been applied by the user
+    const defaultStartDate = startOfYear(new Date()).toISOString();
+    const isFilterActive = useMemo(() => {
+        if (filter && filter.trim().length > 0) return true;
+        if (selectedNotification !== "all") return true;
+        // Check if date range has been changed from the default
+        const defaultStart = startOfYear(new Date()).toISOString().split('T')[0];
+        const currentStart = startDateSos.split('T')[0];
+        const defaultEnd = new Date().toISOString().split('T')[0];
+        const currentEnd = endDateSos.split('T')[0];
+        if (currentStart !== defaultStart || currentEnd !== defaultEnd) return true;
+        return false;
+    }, [filter, selectedNotification, startDateSos, endDateSos]);
+
+    // Use WebSocket data by default; switch to API data when a filter is active
+    const activeUserList = isFilterActive
+        ? activeSos?.data?.data?.data
+        : (activeUserLists?.length > 0 ? activeUserLists : activeSos?.data?.data?.data);
+
     // Apply pagination slicing for display
     const paginatedActiveUserList = useMemo(() => {
         if (!Array.isArray(activeUserList)) return [];
         // Only slice if using WebSocket data (client-side pagination)
         // API data is already paginated server-side
-        if (activeUserLists?.length > 0) {
+        if (!isFilterActive && activeUserLists?.length > 0) {
             const startIndex = (activePage - 1) * activeLimit;
             const endIndex = startIndex + activeLimit;
             return activeUserList.slice(startIndex, endIndex);
         }
         return activeUserList;
-    }, [activeUserList, activePage, activeLimit, activeUserLists]);
+    }, [activeUserList, activePage, activeLimit, activeUserLists, isFilterActive]);
 
     const prevLengthRef = useRef(activeUserList?.length);
 
@@ -438,8 +456,10 @@ const Home = ({ isMapLoaded, }) => {
     };
 
     // Calculate total items: use activeUserList length for WebSocket data, activeSos data for API
-    const totalActiveItems = activeUserLists?.length > 0 ? (activeUserList?.length || 0) : (activeSos?.data?.data?.totalItems || 0);
-    const totalActivePages = Math.ceil(totalActiveItems / activeLimit)
+    const totalActiveItems = isFilterActive
+        ? (activeSos?.data?.data?.totalItems || 0)
+        : (activeUserLists?.length > 0 ? (activeUserList?.length || 0) : (activeSos?.data?.data?.totalItems || 0));
+    const totalActivePages = Math.ceil(totalActiveItems / activeLimit) || 1;
     const totalRecentItems = recentSos?.data?.totalItems
     const totalRecentPages = Math.ceil(totalRecentItems / recentLimit)
 
@@ -644,7 +664,7 @@ const Home = ({ isMapLoaded, }) => {
                                 </TableHead>
 
                                 <TableBody>
-                                    {activeSos.isPending ?
+                                    {(isFilterActive && activeSos.isPending) ?
                                         <TableRow>
                                             <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={9} align="center">
                                                 <Loader />
@@ -777,7 +797,7 @@ const Home = ({ isMapLoaded, }) => {
                                                         {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.type?.display_title || "-")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {moment(user?.createdAt).format('HH:mm:ss')}
+                                                        {format(user?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
                                                         {(!(user?.sosType === 'ARMED_SOS' ? user?.armedSosstatus : user?.help_received)) &&
