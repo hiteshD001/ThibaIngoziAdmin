@@ -3,7 +3,7 @@ import { useRef, useMemo, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Slide, toast } from 'react-toastify';
-import { startOfYear, format } from 'date-fns';
+import { format } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { ContentCopy, NavigateNext, NavigateBefore } from '@mui/icons-material';
@@ -25,6 +25,7 @@ import { toastOption } from '../../common/ToastOptions';
 import HotspotSection from '../../common/HotspotSection';
 import { SOSStatusUpdate } from '../../common/ConfirmationPOPup';
 import CustomDateRangePicker from '../../common/Custom/CustomDateRangePicker';
+import TimeFilter from '../../common/Custom/TimeFilter';
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -45,7 +46,6 @@ const EHialingView = ({ isMapLoaded }) => {
     const audioRef = useRef(new Audio(tone));
 
     const role = localStorage.getItem("role");
-    const userId = localStorage.getItem("userID");
 
     // Parse ehailingCompanyIds from localStorage into an array
     const rawEhailingCompanyIds = localStorage.getItem("ehailingCompanyIds") || "";
@@ -59,6 +59,7 @@ const EHialingView = ({ isMapLoaded }) => {
     const [selectedId, setSelectedId] = useState("");
     const [updatingId, setUpdatingId] = useState("");
     const [statusUpdate, setStatusUpdate] = useState(false);
+    const [time, settime] = useState("today");
 
     // pagination
     const [recentPage, setRecentPage] = useState(1);
@@ -76,27 +77,37 @@ const EHialingView = ({ isMapLoaded }) => {
     // date picker 
     const [rangeSos, setRangeSos] = useState([
         {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
+            startDate: null,
+            endDate: null,
             key: 'selection'
         }
+        // {
+        //     startDate: startOfYear(new Date()),
+        //     endDate: new Date(),
+        //     key: 'selection'
+        // }
     ]);
     const [range, setRange] = useState([
         {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
+            startDate: null,
+            endDate: null,
             key: 'selection'
         }
+        // {
+        //     startDate: startOfYear(new Date()),
+        //     endDate: new Date(),
+        //     key: 'selection'
+        // }
     ]);
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
-    const startDateSos = rangeSos[0].startDate.toISOString();
-    const endDateSos = rangeSos[0].endDate.toISOString();
+    const startDate = range[0].startDate?.toISOString();
+    const endDate = range[0].endDate?.toISOString();
+    const startDateSos = rangeSos[0].startDate?.toISOString();
+    const endDateSos = rangeSos[0].endDate?.toISOString();
 
     const userinfo = useGetUser(localStorage.getItem("userID"));
     const activeSos = useGetActiveSosDataEhailing({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: ehailingCompanyIds });
     const recentSos = useGetEHailingRecentSos({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, companyIds: ehailingCompanyIds });
-    const chartData = useGetEHailingChartData(ehailingCompanyIds, null, range[0]?.startDate, range[0]?.endDate);
+    const chartData = useGetEHailingChartData(ehailingCompanyIds, time, range[0]?.startDate, range[0]?.endDate);
     const {
         newSOS,
         requestCounts,
@@ -326,22 +337,40 @@ const EHialingView = ({ isMapLoaded }) => {
         }
     }, [activeUserList, recentSos.refetch]);
 
+    useEffect(() => {
+        if (range[0]?.startDate && range[0]?.endDate) {
+            settime("")
+        }
+    }, [range])
+
     return (
         <Box>
 
             <Grid sx={{ backgroundColor: 'white', p: 3, mt: '-25px' }} container justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
                 <Grid size={{ xs: 12, md: 5, lg: 6 }}>
                     <Typography variant="h5" fontWeight={550}>
-                        e-Hailing View Overview
+                        {role ?? ""} e-Hailing View Overview
                     </Typography>
                     <Typography variant="body1" mt={1} color="text.secondary">
-                        Monitor all your e-Hailing-based SOS trip alerts, and live incidents
+                        Monitor all your e-Hailing-based SOS trip alerts and live incidents.
                     </Typography>
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 7, lg: 6 }}>
                     <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
                         <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
+                            <TimeFilter
+                                selected={time}          // current selected time
+                                onApply={(value) => {
+                                    settime(value)
+                                    setRange([{
+                                        startDate: null,
+                                        endDate: null,
+                                        key: 'selection'
+                                    }])
+                                }}
+                            />
+
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
