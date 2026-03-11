@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Avatar, Box, Divider, Typography, IconButton } from "@mui/material";
 import { useGetPermissionsByRoleId, useGetUser } from "../API Calls/API";
 import notificationIcon from '../assets/images/notificationIcon.svg';
-import { Companyadmin_menulist, driver_menulist, passenger_menulist, salesAgent_menulist, superadmin_menulist } from "./Menulist";
+import { getFilteredMenulist } from "./Menulist";
 import { useLocation, useNavigate } from "react-router-dom";
 import { IoIosMenu } from "react-icons/io";
 import { IoArrowBack } from "react-icons/io5";
@@ -30,12 +30,7 @@ const Navbar = ({ setActive, isActive }) => {
     const { data: permissionsData } = useGetPermissionsByRoleId(roleId);
 
     const menulist = useMemo(() => {
-        if (role === 'super_admin') return superadmin_menulist(permissionsData);
-        if (role === 'company') return Companyadmin_menulist(permissionsData);
-        if (role === 'sales_agent') return salesAgent_menulist(permissionsData);
-        if (role === 'passenger' || role === 'Passanger') return passenger_menulist(permissionsData);
-        if (role === 'driver' || role === 'Driver') return driver_menulist(permissionsData);
-        return [];
+        return getFilteredMenulist(role, permissionsData);
     }, [role, permissionsData]);
 
     useEffect(() => {

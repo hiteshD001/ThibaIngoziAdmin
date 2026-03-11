@@ -108,8 +108,6 @@ export const Login = () => {
 
             const menulist = getFilteredMenulist(role, storedPermissions);
             const firstRoute = menulist.find(item => item.id !== "logout")?.path;
-            console.log(menulist, "menulist")
-            console.log(firstRoute, "firstRoute")
             if (firstRoute) {
                 nav(firstRoute, { state: { from: "login" } });
             } else {
