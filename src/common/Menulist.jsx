@@ -31,7 +31,7 @@ export const allMenuItems = [
         name: "Dashboard",
         path: "/home",
         image: Dashboard,
-        permission: "Dashboard" // Standardized permission name
+        permission: "SOS Dashboard Access" // Standardized permission name
     },
 
     {
@@ -224,7 +224,7 @@ export const driver_menulist = (permissionsData) => {
  * Centralized function to get the filtered menu list for any role
  */
 export const getFilteredMenulist = (role, permissionsData) => {
-    let activePermissions = []; // Dashboard is always permitted
+    let activePermissions = []; // Application is always permitted
 
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
         const apiPermissions = permissionsData.data.data.permissions

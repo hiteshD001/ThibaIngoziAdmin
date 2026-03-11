@@ -1,7 +1,7 @@
 import logo4 from "../assets/images/logo4.svg";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { superadmin_menulist, Companyadmin_menulist, salesAgent_menulist, passenger_menulist, driver_menulist, allMenuItems } from "./Menulist";
+import { useEffect, useState, useRef } from "react";
+import { getFilteredMenulist } from "./Menulist";
 import { LogoutConfirm } from "./ConfirmationPOPup";
 import { useGetPermissionsByRoleId } from "../API Calls/API";
 import { useMemo } from "react";
@@ -14,51 +14,27 @@ const SideBar = ({ setActive, isActive, sidebarRef }) => {
     // Fetch permissions for company role
     const { data: permissionsData } = useGetPermissionsByRoleId(roleId);
 
+    const nav = useNavigate()
+    const location = useLocation();
+
     // Dynamically calculate menulist based on role and permissions
     const menulist = useMemo(() => {
-        if (role === 'super_admin') return superadmin_menulist(permissionsData);
-        if (role === 'company') return Companyadmin_menulist(permissionsData);
-        if (role === 'sales_agent') return salesAgent_menulist(permissionsData);
-        if (role === 'passenger' || role === 'Passanger') return passenger_menulist(permissionsData);
-        if (role === 'driver' || role === 'Driver') return driver_menulist(permissionsData);
-
-        // Fallback for custom roles or any other roles not explicitly mentioned above
-        let activePermissions = [];
-        if (permissionsData?.data?.data?.permissions) {
-            activePermissions = permissionsData.data.data.permissions
-                .filter(permission => permission.status === 'active')
-                .map(permission => permission.name);
-        }
-
-        return allMenuItems.filter(item => {
-            // Logout must always be visible regardless of permissions
-            if (item.id === "logout") {
-                return true;
-            }
-            if (!item.permission) {
-                return true;
-            }
-            return activePermissions.includes(item.permission);
-        });
+        return getFilteredMenulist(role, permissionsData);
     }, [role, permissionsData]);
-
-    const [currentMenu, setcurrentMenu] = useState(
-        role === "sales_agent" ? "sales-home" : "home"
-    );
-
-    const location = useLocation();
-    const nav = useNavigate()
 
     const handleLogout = () => {
         localStorage.clear()
         nav("/")
     }
 
+    const [currentMenu, setcurrentMenu] = useState(
+        role === "sales_agent" ? "sales-home" : "home"
+    );
+
     useEffect(() => {
         const currentPath = location.pathname.split("/")
         setcurrentMenu(currentPath[2] ? currentPath[2] : currentPath[1])
     }, [location])
-    console.log(menulist, "menulist-menulist")
 
     return (
         <div ref={sidebarRef} className={`sidebar ${isActive ? "show" : ""}`}>
