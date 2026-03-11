@@ -29,6 +29,7 @@ import totalstolencars from "../../assets/images/permission/total-stolen-cars.sv
 import totalsuspect from "../../assets/images/permission/total-suspect.svg"
 import totalusers from "../../assets/images/permission/total-users.svg"
 import ehailing from "../../assets/images/permission/e-hailing-view.svg"
+import application from "../../assets/images/permission/home.svg"
 
 const CreateRole = ({ editRoleId, setEditRoleId }) => {
     const client = useQueryClient()
@@ -75,8 +76,9 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
     const { data: permission } = useGetPermission();
     const { data: eHailingCompanies } = useGeteHailingList();
 
-    // Resolve e-Hailing permission ID early so onSubmit can reference it
+    // Resolve permission IDs early
     const eHailingPermId = permissions?.data?.data?.find(p => p.name === "e-Hailing View")?._id;
+    const appPermId = permissions?.data?.data?.find(p => p.name === "Application")?._id;
 
     // Filter only active permissions
     const activePermissionIds = permission?.data?.data?.filter(perm => perm.status === 'active').map(perm => perm._id) || [];
@@ -102,13 +104,6 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         }
     }, [editRoleId, roleData]);
 
-    // Removed incorrect useEffect that overwrote permissionIds
-    // useEffect(() => {
-    //     // Only pre-populate permissions when editing a role — in create mode all start as unchecked
-    //     if (editRoleId) {
-    //         roleform.setFieldValue("permissionIds", activePermissionIds);
-    //     }
-    // }, [permission?.data?.data, editRoleId]);
 
 
     const roleform = useFormik({
@@ -119,14 +114,19 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         },
         onSubmit: (values) => {
             const isEHailingEnabled = !!eHailingPermId && values.permissionIds.includes(eHailingPermId);
+            // Always include Application permission in the payload
+            const finalPermissionIds = appPermId && !values.permissionIds.includes(appPermId)
+                ? [...values.permissionIds, appPermId]
+                : values.permissionIds;
+
             if (editRoleId) {
-                const payload = { permissionIds: values.permissionIds };
+                const payload = { permissionIds: finalPermissionIds };
                 if (isEHailingEnabled && values.companyIds.length > 0) {
                     payload.companyIds = values.companyIds;
                 }
                 updateRole({ id: editRoleId, data: payload });
             } else {
-                const payload = { roleName: values.roleName, permissionIds: values.permissionIds };
+                const payload = { roleName: values.roleName, permissionIds: finalPermissionIds };
                 if (isEHailingEnabled && values.companyIds.length > 0) {
                     payload.companyIds = values.companyIds;
                 }
@@ -135,11 +135,21 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
         },
     });
 
+    // Ensure "Application" permission is always enabled
+    useEffect(() => {
+        if (appPermId && roleform && !roleform.values.permissionIds.includes(appPermId)) {
+            roleform.setFieldValue("permissionIds", [...roleform.values.permissionIds, appPermId]);
+        }
+    }, [appPermId, roleform.values.permissionIds]);
+
     const getIcon = (name) => {
         return icons?.find(i => i.name === name)?.icon
     }
 
     const handlePermissionToggle = (permId) => {
+        // Prevent toggling Application permission
+        if (permId === appPermId) return;
+
         const current = roleform.values.permissionIds;
         if (current.includes(permId)) {
             // Remove from list
@@ -271,10 +281,17 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                             )}
                             {permissions?.data?.data?.length > 0 ? (
                                 [...permissions.data.data]
-                                    .sort((a, b) => (a.name === "e-Hailing View" ? 1 : b.name === "e-Hailing View" ? -1 : 0))
+                                    .sort((a, b) => {
+                                        if (a.name === "Application") return 1;
+                                        if (b.name === "Application") return -1;
+                                        if (a.name === "e-Hailing View") return 1;
+                                        if (b.name === "e-Hailing View") return -1;
+                                        return 0;
+                                    })
                                     .map((perm) => {
-                                        const isChecked = isAppOnlyRole ? false : roleform.values.permissionIds.includes(perm._id);
-                                        const isDisabled = isAppOnlyRole || perm.status !== "active";
+                                        const isApplication = perm.name === "Application";
+                                        const isChecked = isApplication ? true : (isAppOnlyRole ? false : roleform.values.permissionIds.includes(perm._id));
+                                        const isDisabled = isApplication || isAppOnlyRole || perm.status !== "active";
                                         const isEHailing = perm.name === "e-Hailing View";
                                         const isEHailingOn = roleform.values.permissionIds.includes(perm._id);
 
@@ -510,5 +527,9 @@ const icons = [
     {
         name: "e-Hailing View",
         icon: ehailing
+    },
+    {
+        name: "Application",
+        icon: application
     }
 ]

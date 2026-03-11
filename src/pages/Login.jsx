@@ -10,6 +10,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import TwoFactorAuth from "../components/TwoFactorAuth";
 import ForgotPassword from "../components/ForgotPassword";
+import { getFilteredMenulist } from "../common/Menulist";
 
 export const Login = () => {
     const nav = useNavigate();
@@ -28,13 +29,10 @@ export const Login = () => {
             if (permissionsData.data) {
                 if (permissionsData.data.success && permissionsData.data.data.permissions) {
                     // Store only active permissions
-                    const activePermissions = permissionsData.data.data.permissions
+                    const activePermissionsList = permissionsData.data.data.permissions
                         .filter(permission => permission.status === 'active')
                         .map(permission => permission.name);
-                    localStorage.setItem("userPermissions", JSON.stringify(activePermissions));
-
-                    // Also log current localStorage for verification
-                    const storedPermissions = localStorage.getItem("userPermissions");
+                    localStorage.setItem("userPermissions", JSON.stringify(activePermissionsList));
                 } else {
                     console.warn("Permissions API response structure unexpected:", permissionsData.data);
                 }
@@ -98,25 +96,29 @@ export const Login = () => {
         localStorage.setItem("ehailingCompanyIds", res.data.user.roleId?.companyIds || res.data.user?.roleId?.ehailingCompanyIds);
 
         // Set roleId to trigger permissions fetch
-        if (res.data.user?.roleId?._id || res.data.user?.roleId) {
-            setRoleId(res.data.user?.roleId?._id || res.data.user?.roleId);
+        const currentRoleId = res.data.user?.roleId?._id || res.data.user?.roleId;
+        if (currentRoleId) {
+            setRoleId(currentRoleId);
+        }
 
-            // Delay navigation to allow permissions to be fetched
-            setTimeout(() => {
-                if (res.data.role === "sales_agent") {
+        // Delay navigation to allow permissions to be fetched and stored in localStorage
+        setTimeout(() => {
+            const role = res.data.user?.role;
+            const storedPermissions = JSON.parse(localStorage.getItem("userPermissions") || "[]");
+
+            const menulist = getFilteredMenulist(role, storedPermissions);
+            const firstRoute = menulist.find(item => item.id !== "logout")?.path;
+
+            if (firstRoute) {
+                nav(firstRoute, { state: { from: "login" } });
+            } else {
+                if (role === "sales_agent") {
                     nav("/sales-home", { state: { from: "login" } });
                 } else {
                     nav("/home", { state: { from: "login" } });
                 }
-            }, 1000); // 1 second delay
-        } else {
-            // Navigate immediately if no roleId
-            if (res.data?.role === "sales_agent") {
-                nav("/sales-home", { state: { from: "login" } });
-            } else {
-                nav("/home", { state: { from: "login" } });
             }
-        }
+        }, currentRoleId ? 1000 : 0);
     };
 
 

@@ -114,8 +114,7 @@ function App() {
         },
         {
             path: "/home",
-            // element: <AuthGuard><Layout /></AuthGuard>,
-            element: <Layout />,
+            element: <AuthGuard><Layout /></AuthGuard>,
             children: [
                 {
                     path: "",

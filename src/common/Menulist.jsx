@@ -31,7 +31,7 @@ export const allMenuItems = [
         name: "Dashboard",
         path: "/home",
         image: Dashboard,
-        permission: "Dashboard" // Dashboard now requires explicit permission
+        permission: "Dashboard" // Standardized permission name
     },
 
     {
@@ -41,7 +41,7 @@ export const allMenuItems = [
         image: Company,
         add: "Add Company",
         company: "Company Information",
-        permission: "Total Companies" // Requires "Company Management" permission
+        permission: "Total Companies"
     },
     {
         id: "total-drivers",
@@ -51,7 +51,7 @@ export const allMenuItems = [
         add: "Add Driver",
         info: "Driver Information",
         company: "Company Information",
-        permission: "Total Drivers" // Requires "Driver Management" permission
+        permission: "Total Drivers"
     },
     {
         id: "total-linked-trips",
@@ -59,7 +59,7 @@ export const allMenuItems = [
         path: "/home/total-linked-trips",
         image: Trip,
         company: "Trip Information",
-        permission: "Total Linked Trips" // Requires "Trip Management" permission
+        permission: "Total Linked Trips"
     },
     {
         id: "total-meeting-links",
@@ -67,7 +67,7 @@ export const allMenuItems = [
         path: "/home/total-meeting-links",
         image: MeetingLink,
         company: "Trip Information",
-        permission: "Total Meeting Links" // Requires "Meeting Management" permission
+        permission: "Total Meeting Links"
     },
     {
         id: "total-users",
@@ -76,7 +76,7 @@ export const allMenuItems = [
         image: users,
         add: "Add User",
         company: "User Information",
-        permission: "Users" // Requires "User Management" permission
+        permission: "Users"
     },
     {
         id: "total-sos-amount",
@@ -84,7 +84,7 @@ export const allMenuItems = [
         path: "/home/total-sos-amount",
         image: ArmedSos,
         company: "Sos Information",
-        permission: "Armed Sos Amount" // Requires "SOS Management" permission
+        permission: "Armed Sos Amount"
     },
     {
         id: "total-sales-agent",
@@ -92,31 +92,15 @@ export const allMenuItems = [
         path: "/home/total-sales-agent",
         image: salesagent,
         info: "Sales Agent Information",
-        permission: "Sales Agent" // Requires "Sales Agent Management" permission
+        permission: "Sales Agent"
     },
-    // {
-    //     id: "total-saps-wanted",
-    //     name: "SAPS Wanted",
-    //     path: "/home/total-saps-wanted",
-    //     image: SapsWanted,
-    //     add: "Add Saps Member",
-    //     info: "Suspect Information",
-    //     permission: "SAPS Wanted" // Requires "SAPS Management" permission
-    // },
-    // {
-    //     id: "reports",
-    //     name: "Reports",
-    //     path: "/home/reports",
-    //     image: Report,
-    //     permission: "Reports" // Requires "Reports Management" permission
-    // },
     {
         id: "total-missing-person",
         name: "Missing Persons",
         path: "/home/total-missing-person",
         image: MissingPersonIcon,
         company: "Missing Person Sighting Details",
-        permission: "Missing Persons" // Requires "Missing Person Management" permission
+        permission: "Missing Persons"
     },
     {
         id: "total-stolen-cars",
@@ -124,7 +108,7 @@ export const allMenuItems = [
         path: "/home/total-stolen-cars",
         image: StolenCarIcon,
         company: "Stolen Car Sighting Details",
-        permission: "Stolen Cars" // Requires "Stolen Car Management" permission
+        permission: "Stolen Cars"
     },
     {
         id: "crime-reports",
@@ -133,7 +117,7 @@ export const allMenuItems = [
         image: Crime,
         company: "Crime Report",
         add: "Forward To Police Unit",
-        permission: "Crime Reporting" // Requires "Crime Management" permission
+        permission: "Crime Reporting"
     },
     {
         id: "total-suspect",
@@ -141,28 +125,28 @@ export const allMenuItems = [
         path: "/home/total-suspect",
         image: SuspectIcon,
         company: "Suspect Sighting Details",
-        permission: "Suspect Sightings" // Requires "Suspect Management" permission
+        permission: "Suspect Sightings"
     },
     {
         id: "settings",
         name: "Settings",
         path: "/home/settings",
         image: settings,
-        permission: "Settings" // Requires "Settings Management" permission
+        permission: "Settings"
     },
     {
         id: "flagged-report",
         name: "Flagged Report",
         path: "/home/flagged-report",
         image: Flagged,
-        permission: "Flagged Report" // Requires "Flagged Report Management" permission
+        permission: "Flagged Report"
     },
     {
         id: "change-password",
         name: "Change Password",
         path: "/home/change-password",
         image: changePasswordIcon,
-        permission: "Change Password" // Change password is always visible
+        permission: "Change Password"
     },
     {
         id: "e-hailing-view",
@@ -176,129 +160,94 @@ export const allMenuItems = [
         id: "logout",
         name: "Logout",
         image: Logout,
-        permission: null // Logout is always visible
+        permission: null
     },
 ];
 
 export const superadmin_menulist = (permissionsData) => {
-    // Process permissions data if provided
     let activePermissions = [];
-
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
-        // Extract active permission names from API response
         activePermissions = permissionsData.data.data.permissions
             .filter(permission => permission.status === 'active')
             .map(permission => permission.name);
     }
-
-    // Filter menu items based on user permissions
-    const filteredMenuItems = allMenuItems.filter(item => {
-        if (!item.permission) {
-            return true;
-        }
-        return activePermissions.includes(item.permission);
-    });
-
-    return filteredMenuItems;
+    return allMenuItems.filter(item => !item.permission || activePermissions.includes(item.permission));
 };
 
 export const salesAgent_menulist = (permissionsData) => {
-    // Process permissions data if provided
     let activePermissions = [];
-
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
-        // Extract active permission names from API response
         activePermissions = permissionsData.data.data.permissions
             .filter(permission => permission.status === 'active')
             .map(permission => permission.name);
     }
-
-
-
-    // Filter menu items based on user permissions
-    const filteredMenuItems = allMenuItems.filter(item => {
-        if (!item.permission) {
-            return true;
-        }
-        return activePermissions.includes(item.permission);
-    });
-
-    return filteredMenuItems;
+    return allMenuItems.filter(item => !item.permission || activePermissions.includes(item.permission));
 };
 
 export const Companyadmin_menulist = (permissionsData) => {
     const userId = localStorage.getItem('userID');
-
-    // Process permissions data if provided
     let activePermissions = [];
-
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
-        // Extract active permission names from API response
         activePermissions = permissionsData.data.data.permissions
             .filter(permission => permission.status === 'active')
             .map(permission => permission.name);
     }
-
-    // Filter menu items based on user permissions
-    const filteredMenuItems = allMenuItems.filter(item => {
-        if (!item.permission) {
-            return true;
-        }
-        return activePermissions.includes(item.permission);
-    }).map(item => {
+    return allMenuItems.filter(item => !item.permission || activePermissions.includes(item.permission)).map(item => {
         if (item.id === "total-drivers") {
-            return {
-                ...item,
-                path: `/home/total-drivers/${userId}`,
-            };
+            return { ...item, path: `/home/total-drivers/${userId}` };
         }
         return item;
     });
-
-    return filteredMenuItems;
 };
 
 export const passenger_menulist = (permissionsData) => {
-    // Process permissions data if provided
     let activePermissions = [];
-
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
-        // Extract active permission names from API response
         activePermissions = permissionsData.data.data.permissions
             .filter(permission => permission.status === 'active')
             .map(permission => permission.name);
     }
-
-
-    const filteredMenuItems = allMenuItems.filter(item => {
-        if (!item.permission) {
-            return true;
-        }
-        return activePermissions.includes(item.permission);
-    });
-
-    return filteredMenuItems;
+    return allMenuItems.filter(item => !item.permission || activePermissions.includes(item.permission));
 };
 
 export const driver_menulist = (permissionsData) => {
-    // Process permissions data if provided
     let activePermissions = [];
-
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
-        // Extract active permission names from API response
         activePermissions = permissionsData.data.data.permissions
             .filter(permission => permission.status === 'active')
             .map(permission => permission.name);
     }
+    return allMenuItems.filter(item => !item.permission || activePermissions.includes(item.permission));
+};
 
+/**
+ * Centralized function to get the filtered menu list for any role
+ */
+export const getFilteredMenulist = (role, permissionsData) => {
+    let activePermissions = ["Dashboard"]; // Dashboard is always permitted
 
+    if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
+        const apiPermissions = permissionsData.data.data.permissions
+            .filter(permission => permission.status === 'active')
+            .map(permission => permission.name);
+        activePermissions = [...new Set([...activePermissions, ...apiPermissions])];
+    } else if (Array.isArray(permissionsData)) {
+        activePermissions = [...new Set([...activePermissions, ...permissionsData])];
+    }
 
-    const filteredMenuItems = allMenuItems.filter(item => {
-        if (!item.permission) {
-            return true;
-        }
+    const permissionsArg = {
+        data: { data: { permissions: activePermissions.map(p => ({ name: p, status: 'active' })) } }
+    };
+
+    if (role === 'super_admin') return superadmin_menulist(permissionsArg);
+    if (role === 'company') return Companyadmin_menulist(permissionsArg);
+    if (role === 'sales_agent') return salesAgent_menulist(permissionsArg);
+    if (role === 'passenger' || role === 'Passanger') return passenger_menulist(permissionsArg);
+    if (role === 'driver' || role === 'Driver') return driver_menulist(permissionsArg);
+
+    return allMenuItems.filter(item => {
+        if (item.id === "logout") return true;
+        if (!item.permission) return true;
         return activePermissions.includes(item.permission);
     });
-
-    return filteredMenuItems;
 };

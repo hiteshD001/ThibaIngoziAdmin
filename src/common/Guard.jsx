@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { Navigate } from "react-router-dom"
+import { getFilteredMenulist } from "./Menulist"
 
 
 export const AuthGuard = ({ children }) => {
@@ -16,14 +17,17 @@ export const AuthGuard = ({ children }) => {
 
 export const LogGuard = ({ children }) => {
     const auth = localStorage.getItem("accessToken")
+    const role = localStorage.getItem("role")
+    const storedPermissions = JSON.parse(localStorage.getItem("userPermissions") || "[]")
 
     if (!auth) {
         return children
     }
 
-    else {
-        return <Navigate to="/home" />
-    }
+    const menulist = getFilteredMenulist(role, storedPermissions);
+    const firstRoute = menulist.find(item => item.id !== "logout")?.path || "/home";
+
+    return <Navigate to={firstRoute} />
 }
 
 export const RouteGuard = ({ children }) => {
