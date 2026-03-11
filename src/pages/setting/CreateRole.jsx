@@ -111,12 +111,35 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
     // }, [permission?.data?.data, editRoleId]);
 
 
+    const validateForm = (values) => {
+        const errors = {};
+        
+        // Role name validation
+        if (!values.roleName.trim()) {
+            errors.roleName = "Role name is required";
+        }
+        
+        // At least one permission required for new roles
+        if (!editRoleId && values.permissionIds.length === 0) {
+            errors.permissionIds = "At least one permission is required";
+        }
+        
+        // Company selection required when e-Hailing View is assigned
+        const isEHailingEnabled = !!eHailingPermId && values.permissionIds.includes(eHailingPermId);
+        if (isEHailingEnabled && values.companyIds.length === 0) {
+            errors.companyIds = "Company selection is required when e-Hailing View permission is assigned";
+        }
+        
+        return errors;
+    };
+
     const roleform = useFormik({
         initialValues: {
             roleName: "",
             permissionIds: [],
             companyIds: [],
         },
+        validate: validateForm,
         onSubmit: (values) => {
             const isEHailingEnabled = !!eHailingPermId && values.permissionIds.includes(eHailingPermId);
             if (editRoleId) {
@@ -174,6 +197,17 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                 }
             }
         );
+    };
+
+    const handleSubmit = () => {
+        // Trigger validation for permission and company fields
+        roleform.setFieldTouched('permissionIds', true);
+        roleform.setFieldTouched('companyIds', true);
+        
+        // Submit if valid
+        if (!roleform.errors.permissionIds && !roleform.errors.companyIds) {
+            roleform.handleSubmit();
+        }
     };
 
     const handleCancel = () => {
@@ -234,6 +268,13 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                 <Typography variant="body1" fontWeight={500} mb={2}>
                     Assign Permissions
                 </Typography>
+                
+                {/* Permission validation error */}
+                {roleform.errors.permissionIds && roleform.touched.permissionIds && (
+                    <Typography variant="body2" color="error" sx={{ mb: 2 }}>
+                        {roleform.errors.permissionIds}
+                    </Typography>
+                )}
 
                 {(() => {
                     const isAppOnlyRole = editRoleId && ['driver', 'passanger', 'passenger'].includes(roleData?.data?.data?.name);
@@ -347,6 +388,13 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                                                                 ))}
                                                             </Select>
                                                         </FormControl>
+                                                        
+                                                        {/* Company validation error */}
+                                                        {roleform.errors.companyIds && roleform.touched.companyIds && (
+                                                            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                                                                {roleform.errors.companyIds}
+                                                            </Typography>
+                                                        )}
                                                     </Box>
                                                 )}
                                             </Grid>
@@ -413,7 +461,7 @@ const CreateRole = ({ editRoleId, setEditRoleId }) => {
                 )}
                 <button
                     type="submit"
-                    onClick={roleform.handleSubmit}
+                    onClick={handleSubmit}
                     style={{
                         border: "1px solid var(--Blue)",
                         backgroundColor: "var(--Blue)",
