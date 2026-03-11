@@ -46,7 +46,7 @@ export const allMenuItems = [
     {
         id: "total-drivers",
         name: "Total Drivers",
-        path: `/home/total-drivers/${userId}`,
+        path: `/home/total-drivers`,
         image: Driver,
         add: "Add Driver",
         info: "Driver Information",
@@ -227,6 +227,7 @@ export const salesAgent_menulist = (permissionsData) => {
 };
 
 export const Companyadmin_menulist = (permissionsData) => {
+    const userId = localStorage.getItem('userID');
 
     // Process permissions data if provided
     let activePermissions = [];
@@ -238,15 +239,20 @@ export const Companyadmin_menulist = (permissionsData) => {
             .map(permission => permission.name);
     }
 
-
-
-
     // Filter menu items based on user permissions
     const filteredMenuItems = allMenuItems.filter(item => {
         if (!item.permission) {
             return true;
         }
         return activePermissions.includes(item.permission);
+    }).map(item => {
+        if (item.id === "total-drivers") {
+            return {
+                ...item,
+                path: `/home/total-drivers/${userId}`,
+            };
+        }
+        return item;
     });
 
     return filteredMenuItems;
