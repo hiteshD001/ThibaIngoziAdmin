@@ -31,7 +31,7 @@ export const allMenuItems = [
         name: "Dashboard",
         path: "/home",
         image: Dashboard,
-        permission: null // Dashboard is always visible for super admin
+        permission: "Dashboard" // Dashboard now requires explicit permission
     },
 
     {

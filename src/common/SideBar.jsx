@@ -31,8 +31,8 @@ const SideBar = ({ setActive, isActive, sidebarRef }) => {
         }
 
         return allMenuItems.filter(item => {
-            // Home and Logout must always be visible regardless of permissions
-            if (item.id === "home" || item.id === "logout") {
+            // Logout must always be visible regardless of permissions
+            if (item.id === "logout") {
                 return true;
             }
             if (!item.permission) {
