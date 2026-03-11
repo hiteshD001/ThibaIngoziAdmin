@@ -17,7 +17,7 @@ import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 
 import { useWebSocket } from '../../API Calls/WebSocketContext';
-import { useGetEHailingRecentSos, useGetUser, useGetActiveSosDataEhailing, useUpdateLocationStatus, useGetEHailingChartData } from '../../API Calls/API';
+import { useGetEHailingRecentSos, useGetUser, useGetActiveSosDataEhailing, useUpdateLocationStatus, useGetChartData } from '../../API Calls/API';
 
 import Loader from '../../common/Loader';
 import CustomChart from '../../common/CustomChart';
@@ -47,10 +47,6 @@ const EHialingView = ({ isMapLoaded }) => {
 
     const role = localStorage.getItem("role");
 
-    // Parse ehailingCompanyIds from localStorage into an array
-    const rawEhailingCompanyIds = localStorage.getItem("ehailingCompanyIds") || "";
-    const ehailingCompanyId = rawEhailingCompanyIds.split(",").filter(Boolean)[0] || "";
-    const ehailingCompanyIds = rawEhailingCompanyIds.split(",").filter(Boolean);
 
 
     const [status, setStatus] = useState('')
@@ -105,9 +101,9 @@ const EHialingView = ({ isMapLoaded }) => {
     const endDateSos = rangeSos[0].endDate?.toISOString();
 
     const userinfo = useGetUser(localStorage.getItem("userID"));
-    const activeSos = useGetActiveSosDataEhailing({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: ehailingCompanyIds });
-    const recentSos = useGetEHailingRecentSos({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, companyIds: ehailingCompanyIds });
-    const chartData = useGetEHailingChartData(ehailingCompanyIds, time, range[0]?.startDate, range[0]?.endDate);
+    const activeSos = useGetActiveSosDataEhailing({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: [] });
+    const recentSos = useGetEHailingRecentSos({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, companyIds: [] });
+    const chartData = useGetChartData([], time, range[0]?.startDate, range[0]?.endDate, null, true);
     const {
         newSOS,
         requestCounts,
@@ -121,8 +117,7 @@ const EHialingView = ({ isMapLoaded }) => {
     useEffect(() => {
         if (isConnected && socketRef?.current?.readyState === WebSocket.OPEN) {
             socketRef.current.send(JSON.stringify({
-                type: 'subscribe',
-                companyId: ehailingCompanyId
+                type: 'subscribe'
             }));
         }
 
@@ -134,7 +129,7 @@ const EHialingView = ({ isMapLoaded }) => {
                 }));
             }
         };
-    }, [isConnected, ehailingCompanyId, socketRef]);
+    }, [isConnected, socketRef]);
 
     // In e-hailing view, always use company-filtered API data — ignore global WebSocket activeUserLists
     const activeUserList = activeSos?.data?.data?.data;
@@ -754,7 +749,7 @@ const EHialingView = ({ isMapLoaded }) => {
                 <HotspotSection
                     isMapLoaded={isMapLoaded}
                     hideCategories={true}
-                    companyIds={ehailingCompanyIds}
+                    companyIds={[]}
                     ehailing={false}
                 />
 
