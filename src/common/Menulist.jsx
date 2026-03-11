@@ -165,7 +165,7 @@ export const allMenuItems = [
 ];
 
 export const superadmin_menulist = (permissionsData) => {
-    let activePermissions = [];
+    let activePermissions = ['Dashboard'];
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
         activePermissions = permissionsData.data.data.permissions
             .filter(permission => permission.status === 'active')
