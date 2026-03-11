@@ -755,7 +755,7 @@ const EHialingView = ({ isMapLoaded }) => {
                     isMapLoaded={isMapLoaded}
                     hideCategories={true}
                     companyIds={ehailingCompanyIds}
-                    ehailing={true}
+                    ehailing={false}
                 />
 
 
