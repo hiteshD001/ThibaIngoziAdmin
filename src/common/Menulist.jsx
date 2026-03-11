@@ -224,7 +224,8 @@ export const driver_menulist = (permissionsData) => {
  * Centralized function to get the filtered menu list for any role
  */
 export const getFilteredMenulist = (role, permissionsData) => {
-    let activePermissions = []; // Dashboard is always permitted
+    let activePermissions = ["Dashboard"]; // Dashboard is always permitted
+
 
     if (permissionsData && permissionsData.data && permissionsData.data.data && permissionsData.data.data.permissions) {
         const apiPermissions = permissionsData.data.data.permissions

@@ -13,7 +13,7 @@ const SideBar = ({ setActive, isActive, sidebarRef }) => {
 
     // Fetch permissions for company role
     const { data: permissionsData } = useGetPermissionsByRoleId(roleId);
-
+    console.log("super-")
     // Dynamically calculate menulist based on role and permissions
     const menulist = useMemo(() => {
         if (role === 'super_admin') return superadmin_menulist(permissionsData);
