@@ -1208,11 +1208,11 @@ export const useGetEHailingRecentSos = ({ page = 1, limit = 20, startDate, endDa
 // e-hailing chart data (sos-month)
 export const useGetEHailingChartData = (companyIds = [], time, startDate, endDate) => {
     const queryFn = async () => {
-        const params = { time, startDate, endDate, showStatus: true };
+        const params = { time, startDate, endDate, showStatus: true, type: '677b75b538c4008959469d0c' };
         // Serialize companyIds as repeated query params: companyId[]=id1&companyId[]=id2
         const searchParams = new URLSearchParams();
         Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') searchParams.append(k, v); });
-        companyIds.forEach(id => searchParams.append('company_id', id));
+        companyIds.forEach(id => searchParams.append('companyIds', id));
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/ehailing-location/sos-month?${searchParams.toString()}`);
     };
 
