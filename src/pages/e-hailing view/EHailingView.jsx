@@ -17,7 +17,7 @@ import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 
 import { useWebSocket } from '../../API Calls/WebSocketContext';
-import { useGetEHailingRecentSos, useGetUser, useGetActiveSosDataEhailing, useUpdateLocationStatus, useGetEHailingChartData } from '../../API Calls/API';
+import { useGetEHailingRecentSos, useGetUser, useGetActiveSosDataEhailing, useUpdateLocationStatus, useGetChartData } from '../../API Calls/API';
 
 import Loader from '../../common/Loader';
 import CustomChart from '../../common/CustomChart';
@@ -107,8 +107,7 @@ const EHialingView = ({ isMapLoaded }) => {
     const userinfo = useGetUser(localStorage.getItem("userID"));
     const activeSos = useGetActiveSosDataEhailing({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: ehailingCompanyIds });
     const recentSos = useGetEHailingRecentSos({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, companyIds: ehailingCompanyIds });
-    const chartData = useGetEHailingChartData(ehailingCompanyIds, time, range[0]?.startDate, range[0]?.endDate);
-    const {
+    const chartData = useGetChartData([], time, range[0]?.startDate, range[0]?.endDate, null, true);    const {
         newSOS,
         requestCounts,
         activeUserLists,
