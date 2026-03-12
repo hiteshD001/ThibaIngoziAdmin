@@ -459,7 +459,7 @@ const PassangerInformation = () => {
                             </Grid>
 
                             {/* Enrol Now button — only shown when user is NOT currently enrolled */}
-                            {!driverform.values.isEnroll && (
+                            {/* {!driverform.values.isEnroll && (
                                 <Grid size={12}>
                                     <Button
                                         variant="contained"
@@ -473,7 +473,7 @@ const PassangerInformation = () => {
                                         Enrol Now
                                     </Button>
                                 </Grid>
-                            )}
+                            )} */}
 
                             <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
                                 {

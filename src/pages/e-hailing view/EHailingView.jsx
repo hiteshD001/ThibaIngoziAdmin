@@ -17,7 +17,7 @@ import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 
 import { useWebSocket } from '../../API Calls/WebSocketContext';
-import { useGetEHailingRecentSos, useGetUser, useGetActiveSosDataEhailing, useUpdateLocationStatus, useGetChartData } from '../../API Calls/API';
+import { useGetEHailingRecentSos, useGetUser, useGetActiveSosDataEhailing, useUpdateLocationStatus, useGetEHailingChartData } from '../../API Calls/API';
 
 import Loader from '../../common/Loader';
 import CustomChart from '../../common/CustomChart';
@@ -47,6 +47,10 @@ const EHialingView = ({ isMapLoaded }) => {
 
     const role = localStorage.getItem("role");
 
+    // Parse ehailingCompanyIds from localStorage into an array
+    const rawEhailingCompanyIds = localStorage.getItem("ehailingCompanyIds") || "";
+    const ehailingCompanyId = rawEhailingCompanyIds.split(",").filter(Boolean)[0] || "";
+    const ehailingCompanyIds = rawEhailingCompanyIds.split(",").filter(Boolean);
 
 
     const [status, setStatus] = useState('')
@@ -101,9 +105,9 @@ const EHialingView = ({ isMapLoaded }) => {
     const endDateSos = rangeSos[0].endDate?.toISOString();
 
     const userinfo = useGetUser(localStorage.getItem("userID"));
-    const activeSos = useGetActiveSosDataEhailing({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: [] });
-    const recentSos = useGetEHailingRecentSos({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, companyIds: [] });
-    const chartData = useGetChartData([], time, range[0]?.startDate, range[0]?.endDate, null, true);
+    const activeSos = useGetActiveSosDataEhailing({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: ehailingCompanyIds });
+    const recentSos = useGetEHailingRecentSos({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, companyIds: ehailingCompanyIds });
+    const chartData = useGetEHailingChartData(ehailingCompanyIds, time, range[0]?.startDate, range[0]?.endDate);
     const {
         newSOS,
         requestCounts,
@@ -117,7 +121,8 @@ const EHialingView = ({ isMapLoaded }) => {
     useEffect(() => {
         if (isConnected && socketRef?.current?.readyState === WebSocket.OPEN) {
             socketRef.current.send(JSON.stringify({
-                type: 'subscribe'
+                type: 'subscribe',
+                companyId: ehailingCompanyId
             }));
         }
 
@@ -129,7 +134,7 @@ const EHialingView = ({ isMapLoaded }) => {
                 }));
             }
         };
-    }, [isConnected, socketRef]);
+    }, [isConnected, ehailingCompanyId, socketRef]);
 
     // In e-hailing view, always use company-filtered API data — ignore global WebSocket activeUserLists
     const activeUserList = activeSos?.data?.data?.data;
@@ -513,7 +518,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                 </Stack>
                                                             ) : (
                                                                 user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${user?._id}`} className="link">
+                                                                    <Link to={`/home/total-drivers/driver-information/${user.user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={user?.selfieImage}
@@ -523,7 +528,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${user?._id}`} className="link">
+                                                                    <Link to={`/home/total-users/user-information/${user?.user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar src={user?.selfieImage} alt="User" />
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
@@ -660,6 +665,9 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                         display="flex"
                                                                         alignItems="center"
                                                                         borderRadius={1}
+                                                                        onClick={() =>
+                                                                            nav(`total-drivers/driver-information/${user?.otherUser?._id}`)
+                                                                        }
                                                                     >
                                                                         Other User
                                                                     </Typography>
@@ -749,7 +757,7 @@ const EHialingView = ({ isMapLoaded }) => {
                 <HotspotSection
                     isMapLoaded={isMapLoaded}
                     hideCategories={true}
-                    companyIds={[]}
+                    companyIds={ehailingCompanyIds}
                     ehailing={false}
                 />
 

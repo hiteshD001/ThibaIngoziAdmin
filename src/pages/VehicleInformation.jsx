@@ -809,7 +809,7 @@ const VehicleInformation = () => {
                             </Grid>
 
                             {/* Enrol Now button — only shown when user is NOT currently enrolled */}
-                            {!driverform.values.isEnroll && (
+                            {/* {!driverform.values.isEnroll && (
                                 <Grid size={12}>
                                     <Button
                                         variant="contained"
@@ -823,7 +823,7 @@ const VehicleInformation = () => {
                                         Enrol Now
                                     </Button>
                                 </Grid>
-                            )}
+                            )} */}
 
                             <Grid size={12}>
                                 <Grid container gap={4} sx={{ mt: 1 }}>
