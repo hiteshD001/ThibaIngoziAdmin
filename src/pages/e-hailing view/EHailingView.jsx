@@ -575,7 +575,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                     <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
                                                                         <IconButton
                                                                             onClick={() => {
-                                                                                setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id}`);
+                                                                                setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id || user?.deepLinks?._id}`);
                                                                                 handleCopy();
                                                                             }}
                                                                             sx={copyButtonStyles}
