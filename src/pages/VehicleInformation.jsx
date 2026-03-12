@@ -922,7 +922,7 @@ const VehicleInformation = () => {
                                         )}
                                     </Grid>
                                     <Grid size={{ xs: 12, sm: 4, md: 2.5 }}>
-                                        <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>verification Selfie Image</label>
+                                        <label style={{ marginBottom: '10px', display: 'block', fontWeight: 500 }}>Verification Selfie Image</label>
                                         <Box
                                             sx={{
                                                 border: '2px dashed #E0E3E7',
@@ -932,43 +932,33 @@ const VehicleInformation = () => {
                                                 flexDirection: 'column',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                cursor: editInfo ? 'pointer' : 'not-allowed',
+                                                cursor: driverform.values.verificationSelfieImage ? 'pointer' : 'not-allowed',
                                                 position: 'relative',
                                                 background: '#fafbfc'
                                             }}
-                                            component="label"
                                         >
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                hidden
-                                                name="verificationSelfieImage"
-                                                disabled={!editInfo}
-                                                onChange={e => driverform.setFieldValue('verificationSelfieImage', e.currentTarget.files[0])}
-                                            />
                                             {driverform.values.verificationSelfieImage instanceof File ? (
                                                 <img
                                                     src={URL.createObjectURL(driverform.values.verificationSelfieImage)}
-                                                    alt="Full Preview"
-                                                    style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
-                                                    onClick={() => handleImageClick(driverform.values.verificationSelfieImage, 'verification Selfie Image')}
+                                                    alt="Verification Selfie Preview"
+                                                    style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                                    onClick={() => handleImageClick(driverform.values.verificationSelfieImage, "Verification Selfie Image")}
                                                 />
                                             ) : driverform.values.verificationSelfieImage ? (
                                                 <img
                                                     src={driverform.values.verificationSelfieImage}
-                                                    alt="verification Selfie Image"
+                                                    alt="Verification Selfie Image"
                                                     style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8, cursor: 'pointer' }}
-                                                    onClick={() => handleImageClick(driverform.values.verificationSelfieImage, 'verification Selfie Image')}
+                                                    onClick={() => handleImageClick(driverform.values.verificationSelfieImage, "Verification Selfie Image")}
                                                 />
-                                            ) : (<><img src={GrayPlus} alt="gray plus" />
-                                                <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
-                                            )
-                                            }
-
+                                            ) : (
+                                                <Box sx={{ textAlign: 'center', py: 4 }}>
+                                                    <Typography sx={{ color: '#B0B0B0', fontWeight: 550 }}>
+                                                        No verification image
+                                                    </Typography>
+                                                </Box>
+                                            )}
                                         </Box>
-                                        {driverform.touched.verificationSelfieImage && driverform.errors.verificationSelfieImage && (
-                                            <FormHelperText error>{driverform.errors.verificationSelfieImage}</FormHelperText>
-                                        )}
                                     </Grid>
                                 </Grid>
                             </Grid>
