@@ -17,7 +17,7 @@ import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 
 import { useWebSocket } from '../../API Calls/WebSocketContext';
-import { useGetEHailingRecentSos, useGetUser, useGetActiveSosDataEhailing, useUpdateLocationStatus, useGetChartData } from '../../API Calls/API';
+import { useGetEHailingRecentSos, useGetUser, useGetActiveSosDataEhailing, useUpdateLocationStatus, useGetEHailingChartData } from '../../API Calls/API';
 
 import Loader from '../../common/Loader';
 import CustomChart from '../../common/CustomChart';
@@ -107,7 +107,8 @@ const EHialingView = ({ isMapLoaded }) => {
     const userinfo = useGetUser(localStorage.getItem("userID"));
     const activeSos = useGetActiveSosDataEhailing({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: ehailingCompanyIds });
     const recentSos = useGetEHailingRecentSos({ page: recentPage, limit: recentLimit, startDate, endDate, sortBy, sortOrder, companyIds: ehailingCompanyIds });
-    const chartData = useGetChartData([], time, range[0]?.startDate, range[0]?.endDate, null, true);    const {
+    const chartData = useGetEHailingChartData(ehailingCompanyIds, time, range[0]?.startDate, range[0]?.endDate);
+    const {
         newSOS,
         requestCounts,
         activeUserLists,
@@ -517,7 +518,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                 </Stack>
                                                             ) : (
                                                                 user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${user.user?._id}`} className="link">
+                                                                    <Link to={`/home/total-drivers/driver-information/${user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={user?.selfieImage}
@@ -527,7 +528,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${user?.user?._id}`} className="link">
+                                                                    <Link to={`/home/total-users/user-information/${user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar src={user?.selfieImage} alt="User" />
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
@@ -664,9 +665,6 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                         display="flex"
                                                                         alignItems="center"
                                                                         borderRadius={1}
-                                                                        onClick={() =>
-                                                                            nav(`/home/total-drivers/driver-information/${user?.otherUser?._id}`, { replace: true })
-                                                                        }
                                                                     >
                                                                         Other User
                                                                     </Typography>
@@ -1003,7 +1001,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                                 "&:hover": { backgroundColor: "#1864c7" },
                                                                             }}
                                                                             onClick={() =>
-                                                                                nav(`/home/total-drivers/driver-information/${row?.otherUser?._id}`, { replace: true })
+                                                                                nav(`total-drivers/driver-information/${row?.otherUser?._id}`)
                                                                             }
                                                                         >
                                                                             Other User

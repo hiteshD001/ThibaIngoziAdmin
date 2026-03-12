@@ -1063,23 +1063,11 @@ export const useGetChartData = (company_id, time, startDate, endDate, notificati
 
         const req_url = ehailing ? `${import.meta.env.VITE_BASEURL}/ehailing-location/sos-month` : `${import.meta.env.VITE_BASEURL}/location/sos-month`
 
-        const searchParams = new URLSearchParams();
-        Object.entries(params).forEach(([k, v]) => {
-            if (v !== undefined && v !== null && v !== '') searchParams.append(k, v);
-        });
-
-        if (company_id) {
-            if (Array.isArray(company_id)) {
-                company_id.forEach(id => searchParams.append('company_id', id));
-            } else {
-                searchParams.append('company_id', company_id);
-            }
-        }
-
-        return await apiClient.get(`${req_url}?${searchParams.toString()}`);    };
+        return await apiClient.get(req_url, { params });
+    };
 
     const res = useQuery({
-        queryKey: ["chartData", notificationType, company_id, time, startDate, endDate, ehailing], // Re-fetch when notificationType changes
+        queryKey: ["chartData", notificationType, company_id, time, startDate, endDate], // Re-fetch when notificationType changes
         queryFn: queryFn,
         staleTime: 15 * 60 * 1000,
     });
@@ -1212,6 +1200,26 @@ export const useGetEHailingRecentSos = ({ page = 1, limit = 20, startDate, endDa
         queryFn: queryFn,
         staleTime: 300000,
         refetchOnWindowFocus: false,
+    });
+
+    return res;
+};
+
+// e-hailing chart data (sos-month)
+export const useGetEHailingChartData = (companyIds = [], time, startDate, endDate) => {
+    const queryFn = async () => {
+        const params = { time, startDate, endDate, showStatus: true };
+        // Serialize companyIds as repeated query params: companyId[]=id1&companyId[]=id2
+        const searchParams = new URLSearchParams();
+        Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') searchParams.append(k, v); });
+        companyIds.forEach(id => searchParams.append('company_id', id));
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/ehailing-location/sos-month?${searchParams.toString()}`);
+    };
+
+    const res = useQuery({
+        queryKey: ["ehailingChartData", companyIds, time, startDate, endDate],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
     });
 
     return res;
