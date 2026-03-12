@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useRef, useMemo, useEffect, useState } from 'react';
+import { useRef, useMemo, useEffect, useState, useCallback, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Slide, toast } from 'react-toastify';
@@ -34,6 +34,327 @@ const copyButtonStyles = {
     borderRadius: '4px',
 };
 
+// Memoized Active SOS Table Row Component
+const ActiveSOSTableRow = memo(({ user, requestCounts, userinfo, nav, copied, handleCopy, setTextToCopy, updatingId, selectedId, status, setStatus, setStatusUpdate, setSelectedId, copyButtonStyles, isNavigatingBack }) => {
+    const handleStatusChange = useCallback((e) => {
+        setStatus(e.target.value);
+        setStatusUpdate(true);
+        setSelectedId(user._id);
+    }, [setStatus, setStatusUpdate, setSelectedId, user._id]);
+
+    const handleCopyAddress = useCallback((address) => {
+        setTextToCopy(address);
+        handleCopy();
+    }, [setTextToCopy, handleCopy]);
+
+    const handleViewLocation = useCallback(() => {
+        nav(`/home/hotspot/location?locationId=${user._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`);
+    }, [nav, user]);
+
+    const handleOtherUserClick = useCallback(() => {
+        nav(`/home/total-drivers/driver-information/${user?.otherUser?._id}`, { replace: true });
+    }, [nav, user]);
+
+    return (
+        <TableRow>
+            <TableCell sx={{ color: '#4B5563' }}>
+                {user?.sosType === 'ARMED_SOS' ? (
+                    <Stack direction="row" alignItems="center" gap={1}>
+                        <Avatar alt="User" />
+                        {user?.user?.first_name} {user?.user?.last_name}
+                    </Stack>
+                ) : (
+                    user?.role === "driver" ? (
+                        <Link to={`/home/total-drivers/driver-information/${user?.user_id}`} className="link"
+                              onClick={() => isNavigatingBack.current = true}>
+                            <Stack direction="row" alignItems="center" gap={1}>
+                                <Avatar
+                                    src={user?.selfieImage}
+                                    sx={{ '&:hover': { textDecoration: 'none' } }}
+                                    alt="User"
+                                />
+                                {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
+                            </Stack>
+                        </Link>) : (
+                        <Link to={`/home/total-users/user-information/${user?.user_id}`} className="link"
+                              onClick={() => isNavigatingBack.current = true}>
+                            <Stack direction="row" alignItems="center" gap={1}>
+                                <Avatar src={user?.selfieImage} alt="User" />
+                                {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
+                            </Stack>
+                        </Link>
+                    )
+                )}
+            </TableCell>
+            <TableCell sx={{ color: '#4B5563' }}>
+                {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.user?.company_name || user?.user_id?.company_name || "-")}
+            </TableCell>
+            <TableCell sx={{ color: '#4B5563' }}>
+                {user?.sosType === 'ARMED_SOS' ? (
+                    <Box sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                    }}>
+                        {`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`}
+                        <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                            <IconButton
+                                onClick={() => handleCopyAddress(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`)}
+                                sx={copyButtonStyles}
+                                aria-label="copy address"
+                            >
+                                <ContentCopy fontSize="medium" className="copy-btn" />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
+                ) : (
+                    user?.address ?
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                        }}>
+                            {user?.address}
+                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                <IconButton
+                                    onClick={() => handleCopyAddress(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id || user?.deepLinks?._id}`)}
+                                    sx={copyButtonStyles}
+                                    aria-label="copy address"
+                                >
+                                    <ContentCopy fontSize="medium" className="copy-btn" />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
+                        :
+                        "-"
+                )}
+            </TableCell>
+            <TableCell sx={{ color: 'var(--orange)' }}>
+                <Link
+                    to={`/home/request-reached-users/${user?._id}`}
+                    style={{
+                        textDecoration: 'none',
+                        color: 'var(--orange)',
+                        cursor: 'pointer',
+                    }}
+                >
+                    {requestCounts[user?._id]?.req_reach || user?.req_reach || "0"}
+                </Link>
+            </TableCell>
+            <TableCell sx={{ color: '#01C971' }}>
+                <Link
+                    to={`/home/request-accepted-users/${user?._id}`}
+                    style={{
+                        textDecoration: 'none',
+                        color: '#01C971',
+                        cursor: 'pointer',
+                    }}
+                >
+                    {requestCounts[user?._id]?.req_accept || user?.req_accept || "0"}
+                </Link>
+            </TableCell>
+            <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
+                {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.type?.display_title || "-")}
+            </TableCell>
+            <TableCell sx={{ color: '#4B5563' }}>
+                {format(user?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+            </TableCell>
+            <TableCell sx={{ color: '#4B5563' }}>
+                {user?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
+            </TableCell>
+            <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
+                {(!(user?.sosType === 'ARMED_SOS' ? user?.armedSosstatus : user?.help_received)) &&
+                    <div className={updatingId === user._id ? "" : "select-container"}>
+                        {updatingId === user._id ? (
+                            <Box display="flex" justifyContent="center">
+                                <Loader size={25} color="#1E73E8" />
+                            </Box>
+                        ) : (
+                            <select
+                                name="help_received"
+                                className="my-custom-select"
+                                value={selectedId === user._id ? status : ""}
+                                onChange={handleStatusChange}
+                            >
+                                <option value="" hidden> Select </option>
+                                <option value="help_received"> Help Received </option>
+                                <option value="cancel"> Cancel </option>
+                            </select>
+                        )}
+                    </div>
+                }
+            </TableCell>
+            <TableCell>
+                <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                    <Tooltip title="View" arrow placement="top">
+                        <IconButton onClick={handleViewLocation}>
+                            <img src={ViewBtn} alt="view button" />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Other Users" arrow placement="top">
+                        <IconButton>
+                            <Typography
+                                bgcolor="#367be0"
+                                color="white"
+                                height="100%"
+                                px={1}
+                                display="flex"
+                                alignItems="center"
+                                borderRadius={1}
+                                onClick={handleOtherUserClick}
+                            >
+                                Other User
+                            </Typography>
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            </TableCell>
+        </TableRow>
+    );
+});
+
+ActiveSOSTableRow.displayName = 'ActiveSOSTableRow';
+
+// Memoized Recent SOS Table Row Component
+const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, userinfo, isNavigatingBack }) => {
+    const handleCopyAddress = useCallback((address) => {
+        setTextToCopy(address);
+        handleCopy();
+    }, [setTextToCopy, handleCopy]);
+
+    const handleViewLocation = useCallback(() => {
+        nav(`/home/hotspot/location?locationId=${row._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`);
+    }, [nav, row, userinfo]);
+
+    return (
+        <TableRow key={row?._id}>
+            <TableCell sx={{ color: '#4B5563' }}>
+                {row.user?.role === "driver" ? (
+                    <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link"
+                          onClick={() => isNavigatingBack.current = true}>
+                        <Stack direction="row" alignItems="center" gap={1}>
+                            <Avatar src={row?.user?.selfieImage} alt="User" />
+                            {row?.user?.first_name || ''} {row?.user?.last_name || ''}
+                        </Stack>
+                    </Link>
+                ) : (
+                    <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link"
+                          onClick={() => isNavigatingBack.current = true}>
+                        <Stack direction="row" alignItems="center" gap={1}>
+                            <Avatar src={row?.user?.selfieImage} alt="User" />
+                            {row?.user?.first_name || ''} {row?.user?.last_name || ''}
+                        </Stack>
+                    </Link>
+                )}
+            </TableCell>
+            <TableCell sx={{ color: '#4B5563' }}>
+                {row?.user?.company_name}
+            </TableCell>
+            <TableCell sx={{ color: '#4B5563' }}>
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
+                    {row?.address}
+                    <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                        <IconButton
+                            onClick={() => handleCopyAddress(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?.deepLinks._id}`)}
+                            sx={copyButtonStyles}
+                            aria-label="copy address"
+                        >
+                            <ContentCopy fontSize="medium" className="copy-btn" />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            </TableCell>
+            <TableCell sx={{ color: 'var(--orange)' }}>
+                <Link
+                    to={`/home/request-reached-users/${row?._id}`}
+                    style={{
+                        textDecoration: 'none',
+                        color: 'var(--orange)',
+                        cursor: 'pointer',
+                    }}
+                >
+                    {row?.req_reach || "0"}
+                </Link>
+            </TableCell>
+            <TableCell sx={{ color: '#01C971' }}>
+                <Link
+                    to={`/home/request-accepted-users/${row?._id}`}
+                    style={{
+                        textDecoration: 'none',
+                        color: '#01C971',
+                        cursor: 'pointer',
+                    }}
+                >
+                    {row?.req_accept || "0"}
+                </Link>
+            </TableCell>
+            <TableCell sx={{ color: '#4B5563' }}>
+                {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+            </TableCell>
+            <TableCell sx={{ color: '#4B5563' }}>
+                {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
+            </TableCell>
+            <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
+                {row?.type?.display_title}
+            </TableCell>
+            <TableCell sx={{ color: '#4B5563' }}>
+                {row?.help_received}
+            </TableCell>
+            <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
+                {row?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
+            </TableCell>
+            <TableCell>
+                <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                    <Tooltip title="View" arrow placement="top">
+                        <IconButton onClick={handleViewLocation}>
+                            <img src={ViewBtn} alt="view button" />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            </TableCell>
+            {row?.type?.type === "linked_sos" ? (
+                <TableCell>
+                    <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
+                        {row?.otherUser?._id ? (
+                            <Tooltip title="Other User" arrow placement="top">
+                                <Button
+                                    variant="contained"
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "6px",
+                                        textTransform: "none",
+                                        fontWeight: 500,
+                                        fontSize: "14px",
+                                        color: "#fff",
+                                        backgroundColor: "#1E73E8",
+                                        borderRadius: "8px",
+                                        padding: "6px 14px",
+                                        whiteSpace: "nowrap",
+                                        minWidth: "auto",
+                                        "&:hover": { backgroundColor: "#1864c7" },
+                                    }}
+                                    onClick={() => nav(`/home/total-drivers/driver-information/${row?.otherUser?._id}`, { replace: true })}
+                                >
+                                    Other User
+                                </Button>
+                            </Tooltip>
+                        ) : (
+                            "-"
+                        )}
+                    </Box>
+                </TableCell>
+            ) : <TableCell sx={{ textAlign: 'center' }}>-</TableCell>}
+        </TableRow>
+    );
+});
+
+RecentSOSTableRow.displayName = 'RecentSOSTableRow';
+
 // eslint-disable-next-line react/prop-types
 const EHialingView = ({ isMapLoaded }) => {
 
@@ -44,6 +365,8 @@ const EHialingView = ({ isMapLoaded }) => {
     const isFirstRun = useRef(true);
     const lastFetchTime = useRef(0);
     const audioRef = useRef(new Audio(tone));
+    const debounceTimerRef = useRef(null);
+    const isNavigatingBack = useRef(false);
 
     const role = localStorage.getItem("role");
 
@@ -143,9 +466,9 @@ const EHialingView = ({ isMapLoaded }) => {
     const paginatedActiveUserList = useMemo(() => {
         if (!Array.isArray(activeUserList)) return [];
         return activeUserList;
-    }, [activeUserList, activePage, activeLimit]);
+    }, [activeUserList]);
 
-    const onSuccess = () => {
+    const onSuccess = useCallback(() => {
         toast.success("Status Updated Successfully.");
 
         if (activeUserLists?.length > 0 && setActiveUserLists) {
@@ -157,16 +480,16 @@ const EHialingView = ({ isMapLoaded }) => {
         setUpdatingId("");
         stopAudio();
         queryClient.refetchQueries(["activeSOS2"], { exact: false });
-    };
+    }, [activeUserLists, setActiveUserLists, selectedId, queryClient]);
 
-    const onError = (error) => {
+    const onError = useCallback((error) => {
         setUpdatingId("");
         toast.error(error.response.data.message || "Something went Wrong", toastOption);
-    };
+    }, []);
 
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
 
-    const changeSortOrder = (e) => {
+    const changeSortOrder = useCallback((e) => {
         const field = e.target.id;
         if (field !== sortBy) {
             setSortBy(field);
@@ -174,9 +497,9 @@ const EHialingView = ({ isMapLoaded }) => {
         } else {
             setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
         }
-    };
+    }, [sortBy]);
 
-    const changeSortOrder2 = (e) => {
+    const changeSortOrder2 = useCallback((e) => {
         const field = e.target.id;
         if (field !== sortBy2) {
             setSortBy2(field);
@@ -185,20 +508,20 @@ const EHialingView = ({ isMapLoaded }) => {
         } else {
             setSortOrder2(p => p === 'asc' ? 'desc' : 'asc')
         }
-    };
+    }, [sortBy2]);
 
     const stopAudio = () => {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;
     };
 
-    const handleCopy = async () => {
+    const handleCopy = useCallback(async () => {
         await navigator.clipboard.writeText(textToCopy);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-    };
+    }, [textToCopy]);
 
-    const handleUpdate = () => {
+    const handleUpdate = useCallback(() => {
         setUpdatingId(selectedId);
         const toUpdate = {
             help_received: status,
@@ -208,29 +531,119 @@ const EHialingView = ({ isMapLoaded }) => {
             data: toUpdate,
         });
         setStatusUpdate(false)
-    };
+    }, [selectedId, status, mutate]);
 
-    const handleCancel = () => {
+    // Optimized pagination change handlers with debouncing
+    const handleActivePageChange = useCallback((newPage) => {
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+        
+        debounceTimerRef.current = setTimeout(() => {
+            setActivePage(newPage);
+        }, 150);
+    }, []);
+
+    const handleRecentPageChange = useCallback((newPage) => {
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+        
+        debounceTimerRef.current = setTimeout(() => {
+            setRecentPage(newPage);
+        }, 150);
+    }, []);
+
+    const handleActiveLimitChange = useCallback((newLimit) => {
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+        
+        debounceTimerRef.current = setTimeout(() => {
+            setActiveLimit(newLimit);
+            setActivePage(1);
+        }, 150);
+    }, []);
+
+    const handleRecentLimitChange = useCallback((newLimit) => {
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+        
+        debounceTimerRef.current = setTimeout(() => {
+            setRecentLimit(newLimit);
+            setRecentPage(1);
+        }, 150);
+    }, []);
+
+    const handleCancel = useCallback(() => {
         setSelectedId("");
         setStatusUpdate(false);
         setStatus('')
-    };
-
+    }, []);
     const totalActiveItems = activeSos?.data?.data?.totalItems || 0;
     const totalActivePages = Math.ceil(totalActiveItems / activeLimit)
     const totalRecentItems = recentSos?.data?.data?.totalItems || recentSos?.data?.totalItems || 0;
     const totalRecentPages = Math.ceil(totalRecentItems / recentLimit) || 1;
 
 
-    // On mount: remove stale global activeSOS2 cache so company-filtered data loads fresh
-    // On unmount: clear again so main dashboard also gets fresh data
+    // Only clear cache on initial mount to ensure fresh company-filtered data
     useEffect(() => {
-        queryClient.removeQueries({ queryKey: ["activeSOS2"] });
-        return () => {
+        const hasVisited = sessionStorage.getItem('ehailing-view-visited');
+        if (!hasVisited) {
             queryClient.removeQueries({ queryKey: ["activeSOS2"] });
+            sessionStorage.setItem('ehailing-view-visited', 'true');
+        }
+        
+        return () => {
+            // Don't clear cache on unmount to prevent reloading on navigation back
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Optimized debounced refetch function
+    const debouncedRefetch = useCallback(() => {
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
+        }
+        
+        debounceTimerRef.current = setTimeout(async () => {
+            const now = Date.now();
+            if (now - lastFetchTime.current < 2000) return;
+            
+            lastFetchTime.current = now;
+            
+            try {
+                const res = await activeSos.refetch();
+                
+                if (res?.data?.data?.data) {
+                    const newList = res.data.data.data || [];
+                    const newIds = newList.filter(item => !notifiedSosIds.current.has(item._id)).map(item => item._id);
+                    
+                    if (newIds.length > 0) {
+                        const playAudio = async () => {
+                            try {
+                                const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
+                                if (isAudioEnabled && audioRef.current) {
+                                    audioRef.current.loop = false;
+                                    audioRef.current.currentTime = 0;
+                                    await audioRef.current.play();
+                                }
+                            } catch (e) {
+                                console.error("Audio playback failed:", e);
+                            }
+                        };
+                        
+                        playAudio();
+                        toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
+                        newIds.forEach(id => notifiedSosIds.current.add(id));
+                    }
+                }
+            } catch (error) {
+                console.error("Refetch failed:", error);
+            }
+        }, 300);
+    }, [activeSos]);
 
     useEffect(() => {
         if (isFirstRun.current) {
@@ -243,7 +656,6 @@ const EHialingView = ({ isMapLoaded }) => {
         const handleAlert = async () => {
             try {
                 if (activeUserLists?.length > 0) {
-
                     if (newSOS.sosId && notifiedSosIds.current.has(newSOS.sosId)) return;
 
                     const playAudio = async () => {
@@ -269,58 +681,17 @@ const EHialingView = ({ isMapLoaded }) => {
                     playAudio();
                     toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
                 } else {
-                    const now = Date.now();
-                    if (now - lastFetchTime.current < 2000) return;
-
-                    lastFetchTime.current = now;
-
-                    // Debounce the refetch to prevent duplicate calls
-                    setTimeout(async () => {
-                        const res = await activeSos.refetch();
-
-                        if (res?.data?.data?.data) {
-                            const newList = res.data.data.data || [];
-
-                            let hasNew = false;
-                            const newIds = [];
-
-                            for (const item of newList) {
-                                if (!notifiedSosIds.current.has(item._id)) {
-                                    hasNew = true;
-                                    newIds.push(item._id);
-                                }
-                            }
-
-                            if (hasNew) {
-                                const playAudio = async () => {
-                                    try {
-                                        const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
-
-                                        if (isAudioEnabled && audioRef.current) {
-                                            audioRef.current.loop = false;
-                                            audioRef.current.currentTime = 0;
-                                            await audioRef.current.play();
-                                        }
-                                    } catch (e) {
-                                        console.error("Audio playback failed:", e);
-                                    }
-                                }
-                                playAudio();
-                                toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
-
-                                newIds.forEach(id => notifiedSosIds.current.add(id));
-                            }
-                        }
-                    }, 100);
+                    debouncedRefetch();
                 }
             } catch (error) {
-                console.error("Refetch failed:", error);
+                console.error("Alert handling failed:", error);
             }
         };
 
         handleAlert();
-    }, [newSOS.count]);
+    }, [newSOS.count, activeUserLists, debouncedRefetch]);
 
+    // Optimized activeUserList change detection with debouncing
     useEffect(() => {
         if (!Array.isArray(activeUserList)) return;
 
@@ -332,14 +703,35 @@ const EHialingView = ({ isMapLoaded }) => {
             return;
         }
 
-        if (previousLength !== currentLength) {
+        // Skip refetch if we're navigating back (to prevent continuous loading)
+        if (isNavigatingBack.current) {
+            isNavigatingBack.current = false;
             prevLengthRef.current = currentLength;
-            // Debounce refetches to prevent duplicate API calls
-            setTimeout(() => {
-                recentSos.refetch();
-            }, 100);
+            return;
         }
-    }, [activeUserList]);
+
+        // Only refetch if there's an actual change in data length (not just navigation)
+        if (previousLength !== currentLength && Math.abs(previousLength - currentLength) > 0) {
+            prevLengthRef.current = currentLength;
+            
+            // Clear existing timer
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+            
+            // Debounce refetch to prevent duplicate API calls
+            debounceTimerRef.current = setTimeout(() => {
+                recentSos.refetch();
+            }, 500);
+        }
+        
+        // Cleanup timer on unmount
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+        };
+    }, [activeUserList, recentSos]);
 
     useEffect(() => {
         if (range[0]?.startDate && range[0]?.endDate) {
@@ -512,174 +904,24 @@ const EHialingView = ({ isMapLoaded }) => {
                                         </TableRow>
                                         : (paginatedActiveUserList?.length > 0 ?
                                             paginatedActiveUserList?.map((user) => (
-                                                <TableRow key={user._id}>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {
-                                                            user?.sosType === 'ARMED_SOS' ? (
-                                                                <Stack direction="row" alignItems="center" gap={1}>
-                                                                    <Avatar alt="User" />
-                                                                    {user?.user?.first_name} {user?.user?.last_name}
-                                                                </Stack>
-                                                            ) : (
-                                                                user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user_id}`} className="link">
-                                                                        <Stack direction="row" alignItems="center" gap={1}>
-                                                                            <Avatar
-                                                                                src={user?.selfieImage}
-                                                                                sx={{ '&:hover': { textDecoration: 'none' } }}
-                                                                                alt="User"
-                                                                            />
-                                                                            {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
-                                                                        </Stack>
-                                                                    </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${user?.user_id}`} className="link">
-                                                                        <Stack direction="row" alignItems="center" gap={1}>
-                                                                            <Avatar src={user?.selfieImage} alt="User" />
-                                                                            {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
-                                                                        </Stack>
-                                                                    </Link>
-                                                                )
-                                                            )
-                                                        }
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.user?.company_name || user?.user_id?.company_name || "-")}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {user?.sosType === 'ARMED_SOS' ? (
-                                                            <Box sx={{
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'space-between',
-                                                            }}>
-                                                                {`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`}
-
-                                                                <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                                    <IconButton
-                                                                        onClick={() => {
-                                                                            setTextToCopy(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`);
-                                                                            handleCopy();
-                                                                        }}
-                                                                        sx={copyButtonStyles}
-                                                                        aria-label="copy address"
-                                                                    >
-                                                                        <ContentCopy fontSize="medium" className="copy-btn" />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            </Box>
-                                                        ) : (
-                                                            user?.address ?
-                                                                <Box sx={{
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    justifyContent: 'space-between',
-                                                                }}>
-                                                                    {user?.address}
-
-                                                                    <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                                        <IconButton
-                                                                            onClick={() => {
-                                                                                setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id || user?.deepLinks?._id}`);
-                                                                                handleCopy();
-                                                                            }}
-                                                                            sx={copyButtonStyles}
-                                                                            aria-label="copy address"
-                                                                        >
-                                                                            <ContentCopy fontSize="medium" className="copy-btn" />
-                                                                        </IconButton>
-                                                                    </Tooltip>
-                                                                </Box>
-                                                                :
-                                                                "-"
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: 'var(--orange)' }}>
-                                                        <Link
-                                                            to={`/home/request-reached-users/${user?._id}`}
-                                                            style={{
-                                                                textDecoration: 'none',
-                                                                color: 'var(--orange)',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                        >
-                                                            {requestCounts[user?._id]?.req_reach || user?.req_reach || "0"}
-                                                        </Link>
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#01C971' }}>
-                                                        <Link
-                                                            to={`/home/request-accepted-users/${user?._id}`}
-                                                            style={{
-                                                                textDecoration: 'none',
-                                                                color: '#01C971',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                        >
-                                                            {requestCounts[user?._id]?.req_accept || user?.req_accept || "0"}
-                                                        </Link>
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
-                                                        {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.type?.display_title || "-")}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {format(user?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {user?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
-                                                        {(!(user?.sosType === 'ARMED_SOS' ? user?.armedSosstatus : user?.help_received)) &&
-                                                            <div className={updatingId === user._id ? "" : "select-container"}>
-                                                                {updatingId === user._id ? (
-                                                                    <Box display="flex" justifyContent="center">
-                                                                        <Loader size={25} color="#1E73E8" />
-                                                                    </Box>
-                                                                ) : (
-                                                                    <select
-                                                                        name="help_received"
-                                                                        className="my-custom-select"
-                                                                        value={selectedId === user._id ? status : ""}
-                                                                        onChange={(e) => {
-                                                                            setStatus(e.target.value);
-                                                                            setStatusUpdate(true);
-                                                                            setSelectedId(user._id);
-                                                                        }}
-                                                                    >
-                                                                        <option value="" hidden> Select </option>
-                                                                        <option value="help_received"> Help Received </option>
-                                                                        <option value="cancel"> Cancel </option>
-                                                                    </select>
-                                                                )}
-                                                            </div>
-                                                        }
-                                                    </TableCell>
-                                                    <TableCell >
-                                                        <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                            <Tooltip title="View" arrow placement="top">
-                                                                <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${user?._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`)}>
-                                                                    <img src={ViewBtn} alt="view button" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Other Users" arrow placement="top">
-                                                                <IconButton>
-                                                                    <Typography
-                                                                        bgcolor="#367be0"
-                                                                        color="white"
-                                                                        height="100%"
-                                                                        px={1}
-                                                                        display="flex"
-                                                                        alignItems="center"
-                                                                        borderRadius={1}
-                                                                        onClick={() =>
-                                                                            nav(`/home/total-drivers/driver-information/${user?.otherUser?._id}`, { replace: true })
-                                                                        }
-                                                                    >
-                                                                        Other User
-                                                                    </Typography>
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </Box>
-                                                    </TableCell>
-                                                </TableRow>
+                                                <ActiveSOSTableRow
+                                                    key={user._id}
+                                                    user={user}
+                                                    requestCounts={requestCounts}
+                                                    userinfo={userinfo}
+                                                    nav={nav}
+                                                    copied={copied}
+                                                    handleCopy={handleCopy}
+                                                    setTextToCopy={setTextToCopy}
+                                                    updatingId={updatingId}
+                                                    selectedId={selectedId}
+                                                    status={status}
+                                                    setStatus={setStatus}
+                                                    setStatusUpdate={setStatusUpdate}
+                                                    setSelectedId={setSelectedId}
+                                                    copyButtonStyles={copyButtonStyles}
+                                                    isNavigatingBack={isNavigatingBack}
+                                                />
                                             ))
                                             :
                                             <TableRow>
@@ -719,10 +961,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                             },
                                         }}
                                         value={activeLimit}
-                                        onChange={(e) => {
-                                            setActiveLimit(Number(e.target.value));
-                                            setActivePage(1);
-                                        }}
+                                        onChange={(e) => handleActiveLimitChange(Number(e.target.value))}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
                                             <MenuItem key={num} value={num}>
@@ -739,7 +978,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                     </Typography>
                                     <IconButton
                                         disabled={activePage === 1}
-                                        onClick={() => setActivePage((prev) => prev - 1)}
+                                        onClick={() => handleActivePageChange(activePage - 1)}
                                     >
                                         <NavigateBefore fontSize="small" sx={{
                                             color: activePage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
@@ -747,7 +986,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                     </IconButton>
                                     <IconButton
                                         disabled={activePage === totalActivePages}
-                                        onClick={() => setActivePage((prev) => prev + 1)}
+                                        onClick={() => handleActivePageChange(activePage + 1)}
                                     >
                                         <NavigateNext fontSize="small" />
                                     </IconButton>
@@ -893,133 +1132,16 @@ const EHialingView = ({ isMapLoaded }) => {
                                         </TableRow>
                                         : (recentSos?.data?.data?.items?.length > 0 ?
                                             recentSos?.data?.data?.items?.map((row) => (
-                                                <TableRow key={row?._id}>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {
-                                                            row.user?.role === "driver" ? (
-                                                                <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link">
-                                                                    <Stack direction="row" alignItems="center" gap={1}>
-                                                                        <Avatar src={row?.user?.selfieImage} alt="User" />
-                                                                        {row?.user?.first_name || ''} {row?.user?.last_name || ''}
-                                                                    </Stack>
-                                                                </Link>
-                                                            ) : (
-                                                                <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link">
-                                                                    <Stack direction="row" alignItems="center" gap={1}>
-                                                                        <Avatar src={row?.user?.selfieImage} alt="User" />
-                                                                        {row?.user?.first_name || ''} {row?.user?.last_name || ''}
-                                                                    </Stack>
-                                                                </Link>
-                                                            )
-                                                        }
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {row?.user?.company_name}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        <Box sx={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'space-between'
-                                                        }}>
-                                                            {row?.address}
-                                                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                                <IconButton
-                                                                    onClick={() => {
-                                                                        setTextToCopy(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?.deepLinks._id}`);
-                                                                        handleCopy();
-                                                                    }}
-                                                                    sx={copyButtonStyles}
-                                                                    aria-label="copy address"
-                                                                >
-                                                                    <ContentCopy fontSize="medium" className="copy-btn" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </Box>
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: 'var(--orange)' }}>
-                                                        <Link
-                                                            to={`/home/request-reached-users/${row?._id}`}
-                                                            style={{
-                                                                textDecoration: 'none',
-                                                                color: 'var(--orange)',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                        >
-                                                            {row?.req_reach || "0"}
-                                                        </Link>
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#01C971' }}>
-                                                        <Link
-                                                            to={`/home/request-accepted-users/${row?._id}`}
-                                                            style={{
-                                                                textDecoration: 'none',
-                                                                color: '#01C971',
-                                                                cursor: 'pointer',
-                                                            }}
-                                                        >
-                                                            {row?.req_accept || "0"}
-                                                        </Link>
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
-                                                        {row?.type?.display_title}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: '#4B5563' }}>
-                                                        {row?.help_received}
-                                                    </TableCell>
-                                                    <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
-                                                        {row?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
-                                                    </TableCell>
-                                                    <TableCell >
-                                                        <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                            <Tooltip title="View" arrow placement="top">
-                                                                <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`)}>
-                                                                    <img src={ViewBtn} alt="view button" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </Box>
-                                                    </TableCell>
-                                                    {row?.type?.type === "linked_sos" ? (
-                                                        <TableCell>
-                                                            <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
-                                                                {row?.otherUser?._id ? (
-                                                                    <Tooltip title="Other User" arrow placement="top">
-                                                                        <Button
-                                                                            variant="contained"
-                                                                            sx={{
-                                                                                display: "flex",
-                                                                                alignItems: "center",
-                                                                                gap: "6px",
-                                                                                textTransform: "none",
-                                                                                fontWeight: 500,
-                                                                                fontSize: "14px",
-                                                                                color: "#fff",
-                                                                                backgroundColor: "#1E73E8", // same as your image blue
-                                                                                borderRadius: "8px",
-                                                                                padding: "6px 14px",
-                                                                                whiteSpace: "nowrap",
-                                                                                minWidth: "auto",
-                                                                                "&:hover": { backgroundColor: "#1864c7" },
-                                                                            }}
-                                                                            onClick={() =>
-                                                                            nav(`/home/total-drivers/driver-information/${user?.otherUser?._id}`, { replace: true })                                                                            }
-                                                                        >
-                                                                            Other User
-                                                                        </Button>
-                                                                    </Tooltip>
-                                                                ) : (
-                                                                    "-"
-                                                                )}
-                                                            </Box>
-                                                        </TableCell>
-                                                    ) : <TableCell sx={{ textAlign: 'center' }}>-</TableCell>}
-                                                </TableRow>
+                                                <RecentSOSTableRow
+                                                    key={row._id}
+                                                    row={row}
+                                                    copied={copied}
+                                                    handleCopy={handleCopy}
+                                                    setTextToCopy={setTextToCopy}
+                                                    nav={nav}
+                                                    userinfo={userinfo}
+                                                    isNavigatingBack={isNavigatingBack}
+                                                />
                                             ))
                                             :
                                             <TableRow>
@@ -1059,10 +1181,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                             },
                                         }}
                                         value={recentLimit}
-                                        onChange={(e) => {
-                                            setRecentLimit(Number(e.target.value));
-                                            setRecentPage(1);
-                                        }}
+                                        onChange={(e) => handleRecentLimitChange(Number(e.target.value))}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
                                             <MenuItem key={num} value={num}>
@@ -1079,7 +1198,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                     </Typography>
                                     <IconButton
                                         disabled={recentPage === 1}
-                                        onClick={() => setRecentPage((prev) => prev - 1)}
+                                        onClick={() => handleRecentPageChange(recentPage - 1)}
                                     >
                                         <NavigateBefore fontSize="small" sx={{
                                             color: recentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
@@ -1087,7 +1206,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                     </IconButton>
                                     <IconButton
                                         disabled={recentPage === totalRecentPages}
-                                        onClick={() => setRecentPage((prev) => prev + 1)}
+                                        onClick={() => handleRecentPageChange(recentPage + 1)}
                                     >
                                         <NavigateNext fontSize="small" />
                                     </IconButton>
