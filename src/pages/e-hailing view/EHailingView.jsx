@@ -274,41 +274,44 @@ const EHialingView = ({ isMapLoaded }) => {
 
                     lastFetchTime.current = now;
 
-                    const res = await activeSos.refetch();
+                    // Debounce the refetch to prevent duplicate calls
+                    setTimeout(async () => {
+                        const res = await activeSos.refetch();
 
-                    if (res?.data?.data?.data) {
-                        const newList = res.data.data.data || [];
+                        if (res?.data?.data?.data) {
+                            const newList = res.data.data.data || [];
 
-                        let hasNew = false;
-                        const newIds = [];
+                            let hasNew = false;
+                            const newIds = [];
 
-                        for (const item of newList) {
-                            if (!notifiedSosIds.current.has(item._id)) {
-                                hasNew = true;
-                                newIds.push(item._id);
-                            }
-                        }
-
-                        if (hasNew) {
-                            const playAudio = async () => {
-                                try {
-                                    const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
-
-                                    if (isAudioEnabled && audioRef.current) {
-                                        audioRef.current.loop = false;
-                                        audioRef.current.currentTime = 0;
-                                        await audioRef.current.play();
-                                    }
-                                } catch (e) {
-                                    console.error("Audio playback failed:", e);
+                            for (const item of newList) {
+                                if (!notifiedSosIds.current.has(item._id)) {
+                                    hasNew = true;
+                                    newIds.push(item._id);
                                 }
                             }
-                            playAudio();
-                            toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
 
-                            newIds.forEach(id => notifiedSosIds.current.add(id));
+                            if (hasNew) {
+                                const playAudio = async () => {
+                                    try {
+                                        const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
+
+                                        if (isAudioEnabled && audioRef.current) {
+                                            audioRef.current.loop = false;
+                                            audioRef.current.currentTime = 0;
+                                            await audioRef.current.play();
+                                        }
+                                    } catch (e) {
+                                        console.error("Audio playback failed:", e);
+                                    }
+                                }
+                                playAudio();
+                                toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
+
+                                newIds.forEach(id => notifiedSosIds.current.add(id));
+                            }
                         }
-                    }
+                    }, 100);
                 }
             } catch (error) {
                 console.error("Refetch failed:", error);
@@ -331,11 +334,12 @@ const EHialingView = ({ isMapLoaded }) => {
 
         if (previousLength !== currentLength) {
             prevLengthRef.current = currentLength;
-            recentSos.refetch();
-            queryClient.invalidateQueries(['chartData'], { exact: false });
-            queryClient.invalidateQueries(['hotspot'], { exact: false });
+            // Debounce refetches to prevent duplicate API calls
+            setTimeout(() => {
+                recentSos.refetch();
+            }, 100);
         }
-    }, [activeUserList, recentSos.refetch]);
+    }, [activeUserList]);
 
     useEffect(() => {
         if (range[0]?.startDate && range[0]?.endDate) {
@@ -518,7 +522,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                 </Stack>
                                                             ) : (
                                                                 user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${user?._id}`} className="link">
+                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user_id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={user?.selfieImage}
@@ -528,7 +532,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${user?._id}`} className="link">
+                                                                    <Link to={`/home/total-users/user-information/${user?.user_id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar src={user?.selfieImage} alt="User" />
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
