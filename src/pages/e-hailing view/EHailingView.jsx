@@ -669,6 +669,9 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                         display="flex"
                                                                         alignItems="center"
                                                                         borderRadius={1}
+                                                                        onClick={() =>
+                                                                            nav(`/home/total-drivers/driver-information/${user?.otherUser?._id}`, { replace: true })
+                                                                        }
                                                                     >
                                                                         Other User
                                                                     </Typography>
@@ -1005,8 +1008,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                                                                 "&:hover": { backgroundColor: "#1864c7" },
                                                                             }}
                                                                             onClick={() =>
-                                                                                nav(`total-drivers/driver-information/${row?.otherUser?._id}`)
-                                                                            }
+                                                                            nav(`/home/total-drivers/driver-information/${user?.otherUser?._id}`, { replace: true })                                                                            }
                                                                         >
                                                                             Other User
                                                                         </Button>
