@@ -364,6 +364,7 @@ const ListOfDrivers = () => {
 
     const handleExport = async ({ startDate, endDate, exportFormat }) => {
         const user = companyInfo.data?.data?.user;
+        const toastId = toast.loading("Exporting driver list...");
         try {
             const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/users`, {
                 params: {
@@ -379,7 +380,7 @@ const ListOfDrivers = () => {
 
             const allUsers = data?.users || [];
             if (!allUsers.length) {
-                toast.warning("No driver data found for this time period.");
+                toast.update(toastId, { render: "No driver data found for this time period.", type: "warning", isLoading: false, autoClose: 3000 });
                 return;
             }
             const exportData = allUsers.map(user => ({
@@ -463,10 +464,10 @@ const ListOfDrivers = () => {
                 doc.save("Drivers_List.pdf");
             }
 
-
+            toast.update(toastId, { render: "Export successful!", type: "success", isLoading: false, autoClose: 2000 });
         } catch (err) {
             console.error("Error exporting data:", err);
-            toast.error("Export failed.");
+            toast.update(toastId, { render: "Export failed.", type: "error", isLoading: false, autoClose: 3000 });
         }
     };
 
