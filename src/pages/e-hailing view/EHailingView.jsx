@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { ContentCopy, NavigateNext, NavigateBefore, Update } from '@mui/icons-material';
-import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, Stack, Select, MenuItem, Tooltip, TableSortLabel } from '@mui/material';
+import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, Stack, Select, MenuItem, Tooltip, TableSortLabel, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 
 import ViewBtn from '../../assets/images/ViewBtn.svg';
 import arrowup from '../../assets/images/arrowup.svg';
@@ -395,6 +395,7 @@ const EHialingView = ({ isMapLoaded }) => {
     const [time, settime] = useState("today");
     const [realtimeUpdates, setRealtimeUpdates] = useState(new Set()); // Track which SOS IDs have real-time updates
     const [isPlaying, setIsPlaying] = useState(false);
+    const [openAudioModal, setOpenAudioModal] = useState(false);
 
     // pagination
     const [recentPage, setRecentPage] = useState(1);
@@ -536,8 +537,10 @@ const EHialingView = ({ isMapLoaded }) => {
     }, [sortBy2]);
 
     const stopAudio = () => {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
         setIsPlaying(false);
     };
 
@@ -640,6 +643,12 @@ const EHialingView = ({ isMapLoaded }) => {
             sessionStorage.setItem('ehailing-view-visited', 'true');
         }
 
+        // Check for audio permission
+        const audioEnabled = localStorage.getItem("sosAudioEnabled");
+        if (audioEnabled === null) {
+            setOpenAudioModal(true);
+        }
+
         return () => {
             // Don't clear cache on unmount to prevent reloading on navigation back
         };
@@ -669,12 +678,19 @@ const EHialingView = ({ isMapLoaded }) => {
                         const playAudio = async () => {
                             try {
                                 const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
-                                if (isAudioEnabled && audioRef.current) {
-                                    audioRef.current.loop = true; // Continuous sound
-                                    audioRef.current.currentTime = 0;
+                                if (isAudioEnabled) {
+                                    // Stop any existing audio first
+                                    if (audioRef.current) {
+                                        audioRef.current.pause();
+                                        audioRef.current.currentTime = 0;
+                                    }
+
+                                    // Create a fresh instance to avoid background suspension issues
+                                    audioRef.current = new Audio(tone);
+                                    audioRef.current.loop = true;
                                     await audioRef.current.play();
+                                    setIsPlaying(true);
                                 }
-                                setIsPlaying(true);
                             } catch (e) {
                                 console.error("Audio playback failed:", e);
                             }
@@ -708,12 +724,19 @@ const EHialingView = ({ isMapLoaded }) => {
                         try {
                             const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
 
-                            if (isAudioEnabled && audioRef.current) {
-                                audioRef.current.loop = true; // Continuous sound
-                                audioRef.current.currentTime = 0;
+                            if (isAudioEnabled) {
+                                // Stop any existing audio first
+                                if (audioRef.current) {
+                                    audioRef.current.pause();
+                                    audioRef.current.currentTime = 0;
+                                }
+
+                                // Create fresh instance
+                                audioRef.current = new Audio(tone);
+                                audioRef.current.loop = true;
                                 await audioRef.current.play();
+                                setIsPlaying(true);
                             }
-                            setIsPlaying(true);
 
                             if (newSOS.sosId) {
                                 notifiedSosIds.current.add(newSOS.sosId);
@@ -1295,6 +1318,61 @@ const EHialingView = ({ isMapLoaded }) => {
                     handleUpdate={handleUpdate}
                 />
             )}
+
+            {/* Audio Permission Modal - First Time Only */}
+            <Dialog open={openAudioModal} onClose={() => { }} disableEscapeKeyDown>
+                <DialogTitle>Enable Audio Alerts?</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Do you want to enable sound notifications for real-time SOS alerts?
+                        <br />
+                        <Typography variant="caption" color="text.secondary">
+                            (You can change this anytime in your Profile)
+                        </Typography>
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => {
+                        localStorage.setItem("sosAudioEnabled", "false");
+                        setOpenAudioModal(false);
+                        toast.info("Audio alerts disabled. You can enable them in Profile.", toastOption);
+                    }} color="inherit">
+                        No, thanks
+                    </Button>
+                    <Button onClick={async () => {
+                        try {
+                            const testAudio = new Audio(tone);
+                            await testAudio.play();
+                            toast.success("Test sound played successfully", toastOption);
+                        } catch (e) {
+                            console.error("Test sound failed", e);
+                            toast.error("Click anywhere on page first to enable sound", toastOption);
+                        }
+                    }} color="secondary">
+                        Test Sound
+                    </Button>
+                    <Button onClick={() => {
+                        const enableAudio = async () => {
+                            try {
+                                // Create and play momentarily to "unlock" the audio context/interface
+                                const unlockAudio = new Audio(tone);
+                                await unlockAudio.play();
+
+                                localStorage.setItem("sosAudioEnabled", "true");
+                                setOpenAudioModal(false);
+                                toast.success("Audio alerts enabled!", toastOption);
+                            } catch (e) {
+                                console.error("Permission grant failed", e);
+                                localStorage.setItem("sosAudioEnabled", "true");
+                                setOpenAudioModal(false);
+                            }
+                        }
+                        enableAudio();
+                    }} color="primary" variant="contained" autoFocus>
+                        Yes, Enable Audio
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box >
     );
 };
