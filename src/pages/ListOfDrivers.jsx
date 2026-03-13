@@ -63,6 +63,7 @@ const ListOfDrivers = () => {
     const client = useQueryClient();
     const nav = useNavigate();
     const params = useParams();
+    const userId = localStorage.getItem("userID");
     const [role] = useState(localStorage.getItem("role"));
     const [page, setpage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -120,7 +121,7 @@ const ListOfDrivers = () => {
         }
     }
 
-    const companyInfo = useGetUser(params.id);
+    const companyInfo = useGetUser(userId);
     const driverList = useGetUserList(
         "driver list",
         "driver",
@@ -388,7 +389,7 @@ const ListOfDrivers = () => {
                 "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
                 "Contact Email": user.email || ''
             }));
-            const exportedByValue = user.role === 'company' ? user.company_name : 'Super Admin';
+            const exportedByValue = user?.role === 'company' ? user.company_name : 'Super Admin' || 'Super Admin';
             if (exportFormat === "xlsx") {
                 const workbook = XLSX.utils.book_new();
 
