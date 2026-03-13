@@ -1339,18 +1339,6 @@ const EHialingView = ({ isMapLoaded }) => {
                     }} color="inherit">
                         No, thanks
                     </Button>
-                    <Button onClick={async () => {
-                        try {
-                            const testAudio = new Audio(tone);
-                            await testAudio.play();
-                            toast.success("Test sound played successfully", toastOption);
-                        } catch (e) {
-                            console.error("Test sound failed", e);
-                            toast.error("Click anywhere on page first to enable sound", toastOption);
-                        }
-                    }} color="secondary">
-                        Test Sound
-                    </Button>
                     <Button onClick={() => {
                         const enableAudio = async () => {
                             try {
