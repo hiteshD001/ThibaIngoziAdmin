@@ -6,7 +6,7 @@ import { Slide, toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { ContentCopy, NavigateNext, NavigateBefore } from '@mui/icons-material';
+import { ContentCopy, NavigateNext, NavigateBefore, Update } from '@mui/icons-material';
 import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, Stack, Select, MenuItem, Tooltip, TableSortLabel } from '@mui/material';
 
 import ViewBtn from '../../assets/images/ViewBtn.svg';
@@ -35,7 +35,7 @@ const copyButtonStyles = {
 };
 
 // Memoized Active SOS Table Row Component
-const ActiveSOSTableRow = memo(({ user, requestCounts, userinfo, nav, copied, handleCopy, setTextToCopy, updatingId, selectedId, status, setStatus, setStatusUpdate, setSelectedId, copyButtonStyles, isNavigatingBack }) => {
+const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTextToCopy, updatingId, selectedId, status, setStatus, setStatusUpdate, setSelectedId, copyButtonStyles, isNavigatingBack, realtimeUpdates }) => {
     const handleStatusChange = useCallback((e) => {
         setStatus(e.target.value);
         setStatusUpdate(true);
@@ -130,28 +130,38 @@ const ActiveSOSTableRow = memo(({ user, requestCounts, userinfo, nav, copied, ha
                 )}
             </TableCell>
             <TableCell sx={{ color: 'var(--orange)' }}>
-                <Link
-                    to={`/home/request-reached-users/${user?._id}`}
-                    style={{
-                        textDecoration: 'none',
-                        color: 'var(--orange)',
-                        cursor: 'pointer',
-                    }}
-                >
-                    {requestCounts[user?._id]?.req_reach || user?.req_reach || "0"}
-                </Link>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Link
+                        to={`/home/request-reached-users/${user?._id}`}
+                        style={{
+                            textDecoration: 'none',
+                            color: 'var(--orange)',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        {user?.req_reach || "0"}
+                    </Link>
+                    {realtimeUpdates.has(user._id) && (
+                        <Update sx={{ fontSize: 16, color: '#4CAF50', animation: 'pulse 1s infinite' }} />
+                    )}
+                </Box>
             </TableCell>
             <TableCell sx={{ color: '#01C971' }}>
-                <Link
-                    to={`/home/request-accepted-users/${user?._id}`}
-                    style={{
-                        textDecoration: 'none',
-                        color: '#01C971',
-                        cursor: 'pointer',
-                    }}
-                >
-                    {requestCounts[user?._id]?.req_accept || user?.req_accept || "0"}
-                </Link>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Link
+                        to={`/home/request-accepted-users/${user?._id}`}
+                        style={{
+                            textDecoration: 'none',
+                            color: '#01C971',
+                            cursor: 'pointer',
+                        }}
+                    >
+                        {user?.req_accept || "0"}
+                    </Link>
+                    {realtimeUpdates.has(user._id) && (
+                        <Update sx={{ fontSize: 16, color: '#4CAF50', animation: 'pulse 1s infinite' }} />
+                    )}
+                </Box>
             </TableCell>
             <TableCell sx={{ color: user?.type?.bgColor ?? '#4B5563' }}>
                 {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.type?.display_title || "-")}
@@ -383,6 +393,7 @@ const EHialingView = ({ isMapLoaded }) => {
     const [updatingId, setUpdatingId] = useState("");
     const [statusUpdate, setStatusUpdate] = useState(false);
     const [time, settime] = useState("today");
+    const [realtimeUpdates, setRealtimeUpdates] = useState(new Set()); // Track which SOS IDs have real-time updates
 
     // pagination
     const [recentPage, setRecentPage] = useState(1);
@@ -463,10 +474,23 @@ const EHialingView = ({ isMapLoaded }) => {
     const activeUserList = activeSos?.data?.data?.data;
     const prevLengthRef = useRef(activeUserList?.length);
     const notifiedSosIds = useRef(new Set(activeUserLists?.map(u => u._id) || []));
-    const paginatedActiveUserList = useMemo(() => {
+    
+    // Merge API data with real-time WebSocket counts for optimal performance
+    const mergedActiveUserList = useMemo(() => {
         if (!Array.isArray(activeUserList)) return [];
-        return activeUserList;
-    }, [activeUserList]);
+        
+        return activeUserList.map(user => ({
+            ...user,
+            // Use real-time WebSocket counts if available, fallback to API counts
+            req_reach: requestCounts[user._id]?.req_reach || user?.req_reach || 0,
+            req_accept: requestCounts[user._id]?.req_accept || user?.req_accept || 0
+        }));
+    }, [activeUserList, requestCounts]);
+    
+    const paginatedActiveUserList = useMemo(() => {
+        if (!Array.isArray(mergedActiveUserList)) return [];
+        return mergedActiveUserList;
+    }, [mergedActiveUserList]);
 
     const onSuccess = useCallback(() => {
         toast.success("Status Updated Successfully.");
@@ -587,7 +611,26 @@ const EHialingView = ({ isMapLoaded }) => {
     const totalRecentPages = Math.ceil(totalRecentItems / recentLimit) || 1;
 
 
-    // Only clear cache on initial mount to ensure fresh company-filtered data
+    // Track real-time updates for visual feedback
+    useEffect(() => {
+        // Add SOS IDs to real-time tracking when they get updated via WebSocket
+        Object.keys(requestCounts).forEach(sosId => {
+            if (requestCounts[sosId]?.req_reach > 0 || requestCounts[sosId]?.req_accept > 0) {
+                setRealtimeUpdates(prev => new Set(prev).add(sosId));
+            }
+        });
+    }, [requestCounts]);
+
+    // Clear real-time indicators after 3 seconds
+    useEffect(() => {
+        if (realtimeUpdates.size === 0) return;
+        
+        const timer = setTimeout(() => {
+            setRealtimeUpdates(new Set());
+        }, 3000);
+        
+        return () => clearTimeout(timer);
+    }, [realtimeUpdates]);
     useEffect(() => {
         const hasVisited = sessionStorage.getItem('ehailing-view-visited');
         if (!hasVisited) {
@@ -741,6 +784,15 @@ const EHialingView = ({ isMapLoaded }) => {
 
     return (
         <Box>
+            <style>
+                {`
+                    @keyframes pulse {
+                        0% { opacity: 1; }
+                        50% { opacity: 0.5; }
+                        100% { opacity: 1; }
+                    }
+                `}
+            </style>
 
             <Grid sx={{ backgroundColor: 'white', p: 3, mt: '-25px' }} container justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
                 <Grid size={{ xs: 12, md: 5, lg: 6 }}>
@@ -907,7 +959,6 @@ const EHialingView = ({ isMapLoaded }) => {
                                                 <ActiveSOSTableRow
                                                     key={user._id}
                                                     user={user}
-                                                    requestCounts={requestCounts}
                                                     userinfo={userinfo}
                                                     nav={nav}
                                                     copied={copied}
@@ -921,6 +972,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                                     setSelectedId={setSelectedId}
                                                     copyButtonStyles={copyButtonStyles}
                                                     isNavigatingBack={isNavigatingBack}
+                                                    realtimeUpdates={realtimeUpdates}
                                                 />
                                             ))
                                             :
