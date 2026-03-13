@@ -122,9 +122,11 @@ const Analytics = ({ id, activePage,
 
     let arrow = null; // Default: no arrow
 
-    if (activePercentage > lastActivePercentage) {
+    const activeTrend = activePercentage?.trend || null;
+
+    if (activeTrend === "up") {
         arrow = <FaArrowUpLong color="green" />;
-    } else if (activePercentage < lastActivePercentage) {
+    } else if (activeTrend === "down") {
         arrow = <FaArrowDownLong color="red" />;
     } else {
         arrow = null;
@@ -137,38 +139,38 @@ const Analytics = ({ id, activePage,
             case "today":
                 setactiveUser(driverList?.data?.data?.totalActiveDriversToday || 0);
                 settimeTitle("Today");
-                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromToday || 0);
-                setLastActivePercentage(driverList?.data?.data?.activeUsersPercentageFromYesterday || 0);
+                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromToday || { percentage: 0, trend: "neutral" });
+                setLastActivePercentage(driverList?.data?.data?.activeUsersPercentageFromYesterday || { percentage: 0, trend: "neutral" });
                 break;
             case "yesterday":
                 setactiveUser(driverList?.data?.data?.totalActiveDriversYesterday || 0);
                 settimeTitle("Yesterday");
-                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromYesterday || 0);
-                setLastActivePercentage(driverList?.data?.data?.activeUsersPercentageFromYesterday || 0);
+                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromYesterday || { percentage: 0, trend: "neutral" });
+                setLastActivePercentage(driverList?.data?.data?.activeUsersPercentageFromYesterday || { percentage: 0, trend: "neutral" });
                 break;
             case "this_week":
                 setactiveUser(driverList?.data?.data?.totalActiveDriversThisWeek || 0);
                 settimeTitle("Last Week");
-                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromLastWeek || 0);
-                setLastActivePercentage(driverList?.data?.data?.activeUsersPercentageFromLastWeeks || 0);
+                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromLastWeek || { percentage: 0, trend: "neutral" });
+                setLastActivePercentage(driverList?.data?.data?.activeUsersPercentageFromLastWeeks || { percentage: 0, trend: "neutral" });
                 break;
             case "this_month":
                 setactiveUser(driverList?.data?.data?.totalActiveDriversThisMonth || 0);
                 settimeTitle("Last Month");
-                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromLastMonth || 0);
-                setLastActivePercentage(driverList?.data?.data?.activeUsersPercentageFromLastMonths || 0);
+                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromLastMonth || { percentage: 0, trend: "neutral" });
+                setLastActivePercentage(driverList?.data?.data?.activeUsersPercentageFromLastMonths || { percentage: 0, trend: "neutral" });
                 break;
             case "this_year":
                 setactiveUser(driverList?.data?.data?.totalActiveDriversThisYear || 0);
                 settimeTitle("Last Year");
-                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromLastYear || 0);
-                setLastActivePercentage(driverList.data?.data.activeUsersPercentageFromLastYears || 0);
+                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromLastYear || { percentage: 0, trend: "neutral" });
+                setLastActivePercentage(driverList.data?.data.activeUsersPercentageFromLastYears || { percentage: 0, trend: "neutral" });
                 break;
             default:
                 setactiveUser(driverList?.data?.data?.totalActiveDriversToday || 0);
-                setLastActivePercentage(driverList?.data?.data?.activeUsersPercentageFromYesterday || 0);
                 settimeTitle("Today");
-                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromYesterday || 0);
+                setActivePercentage(driverList?.data?.data?.activeUsersPercentageFromToday || { percentage: 0, trend: "neutral" });
+                setLastActivePercentage(driverList?.data?.data?.activeUsersPercentageFromYesterday || { percentage: 0, trend: "neutral" });
                 break;
         }
     }, [driverList?.data, time]);
@@ -208,9 +210,9 @@ const Analytics = ({ id, activePage,
 
 
             const TotalData = [
-                { Type: "Total Companies", Count: (companyList.data?.data.totalUsers || 0), Percentage: companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2) },
-                { Type: "Active Users", Count: (driverList?.data?.data.totalActiveDrivers || 0), Percentage: driverList?.data?.data?.activeUsersPercentageFromYesterday?.toFixed(2) },
-                { Type: "Users Active " + timeTitle, Count: activeUser, Percentage: activePercentage },
+                { Type: "Total Companies", Count: (companyList.data?.data.totalUsers || 0), Percentage: (companyList?.data?.data?.companiesPercentageFromLastMonth?.percentage || 0).toFixed(2) },
+                { Type: "Active Users", Count: (driverList?.data?.data.totalActiveDrivers || 0), Percentage: (driverList?.data?.data?.activeUsersPercentageFromYesterday?.percentage || 0).toFixed(2) },
+                { Type: "Users Active " + timeTitle, Count: activeUser, Percentage: (activePercentage?.percentage || 0).toFixed(2) },
             ];
 
             const chartDataFinal = chartData?.data?.data;
@@ -477,8 +479,9 @@ const Analytics = ({ id, activePage,
 
                                 <div className="">
                                     <div className="d-flex gap-2">
-                                        <div className="percentage-green">
-                                            {companyList?.data?.data?.companiesPercentageFromLastMonth === 0 ? "" : <FaArrowUpLong />} {companyList?.data?.data?.companiesPercentageFromLastMonth?.toFixed(2)} %
+                                        <div className={`percentage-${companyList?.data?.data?.companiesPercentageFromLastMonth?.trend === "down" ? "red" : "green"}`}>
+                                            {companyList?.data?.data?.companiesPercentageFromLastMonth?.trend === "up" ? <FaArrowUpLong /> : companyList?.data?.data?.companiesPercentageFromLastMonth?.trend === "down" ? <FaArrowDownLong /> : ""}
+                                            {companyList?.data?.data?.companiesPercentageFromLastMonth?.percentage?.toFixed(2)} %
                                         </div>
                                         <span> from last month</span>
                                     </div>
@@ -503,9 +506,9 @@ const Analytics = ({ id, activePage,
 
                                 <div className=''>
                                     <div className="d-flex gap-2">
-                                        <div className="percentage-green">
-                                            {driverList?.data?.data?.activeUsersPercentageFromYesterday === 0 ? "" : <FaArrowDownLong />}
-                                            {driverList?.data?.data?.activeUsersPercentageFromYesterday?.toFixed(2)} %
+                                        <div className={`percentage-${driverList?.data?.data?.activeUsersPercentageFromYesterday?.trend === "down" ? "red" : "green"}`}>
+                                            {driverList?.data?.data?.activeUsersPercentageFromYesterday?.trend === "up" ? <FaArrowUpLong /> : driverList?.data?.data?.activeUsersPercentageFromYesterday?.trend === "down" ? <FaArrowDownLong /> : ""}
+                                            {driverList?.data?.data?.activeUsersPercentageFromYesterday?.percentage?.toFixed(2)} %
                                         </div>
                                         <span>from yesterday</span>
                                     </div>
@@ -522,8 +525,8 @@ const Analytics = ({ id, activePage,
                                     <img src={div3} alt="dash-counter" />
                                 </div>
                                 <div className="d-flex gap-2">
-                                    <div className="percentage-green">
-                                        {arrow} {activePercentage?.toFixed(2)}%
+                                    <div className={`percentage-${activePercentage?.trend === "down" ? "red" : "green"}`}>
+                                        {arrow} {activePercentage?.percentage?.toFixed(2)}%
 
                                     </div>
                                     <span>from {timeTitle}</span>
