@@ -11,6 +11,7 @@ import {
     Grid,
     Typography,
     Box,
+    Skeleton,
 } from "@mui/material";
 import filter from '../assets/images/filter.svg'
 import CustomDateRangePicker from "./Custom/CustomDateRangePicker";
@@ -470,7 +471,13 @@ const Analytics = ({ id, activePage,
                                     <div className="d-flex justify-content-between  w-100 ">
                                         <div className="">
                                             <span>Total Companies</span>
-                                            <h3>{companyList.data?.data.totalUsers || 0}</h3>
+                                            <h3>
+                                                {companyList.isPending ? (
+                                                    <Skeleton variant="text" width={60} height={40} />
+                                                ) : (
+                                                    companyList.data?.data.totalUsers || 0
+                                                )}
+                                            </h3>
                                         </div>
                                         <img src={div} alt="dash-counter" />
 
@@ -497,7 +504,11 @@ const Analytics = ({ id, activePage,
                                         <div>
                                             <span>Active Users</span>
                                             <h3>
-                                                {driverList?.data?.data.totalActiveDrivers || 0}
+                                                {driverList.isPending ? (
+                                                    <Skeleton variant="text" width={60} height={40} />
+                                                ) : (
+                                                    driverList?.data?.data.totalActiveDrivers || 0
+                                                )}
                                             </h3>
                                         </div>
                                         <img src={div2} alt="dash-counter" />
@@ -521,7 +532,14 @@ const Analytics = ({ id, activePage,
                                 <div className="d-flex justify-content-between  ">
 
                                     <div><span>Users Active {timeTitle}</span>
-                                        <h3>{activeUser}</h3></div>
+                                        <h3>
+                                            {driverList.isPending ? (
+                                                <Skeleton variant="text" width={60} height={40} />
+                                            ) : (
+                                                activeUser
+                                            )}
+                                        </h3>
+                                    </div>
                                     <img src={div3} alt="dash-counter" />
                                 </div>
                                 <div className="d-flex gap-2">
@@ -543,7 +561,11 @@ const Analytics = ({ id, activePage,
                                     <div>
                                         <span>Active Users</span>
                                         <h3>
-                                            {driverList?.data?.data.totalActiveDrivers || 0}
+                                            {driverList.isPending ? (
+                                                <Skeleton variant="text" width={60} height={40} />
+                                            ) : (
+                                                driverList?.data?.data.totalActiveDrivers || 0
+                                            )}
                                         </h3>
                                     </div>
                                     <img src={div2} alt="dash-counter" />
