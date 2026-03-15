@@ -3,17 +3,18 @@ import {
     Marker,
     DirectionsRenderer,
     InfoWindow,
-    useJsApiLoader,
     Circle,
 } from "@react-google-maps/api";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useGetLocationByLocationId } from "../API Calls/API";
 import { GoogleMapConfirm } from "./ConfirmationPOPup";
+import { useMaps } from "../contexts/MapsContext";
 
 const mapContainerStyle = { width: "100%", height: "calc(100vh - 100px )" };
 
-const GoogleMaps = ({ isMapLoaded }) => {
+const GoogleMaps = () => {
+    const { isLoaded: isMapLoaded } = useMaps();
     const [params] = useSearchParams();
     const nav = useNavigate();
     const [directions, setDirections] = useState(null);

@@ -6,8 +6,11 @@ import { Slide, toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { ContentCopy, NavigateNext, NavigateBefore, Update } from '@mui/icons-material';
-import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, Stack, Select, MenuItem, Tooltip, TableSortLabel, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import NavigateNext from '@mui/icons-material/NavigateNext';
+import NavigateBefore from '@mui/icons-material/NavigateBefore';
+import Update from '@mui/icons-material/Update';
+import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, Stack, Select, MenuItem, Tooltip, TableSortLabel } from '@mui/material';
 
 import ViewBtn from '../../assets/images/ViewBtn.svg';
 import arrowup from '../../assets/images/arrowup.svg';
@@ -23,6 +26,7 @@ import Loader from '../../common/Loader';
 import CustomChart from '../../common/CustomChart';
 import { toastOption } from '../../common/ToastOptions';
 import HotspotSection from '../../common/HotspotSection';
+import { useMaps } from '../../contexts/MapsContext';
 import { SOSStatusUpdate } from '../../common/ConfirmationPOPup';
 import CustomDateRangePicker from '../../common/Custom/CustomDateRangePicker';
 import TimeFilter from '../../common/Custom/TimeFilter';
@@ -66,7 +70,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                 ) : (
                     user?.role === "driver" ? (
                         <Link to={`/home/total-drivers/driver-information/${user?.user_id}`} className="link"
-                            onClick={() => isNavigatingBack.current = true}>
+                              onClick={() => isNavigatingBack.current = true}>
                             <Stack direction="row" alignItems="center" gap={1}>
                                 <Avatar
                                     src={user?.selfieImage}
@@ -77,7 +81,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                             </Stack>
                         </Link>) : (
                         <Link to={`/home/total-users/user-information/${user?.user_id}`} className="link"
-                            onClick={() => isNavigatingBack.current = true}>
+                              onClick={() => isNavigatingBack.current = true}>
                             <Stack direction="row" alignItems="center" gap={1}>
                                 <Avatar src={user?.selfieImage} alt="User" />
                                 {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
@@ -241,7 +245,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
             <TableCell sx={{ color: '#4B5563' }}>
                 {row.user?.role === "driver" ? (
                     <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link"
-                        onClick={() => isNavigatingBack.current = true}>
+                          onClick={() => isNavigatingBack.current = true}>
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Avatar src={row?.user?.selfieImage} alt="User" />
                             {row?.user?.first_name || ''} {row?.user?.last_name || ''}
@@ -249,7 +253,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                     </Link>
                 ) : (
                     <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link"
-                        onClick={() => isNavigatingBack.current = true}>
+                          onClick={() => isNavigatingBack.current = true}>
                         <Stack direction="row" alignItems="center" gap={1}>
                             <Avatar src={row?.user?.selfieImage} alt="User" />
                             {row?.user?.first_name || ''} {row?.user?.last_name || ''}
@@ -309,10 +313,10 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                 {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
             </TableCell>
             <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
-                {row?.type?.display_title}
+                {row?.type?.display_title || "-"}
             </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
-                {row?.help_received}
+                {row?.help_received === "help_received" ? "Help Received" : row?.help_received === "cancel" ? "Cancel" : "-"}
             </TableCell>
             <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
                 {row?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
@@ -366,9 +370,8 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
 RecentSOSTableRow.displayName = 'RecentSOSTableRow';
 
 // eslint-disable-next-line react/prop-types
-const EHialingView = ({ isMapLoaded }) => {
-
-
+const EHialingView = () => {
+    const { isLoaded: isMapLoaded } = useMaps();
     const nav = useNavigate();
     const queryClient = useQueryClient();
 
@@ -394,8 +397,6 @@ const EHialingView = ({ isMapLoaded }) => {
     const [statusUpdate, setStatusUpdate] = useState(false);
     const [time, settime] = useState("today");
     const [realtimeUpdates, setRealtimeUpdates] = useState(new Set()); // Track which SOS IDs have real-time updates
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [openAudioModal, setOpenAudioModal] = useState(false);
 
     // pagination
     const [recentPage, setRecentPage] = useState(1);
@@ -476,11 +477,11 @@ const EHialingView = ({ isMapLoaded }) => {
     const activeUserList = activeSos?.data?.data?.data;
     const prevLengthRef = useRef(activeUserList?.length);
     const notifiedSosIds = useRef(new Set(activeUserLists?.map(u => u._id) || []));
-
+    
     // Merge API data with real-time WebSocket counts for optimal performance
     const mergedActiveUserList = useMemo(() => {
         if (!Array.isArray(activeUserList)) return [];
-
+        
         return activeUserList.map(user => ({
             ...user,
             // Use real-time WebSocket counts if available, fallback to API counts
@@ -488,7 +489,7 @@ const EHialingView = ({ isMapLoaded }) => {
             req_accept: requestCounts[user._id]?.req_accept || user?.req_accept || 0
         }));
     }, [activeUserList, requestCounts]);
-
+    
     const paginatedActiveUserList = useMemo(() => {
         if (!Array.isArray(mergedActiveUserList)) return [];
         return mergedActiveUserList;
@@ -541,7 +542,6 @@ const EHialingView = ({ isMapLoaded }) => {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
         }
-        setIsPlaying(false);
     };
 
     const handleCopy = useCallback(async () => {
@@ -567,7 +567,7 @@ const EHialingView = ({ isMapLoaded }) => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
-
+        
         debounceTimerRef.current = setTimeout(() => {
             setActivePage(newPage);
         }, 150);
@@ -577,7 +577,7 @@ const EHialingView = ({ isMapLoaded }) => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
-
+        
         debounceTimerRef.current = setTimeout(() => {
             setRecentPage(newPage);
         }, 150);
@@ -587,7 +587,7 @@ const EHialingView = ({ isMapLoaded }) => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
-
+        
         debounceTimerRef.current = setTimeout(() => {
             setActiveLimit(newLimit);
             setActivePage(1);
@@ -598,7 +598,7 @@ const EHialingView = ({ isMapLoaded }) => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
-
+        
         debounceTimerRef.current = setTimeout(() => {
             setRecentLimit(newLimit);
             setRecentPage(1);
@@ -629,11 +629,11 @@ const EHialingView = ({ isMapLoaded }) => {
     // Clear real-time indicators after 3 seconds
     useEffect(() => {
         if (realtimeUpdates.size === 0) return;
-
+        
         const timer = setTimeout(() => {
             setRealtimeUpdates(new Set());
         }, 3000);
-
+        
         return () => clearTimeout(timer);
     }, [realtimeUpdates]);
     useEffect(() => {
@@ -642,13 +642,7 @@ const EHialingView = ({ isMapLoaded }) => {
             queryClient.removeQueries({ queryKey: ["activeSOS2"] });
             sessionStorage.setItem('ehailing-view-visited', 'true');
         }
-
-        // Check for audio permission
-        const audioEnabled = localStorage.getItem("sosAudioEnabled");
-        if (audioEnabled === null) {
-            setOpenAudioModal(true);
-        }
-
+        
         return () => {
             // Don't clear cache on unmount to prevent reloading on navigation back
         };
@@ -660,42 +654,34 @@ const EHialingView = ({ isMapLoaded }) => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
-
+        
         debounceTimerRef.current = setTimeout(async () => {
             const now = Date.now();
             if (now - lastFetchTime.current < 2000) return;
-
+            
             lastFetchTime.current = now;
-
+            
             try {
                 const res = await activeSos.refetch();
-
+                
                 if (res?.data?.data?.data) {
                     const newList = res.data.data.data || [];
                     const newIds = newList.filter(item => !notifiedSosIds.current.has(item._id)).map(item => item._id);
-
+                    
                     if (newIds.length > 0) {
                         const playAudio = async () => {
                             try {
                                 const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
-                                if (isAudioEnabled) {
-                                    // Stop any existing audio first
-                                    if (audioRef.current) {
-                                        audioRef.current.pause();
-                                        audioRef.current.currentTime = 0;
-                                    }
-
-                                    // Create a fresh instance to avoid background suspension issues
-                                    audioRef.current = new Audio(tone);
-                                    audioRef.current.loop = true;
+                                if (isAudioEnabled && audioRef.current) {
+                                    audioRef.current.loop = false;
+                                    audioRef.current.currentTime = 0;
                                     await audioRef.current.play();
-                                    setIsPlaying(true);
                                 }
                             } catch (e) {
                                 console.error("Audio playback failed:", e);
                             }
                         };
-
+                        
                         playAudio();
                         toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
                         newIds.forEach(id => notifiedSosIds.current.add(id));
@@ -724,18 +710,10 @@ const EHialingView = ({ isMapLoaded }) => {
                         try {
                             const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
 
-                            if (isAudioEnabled) {
-                                // Stop any existing audio first
-                                if (audioRef.current) {
-                                    audioRef.current.pause();
-                                    audioRef.current.currentTime = 0;
-                                }
-
-                                // Create fresh instance
-                                audioRef.current = new Audio(tone);
-                                audioRef.current.loop = true;
+                            if (isAudioEnabled && audioRef.current) {
+                                audioRef.current.loop = false;
+                                audioRef.current.currentTime = 0;
                                 await audioRef.current.play();
-                                setIsPlaying(true);
                             }
 
                             if (newSOS.sosId) {
@@ -782,25 +760,19 @@ const EHialingView = ({ isMapLoaded }) => {
 
         // Only refetch if there's an actual change in data length (not just navigation)
         if (previousLength !== currentLength && Math.abs(previousLength - currentLength) > 0) {
-            // If the number of active SOS requests decreases (meaning one was resolved)
-            // we stop the continuous ringing.
-            if (currentLength < previousLength) {
-                stopAudio();
-            }
-
             prevLengthRef.current = currentLength;
-
+            
             // Clear existing timer
             if (debounceTimerRef.current) {
                 clearTimeout(debounceTimerRef.current);
             }
-
+            
             // Debounce refetch to prevent duplicate API calls
             debounceTimerRef.current = setTimeout(() => {
                 recentSos.refetch();
             }, 500);
         }
-
+        
         // Cleanup timer on unmount
         return () => {
             if (debounceTimerRef.current) {
@@ -876,17 +848,6 @@ const EHialingView = ({ isMapLoaded }) => {
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                         <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 }, alignItems: 'center' }}>
                             <Typography variant="h6" fontWeight={590}>Active SOS Alerts</Typography>
-                            {isPlaying && (
-                                <Button
-                                    variant="contained"
-                                    color="error"
-                                    size="small"
-                                    onClick={stopAudio}
-                                    sx={{ textTransform: 'none', borderRadius: '8px', minWidth: '100px' }}
-                                >
-                                    Stop Sound
-                                </Button>
-                            )}
                         </Grid>
                         <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
                             <CustomDateRangePicker
@@ -1094,7 +1055,6 @@ const EHialingView = ({ isMapLoaded }) => {
 
                 {/* hotspot */}
                 <HotspotSection
-                    isMapLoaded={isMapLoaded}
                     hideCategories={true}
                     companyIds={ehailingCompanyIds}
                     ehailing={false}
@@ -1318,49 +1278,6 @@ const EHialingView = ({ isMapLoaded }) => {
                     handleUpdate={handleUpdate}
                 />
             )}
-
-            {/* Audio Permission Modal - First Time Only */}
-            <Dialog open={openAudioModal} onClose={() => { }} disableEscapeKeyDown>
-                <DialogTitle>Enable Audio Alerts?</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Do you want to enable sound notifications for real-time SOS alerts?
-                        <br />
-                        <Typography variant="caption" color="text.secondary">
-                            (You can change this anytime in your Profile)
-                        </Typography>
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => {
-                        localStorage.setItem("sosAudioEnabled", "false");
-                        setOpenAudioModal(false);
-                        toast.info("Audio alerts disabled. You can enable them in Profile.", toastOption);
-                    }} color="inherit">
-                        No, thanks
-                    </Button>
-                    <Button onClick={() => {
-                        const enableAudio = async () => {
-                            try {
-                                // Create and play momentarily to "unlock" the audio context/interface
-                                const unlockAudio = new Audio(tone);
-                                await unlockAudio.play();
-
-                                localStorage.setItem("sosAudioEnabled", "true");
-                                setOpenAudioModal(false);
-                                toast.success("Audio alerts enabled!", toastOption);
-                            } catch (e) {
-                                console.error("Permission grant failed", e);
-                                localStorage.setItem("sosAudioEnabled", "true");
-                                setOpenAudioModal(false);
-                            }
-                        }
-                        enableAudio();
-                    }} color="primary" variant="contained" autoFocus>
-                        Yes, Enable Audio
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Box >
     );
 };

@@ -28,9 +28,11 @@ import calender from '../assets/images/calender.svg';
 import CustomDateRangePicker from "./Custom/CustomDateRangePicker";
 // Import the Hotspot Map component
 import HotspotMap from './HotspotMap';
+import { useMaps } from '../contexts/MapsContext';
 
-function HotspotSection({ isMapLoaded, hideCategories = false, company_id = null, companyIds = [], ehailing = false }) {
+function HotspotSection({ hideCategories = false, company_id = null, companyIds = [], ehailing = false }) {
   const nav = useNavigate();
+  const { isLoaded: isMapLoaded } = useMaps();
   const [selectedNotification, setSelectedNotification] = useState("all");
   const [time, setTime] = useState(new Date().toISOString());
   const [id, setId] = useState(company_id);

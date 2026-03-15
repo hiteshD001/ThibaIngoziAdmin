@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import SideBar from "./SideBar";
+import Loader from "./Loader";
 import { useState, useRef, useEffect } from "react";
 import { IoIosMenu } from "react-icons/io";
 
@@ -24,7 +26,9 @@ function Layout() {
                 <div className="content">
                     <Navbar setActive={setActive} isActive={isActive} />
                     <div className="outlet">
-                        <Outlet />
+                        <Suspense fallback={<Loader />}>
+                            <Outlet />
+                        </Suspense>
                     </div>
                 </div>
             </div>

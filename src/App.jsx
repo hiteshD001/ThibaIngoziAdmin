@@ -1,198 +1,184 @@
+import { lazy, Suspense, useMemo } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Layout from "./common/Layout";
-import Report from "./pages/Report";
-import { Login } from "./pages/Login";
-import ResetPassword from "./pages/ResetPassword";
-import RequestHardware from "./pages/RequestHardware";
-import PaymentSuceed from "./pages/PaymentSuceed";
-import PaymentFailed from "./pages/PaymentFailed";
-import PaymentExpired from "./pages/PaymentExpired";
-import Home from "./pages/Home";
-import ListOfCompanies from "./pages/ListOfCompanies";
-import AddCompany from "./pages/AddCompany";
-import ListOfDrivers from "./pages/ListOfDrivers";
-import AddDriver from "./pages/AddDriver";
-import FlaggedReport from "./pages/FlaggedReport";
-import VehicleInformation from "./pages/VehicleInformation";
-import HardwareManagement from "./pages/HardwareManagement";
-import Profile from "./pages/Profile";
-import AddSosAmount from "./pages/AddSosAmount";
-import ArmedSosAmount from "./pages/ArmedSosAmount";
-import ListOfSosAmount from "./pages/ListOfSosAmount";
+import Loader from "./common/Loader";
 import "react-phone-input-2/lib/style.css";
 import "./App.css";
-import { useJsApiLoader } from "@react-google-maps/api";
 import { AuthGuard, LogGuard, RouteGuard, SalesGuard } from "./common/Guard";
-import ListOfTrips from "./pages/ListofTrips";
-import PassangerInformation from "./pages/Passangerinformation";
-import ListOfUsers from "./pages/ListOfUsers";
-import AddUser from "./pages/AddUser";
-import SosInformation from "./pages/SosInformation"
-import ArmedSosDetails from "./pages/SosInformation";
-import AddService from "./pages/AddService";
-import ListOfMeetingLinkTrips from "./pages/ListOfMeetingLinkTrip";
-import ChangePassword from "./pages/ChangePassword";
-import ListofMissingPerson from "./pages/MissingPerson/ListofMissingPerson";
-import MissingPersonDetails from "./pages/MissingPerson/MissingPersonDetails";
-import CompanyInformation from "./pages/CompanyInformation";
-import NotificationDetail from "./pages/NotificationDetail";
-import Notfication from './pages/Notification';
-import ListOfStolenCars from './pages/StolenCars/ListOfStolenCars';
-import StolenCarDetails from './pages/StolenCars/StolenCarDetails'
-import SuspectDetail from "./pages/suspect/SuspectDetail";
-import ListOfSuspect from "./pages/suspect/ListOfSuspect";
-import ListOfSapsWanted from "./pages/Saps/ListOfSapsWanted";
-import GoogleMaps from "./common/GoogleMaps";
-import WantedInformation from "./pages/Saps/WantedInformation";
-import AddSapsMember from "./pages/Saps/AddSapsMember";
-import AddSapsWanted from "./pages/Saps/AddSapsWanted"
-import ListOfCrimeReports from "./pages/crimeReports/ListOfCrimeReports";
-import CrimeReport from "./pages/crimeReports/CrimeReport";
-import ForwardToPolice from "./pages/crimeReports/ForwardToPolice";
-import WorkInProgress from "./common/WorkInProgress";
-import Confirmation from "./pages/crimeReports/Confirmation";
-import ListOfViewArcheived from "./pages/ListOfViewArcheived";
-import ListOfViewArcheivedMeeting from "./pages/ListOfViewArcheivedMeeting";
-import ListOfViewArcheivedMissingPerson from "./pages/ListOfViewArcheivedMissingPerson";
-import ListofMissingvehicale from "./pages/ListOfViewArcheivedMissingVehicale";
-import ListOfViewArcheivedMissingVehicale from "./pages/ListOfViewArcheivedMissingVehicale";
-import ListOfSalesAgent from "./pages/SalesAgent/ListOfSalesAgent";
-import AddAgent from "./pages/SalesAgent/AddAgent";
-import AgentInformation from "./pages/SalesAgent/AgentInformation";
-import SalesAgentHome from "./pages/SalesAgentHome";
-import Reset2FAPage from './pages/Reset2FAPage';
-import RequestUsers from "./pages/RequestUsers";
-import AdminSetting from './pages/setting/AdminSetting'
-import EHailingView from "./pages/e-hailing view/EHailingView";
+import { MapsProvider } from "./contexts/MapsContext";
+import { WebSocketProvider } from "./API Calls/WebSocketContext";
 
-// Define your map loader options once here
-const mapLoaderOptions = {
-    id: 'google-map-script-main',
-    googleMapsApiKey: import.meta.env.VITE_MAP_API_KEY,
-};
+const Report = lazy(() => import("./pages/Report"));
+const Login = lazy(() => import("./pages/Login").then((m) => ({ default: m.Login })));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const RequestHardware = lazy(() => import("./pages/RequestHardware"));
+const PaymentSuceed = lazy(() => import("./pages/PaymentSuceed"));
+const PaymentFailed = lazy(() => import("./pages/PaymentFailed"));
+const PaymentExpired = lazy(() => import("./pages/PaymentExpired"));
+const Home = lazy(() => import("./pages/Home"));
+const ListOfCompanies = lazy(() => import("./pages/ListOfCompanies"));
+const AddCompany = lazy(() => import("./pages/AddCompany"));
+const ListOfDrivers = lazy(() => import("./pages/ListOfDrivers"));
+const AddDriver = lazy(() => import("./pages/AddDriver"));
+const FlaggedReport = lazy(() => import("./pages/FlaggedReport"));
+const VehicleInformation = lazy(() => import("./pages/VehicleInformation"));
+const HardwareManagement = lazy(() => import("./pages/HardwareManagement"));
+const Profile = lazy(() => import("./pages/Profile"));
+const AddSosAmount = lazy(() => import("./pages/AddSosAmount"));
+const ArmedSosAmount = lazy(() => import("./pages/ArmedSosAmount"));
+const ListOfSosAmount = lazy(() => import("./pages/ListOfSosAmount"));
+const ListOfTrips = lazy(() => import("./pages/ListofTrips"));
+const PassangerInformation = lazy(() => import("./pages/Passangerinformation"));
+const ListOfUsers = lazy(() => import("./pages/ListOfUsers"));
+const AddUser = lazy(() => import("./pages/AddUser"));
+const SosInformation = lazy(() => import("./pages/SosInformation"));
+const AddService = lazy(() => import("./pages/AddService"));
+const ListOfMeetingLinkTrips = lazy(() => import("./pages/ListOfMeetingLinkTrip"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
+const ListofMissingPerson = lazy(() => import("./pages/MissingPerson/ListofMissingPerson"));
+const MissingPersonDetails = lazy(() => import("./pages/MissingPerson/MissingPersonDetails"));
+const CompanyInformation = lazy(() => import("./pages/CompanyInformation"));
+const NotificationDetail = lazy(() => import("./pages/NotificationDetail"));
+const Notfication = lazy(() => import("./pages/Notification"));
+const ListOfStolenCars = lazy(() => import("./pages/StolenCars/ListOfStolenCars"));
+const StolenCarDetails = lazy(() => import("./pages/StolenCars/StolenCarDetails"));
+const SuspectDetail = lazy(() => import("./pages/suspect/SuspectDetail"));
+const ListOfSuspect = lazy(() => import("./pages/suspect/ListOfSuspect"));
+const ListOfSapsWanted = lazy(() => import("./pages/Saps/ListOfSapsWanted"));
+const GoogleMaps = lazy(() => import("./common/GoogleMaps"));
+const WantedInformation = lazy(() => import("./pages/Saps/WantedInformation"));
+const AddSapsMember = lazy(() => import("./pages/Saps/AddSapsMember"));
+const AddSapsWanted = lazy(() => import("./pages/Saps/AddSapsWanted"));
+const ListOfCrimeReports = lazy(() => import("./pages/crimeReports/ListOfCrimeReports"));
+const CrimeReport = lazy(() => import("./pages/crimeReports/CrimeReport"));
+const ForwardToPolice = lazy(() => import("./pages/crimeReports/ForwardToPolice"));
+const WorkInProgress = lazy(() => import("./common/WorkInProgress"));
+const Confirmation = lazy(() => import("./pages/crimeReports/Confirmation"));
+const ListOfViewArcheived = lazy(() => import("./pages/ListOfViewArcheived"));
+const ListOfViewArcheivedMeeting = lazy(() => import("./pages/ListOfViewArcheivedMeeting"));
+const ListOfViewArcheivedMissingPerson = lazy(() => import("./pages/ListOfViewArcheivedMissingPerson"));
+const ListOfViewArcheivedMissingVehicale = lazy(() => import("./pages/ListOfViewArcheivedMissingVehicale"));
+const ListOfSalesAgent = lazy(() => import("./pages/SalesAgent/ListOfSalesAgent"));
+const AddAgent = lazy(() => import("./pages/SalesAgent/AddAgent"));
+const AgentInformation = lazy(() => import("./pages/SalesAgent/AgentInformation"));
+const SalesAgentHome = lazy(() => import("./pages/SalesAgentHome"));
+const Reset2FAPage = lazy(() => import("./pages/Reset2FAPage"));
+const RequestUsers = lazy(() => import("./pages/RequestUsers"));
+const AdminSetting = lazy(() => import("./pages/setting/AdminSetting"));
+const EHailingView = lazy(() => import("./pages/e-hailing view/EHailingView"));
 
 function App() {
-    const { isLoaded, loadError } = useJsApiLoader(mapLoaderOptions);
-
-    if (loadError) {
-        return (
-            <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
-                Error loading Google Maps: {loadError.message}
-            </div>
-        );
-    }
-    const router = createBrowserRouter([
-        {
-            path: "/",
-            element: <LogGuard><Login /></LogGuard>
-        },
-        {
-            path: "/payment-suceed",
-            element: <PaymentSuceed />
-        },
-        {
-            path: "/payment-failed",
-            element: <PaymentFailed />
-        },
-        {
-            path: "/payment-expired",
-            element: <PaymentExpired />
-        },
-        {
-            path: '/sales-home',
-            element: <AuthGuard><Layout /></AuthGuard>,
-            children: [
+    const router = useMemo(
+        () =>
+            createBrowserRouter([
                 {
-                    path: "",
-                    element: <SalesGuard><SalesAgentHome /></SalesGuard>
+                    path: "/",
+                    element: <LogGuard><Login /></LogGuard>
                 },
                 {
-                    path: "user-information/:id",
-                    element: <PassangerInformation />
-                }
-            ]
-        },
-        {
-            path: "/home",
-            element: <AuthGuard><Layout /></AuthGuard>,
-            children: [
-                {
-                    path: "",
-                    element: <Home isMapLoaded={isLoaded} />
+                    path: "/payment-suceed",
+                    element: <PaymentSuceed />
                 },
                 {
-                    path: 'reports',
-                    // element: <Report />,
-                    element: <WorkInProgress />
+                    path: "/payment-failed",
+                    element: <PaymentFailed />
                 },
                 {
-                    path: 'notification',
-                    // element: < Notfication />
-                    element: <WorkInProgress />
-
+                    path: "/payment-expired",
+                    element: <PaymentExpired />
                 },
                 {
-                    path: 'notification/:id',
-                    element: <NotificationDetail />
-                },
-                {
-                    path: "change-password",
-                    element: <ChangePassword />
-                },
-                {
-                    path: "hotspot/location",
-                    element: <GoogleMaps isMapLoaded={isLoaded} />
-                },
-                {
-                    path: "request-reached-users/:id",
-                    element: <RequestUsers />
-                },
-                {
-                    path: "request-accepted-users/:id",
-                    element: <RequestUsers />
-                },
-                {
-                    path: "total-companies",
+                    path: '/sales-home',
+                    element: <AuthGuard><Layout /></AuthGuard>,
                     children: [
                         {
                             path: "",
-                            element: <RouteGuard><ListOfCompanies /></RouteGuard>
+                            element: <SalesGuard><SalesAgentHome /></SalesGuard>
                         },
                         {
-                            path: "add-company",
-                            element: <RouteGuard><AddCompany /></RouteGuard>
-                        },
-                        {
-                            path: "company-information/:id",
-                            element: <RouteGuard><CompanyInformation isMapLoaded={isLoaded} /></RouteGuard>
+                            path: "user-information/:id",
+                            element: <PassangerInformation />
                         }
                     ]
                 },
                 {
-                    path: "total-drivers",
+                    path: "/home",
+                    element: <AuthGuard><MapsProvider><WebSocketProvider><Layout /></WebSocketProvider></MapsProvider></AuthGuard>,
                     children: [
                         {
                             path: "",
-                            element: <ListOfDrivers />
+                            element: <Home />
                         },
                         {
-                            path: ":id",
-                            element: <ListOfDrivers />
+                            path: 'reports',
+                            element: <WorkInProgress />
                         },
                         {
-                            path: "add-driver",
-                            element: <AddDriver />
+                            path: 'notification',
+                            element: <WorkInProgress />
                         },
                         {
-                            path: "driver-information/:id",
-                            element: <VehicleInformation />
+                            path: 'notification/:id',
+                            element: <NotificationDetail />
                         },
                         {
-                            path: "sos-information/:id",
-                            element: <SosInformation />
-                        }
-                    ]
-                },
+                            path: "change-password",
+                            element: <ChangePassword />
+                        },
+                        {
+                            path: "hotspot/location",
+                            element: <GoogleMaps />
+                        },
+                        {
+                            path: "request-reached-users/:id",
+                            element: <RequestUsers />
+                        },
+                        {
+                            path: "request-accepted-users/:id",
+                            element: <RequestUsers />
+                        },
+                        {
+                            path: "total-companies",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <RouteGuard><ListOfCompanies /></RouteGuard>
+                                },
+                                {
+                                    path: "add-company",
+                                    element: <RouteGuard><AddCompany /></RouteGuard>
+                                },
+                                {
+                                    path: "company-information/:id",
+                                    element: <RouteGuard><CompanyInformation /></RouteGuard>
+                                }
+                            ]
+                        },
+                        {
+                            path: "total-drivers",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfDrivers />
+                                },
+                                {
+                                    path: ":id",
+                                    element: <ListOfDrivers />
+                                },
+                                {
+                                    path: "add-driver",
+                                    element: <AddDriver />
+                                },
+                                {
+                                    path: "driver-information/:id",
+                                    element: <VehicleInformation />
+                                },
+                                {
+                                    path: "sos-information/:id",
+                                    element: <SosInformation />
+                                }
+                            ]
+                        },
                 {
                     path: "total-linked-trips",
                     children: [
@@ -206,7 +192,7 @@ function App() {
                         },
                         {
                             path: "location",
-                            element: <GoogleMaps isMapLoaded={isLoaded} />
+                            element: <GoogleMaps />
                         },
                         {
                             path: "view-archeived",
@@ -227,7 +213,7 @@ function App() {
                         },
                         {
                             path: "location",
-                            element: <GoogleMaps isMapLoaded={isLoaded} />
+                            element: <GoogleMaps />
                         },
                         {
                             path: "view-archeived",
@@ -417,7 +403,7 @@ function App() {
                 },
                 {
                     path: "e-hailing-view",
-                    element: <EHailingView isMapLoaded={isLoaded} />
+                    element: <EHailingView />
                 },
             ]
         },
@@ -435,11 +421,13 @@ function App() {
         }
 
 
-    ])
+    ]),
+        []
+    );
     return (
-        <>
+        <Suspense fallback={<Loader />}>
             <RouterProvider router={router} />
-        </>
+        </Suspense>
     );
 }
 

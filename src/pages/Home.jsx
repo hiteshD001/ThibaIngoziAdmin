@@ -39,6 +39,7 @@ import { Slide, toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
+import { useMaps } from "../contexts/MapsContext";
 import { FaLocationDot } from "react-icons/fa6";
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
@@ -58,7 +59,8 @@ const copyButtonStyles = {
 };
 
 
-const Home = ({ isMapLoaded, }) => {
+const Home = () => {
+    const { isLoaded: isMapLoaded } = useMaps();
     // filters
     const [filter, setfilter] = useState("");
     const [recentFilter, setRecentFilter] = useState("");
@@ -953,7 +955,7 @@ const Home = ({ isMapLoaded, }) => {
                 </Paper>
 
 
-                <HotspotSection isMapLoaded={isMapLoaded} />
+                <HotspotSection />
 
 
                 {/* recently closed sos */}
