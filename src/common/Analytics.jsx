@@ -22,8 +22,8 @@ import div from '../assets/images/div.svg'
 import div2 from '../assets/images/div2.svg'
 import div3 from '../assets/images/div3.svg'
 import { FaLocationDot } from "react-icons/fa6";
-import { FaArrowUpLong } from "react-icons/fa6";
-import { FaArrowDownLong } from "react-icons/fa6";
+import { FaArrowUp } from "react-icons/fa6";
+import { FaArrowDown } from "react-icons/fa6";
 
 import CustomChart from "./CustomChart";
 import { useNavigate } from "react-router-dom";
@@ -126,9 +126,9 @@ const Analytics = ({ id, activePage,
     const activeTrend = activePercentage?.trend || null;
 
     if (activeTrend === "up") {
-        arrow = <FaArrowUpLong color="green" />;
+        arrow = <FaArrowUp color="green" />;
     } else if (activeTrend === "down") {
-        arrow = <FaArrowDownLong color="red" />;
+        arrow = <FaArrowDown color="red" />;
     } else {
         arrow = null;
     }
@@ -487,8 +487,8 @@ const Analytics = ({ id, activePage,
                                 <div className="">
                                     <div className="d-flex gap-2">
                                         <div className={`percentage-${companyList?.data?.data?.companiesPercentageFromLastMonth?.trend === "down" ? "red" : "green"}`}>
-                                            {companyList?.data?.data?.companiesPercentageFromLastMonth?.trend === "up" ? <FaArrowUpLong /> : companyList?.data?.data?.companiesPercentageFromLastMonth?.trend === "down" ? <FaArrowDownLong /> : ""}
-                                            {companyList?.data?.data?.companiesPercentageFromLastMonth?.percentage?.toFixed(2)} %
+                                            {companyList?.data?.data?.companiesPercentageFromLastMonth?.trend === "up" ? <FaArrowUp /> : companyList?.data?.data?.companiesPercentageFromLastMonth?.trend === "down" ? <FaArrowDown /> : ""}
+                                            {companyList?.data?.data?.companiesPercentageFromLastMonth?.percentage?.toFixed(2) ?? 0.00} %
                                         </div>
                                         <span> from last month</span>
                                     </div>
@@ -518,8 +518,8 @@ const Analytics = ({ id, activePage,
                                 <div className=''>
                                     <div className="d-flex gap-2">
                                         <div className={`percentage-${driverList?.data?.data?.activeUsersPercentageFromYesterday?.trend === "down" ? "red" : "green"}`}>
-                                            {driverList?.data?.data?.activeUsersPercentageFromYesterday?.trend === "up" ? <FaArrowUpLong /> : driverList?.data?.data?.activeUsersPercentageFromYesterday?.trend === "down" ? <FaArrowDownLong /> : ""}
-                                            {driverList?.data?.data?.activeUsersPercentageFromYesterday?.percentage?.toFixed(2)} %
+                                            {driverList?.data?.data?.activeUsersPercentageFromYesterday?.trend === "up" ? <FaArrowUp /> : driverList?.data?.data?.activeUsersPercentageFromYesterday?.trend === "down" ? <FaArrowDown /> : ""}
+                                            {driverList?.data?.data?.activeUsersPercentageFromYesterday?.percentage?.toFixed(2) ?? 0.00} %
                                         </div>
                                         <span>from yesterday</span>
                                     </div>
@@ -544,8 +544,8 @@ const Analytics = ({ id, activePage,
                                 </div>
                                 <div className="d-flex gap-2">
                                     <div className={`percentage-${activePercentage?.trend === "down" ? "red" : "green"}`}>
-                                        {arrow} {activePercentage?.percentage?.toFixed(2)}%
-
+                                        {activePercentage?.trend === "up" ? <FaArrowUp /> : activePercentage?.trend === "down" ? <FaArrowDown /> : ""}
+                                        {activePercentage?.percentage?.toFixed(2) ?? 0.00}%
                                     </div>
                                     <span>from {timeTitle}</span>
 

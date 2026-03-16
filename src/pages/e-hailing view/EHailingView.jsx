@@ -38,6 +38,11 @@ const copyButtonStyles = {
     borderRadius: '4px',
 };
 
+const getImageLink = (name) => {
+    if (!name) return undefined;
+    return `https://gaurdianlink.blob.core.windows.net/gaurdianlink/${name}`;
+}
+
 // Memoized Active SOS Table Row Component
 const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTextToCopy, updatingId, selectedId, status, setStatus, setStatusUpdate, setSelectedId, copyButtonStyles, isNavigatingBack, realtimeUpdates }) => {
     const handleStatusChange = useCallback((e) => {
@@ -70,10 +75,10 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                 ) : (
                     user?.role === "driver" ? (
                         <Link to={`/home/total-drivers/driver-information/${user?.user_id}`} className="link"
-                              onClick={() => isNavigatingBack.current = true}>
+                            onClick={() => isNavigatingBack.current = true}>
                             <Stack direction="row" alignItems="center" gap={1}>
                                 <Avatar
-                                    src={user?.selfieImage}
+                                    src={getImageLink(user?.user?.selfieImage)}
                                     sx={{ '&:hover': { textDecoration: 'none' } }}
                                     alt="User"
                                 />
@@ -81,9 +86,9 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                             </Stack>
                         </Link>) : (
                         <Link to={`/home/total-users/user-information/${user?.user_id}`} className="link"
-                              onClick={() => isNavigatingBack.current = true}>
+                            onClick={() => isNavigatingBack.current = true}>
                             <Stack direction="row" alignItems="center" gap={1}>
-                                <Avatar src={user?.selfieImage} alt="User" />
+                                <Avatar src={getImageLink(user?.user?.selfieImage)} alt="User" />
                                 {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                             </Stack>
                         </Link>
@@ -198,7 +203,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                     </div>
                 }
             </TableCell>
-            <TableCell>
+            <TableCell width={"100%"}>
                 <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                     <Tooltip title="View" arrow placement="top">
                         <IconButton onClick={handleViewLocation}>
@@ -207,18 +212,27 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                     </Tooltip>
                     <Tooltip title="Other Users" arrow placement="top">
                         <IconButton>
-                            <Typography
-                                bgcolor="#367be0"
-                                color="white"
-                                height="100%"
-                                px={1}
-                                display="flex"
-                                alignItems="center"
-                                borderRadius={1}
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    textTransform: "none",
+                                    fontWeight: 500,
+                                    fontSize: "14px",
+                                    color: "#fff",
+                                    backgroundColor: "#1E73E8", // same as your image blue
+                                    borderRadius: "8px",
+                                    padding: "6px 14px",
+                                    whiteSpace: "nowrap",
+                                    minWidth: "auto",
+                                    "&:hover": { backgroundColor: "#1864c7" },
+                                }}
                                 onClick={handleOtherUserClick}
                             >
                                 Other User
-                            </Typography>
+                            </Button>
                         </IconButton>
                     </Tooltip>
                 </Box>
@@ -245,17 +259,17 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
             <TableCell sx={{ color: '#4B5563' }}>
                 {row.user?.role === "driver" ? (
                     <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link"
-                          onClick={() => isNavigatingBack.current = true}>
+                        onClick={() => isNavigatingBack.current = true}>
                         <Stack direction="row" alignItems="center" gap={1}>
-                            <Avatar src={row?.user?.selfieImage} alt="User" />
+                            <Avatar src={getImageLink(row?.user?.selfieImage)} alt="User" />
                             {row?.user?.first_name || ''} {row?.user?.last_name || ''}
                         </Stack>
                     </Link>
                 ) : (
                     <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link"
-                          onClick={() => isNavigatingBack.current = true}>
+                        onClick={() => isNavigatingBack.current = true}>
                         <Stack direction="row" alignItems="center" gap={1}>
-                            <Avatar src={row?.user?.selfieImage} alt="User" />
+                            <Avatar src={getImageLink(row?.user?.selfieImage)} alt="User" />
                             {row?.user?.first_name || ''} {row?.user?.last_name || ''}
                         </Stack>
                     </Link>
@@ -477,11 +491,11 @@ const EHialingView = () => {
     const activeUserList = activeSos?.data?.data?.data;
     const prevLengthRef = useRef(activeUserList?.length);
     const notifiedSosIds = useRef(new Set(activeUserLists?.map(u => u._id) || []));
-    
+
     // Merge API data with real-time WebSocket counts for optimal performance
     const mergedActiveUserList = useMemo(() => {
         if (!Array.isArray(activeUserList)) return [];
-        
+
         return activeUserList.map(user => ({
             ...user,
             // Use real-time WebSocket counts if available, fallback to API counts
@@ -489,7 +503,7 @@ const EHialingView = () => {
             req_accept: requestCounts[user._id]?.req_accept || user?.req_accept || 0
         }));
     }, [activeUserList, requestCounts]);
-    
+
     const paginatedActiveUserList = useMemo(() => {
         if (!Array.isArray(mergedActiveUserList)) return [];
         return mergedActiveUserList;
@@ -567,7 +581,7 @@ const EHialingView = () => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
-        
+
         debounceTimerRef.current = setTimeout(() => {
             setActivePage(newPage);
         }, 150);
@@ -577,7 +591,7 @@ const EHialingView = () => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
-        
+
         debounceTimerRef.current = setTimeout(() => {
             setRecentPage(newPage);
         }, 150);
@@ -587,7 +601,7 @@ const EHialingView = () => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
-        
+
         debounceTimerRef.current = setTimeout(() => {
             setActiveLimit(newLimit);
             setActivePage(1);
@@ -598,7 +612,7 @@ const EHialingView = () => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
-        
+
         debounceTimerRef.current = setTimeout(() => {
             setRecentLimit(newLimit);
             setRecentPage(1);
@@ -629,20 +643,21 @@ const EHialingView = () => {
     // Clear real-time indicators after 3 seconds
     useEffect(() => {
         if (realtimeUpdates.size === 0) return;
-        
+
         const timer = setTimeout(() => {
             setRealtimeUpdates(new Set());
         }, 3000);
-        
+
         return () => clearTimeout(timer);
     }, [realtimeUpdates]);
+
     useEffect(() => {
         const hasVisited = sessionStorage.getItem('ehailing-view-visited');
         if (!hasVisited) {
             queryClient.removeQueries({ queryKey: ["activeSOS2"] });
             sessionStorage.setItem('ehailing-view-visited', 'true');
         }
-        
+
         return () => {
             // Don't clear cache on unmount to prevent reloading on navigation back
         };
@@ -654,20 +669,20 @@ const EHialingView = () => {
         if (debounceTimerRef.current) {
             clearTimeout(debounceTimerRef.current);
         }
-        
+
         debounceTimerRef.current = setTimeout(async () => {
             const now = Date.now();
             if (now - lastFetchTime.current < 2000) return;
-            
+
             lastFetchTime.current = now;
-            
+
             try {
                 const res = await activeSos.refetch();
-                
+
                 if (res?.data?.data?.data) {
                     const newList = res.data.data.data || [];
                     const newIds = newList.filter(item => !notifiedSosIds.current.has(item._id)).map(item => item._id);
-                    
+
                     if (newIds.length > 0) {
                         const playAudio = async () => {
                             try {
@@ -681,7 +696,7 @@ const EHialingView = () => {
                                 console.error("Audio playback failed:", e);
                             }
                         };
-                        
+
                         playAudio();
                         toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
                         newIds.forEach(id => notifiedSosIds.current.add(id));
@@ -761,18 +776,18 @@ const EHialingView = () => {
         // Only refetch if there's an actual change in data length (not just navigation)
         if (previousLength !== currentLength && Math.abs(previousLength - currentLength) > 0) {
             prevLengthRef.current = currentLength;
-            
+
             // Clear existing timer
             if (debounceTimerRef.current) {
                 clearTimeout(debounceTimerRef.current);
             }
-            
+
             // Debounce refetch to prevent duplicate API calls
             debounceTimerRef.current = setTimeout(() => {
                 recentSos.refetch();
             }, 500);
         }
-        
+
         // Cleanup timer on unmount
         return () => {
             if (debounceTimerRef.current) {
@@ -946,7 +961,7 @@ const EHialingView = () => {
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             Status
                                         </TableCell>
-                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>
                                             Actions
                                         </TableCell>
                                     </TableRow>
