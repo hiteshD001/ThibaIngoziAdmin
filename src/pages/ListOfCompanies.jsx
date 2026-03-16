@@ -16,6 +16,8 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import whiteplus from '../assets/images/whiteplus.svg';
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
+import playBtn from '../assets/images/playBtn.svg'
+import pauseBtn from '../assets/images/pauseBtn.svg'
 // import icon from "../assets/images/icon.png";
 import search from '../assets/images/search.svg';
 import arrowup from '../assets/images/arrowup.svg';
@@ -399,6 +401,15 @@ const ListOfCompanies = () => {
                             <Tooltip title="Delete" arrow placement="top">
                               <IconButton onClick={() => setconfirmation(user?._id)}>
                                 <img src={delBtn} alt="delete button" />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title={user?.isActive ? "Pause" : "Play"} arrow placement="top">
+                              <IconButton onClick={() => {
+                                setStatus(!user?.isActive);
+                                setSelectedId(user._id);
+                                setStatusConfirmation({ show: true, userId: user._id, newStatus: !user?.isActive });
+                              }}>
+                                <img src={user?.isActive ? pauseBtn : playBtn} alt="delete button" />
                               </IconButton>
                             </Tooltip>
                             {confirmation === user?._id && (
