@@ -15,24 +15,27 @@ import theme from './theme';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css'
-import { WebSocketProvider } from './API Calls/WebSocketContext.jsx';
 
-const client = new QueryClient();
+const client = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>
   <Provider store={store}>
-    <WebSocketProvider>
-      <QueryClientProvider client={client}>
-        <ThemeProvider theme={theme}>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <ToastContainer />
-            <App />
-          </LocalizationProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-
-    </WebSocketProvider>
+    <QueryClientProvider client={client}>
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <ToastContainer />
+          <App />
+        </LocalizationProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   </Provider>
   // </React.StrictMode>,
 )

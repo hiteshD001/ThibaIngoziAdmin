@@ -482,17 +482,34 @@ header {
 
 .percentage-green {
     font-family: Montserrat;
-    font-weight: 500;
+    font-weight: 600;
     font-style: Medium;
     font-size: 16px;
     line-height: 20px;
     letter-spacing: 0%;
     color: #33B647;
-
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    text-wrap: nowrap;
+    gap: 3px;
 }
 
-.percentage-green {
-    color: green;
+.percentage-red {
+    font-family: Montserrat;
+    font-weight: 600;
+    font-style: Medium;
+    font-size: 16px;
+    line-height: 20px;
+    letter-spacing: 0%;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    text-wrap: nowrap;
+    gap: 3px;
+    color: #eb5757;
 }
 
 .dash-counter span {

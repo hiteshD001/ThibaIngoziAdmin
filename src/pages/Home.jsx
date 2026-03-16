@@ -39,6 +39,7 @@ import { Slide, toast } from "react-toastify";
 import { toastOption } from "../common/ToastOptions";
 import moment from "moment/moment";
 import { useQueryClient } from "@tanstack/react-query";
+import { useMaps } from "../contexts/MapsContext";
 import { FaLocationDot } from "react-icons/fa6";
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CloseIcon from '@mui/icons-material/Close';
@@ -58,7 +59,8 @@ const copyButtonStyles = {
 };
 
 
-const Home = ({ isMapLoaded, }) => {
+const Home = () => {
+    const { isLoaded: isMapLoaded } = useMaps();
     // filters
     const [filter, setfilter] = useState("");
     const [recentFilter, setRecentFilter] = useState("");
@@ -497,6 +499,11 @@ const Home = ({ isMapLoaded, }) => {
         setStatus('')
     };
 
+    const getImageLink = (name) => {
+        if (!name) return undefined;
+        return `https://gaurdianlink.blob.core.windows.net/gaurdianlink/${name}`;
+    }
+
     // Calculate total items: use activeUserList length for WebSocket data, activeSos data for API
     const totalActiveItems = isFilterActive
         ? (activeSos?.data?.data?.totalItems || 0)
@@ -702,7 +709,7 @@ const Home = ({ isMapLoaded, }) => {
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Trip Type</TableCell>
-                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Location</TableCell>
                                     </TableRow>
                                 </TableHead>
 
@@ -731,10 +738,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                     <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id || user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
-                                                                                src={
-                                                                                    user?.selfieImage ||
-                                                                                    nouser
-                                                                                }
+                                                                                src={getImageLink(user?.user_id?.selfieImage)}
                                                                                 sx={{ '&:hover': { textDecoration: 'none' } }}
                                                                                 alt="User"
                                                                             />
@@ -745,10 +749,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                     <Link to={`/home/total-users/user-information/${user?.user_id?._id || user?._id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
-                                                                                src={
-                                                                                    user?.selfieImage ||
-                                                                                    nouser
-                                                                                }
+                                                                                src={getImageLink(user?.user_id?.selfieImage)}
                                                                                 alt="User"
                                                                             />
 
@@ -873,15 +874,40 @@ const Home = ({ isMapLoaded, }) => {
                                                         {user?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
                                                     </TableCell>
                                                     <TableCell >
-                                                        <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                        <Box align="center" sx={{ display: 'flex', flexDirection: 'row', alignItems: "center", gap: 2 }}>
                                                             <Tooltip title="View" arrow placement="top">
                                                                 <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${user?._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`)}>
                                                                     <img src={ViewBtn} alt="view button" />
                                                                 </IconButton>
                                                             </Tooltip>
+                                                            {user?.type?.type === "linked_sos" && user?.otherUser?._id && (
+                                                                <Tooltip title="Other User" arrow placement="top">
+                                                                    <Button
+                                                                        variant="contained"
+                                                                        sx={{
+                                                                            display: "flex",
+                                                                            alignItems: "center",
+                                                                            gap: "6px",
+                                                                            textTransform: "none",
+                                                                            fontWeight: 500,
+                                                                            fontSize: "14px",
+                                                                            color: "#fff",
+                                                                            backgroundColor: "#1E73E8",
+                                                                            borderRadius: "8px",
+                                                                            padding: "5px 14px",
+                                                                            whiteSpace: "nowrap",
+                                                                            minWidth: "auto",
+                                                                            "&:hover": { backgroundColor: "#1864c7" },
+                                                                        }}
+                                                                        onClick={() => nav(`total-drivers/driver-information/${user?.otherUser?._id}`)}
+                                                                    >
+                                                                        Other User
+                                                                    </Button>
+                                                                </Tooltip>
+                                                            )}
                                                         </Box>
                                                     </TableCell>
-                                                    {user?.type?.type === "linked_sos" ? (
+                                                    {/* {user?.type?.type === "linked_sos" ? (
                                                         <TableCell>
                                                             <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
                                                                 {user?.otherUser?._id ? (
@@ -915,7 +941,7 @@ const Home = ({ isMapLoaded, }) => {
                                                                 )}
                                                             </Box>
                                                         </TableCell>
-                                                    ) : <TableCell sx={{ textAlign: 'center' }}>-</TableCell>}
+                                                    ) : <TableCell sx={{ textAlign: 'center' }}>-</TableCell>} */}
                                                 </TableRow>
                                             ))
                                             :
@@ -996,7 +1022,7 @@ const Home = ({ isMapLoaded, }) => {
                 </Paper>
 
 
-                <HotspotSection isMapLoaded={isMapLoaded} />
+                <HotspotSection />
 
 
                 {/* recently closed sos */}

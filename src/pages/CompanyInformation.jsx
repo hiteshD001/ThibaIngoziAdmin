@@ -66,7 +66,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 
-const CompanyInformation = ({ isMapLoaded }) => {
+const CompanyInformation = () => {
     // useStates
     const [edit, setedit] = useState(false);
     const [isArmedLocal, setIsArmedLocal] = useState(false);
@@ -1462,7 +1462,7 @@ const CompanyInformation = ({ isMapLoaded }) => {
             {/* Active sos List */}
 
             {/* Hotspot section */}
-            <HotspotSection isMapLoaded={isMapLoaded} />
+            <HotspotSection />
 
             {/* Recent sos list */}
             <Paper

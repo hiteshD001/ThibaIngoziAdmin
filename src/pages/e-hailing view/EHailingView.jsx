@@ -6,8 +6,11 @@ import { Slide, toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { ContentCopy, NavigateNext, NavigateBefore, Update } from '@mui/icons-material';
-import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, Stack, Select, MenuItem, Tooltip, TableSortLabel, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import NavigateNext from '@mui/icons-material/NavigateNext';
+import NavigateBefore from '@mui/icons-material/NavigateBefore';
+import Update from '@mui/icons-material/Update';
+import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, Stack, Select, MenuItem, Tooltip, TableSortLabel } from '@mui/material';
 
 import ViewBtn from '../../assets/images/ViewBtn.svg';
 import arrowup from '../../assets/images/arrowup.svg';
@@ -23,6 +26,7 @@ import Loader from '../../common/Loader';
 import CustomChart from '../../common/CustomChart';
 import { toastOption } from '../../common/ToastOptions';
 import HotspotSection from '../../common/HotspotSection';
+import { useMaps } from '../../contexts/MapsContext';
 import { SOSStatusUpdate } from '../../common/ConfirmationPOPup';
 import CustomDateRangePicker from '../../common/Custom/CustomDateRangePicker';
 import TimeFilter from '../../common/Custom/TimeFilter';
@@ -33,6 +37,11 @@ const copyButtonStyles = {
     padding: '4px',
     borderRadius: '4px',
 };
+
+const getImageLink = (name) => {
+    if (!name) return undefined;
+    return `https://gaurdianlink.blob.core.windows.net/gaurdianlink/${name}`;
+}
 
 // Memoized Active SOS Table Row Component
 const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTextToCopy, updatingId, selectedId, status, setStatus, setStatusUpdate, setSelectedId, copyButtonStyles, isNavigatingBack, realtimeUpdates }) => {
@@ -69,7 +78,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                             onClick={() => isNavigatingBack.current = true}>
                             <Stack direction="row" alignItems="center" gap={1}>
                                 <Avatar
-                                    src={user?.selfieImage}
+                                    src={getImageLink(user?.user?.selfieImage)}
                                     sx={{ '&:hover': { textDecoration: 'none' } }}
                                     alt="User"
                                 />
@@ -79,7 +88,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                         <Link to={`/home/total-users/user-information/${user?.user_id}`} className="link"
                             onClick={() => isNavigatingBack.current = true}>
                             <Stack direction="row" alignItems="center" gap={1}>
-                                <Avatar src={user?.selfieImage} alt="User" />
+                                <Avatar src={getImageLink(user?.user?.selfieImage)} alt="User" />
                                 {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                             </Stack>
                         </Link>
@@ -194,7 +203,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                     </div>
                 }
             </TableCell>
-            <TableCell>
+            <TableCell width={"100%"}>
                 <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                     <Tooltip title="View" arrow placement="top">
                         <IconButton onClick={handleViewLocation}>
@@ -203,18 +212,27 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                     </Tooltip>
                     <Tooltip title="Other Users" arrow placement="top">
                         <IconButton>
-                            <Typography
-                                bgcolor="#367be0"
-                                color="white"
-                                height="100%"
-                                px={1}
-                                display="flex"
-                                alignItems="center"
-                                borderRadius={1}
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    textTransform: "none",
+                                    fontWeight: 500,
+                                    fontSize: "14px",
+                                    color: "#fff",
+                                    backgroundColor: "#1E73E8", // same as your image blue
+                                    borderRadius: "8px",
+                                    padding: "6px 14px",
+                                    whiteSpace: "nowrap",
+                                    minWidth: "auto",
+                                    "&:hover": { backgroundColor: "#1864c7" },
+                                }}
                                 onClick={handleOtherUserClick}
                             >
                                 Other User
-                            </Typography>
+                            </Button>
                         </IconButton>
                     </Tooltip>
                 </Box>
@@ -243,7 +261,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                     <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link"
                         onClick={() => isNavigatingBack.current = true}>
                         <Stack direction="row" alignItems="center" gap={1}>
-                            <Avatar src={row?.user?.selfieImage} alt="User" />
+                            <Avatar src={getImageLink(row?.user?.selfieImage)} alt="User" />
                             {row?.user?.first_name || ''} {row?.user?.last_name || ''}
                         </Stack>
                     </Link>
@@ -251,7 +269,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                     <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link"
                         onClick={() => isNavigatingBack.current = true}>
                         <Stack direction="row" alignItems="center" gap={1}>
-                            <Avatar src={row?.user?.selfieImage} alt="User" />
+                            <Avatar src={getImageLink(row?.user?.selfieImage)} alt="User" />
                             {row?.user?.first_name || ''} {row?.user?.last_name || ''}
                         </Stack>
                     </Link>
@@ -309,10 +327,10 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                 {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
             </TableCell>
             <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
-                {row?.type?.display_title}
+                {row?.type?.display_title || "-"}
             </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
-                {row?.help_received}
+                {row?.help_received === "help_received" ? "Help Received" : row?.help_received === "cancel" ? "Cancel" : "-"}
             </TableCell>
             <TableCell sx={{ color: row?.type?.bgColor ?? '#4B5563' }}>
                 {row?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
@@ -366,9 +384,8 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
 RecentSOSTableRow.displayName = 'RecentSOSTableRow';
 
 // eslint-disable-next-line react/prop-types
-const EHialingView = ({ isMapLoaded }) => {
-
-
+const EHialingView = () => {
+    const { isLoaded: isMapLoaded } = useMaps();
     const nav = useNavigate();
     const queryClient = useQueryClient();
 
@@ -394,8 +411,6 @@ const EHialingView = ({ isMapLoaded }) => {
     const [statusUpdate, setStatusUpdate] = useState(false);
     const [time, settime] = useState("today");
     const [realtimeUpdates, setRealtimeUpdates] = useState(new Set()); // Track which SOS IDs have real-time updates
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [openAudioModal, setOpenAudioModal] = useState(false);
 
     // pagination
     const [recentPage, setRecentPage] = useState(1);
@@ -541,7 +556,6 @@ const EHialingView = ({ isMapLoaded }) => {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
         }
-        setIsPlaying(false);
     };
 
     const handleCopy = useCallback(async () => {
@@ -636,17 +650,12 @@ const EHialingView = ({ isMapLoaded }) => {
 
         return () => clearTimeout(timer);
     }, [realtimeUpdates]);
+
     useEffect(() => {
         const hasVisited = sessionStorage.getItem('ehailing-view-visited');
         if (!hasVisited) {
             queryClient.removeQueries({ queryKey: ["activeSOS2"] });
             sessionStorage.setItem('ehailing-view-visited', 'true');
-        }
-
-        // Check for audio permission
-        const audioEnabled = localStorage.getItem("sosAudioEnabled");
-        if (audioEnabled === null) {
-            setOpenAudioModal(true);
         }
 
         return () => {
@@ -678,18 +687,10 @@ const EHialingView = ({ isMapLoaded }) => {
                         const playAudio = async () => {
                             try {
                                 const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
-                                if (isAudioEnabled) {
-                                    // Stop any existing audio first
-                                    if (audioRef.current) {
-                                        audioRef.current.pause();
-                                        audioRef.current.currentTime = 0;
-                                    }
-
-                                    // Create a fresh instance to avoid background suspension issues
-                                    audioRef.current = new Audio(tone);
-                                    audioRef.current.loop = true;
+                                if (isAudioEnabled && audioRef.current) {
+                                    audioRef.current.loop = false;
+                                    audioRef.current.currentTime = 0;
                                     await audioRef.current.play();
-                                    setIsPlaying(true);
                                 }
                             } catch (e) {
                                 console.error("Audio playback failed:", e);
@@ -724,18 +725,10 @@ const EHialingView = ({ isMapLoaded }) => {
                         try {
                             const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
 
-                            if (isAudioEnabled) {
-                                // Stop any existing audio first
-                                if (audioRef.current) {
-                                    audioRef.current.pause();
-                                    audioRef.current.currentTime = 0;
-                                }
-
-                                // Create fresh instance
-                                audioRef.current = new Audio(tone);
-                                audioRef.current.loop = true;
+                            if (isAudioEnabled && audioRef.current) {
+                                audioRef.current.loop = false;
+                                audioRef.current.currentTime = 0;
                                 await audioRef.current.play();
-                                setIsPlaying(true);
                             }
 
                             if (newSOS.sosId) {
@@ -782,12 +775,6 @@ const EHialingView = ({ isMapLoaded }) => {
 
         // Only refetch if there's an actual change in data length (not just navigation)
         if (previousLength !== currentLength && Math.abs(previousLength - currentLength) > 0) {
-            // If the number of active SOS requests decreases (meaning one was resolved)
-            // we stop the continuous ringing.
-            if (currentLength < previousLength) {
-                stopAudio();
-            }
-
             prevLengthRef.current = currentLength;
 
             // Clear existing timer
@@ -876,17 +863,6 @@ const EHialingView = ({ isMapLoaded }) => {
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                         <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 }, alignItems: 'center' }}>
                             <Typography variant="h6" fontWeight={590}>Active SOS Alerts</Typography>
-                            {isPlaying && (
-                                <Button
-                                    variant="contained"
-                                    color="error"
-                                    size="small"
-                                    onClick={stopAudio}
-                                    sx={{ textTransform: 'none', borderRadius: '8px', minWidth: '100px' }}
-                                >
-                                    Stop Sound
-                                </Button>
-                            )}
                         </Grid>
                         <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
                             <CustomDateRangePicker
@@ -985,7 +961,7 @@ const EHialingView = ({ isMapLoaded }) => {
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             Status
                                         </TableCell>
-                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>
                                             Actions
                                         </TableCell>
                                     </TableRow>
@@ -1094,7 +1070,6 @@ const EHialingView = ({ isMapLoaded }) => {
 
                 {/* hotspot */}
                 <HotspotSection
-                    isMapLoaded={isMapLoaded}
                     hideCategories={true}
                     companyIds={ehailingCompanyIds}
                     ehailing={false}
@@ -1318,49 +1293,6 @@ const EHialingView = ({ isMapLoaded }) => {
                     handleUpdate={handleUpdate}
                 />
             )}
-
-            {/* Audio Permission Modal - First Time Only */}
-            <Dialog open={openAudioModal} onClose={() => { }} disableEscapeKeyDown>
-                <DialogTitle>Enable Audio Alerts?</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Do you want to enable sound notifications for real-time SOS alerts?
-                        <br />
-                        <Typography variant="caption" color="text.secondary">
-                            (You can change this anytime in your Profile)
-                        </Typography>
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => {
-                        localStorage.setItem("sosAudioEnabled", "false");
-                        setOpenAudioModal(false);
-                        toast.info("Audio alerts disabled. You can enable them in Profile.", toastOption);
-                    }} color="inherit">
-                        No, thanks
-                    </Button>
-                    <Button onClick={() => {
-                        const enableAudio = async () => {
-                            try {
-                                // Create and play momentarily to "unlock" the audio context/interface
-                                const unlockAudio = new Audio(tone);
-                                await unlockAudio.play();
-
-                                localStorage.setItem("sosAudioEnabled", "true");
-                                setOpenAudioModal(false);
-                                toast.success("Audio alerts enabled!", toastOption);
-                            } catch (e) {
-                                console.error("Permission grant failed", e);
-                                localStorage.setItem("sosAudioEnabled", "true");
-                                setOpenAudioModal(false);
-                            }
-                        }
-                        enableAudio();
-                    }} color="primary" variant="contained" autoFocus>
-                        Yes, Enable Audio
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Box >
     );
 };
