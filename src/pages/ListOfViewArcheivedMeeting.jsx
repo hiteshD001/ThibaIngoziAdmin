@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import useDebounce from "../hooks/useDebounce";
 import {
   Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, Chip, MenuItem,
   Button,
@@ -49,20 +50,25 @@ const ListOfMeetingLinkTrips = () => {
   const role = localStorage.getItem("role");
   const companyId = role === 'company' ? localStorage.getItem("userID") : null;
 
+  const debouncedFilter = useDebounce(filter, 500);
+
   const changeSortOrder = (e) => {
-    const field = e.target.id;
+    const field = e.currentTarget.id;
+    if (!field) return;
     if (field !== sortBy) {
       setSortBy(field);
       setSortOrder("asc");
+      setPage(1);
     } else {
-      setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+      setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
+      setPage(1);
     }
-  }
+  };
 
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, filter, startDate, endDate, isArchived, sortBy, sortOrder, companyId);
+  const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, debouncedFilter, startDate, endDate, isArchived, sortBy, sortOrder, companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalMeetingLinkTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
@@ -101,8 +107,8 @@ const ListOfMeetingLinkTrips = () => {
       const exportData = allUsers.map(user => ({
         "User1": user.user1.first_name || '',
         "User2": user.user2.first_name || '',
-        "Started At": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
-        "Ended At": user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
+        "Started At": user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : '',
+        "Ended At": user.trip_status === 'ended' && user?.endedAt ? format(new Date(user.endedAt), "HH:mm:ss - dd/MM/yyyy") : '---',
         // "Ended By": user.ended_by || '',
         "Status": user.trip_status || '',
       }));
@@ -136,9 +142,8 @@ const ListOfMeetingLinkTrips = () => {
           body: allUsers.map(user => [
             user.user1.first_name ?? 'NA',
             user.user2.first_name ?? 'NA',
-            format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") ?? 'NA',
-            user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
-            // user.ended_by ?? 'NA',
+            user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : 'NA',
+            user.trip_status === 'ended' && user?.endedAt ? format(new Date(user.endedAt), "HH:mm:ss - dd/MM/yyyy") : '---',
             user.trip_status ?? 'NA'
           ]),
           startY: 20,
@@ -189,7 +194,10 @@ const ListOfMeetingLinkTrips = () => {
             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
               <CustomDateRangePicker
                 value={range}
-                onChange={setRange}
+                onChange={(nextRange) => {
+                  setRange(nextRange);
+                  setPage(1);
+                }}
                 icon={calender}
               />
 
@@ -213,55 +221,85 @@ const ListOfMeetingLinkTrips = () => {
                 <TableRow>
                   <TableCell sx={{ color: '#4B5563', borderTopLeftRadius: '10px' }}>
                     <TableSortLabel
-                      id="first_name"
-                      active={sortBy === 'first_name'}
+                      id="user1_name"
+                      active={sortBy === 'user1_name'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'user1_name' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       User 1
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
-                      id="first_name"
-                      active={sortBy === 'first_name'}
+                      id="user2_name"
+                      active={sortBy === 'user2_name'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'user2_name' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       User 2
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
-                      id="createdAt"
-                      active={sortBy === 'createdAt'}
+                      id="started_at"
+                      active={sortBy === 'started_at'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'started_at' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Started At
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
-                      id="endedAt"
-                      active={sortBy === 'endedAt'}
+                      id="ended_at"
+                      active={sortBy === 'ended_at'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'endedAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'ended_at' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Ended At
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
-                      id="trip_status"
-                      active={sortBy === 'trip_status'}
+                      id="status"
+                      active={sortBy === 'status'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'trip_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'status' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Status
                     </TableSortLabel>
@@ -295,7 +333,7 @@ const ListOfMeetingLinkTrips = () => {
                                     : "#"
                               }
                             >
-                              {data.user1.first_name}
+                              {data?.user1?.first_name || ""} {data?.user1?.last_name || ""}
                             </Link>
                           </TableCell>
                           <TableCell>
@@ -309,14 +347,18 @@ const ListOfMeetingLinkTrips = () => {
                                     : "#"
                               }
                             >
-                              {data.user2.first_name}
+                              {data?.user2?.first_name || ""} {data?.user2?.last_name || ""}
                             </Link>
                           </TableCell>
 
-                          <TableCell>{format(data.createdAt, "HH:mm:ss - dd/MM/yyyy")}</TableCell>
                           <TableCell>
-                            {data.trip_status === "ended"
-                              ? format(data.endedAt, "HH:mm:ss - dd/MM/yyyy")
+                            {data?.createdAt
+                              ? format(new Date(data.createdAt), "HH:mm:ss - dd/MM/yyyy")
+                              : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {data.trip_status === "ended" && data?.endedAt
+                              ? format(new Date(data.endedAt), "HH:mm:ss - dd/MM/yyyy")
                               : "---"}
                           </TableCell>
                           <TableCell>
