@@ -176,7 +176,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                 {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.type?.display_title || "-")}
             </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
-                {format(user?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+                {user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : "-"}
             </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
                 {user?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
@@ -389,7 +389,6 @@ const EHialingView = () => {
     const nav = useNavigate();
     const queryClient = useQueryClient();
 
-    const isFirstRun = useRef(true);
     const lastFetchTime = useRef(0);
     const audioRef = useRef(new Audio(tone));
     const debounceTimerRef = useRef(null);
@@ -672,7 +671,7 @@ const EHialingView = () => {
 
         debounceTimerRef.current = setTimeout(async () => {
             const now = Date.now();
-            if (now - lastFetchTime.current < 2000) return;
+            if (now - lastFetchTime.current < 500) return;
 
             lastFetchTime.current = now;
 
@@ -709,11 +708,6 @@ const EHialingView = () => {
     }, [activeSos]);
 
     useEffect(() => {
-        if (isFirstRun.current) {
-            isFirstRun.current = false;
-            return;
-        }
-
         if (!newSOS.type || newSOS.count === 0) return;
 
         const handleAlert = async () => {
