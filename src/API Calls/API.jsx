@@ -55,7 +55,9 @@ export const useGetUserList = (
             sortOrder
         ],
         queryFn: queryFn,
-        placeholderData: keepPreviousData,
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnWindowFocus: false,
         retry: false,
     });
 
