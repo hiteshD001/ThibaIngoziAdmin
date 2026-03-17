@@ -50,14 +50,17 @@ const ListOfTrips = () => {
   const role = localStorage.getItem("role");
 
   const changeSortOrder = (e) => {
-    const field = e.target.id;
+    const field = e.currentTarget.id;
+    if (!field) return;
     if (field !== sortBy) {
       setSortBy(field);
       setSortOrder("asc");
+      setPage(1);
     } else {
-      setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+      setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
+      setPage(1);
     }
-  }
+  };
 
   // Determine companyId based on role
   const companyId = role === 'company' ? localStorage.getItem("userID") : null;
@@ -117,6 +120,19 @@ const ListOfTrips = () => {
     }
   };
 
+  const formatEndedBy = (raw) => {
+    if (!raw) return "-";
+    const value = String(raw).toLowerCase();
+    if (value === "admin_super" || value === "admit_super") return "Admin Super";
+    if (value === "admin") return "Admin";
+    if (value === "passenger") return "Passenger";
+    if (value === "driver") return "Driver";
+    return value
+      .split("_")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ");
+  };
+
   let loginUser = useGetUser(localStorage.getItem("userID"));
   loginUser = loginUser?.data?.data?.user;
   const handleExport = async ({ startDate, endDate, exportFormat: fileFormat }) => {
@@ -143,7 +159,7 @@ const ListOfTrips = () => {
         "Trip Type": user.trip_type?.tripTypeName || '',
         "Started At": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
         "Ended At": user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
-        "Ended By": user.ended_by || '',
+        "Ended By": formatEndedBy(user.ended_by),
         "Status": user.trip_status || '',
       }));
       const exportedByValue = loginUser.role === 'company' ? loginUser.company_name : 'Super Admin';
@@ -256,7 +272,10 @@ const ListOfTrips = () => {
             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
               <CustomDateRangePicker
                 value={range}
-                onChange={setRange}
+                onChange={(nextRange) => {
+                  setRange(nextRange);
+                  setPage(1);
+                }}
                 icon={calender}
               />
               <CustomExportMenu onExport={handleExport} />
@@ -278,22 +297,34 @@ const ListOfTrips = () => {
                 <TableRow>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
-                      id="first_name"
-                      active={sortBy === 'first_name'}
+                      id="driver_name"
+                      active={sortBy === 'driver_name'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'driver_name' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Driver
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
-                      id="first_name"
-                      active={sortBy === 'first_name'}
+                      id="passenger_name"
+                      active={sortBy === 'passenger_name'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'passenger_name' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Passenger
                     </TableSortLabel>
@@ -304,29 +335,47 @@ const ListOfTrips = () => {
                       active={sortBy === 'trip_type'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'trip_type' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'trip_type' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Trip Type
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
-                      id="createdAt"
-                      active={sortBy === 'createdAt'}
+                      id="created_at"
+                      active={sortBy === 'created_at'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'created_at' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Started At
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
-                      id="endedAt"
-                      active={sortBy === 'endedAt'}
+                      id="ended_at"
+                      active={sortBy === 'ended_at'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'endedAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'ended_at' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Ended At
                     </TableSortLabel>
@@ -337,7 +386,13 @@ const ListOfTrips = () => {
                       active={sortBy === 'ended_by'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'ended_by' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'ended_by' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Ended By
                     </TableSortLabel>
@@ -348,7 +403,13 @@ const ListOfTrips = () => {
                       active={sortBy === 'trip_status'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'trip_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'trip_status' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Status
                     </TableSortLabel>
@@ -373,20 +434,28 @@ const ListOfTrips = () => {
                         <TableRow key={data._id}>
                           <TableCell>
                             <Link className="link2" to={`/home/total-drivers/driver-information/${data.driver._id}`}>
-                              {data.driver.first_name}
+                              {data.driver.first_name} {data.driver.last_name}
                             </Link>
                           </TableCell>
                           <TableCell>
                             <Link className="link2" to={`/home/total-linked-trips/user-information/${data.passenger._id}`}>
-                              {data.passenger.first_name}
+                              {data.passenger.first_name} {data.passenger.last_name}
                             </Link>
                           </TableCell>
                           <TableCell sx={{ color: '#FF7043' }}>
                             {data?.trip_type?.tripTypeName || "-"}
                           </TableCell>
-                          <TableCell>{format(data?.createdAt, "HH:mm:ss - dd/MM/yyyy")}</TableCell>
-                          <TableCell>{data?.trip_status === 'ended' ? format(data.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---'}</TableCell>
-                          <TableCell>{data?.ended_by}</TableCell>
+                          <TableCell>
+                            {data?.createdAt
+                              ? format(new Date(data.createdAt), "HH:mm:ss - dd/MM/yyyy")
+                              : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {data?.trip_status === "ended" && data?.endedAt
+                              ? format(new Date(data.endedAt), "HH:mm:ss - dd/MM/yyyy")
+                              : "---"}
+                          </TableCell>
+                          <TableCell>{formatEndedBy(data?.ended_by)}</TableCell>
                           <TableCell>
                             <Chip
                               label={data.trip_status}
