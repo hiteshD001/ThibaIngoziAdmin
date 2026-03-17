@@ -203,7 +203,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                     </div>
                 }
             </TableCell>
-            <TableCell width={"100%"}>
+            <TableCell>
                 <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                     <Tooltip title="View" arrow placement="top">
                         <IconButton onClick={handleViewLocation}>
