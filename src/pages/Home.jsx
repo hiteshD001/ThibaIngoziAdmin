@@ -353,7 +353,21 @@ const Home = () => {
                         }
                     }
                     playAudio();
-                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
+                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
+                    // Refetch and merge API data (e.g. createdAt) into WebSocket list so date shows in real time
+                    try {
+                        const res = await activeSos.refetch();
+                        if (res?.data?.data?.data && setActiveUserLists) {
+                            const refetched = res.data.data.data;
+                            const byId = {};
+                            refetched.forEach((item) => { byId[item._id] = item; });
+                            setActiveUserLists((prev) =>
+                                prev.map((item) => (byId[item._id] ? { ...item, ...byId[item._id] } : item))
+                            );
+                        }
+                    } catch (err) {
+                        console.error("Refetch for merging SOS data failed:", err);
+                    }
                 } else {
                     // Start Throttle for API calls
                     const now = Date.now();
@@ -881,7 +895,7 @@ const Home = () => {
                                                         {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.type?.display_title || "-")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {format(user?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                        {user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : "-"}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
                                                         {(!(user?.sosType === 'ARMED_SOS' ? user?.armedSosstatus : user?.help_received)) &&
@@ -1276,7 +1290,7 @@ const Home = () => {
                                                                             alt="User"
                                                                         />
 
-                                                                        {row?.user?.fullName || ''}
+                                                                        {row?.user?.first_name} {row?.user?.last_name}
                                                                     </Stack>
 
                                                                 </Link>) : (
@@ -1292,7 +1306,8 @@ const Home = () => {
                                                                             alt="User"
                                                                         />
 
-                                                                        {row?.user?.fullName || ''}                                                                    </Stack>
+                                                                        {row?.user?.first_name} {row?.user?.last_name}
+                                                                    </Stack>
                                                                 </Link>
                                                             )
                                                         }

@@ -3,6 +3,15 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 const WebSocketContext = createContext(null);
 
+// Normalize backend payload so UI can use createdAt (e.g. if backend sends created_at)
+const normalizeSosItem = (item) => {
+    if (!item || typeof item !== 'object') return item;
+    const out = { ...item };
+    if (out.created_at != null && out.createdAt == null) out.createdAt = out.created_at;
+    return out;
+};
+const normalizeSosList = (list) => (Array.isArray(list) ? list.map(normalizeSosItem) : list);
+
 export const WebSocketProvider = ({ children }) => {
     const socketRef = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
@@ -60,20 +69,16 @@ export const WebSocketProvider = ({ children }) => {
                 let processedList = [];
 
                 if (Array.isArray(payload)) {
-                    processedList = payload;
+                    processedList = normalizeSosList(payload);
                     setActiveUserLists(processedList);
                 } else if (payload && typeof payload === 'object') {
-                    // It's a single SOS object, append it to the current list
-                    processedList = [payload];
+                    const normalized = normalizeSosItem(payload);
                     setActiveUserLists(prev => {
-                        // Prevent duplicates if appending
-                        const exists = prev.find(item => item._id === payload._id);
+                        const exists = prev.find(item => item._id === normalized._id);
                         if (exists) {
-                            // If it exists, update it with new data (to reflect status changes)
-                            return prev.map(item => item._id === payload._id ? payload : item);
+                            return prev.map(item => item._id === normalized._id ? normalized : item);
                         }
-                        const newList = [payload, ...prev];
-                        return newList;
+                        return [normalized, ...prev];
                     });
                 }
 
@@ -99,7 +104,7 @@ export const WebSocketProvider = ({ children }) => {
 
             if (data?.sos_update === true) {
                 if (Array.isArray(data.data)) {
-                    setActiveUserLists(data.data);
+                    setActiveUserLists(normalizeSosList(data.data));
                 }
             }
 
@@ -107,11 +112,11 @@ export const WebSocketProvider = ({ children }) => {
             if (data?.type === 'SOS_UPDATE' || data?.type === 'ACTIVE_SOS_UPDATE') {
                 const payloadData = data.data || data.payload;
                 if (Array.isArray(payloadData)) {
-                    setActiveUserLists(payloadData.filter(item => {
+                    setActiveUserLists(normalizeSosList(payloadData.filter(item => {
                         return item.sosType === 'ARMED_SOS' ? !item.armedSosstatus : !item.help_received;
-                    }));
+                    })));
                 } else if (payloadData && typeof payloadData === 'object') {
-                    const updatedSOS = payloadData;
+                    const updatedSOS = normalizeSosItem(payloadData);
 
                     // Check if the SOS is resolved (cancelled or help received)
                     // Logic adapted from Home.jsx display condition:
@@ -215,22 +220,22 @@ export const WebSocketProvider = ({ children }) => {
 
             // Handle paginated data structure (new format)
             if (data?.data && Array.isArray(data?.data) && data?.pagination) {
-                setActiveUserLists(data.data);
+                setActiveUserLists(normalizeSosList(data.data));
                 setPagination(data.pagination);
                 return;
             }
 
             // Backend structured payload
             if (data?.type === "ACTIVE_SOS" && Array.isArray(data?.payload)) {
-                setActiveUserLists(data.payload.filter(item => {
+                setActiveUserLists(normalizeSosList(data.payload.filter(item => {
                     return item.sosType === 'ARMED_SOS' ? !item.armedSosstatus : !item.help_received;
-                })); // replace
+                })));
                 return;
             }
 
             // Backend sends just array (legacy)
             if (Array.isArray(data)) {
-                setActiveUserLists(data);
+                setActiveUserLists(normalizeSosList(data));
                 return;
             }
 
@@ -255,12 +260,12 @@ export const WebSocketProvider = ({ children }) => {
                             // Update or Add
                             const index = newList.findIndex(item => item._id === updatedItem._id);
                             if (index !== -1) {
-                                // Merge
+                                const normalized = normalizeSosItem(updatedItem);
                                 newList[index] = {
                                     ...newList[index],
-                                    ...updatedItem,
-                                    req_accept: updatedItem.reqAcceptUserIds ? updatedItem.reqAcceptUserIds.length : newList[index].req_accept,
-                                    req_reach: updatedItem.reqReachedUserIds ? updatedItem.reqReachedUserIds.length : newList[index].req_reach
+                                    ...normalized,
+                                    req_accept: normalized.reqAcceptUserIds ? normalized.reqAcceptUserIds.length : newList[index].req_accept,
+                                    req_reach: normalized.reqReachedUserIds ? normalized.reqReachedUserIds.length : newList[index].req_reach
                                 };
                             }
                         }
