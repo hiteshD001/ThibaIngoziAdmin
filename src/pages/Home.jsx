@@ -15,9 +15,14 @@ import {
     DialogContent,
     DialogContentText,
     DialogActions,
+    List,
+    ListItemButton,
+    ListItemText,
+    Divider,
     Switch,
     CircularProgress
 } from "@mui/material";
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { useRef, useMemo } from "react";
@@ -178,6 +183,41 @@ const Home = () => {
     const userId = localStorage.getItem("userID");
     const role = localStorage.getItem("role");
     const userinfo = useGetUser(localStorage.getItem("userID"));
+
+    const [otherUsersModalOpen, setOtherUsersModalOpen] = useState(false);
+    const [otherUsersModalItems, setOtherUsersModalItems] = useState([]);
+
+    const normalizeOtherUsers = (otherUser) => {
+        if (!otherUser) return [];
+        if (Array.isArray(otherUser)) return otherUser.filter(Boolean);
+        return [otherUser];
+    };
+
+    const getOtherUserId = (u) => u?._id || u?.user_id?._id || u?.user_id || u?.id;
+    const getOtherUserRole = (u) => u?.role || u?.user?.role || u?.user_id?.role;
+    const getOtherUserName = (u) => {
+        const first = u?.first_name || u?.user?.first_name || u?.user_id?.first_name || "";
+        const last = u?.last_name || u?.user?.last_name || u?.user_id?.last_name || "";
+        const full = `${first} ${last}`.trim();
+        return full || u?.phone || u?.email || getOtherUserId(u) || "Unknown user";
+    };
+    const getOtherUserRoute = (u) => {
+        const id = getOtherUserId(u);
+        if (!id) return null;
+        return getOtherUserRole(u) === "driver"
+            ? `/home/total-drivers/driver-information/${id}`
+            : `/home/total-users/user-information/${id}`;
+    };
+
+    const openOtherUsersModal = (otherUser) => {
+        const items = normalizeOtherUsers(otherUser);
+        setOtherUsersModalItems(items);
+        setOtherUsersModalOpen(true);
+    };
+    const closeOtherUsersModal = () => {
+        setOtherUsersModalOpen(false);
+        setOtherUsersModalItems([]);
+    };
 
     const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS({
         page: recentPage,
@@ -880,7 +920,7 @@ const Home = () => {
                                                                     <img src={ViewBtn} alt="view button" />
                                                                 </IconButton>
                                                             </Tooltip>
-                                                            {user?.type?.type === "linked_sos" && user?.otherUser?._id && (
+                                                            {user?.type?.type === "linked_sos" && normalizeOtherUsers(user?.otherUser).length > 0 && (
                                                                 <Tooltip title="Other User" arrow placement="top">
                                                                     <Button
                                                                         variant="contained"
@@ -899,7 +939,7 @@ const Home = () => {
                                                                             minWidth: "auto",
                                                                             "&:hover": { backgroundColor: "#1864c7" },
                                                                         }}
-                                                                        onClick={() => nav(`total-drivers/driver-information/${user?.otherUser?._id}`)}
+                                                                        onClick={() => openOtherUsersModal(user?.otherUser)}
                                                                     >
                                                                         Other User
                                                                     </Button>
@@ -1335,7 +1375,7 @@ const Home = () => {
                                                     {row?.type?.type === "linked_sos" ? (
                                                         <TableCell>
                                                             <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
-                                                                {row?.otherUser?._id ? (
+                                                                {normalizeOtherUsers(row?.otherUser).length > 0 ? (
                                                                     <Tooltip title="Other User" arrow placement="top">
                                                                         <Button
                                                                             variant="contained"
@@ -1354,9 +1394,7 @@ const Home = () => {
                                                                                 minWidth: "auto",
                                                                                 "&:hover": { backgroundColor: "#1864c7" },
                                                                             }}
-                                                                            onClick={() =>
-                                                                                nav(`total-drivers/driver-information/${row?.otherUser?._id}`)
-                                                                            }
+                                                                            onClick={() => openOtherUsersModal(row?.otherUser)}
                                                                         >
                                                                             Other User
                                                                         </Button>
@@ -1584,6 +1622,81 @@ const Home = () => {
                     }} color="primary" variant="contained" autoFocus>
                         Yes, Enable Audio
                     </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                open={otherUsersModalOpen}
+                onClose={closeOtherUsersModal}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{ sx: { borderRadius: 3 } }}
+            >
+                <DialogTitle>Other Users</DialogTitle>
+                <DialogContent dividers>
+                    {otherUsersModalItems.length === 0 ? (
+                        <Typography variant="body2" color="text.secondary">
+                            No other users found.
+                        </Typography>
+                    ) : (
+                        <List disablePadding>
+                            {otherUsersModalItems.map((u, idx) => {
+                                const route = getOtherUserRoute(u);
+                                const label = getOtherUserName(u);
+                                return (
+                                    <Box key={getOtherUserId(u) || idx}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                gap: 1,
+                                                px: 0.5,
+                                            }}
+                                        >
+                                            <ListItemButton
+                                                disabled={!route}
+                                                onClick={() => {
+                                                    if (!route) return;
+                                                    closeOtherUsersModal();
+                                                    nav(route);
+                                                }}
+                                                sx={{ borderRadius: 2 }}
+                                            >
+                                                <ListItemText
+                                                    primary={label}
+                                                    secondary={getOtherUserRole(u) || undefined}
+                                                />
+                                            </ListItemButton>
+                                            <Tooltip title="View" arrow placement="top">
+                                                <span>
+                                                    <IconButton
+                                                        size="small"
+                                                        disabled={!route}
+                                                        onClick={() => {
+                                                            if (!route) return;
+                                                            closeOtherUsersModal();
+                                                            nav(route);
+                                                        }}
+                                                        sx={{
+                                                            color: '#1E73E8',
+                                                            "&:hover": { backgroundColor: "rgba(30,115,232,0.08)" },
+                                                        }}
+                                                    >
+                                                        <VisibilityOutlinedIcon fontSize="small" />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                        </Box>
+                                        {idx !== otherUsersModalItems.length - 1 && <Divider />}
+                                    </Box>
+                                );
+                            })}
+                        </List>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeOtherUsersModal}>Close</Button>
                 </DialogActions>
             </Dialog>
         </Box >

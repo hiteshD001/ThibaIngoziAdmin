@@ -10,7 +10,8 @@ import ContentCopy from '@mui/icons-material/ContentCopy';
 import NavigateNext from '@mui/icons-material/NavigateNext';
 import NavigateBefore from '@mui/icons-material/NavigateBefore';
 import Update from '@mui/icons-material/Update';
-import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, Stack, Select, MenuItem, Tooltip, TableSortLabel } from '@mui/material';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import { Box, Typography, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, Stack, Select, MenuItem, Tooltip, TableSortLabel, Dialog, DialogTitle, DialogContent, DialogActions, List, ListItemButton, ListItemText, Divider } from '@mui/material';
 
 import ViewBtn from '../../assets/images/ViewBtn.svg';
 import arrowup from '../../assets/images/arrowup.svg';
@@ -44,7 +45,7 @@ const getImageLink = (name) => {
 }
 
 // Memoized Active SOS Table Row Component
-const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTextToCopy, updatingId, selectedId, status, setStatus, setStatusUpdate, setSelectedId, copyButtonStyles, isNavigatingBack, realtimeUpdates }) => {
+const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTextToCopy, updatingId, selectedId, status, setStatus, setStatusUpdate, setSelectedId, copyButtonStyles, isNavigatingBack, realtimeUpdates, onOpenOtherUsers }) => {
     const handleStatusChange = useCallback((e) => {
         setStatus(e.target.value);
         setStatusUpdate(true);
@@ -61,8 +62,14 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
     }, [nav, user]);
 
     const handleOtherUserClick = useCallback(() => {
-        nav(`/home/total-drivers/driver-information/${user?.otherUser?._id}`, { replace: true });
-    }, [nav, user]);
+        onOpenOtherUsers?.(user?.otherUser);
+    }, [onOpenOtherUsers, user]);
+
+    const hasOtherUsers = useMemo(() => {
+        if (!user?.otherUser) return false;
+        if (Array.isArray(user.otherUser)) return user.otherUser.filter(Boolean).length > 0;
+        return !!user.otherUser?._id;
+    }, [user?.otherUser]);
 
     return (
         <TableRow>
@@ -210,31 +217,33 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                             <img src={ViewBtn} alt="view button" />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title="Other Users" arrow placement="top">
-                        <IconButton>
-                            <Button
-                                variant="contained"
-                                sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: "6px",
-                                    textTransform: "none",
-                                    fontWeight: 500,
-                                    fontSize: "14px",
-                                    color: "#fff",
-                                    backgroundColor: "#1E73E8", // same as your image blue
-                                    borderRadius: "8px",
-                                    padding: "6px 14px",
-                                    whiteSpace: "nowrap",
-                                    minWidth: "auto",
-                                    "&:hover": { backgroundColor: "#1864c7" },
-                                }}
-                                onClick={handleOtherUserClick}
-                            >
-                                Other User
-                            </Button>
-                        </IconButton>
-                    </Tooltip>
+                    {user?.type?.type === "linked_sos" && hasOtherUsers && (
+                        <Tooltip title="Other Users" arrow placement="top">
+                            <IconButton>
+                                <Button
+                                    variant="contained"
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "6px",
+                                        textTransform: "none",
+                                        fontWeight: 500,
+                                        fontSize: "14px",
+                                        color: "#fff",
+                                        backgroundColor: "#1E73E8",
+                                        borderRadius: "8px",
+                                        padding: "6px 14px",
+                                        whiteSpace: "nowrap",
+                                        minWidth: "auto",
+                                        "&:hover": { backgroundColor: "#1864c7" },
+                                    }}
+                                    onClick={handleOtherUserClick}
+                                >
+                                    Other User
+                                </Button>
+                            </IconButton>
+                        </Tooltip>
+                    )}
                 </Box>
             </TableCell>
         </TableRow>
@@ -244,7 +253,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
 ActiveSOSTableRow.displayName = 'ActiveSOSTableRow';
 
 // Memoized Recent SOS Table Row Component
-const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, userinfo, isNavigatingBack }) => {
+const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, userinfo, isNavigatingBack, onOpenOtherUsers }) => {
     const handleCopyAddress = useCallback((address) => {
         setTextToCopy(address);
         handleCopy();
@@ -253,6 +262,12 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
     const handleViewLocation = useCallback(() => {
         nav(`/home/hotspot/location?locationId=${row._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`);
     }, [nav, row, userinfo]);
+
+    const hasOtherUsers = useMemo(() => {
+        if (!row?.otherUser) return false;
+        if (Array.isArray(row.otherUser)) return row.otherUser.filter(Boolean).length > 0;
+        return !!row.otherUser?._id;
+    }, [row?.otherUser]);
 
     return (
         <TableRow key={row?._id}>
@@ -347,7 +362,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
             {row?.type?.type === "linked_sos" ? (
                 <TableCell>
                     <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
-                        {row?.otherUser?._id ? (
+                        {hasOtherUsers ? (
                             <Tooltip title="Other User" arrow placement="top">
                                 <Button
                                     variant="contained"
@@ -366,7 +381,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                                         minWidth: "auto",
                                         "&:hover": { backgroundColor: "#1864c7" },
                                     }}
-                                    onClick={() => nav(`/home/total-drivers/driver-information/${row?.otherUser?._id}`, { replace: true })}
+                                    onClick={() => onOpenOtherUsers?.(row?.otherUser)}
                                 >
                                     Other User
                                 </Button>
@@ -411,6 +426,39 @@ const EHialingView = () => {
     const [statusUpdate, setStatusUpdate] = useState(false);
     const [time, settime] = useState("today");
     const [realtimeUpdates, setRealtimeUpdates] = useState(new Set()); // Track which SOS IDs have real-time updates
+    const [otherUsersModalOpen, setOtherUsersModalOpen] = useState(false);
+    const [otherUsersModalItems, setOtherUsersModalItems] = useState([]);
+
+    const normalizeOtherUsers = useCallback((otherUser) => {
+        if (!otherUser) return [];
+        if (Array.isArray(otherUser)) return otherUser.filter(Boolean);
+        return [otherUser];
+    }, []);
+    const getOtherUserId = useCallback((u) => u?._id || u?.user_id?._id || u?.user_id || u?.id, []);
+    const getOtherUserRole = useCallback((u) => u?.role || u?.user?.role || u?.user_id?.role, []);
+    const getOtherUserName = useCallback((u) => {
+        const first = u?.first_name || u?.user?.first_name || u?.user_id?.first_name || "";
+        const last = u?.last_name || u?.user?.last_name || u?.user_id?.last_name || "";
+        const full = `${first} ${last}`.trim();
+        return full || u?.phone || u?.email || getOtherUserId(u) || "Unknown user";
+    }, [getOtherUserId]);
+    const getOtherUserRoute = useCallback((u) => {
+        const id = getOtherUserId(u);
+        if (!id) return null;
+        return getOtherUserRole(u) === "driver"
+            ? `/home/total-drivers/driver-information/${id}`
+            : `/home/total-users/user-information/${id}`;
+    }, [getOtherUserId, getOtherUserRole]);
+
+    const openOtherUsersModal = useCallback((otherUser) => {
+        const items = normalizeOtherUsers(otherUser);
+        setOtherUsersModalItems(items);
+        setOtherUsersModalOpen(true);
+    }, [normalizeOtherUsers]);
+    const closeOtherUsersModal = useCallback(() => {
+        setOtherUsersModalOpen(false);
+        setOtherUsersModalItems([]);
+    }, []);
 
     // pagination
     const [recentPage, setRecentPage] = useState(1);
@@ -993,6 +1041,7 @@ const EHialingView = () => {
                                                     copyButtonStyles={copyButtonStyles}
                                                     isNavigatingBack={isNavigatingBack}
                                                     realtimeUpdates={realtimeUpdates}
+                                                    onOpenOtherUsers={openOtherUsersModal}
                                                 />
                                             ))
                                             :
@@ -1212,6 +1261,7 @@ const EHialingView = () => {
                                                     nav={nav}
                                                     userinfo={userinfo}
                                                     isNavigatingBack={isNavigatingBack}
+                                                    onOpenOtherUsers={openOtherUsersModal}
                                                 />
                                             ))
                                             :
@@ -1293,6 +1343,81 @@ const EHialingView = () => {
                     handleUpdate={handleUpdate}
                 />
             )}
+
+            <Dialog
+                open={otherUsersModalOpen}
+                onClose={closeOtherUsersModal}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{ sx: { borderRadius: 3 } }}
+            >
+                <DialogTitle>Other Users</DialogTitle>
+                <DialogContent dividers>
+                    {otherUsersModalItems.length === 0 ? (
+                        <Typography variant="body2" color="text.secondary">
+                            No other users found.
+                        </Typography>
+                    ) : (
+                        <List disablePadding>
+                            {otherUsersModalItems.map((u, idx) => {
+                                const route = getOtherUserRoute(u);
+                                const label = getOtherUserName(u);
+                                return (
+                                    <Box key={getOtherUserId(u) || idx}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                gap: 1,
+                                                px: 0.5,
+                                            }}
+                                        >
+                                            <ListItemButton
+                                                disabled={!route}
+                                                onClick={() => {
+                                                    if (!route) return;
+                                                    closeOtherUsersModal();
+                                                    nav(route, { replace: true });
+                                                }}
+                                                sx={{ borderRadius: 2 }}
+                                            >
+                                                <ListItemText
+                                                    primary={label}
+                                                    secondary={getOtherUserRole(u) || undefined}
+                                                />
+                                            </ListItemButton>
+                                            <Tooltip title="View" arrow placement="top">
+                                                <span>
+                                                    <IconButton
+                                                        size="small"
+                                                        disabled={!route}
+                                                        onClick={() => {
+                                                            if (!route) return;
+                                                            closeOtherUsersModal();
+                                                            nav(route, { replace: true });
+                                                        }}
+                                                        sx={{
+                                                            color: '#1E73E8',
+                                                            "&:hover": { backgroundColor: "rgba(30,115,232,0.08)" },
+                                                        }}
+                                                    >
+                                                        <VisibilityOutlinedIcon fontSize="small" />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                        </Box>
+                                        {idx !== otherUsersModalItems.length - 1 && <Divider />}
+                                    </Box>
+                                );
+                            })}
+                        </List>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeOtherUsersModal}>Close</Button>
+                </DialogActions>
+            </Dialog>
         </Box >
     );
 };
