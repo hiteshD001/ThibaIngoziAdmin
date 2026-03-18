@@ -581,7 +581,7 @@ const CustomTableRow = ({
 			</TableCell>
 
 			<TableCell sx={{ textWrap: 'nowrap' }}>
-				{format(data?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+				{format(data?.joinedAt, "HH:mm:ss - dd/MM/yyyy")}
 			</TableCell>
 
 			<TableCell sx={{ textWrap: 'nowrap' }}>
