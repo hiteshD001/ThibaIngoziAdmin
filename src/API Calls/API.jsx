@@ -1145,7 +1145,10 @@ export const useGetActiveSosDataEhailing = ({ page = 1, limit = 10, startDate, e
         queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, companyIds],
         queryFn: queryFn,
         placeholderData: keepPreviousData,
-        staleTime: 15 * 60 * 1000,
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnWindowFocus: false,
+        retry: false,
     });
 
     return res;
@@ -1222,8 +1225,10 @@ export const useGetEHailingRecentSos = ({ page = 1, limit = 20, startDate, endDa
     const res = useQuery({
         queryKey: ["ehailingRecentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, companyIds],
         queryFn: queryFn,
-        staleTime: 300000,
+        staleTime: 0,
+        gcTime: 0,
         refetchOnWindowFocus: false,
+        retry: false,
     });
 
     return res;

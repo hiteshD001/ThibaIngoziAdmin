@@ -578,23 +578,28 @@ const EHialingView = () => {
     const { mutate } = useUpdateLocationStatus(onSuccess, onError);
 
     const changeSortOrder = useCallback((e) => {
-        const field = e.target.id;
+        const field = e.currentTarget.id;
+        if (!field) return;
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
+            setRecentPage(1);
         } else {
-            setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+            setSortOrder(p => p === 'asc' ? 'desc' : 'asc');
+            setRecentPage(1);
         }
     }, [sortBy]);
 
     const changeSortOrder2 = useCallback((e) => {
-        const field = e.target.id;
+        const field = e.currentTarget.id;
+        if (!field) return;
         if (field !== sortBy2) {
             setSortBy2(field);
             setSortOrder2("asc");
-
+            setActivePage(1);
         } else {
-            setSortOrder2(p => p === 'asc' ? 'desc' : 'asc')
+            setSortOrder2(p => p === 'asc' ? 'desc' : 'asc');
+            setActivePage(1);
         }
     }, [sortBy2]);
 
@@ -1142,11 +1147,11 @@ const EHialingView = () => {
                                     <TableRow >
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
                                             <TableSortLabel
-                                                id="first_name"
-                                                active={sortBy === 'first_name'}
+                                                id="username"
+                                                active={sortBy === 'username'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'username' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                             >
                                                 User Name
                                             </TableSortLabel>
@@ -1186,33 +1191,33 @@ const EHialingView = () => {
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             <TableSortLabel
-                                                id="req_accept"
-                                                active={sortBy === 'req_accept'}
+                                                id="req_accepted"
+                                                active={sortBy === 'req_accepted'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'req_accept' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'req_accepted' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                             >
                                                 Request Accepted
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             <TableSortLabel
-                                                id="createdAt"
-                                                active={sortBy === 'createdAt'}
+                                                id="start_time_stamp"
+                                                active={sortBy === 'start_time_stamp'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'start_time_stamp' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                             >
                                                 Start Time Stamp
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             <TableSortLabel
-                                                id="updatedAt"
-                                                active={sortBy === 'updatedAt'}
+                                                id="end_time_stamp"
+                                                active={sortBy === 'end_time_stamp'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'updatedAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'end_time_stamp' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                             >
                                                 End Time Stamp
                                             </TableSortLabel>
