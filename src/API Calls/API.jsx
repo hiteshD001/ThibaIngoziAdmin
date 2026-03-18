@@ -450,6 +450,10 @@ export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, end
     const res = useQuery({
         queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder, companyId],
         queryFn: queryFn,
+        // Do not cache trip table data (always refetch on param changes)
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnWindowFocus: false,
         retry: false,
     });
 
@@ -777,6 +781,8 @@ export const useGetSalesAgent = (page = 1, limit = 10, filter, startDate, endDat
             }),
         retry: false,
         refetchOnWindowFocus: false,
+        staleTime: 0,
+        gcTime: 0,
         onError: (error) => {
             console.log(error)
         },

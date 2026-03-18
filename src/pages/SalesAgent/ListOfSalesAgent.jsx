@@ -72,15 +72,17 @@ const ListOfSalesAgent = () => {
     ]);
     const fileInputRef = useRef(null);
 
-    const [sortBy, setSortBy] = useState("first_name");
+    const [sortBy, setSortBy] = useState("username");
     const [sortOrder, setSortOrder] = useState("asc");
 
     const changeSortOrder = (field) => {
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
+            setpage(1);
         } else {
-            setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+            setSortOrder(p => p === 'asc' ? 'desc' : 'asc');
+            setpage(1);
         }
     }
 
@@ -555,22 +557,22 @@ const ListOfSalesAgent = () => {
                                         <TableRow>
                                             <TableCell sx={{ backgroundColor: "#F9FAFB", borderTopLeftRadius: '10px', color: "#4B5563" }}>
                                                 <TableSortLabel
-                                                    id="first_name"
-                                                    active={sortBy === 'first_name'}
+                                                    id="username"
+                                                    active={sortBy === 'username'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('first_name')}
-                                                    IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('username')}
+                                                    IconComponent={() => <img src={sortBy === 'username' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     User
                                                 </TableSortLabel>
                                             </TableCell>
                                             <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563", width: '10%' }}>
                                                 <TableSortLabel
-                                                    id="mobile_no_country_code"
-                                                    active={sortBy === 'mobile_no_country_code'}
+                                                    id="mobile"
+                                                    active={sortBy === 'mobile'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('mobile_no_country_code')}
-                                                    IconComponent={() => <img src={sortBy === 'mobile_no_country_code' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('mobile')}
+                                                    IconComponent={() => <img src={sortBy === 'mobile' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Contact No.
                                                 </TableSortLabel>
@@ -588,77 +590,77 @@ const ListOfSalesAgent = () => {
                                             </TableCell>
                                             <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
                                                 <TableSortLabel
-                                                    id="enrollAmountDeduction"
-                                                    active={sortBy === 'enrollAmountDeduction'}
+                                                    id="enrollment_discount"
+                                                    active={sortBy === 'enrollment_discount'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('enrollAmountDeduction')}
-                                                    IconComponent={() => <img src={sortBy === 'enrollAmountDeduction' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('enrollment_discount')}
+                                                    IconComponent={() => <img src={sortBy === 'enrollment_discount' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
-                                                    Enrolment Discount %
+                                                    Enrolment Discount1 %
                                                 </TableSortLabel>
                                             </TableCell>
                                             <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
                                                 <TableSortLabel
-                                                    id="totalEarnedAmount"
-                                                    active={sortBy === 'totalEarnedAmount'}
+                                                    id="total_earn_amount"
+                                                    active={sortBy === 'total_earn_amount'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('totalEarnedAmount')}
-                                                    IconComponent={() => <img src={sortBy === 'totalEarnedAmount' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('total_earn_amount')}
+                                                    IconComponent={() => <img src={sortBy === 'total_earn_amount' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Total Earned Amount
                                                 </TableSortLabel>
                                             </TableCell>
                                             <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                                 <TableSortLabel
-                                                    id="commissionEarned"
-                                                    active={sortBy === 'commissionEarned'}
+                                                    id="total_commission"
+                                                    active={sortBy === 'total_commission'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('commissionEarned')}
-                                                    IconComponent={() => <img src={sortBy === 'commissionEarned' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('total_commission')}
+                                                    IconComponent={() => <img src={sortBy === 'total_commission' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Total Commission Earned(30%)
                                                 </TableSortLabel>
                                             </TableCell>
                                             <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                                 <TableSortLabel
-                                                    id="totalUnPaid"
-                                                    active={sortBy === 'totalUnPaid'}
+                                                    id="unpaid_amount"
+                                                    active={sortBy === 'unpaid_amount'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('totalUnPaid')}
-                                                    IconComponent={() => <img src={sortBy === 'totalUnPaid' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('unpaid_amount')}
+                                                    IconComponent={() => <img src={sortBy === 'unpaid_amount' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Unpaid Amount
                                                 </TableSortLabel>
                                             </TableCell>
                                             <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                                 <TableSortLabel
-                                                    id="totalPaid"
-                                                    active={sortBy === 'totalPaid'}
+                                                    id="paid_amount"
+                                                    active={sortBy === 'paid_amount'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('totalPaid')}
-                                                    IconComponent={() => <img src={sortBy === 'totalPaid' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('paid_amount')}
+                                                    IconComponent={() => <img src={sortBy === 'paid_amount' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Paid Amount
                                                 </TableSortLabel>
                                             </TableCell>
                                             <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                                 <TableSortLabel
-                                                    id="length"
-                                                    active={sortBy === 'length'}
+                                                    id="total_user"
+                                                    active={sortBy === 'total_user'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('length')}
-                                                    IconComponent={() => <img src={sortBy === 'length' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('total_user')}
+                                                    IconComponent={() => <img src={sortBy === 'total_user' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Total Users
                                                 </TableSortLabel>
                                             </TableCell>
                                             <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                                 <TableSortLabel
-                                                    id="accountNumber"
-                                                    active={sortBy === 'accountNumber'}
+                                                    id="account_number"
+                                                    active={sortBy === 'account_number'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('accountNumber')}
-                                                    IconComponent={() => <img src={sortBy === 'accountNumber' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('account_number')}
+                                                    IconComponent={() => <img src={sortBy === 'account_number' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Account Number
                                                 </TableSortLabel>
@@ -687,22 +689,22 @@ const ListOfSalesAgent = () => {
                                             </TableCell>
                                             <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                                 <TableSortLabel
-                                                    id="sharedStatus"
-                                                    active={sortBy === 'sharedStatus'}
+                                                    id="share_status"
+                                                    active={sortBy === 'share_status'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('sharedStatus')}
-                                                    IconComponent={() => <img src={sortBy === 'sharedStatus' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('share_status')}
+                                                    IconComponent={() => <img src={sortBy === 'share_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Share Status
                                                 </TableSortLabel>
                                             </TableCell>
                                             <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                                 <TableSortLabel
-                                                    id="performanceLevel"
-                                                    active={sortBy === 'performanceLevel'}
+                                                    id="performance_level"
+                                                    active={sortBy === 'performance_level'}
                                                     direction={sortOrder}
-                                                    onClick={() => changeSortOrder('performanceLevel')}
-                                                    IconComponent={() => <img src={sortBy === 'performanceLevel' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    onClick={() => changeSortOrder('performance_level')}
+                                                    IconComponent={() => <img src={sortBy === 'performance_level' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                 >
                                                     Performance Level
                                                 </TableSortLabel>
@@ -749,8 +751,8 @@ const ListOfSalesAgent = () => {
                                                             </Stack>
                                                         </TableCell>
 
-                                                        <TableCell sx={{ color: "#4B5563" }}>
-                                                            {`${user?.mobile_no_country_code ?? '-'}${user?.mobile_no ?? '-'}`}
+                                                        <TableCell sx={{ color: "#4B5563", whiteSpace: "nowrap" }}>
+                                                            {`${user?.mobile_no_country_code ?? '-'} ${user?.mobile_no ?? ""}`}
                                                         </TableCell>
 
                                                         <TableCell sx={{ color: "#4B5563" }}>
