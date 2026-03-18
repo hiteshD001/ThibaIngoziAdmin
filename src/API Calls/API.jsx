@@ -994,8 +994,8 @@ export const useGetRecentSOS = ({ page = 1, limit = 20, startDate, endDate, sear
     const res = useQuery({
         queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id],
         queryFn: queryFn,
-        keepPreviousData: true,
-        staleTime: 300000, // 5 minutes cache to prevent spamming
+        placeholderData: keepPreviousData,
+        staleTime: 0, // always refetch when sort/page change so second click triggers API
         refetchOnWindowFocus: false,
     });
 
@@ -1090,20 +1090,36 @@ export const useGetChartData = (company_id, time, startDate, endDate, notificati
 // get active sos 
 
 export const useGetActiveSosData = ({ page = 1, limit = 10, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id }) => {
-
+    
     const queryFn = async () => {
         return await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/location/active/sos/data`, {
-            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder, company_id
+                startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder, company_id
         }
         );
     };
-
+    
     const res = useQuery({
-        queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id],
+        // queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id],
+
+        queryKey: [
+            "activeSOS2",
+            page,
+            limit,
+            startDate,
+            endDate,
+            searchKey,
+            type,
+            sortBy,
+            sortOrder,
+            company_id,
+        ],
         queryFn: queryFn,
         placeholderData: keepPreviousData,
-        staleTime: 15 * 60 * 1000,
+        // Keep previous data while fetching, but avoid extra background refetches
+        staleTime: 30 * 1000,
+        refetchOnWindowFocus: false,
+        retry: false,
     });
 
     return res;
