@@ -165,7 +165,7 @@ const Home = () => {
             setRecentPage(1);
         }
     }
- 
+
     const changeSortOrder2 = (e) => {
         const field = e.currentTarget.id;
         if (!field) return;
@@ -1276,7 +1276,7 @@ const Home = () => {
                                                                             alt="User"
                                                                         />
 
-                                                                        {row?.user?.fullName || ''}
+                                                                        {row?.user?.first_name} {row?.user?.last_name}
                                                                     </Stack>
 
                                                                 </Link>) : (
@@ -1292,7 +1292,8 @@ const Home = () => {
                                                                             alt="User"
                                                                         />
 
-                                                                        {row?.user?.fullName || ''}                                                                    </Stack>
+                                                                        {row?.user?.first_name} {row?.user?.last_name}
+                                                                    </Stack>
                                                                 </Link>
                                                             )
                                                         }
