@@ -28,7 +28,7 @@ import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 
 
 
-const ListOfCrimeReports = () => {
+const ListOfArcheivedCrimeReports = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
@@ -39,7 +39,7 @@ const ListOfCrimeReports = () => {
     const [filter, setfilter] = useState("");
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
-    const [archived, setArchived] = useState(false)
+    const [archived, setArchived] = useState(true)
 
     // Sort
     const [sortBy, setSortBy] = useState("createdAt");
@@ -163,7 +163,7 @@ const ListOfCrimeReports = () => {
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                     <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                        <Typography variant="h6" fontWeight={590}>All Crime Reports</Typography>
+                        <Typography variant="h6" fontWeight={590}>Archeived Reports</Typography>
                         <Typography variant="h6" fontWeight={550}>
                             {UserList.isSuccess ? UserList.data?.data?.totalCrimeReportData : 0}
                         </Typography>
@@ -225,13 +225,8 @@ const ListOfCrimeReports = () => {
                                 Add Report
                             </Button> */}
                             <CustomExportMenu onExport={handleExport} />
-                            <Button
-                                onClick={() => nav('/home/crime-reports/view-archeived-crime-report')}
-                                variant="contained"
-                                sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
-                                startIcon={<img src={ViewBtn} alt="View" />}>
-                                View Archeived
-                            </Button>
+
+
                         </Box>
 
                     </Grid>
@@ -352,7 +347,7 @@ const ListOfCrimeReports = () => {
                                                             <IconButton onClick={() => {
                                                                 updateTripMutation.mutate({
                                                                     id: report?._id,
-                                                                    data: { isArchived: true }
+                                                                    data: { isArchived: false }
                                                                 });
                                                             }}>
                                                                 <img src={Listtrip} alt="view button" />
@@ -449,4 +444,4 @@ const ListOfCrimeReports = () => {
         </Box>
     );
 }
-export default ListOfCrimeReports;
+export default ListOfArcheivedCrimeReports;

@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from "react";
 import {
     Paper,
     Box,
@@ -7,20 +7,55 @@ import {
     Grid,
     Button
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import WhiteTick from '../../assets/images/WhiteTick.svg'
 import forward from '../../assets/images/forward.svg'
 import { AiOutlineEye, AiOutlineCheck } from "react-icons/ai";
+import { useGetUserList, useGetCrimeReportById, useUpdateMarkAsReviewed } from "../../API Calls/API";
+import CrimeReportMap from "../../common/CrimeReportMap";
+import { toast } from "react-toastify";
+import { toastOption } from "../../common/ToastOptions";
+import { useQueryClient } from "@tanstack/react-query";
 
 const CrimeReport = () => {
     // Mock data – replace with actual props or API data
     const nav = useNavigate()
-    const suspectName = "John Doe";
-    const caseNumber = "CASE-2023-0458";
-    const description = "At approximately 9:30 PM on July 29, 2023, two masked individuals entered the Quick Stop convenience store at 1234 Main Street. Both suspects were armed with what appeared to be handguns.The suspects demanded cash from the register and also took several cartons of cigarettes.The store clerk complied with their demands and was not physically harmed.The suspects fled the scene in what witnesses describe as a dark - colored sedan, possibly a Honda Accord with tinted windows. The entire incident lasted approximately 3 minutes.Store security cameras were operational at the time of the incident.The store owner has been contacted and is arranging to provide the footage to authorities.";
-    const location = "Downtown Street, Sector 12";
-    const dateTime = "August 5, 2025 at 10:45 AM";
-    const reportDate = "August 5, 2025 at 10:45 AM"
+    const params = useParams();
+    const crimeReportInfoObj = useGetCrimeReportById(params.id);
+    const [crimeReportObj, setCrimeReportObj] = useState({});
+    const queryClient = useQueryClient();
+    let infoData = {}
+
+    useEffect(() => {
+        if (crimeReportInfoObj.data?.data && !crimeReportObj._id) {
+            setCrimeReportObj(crimeReportInfoObj.data.data);
+        }
+
+    }, [crimeReportInfoObj.data]);
+
+    const onSuccess = () => {
+        toast.success("Status Updated Successfully.");
+        setCrimeReportObj((prev) => ({
+            ...prev,
+            isMarkAsReviewed: true,   // or false based on response
+        }));
+        queryClient.invalidateQueries(["crime-report", params.id]);
+    };
+    const onError = (error) => {
+        setUpdatingId(""); // Clear loader
+        toast.error(
+            error.response.data.message || "Something went Wrong",
+            toastOption
+        );
+    };
+
+    const { mutate } = useUpdateMarkAsReviewed(onSuccess, onError);
+    const markAsReviewed = (id, report_status) => {
+        mutate({
+            id: id,
+            data: { report_status: report_status },
+        });
+    }
 
     return (
         <Box px={2} sx={{ display: 'flex', gap: 3, flexDirection: 'column' }}>
@@ -35,54 +70,53 @@ const CrimeReport = () => {
                 {/* Title */}
                 <Box pb={1} borderBottom="1px solid #e0e0e0">
                     <Typography variant='h6' fontWeight={550}>
-                        Crime Report #CR-2096
+                        Crime Report #{crimeReportObj.crime_report_number}
                     </Typography>
                 </Box>
 
-                {/* Suspect Info */}
-                <Box mt={2}>
-                    <Typography variant="h5" fontWeight={600}>
-                        {suspectName}
-                    </Typography>
-                </Box>
+                <Grid container spacing={3}>
+                    <Grid size={7}>
+                        {/* Subtitle */}
+                        <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
+                            <Typography variant='subtitle1' fontWeight={550}>
+                                Sighting Details
+                            </Typography>
+                        </Box>
 
-                {/* Subtitle */}
-                <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
-                    <Typography variant='subtitle1' fontWeight={550}>
-                        Sighting Details
-                    </Typography>
-                </Box>
+                        {/* Description */}
+                        <Box my={2}>
+                            <Typography fontSize={'1rem'} fontWeight={500} color="text.secondary">
+                                Description
+                            </Typography>
+                            <Typography variant="body1" mt={1} sx={{ backgroundColor: '#F9FAFB', borderRadius: '6px', p: 1.5 }}>
+                                {crimeReportObj.description}
 
-                {/* Description */}
-                <Box mt={2}>
-                    <Typography fontSize={'1rem'} fontWeight={500} color="text.secondary">
-                        Description
-                    </Typography>
-                    <Typography variant="body1" mt={1} sx={{ backgroundColor: '#F9FAFB', borderRadius: '6px', p: 1.5 }}>
-                        {description}
-                    </Typography>
-                </Box>
+                            </Typography>
+                        </Box>
 
-                {/* Location & Time */}
-                <Box mt={3} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                    <Box>
-                        <Typography fontSize={'1rem'} fontWeight={500} color="text.secondary">
-                            Location of Sighting
-                        </Typography>
-                        <Typography fontSize={'1.05rem'} mt={0.5}>
-                            {location}
-                        </Typography>
-                    </Box>
+                        <Box>
+                            <Typography fontSize={'1rem'} fontWeight={500} color="text.secondary">
+                                Time and Date
+                            </Typography>
+                            <Typography fontSize={'1.05rem'} mt={0.5}>
+                                {crimeReportObj.submittedDate}
+                            </Typography>
+                        </Box>
+                    </Grid>
+                    <Grid size={5}>
+                        {/* Location & Time */}
+                        <Box mt={3} sx={{ alignItems: 'center', gap: 5 }}>
+                            <Typography variant='subtitle1' fontWeight={550}>
+                                Incident Location
+                            </Typography>
+                            <CrimeReportMap lat={parseFloat(crimeReportObj.lat)} long={parseFloat(crimeReportObj.long)} address={crimeReportObj.address} isMapLoaded={true} />
+                            <Typography fontSize={'1.05rem'} mt={0.5}>
+                                {crimeReportObj.address}
+                            </Typography>
+                        </Box>
+                    </Grid>
+                </Grid>
 
-                    <Box>
-                        <Typography fontSize={'1rem'} fontWeight={500} color="text.secondary">
-                            Time and Date
-                        </Typography>
-                        <Typography fontSize={'1.05rem'} mt={0.5}>
-                            {dateTime}
-                        </Typography>
-                    </Box>
-                </Box>
 
                 {/* report information */}
                 <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
@@ -96,7 +130,7 @@ const CrimeReport = () => {
                             Reporter Name
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={1}>
-                            John Doe
+                            {crimeReportObj.user_id?.first_name} {crimeReportObj.user_id?.last_name}
                         </Typography>
                     </Box>
 
@@ -105,7 +139,7 @@ const CrimeReport = () => {
                             Contact Information
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={0.5}>
-                            LAPD Tip Line +27 12 007 3660
+                            {crimeReportObj.user_id?.mobile_no_country_code}{crimeReportObj.user_id?.mobile_no}
                         </Typography>
                     </Box>
                 </Box>
@@ -114,7 +148,7 @@ const CrimeReport = () => {
                         Report Submitted
                     </Typography>
                     <Typography fontSize={'1.05rem'} mt={0.5}>
-                        {reportDate}
+                        {crimeReportObj.submittedDate}
                     </Typography>
 
                 </Box>
@@ -124,12 +158,12 @@ const CrimeReport = () => {
                         Evidence
                     </Typography>
                     <Grid container spacing={2} mt={2}>
-                        {[1, 2, 3, 4].map((item) => (
-                            <Grid size={{ xs: 6, sm: 3 }} key={item}>
+                        {crimeReportObj.evidence_image?.map((item, index) => (
+                            <Grid size={{ xs: 6, sm: 3 }} key={index}>
                                 <Box
                                     component="img"
-                                    src={`https://blocks.astratic.com/img/general-img-landscape.png`}
-                                    alt={`Placeholder ${item}`}
+                                    src={item}
+                                    alt={`Placeholder ${index}`}
                                     sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
                                 />
                             </Grid>
@@ -137,15 +171,14 @@ const CrimeReport = () => {
                     </Grid>
                 </Box>
                 <Box sx={{ mt: 4, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', gap: 2 }}>
-
                     <Button
                         variant="contained"
                         sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: '#259157' }}
-                        onClick={() => nav("/home/total-companies/add-company")}
+                        onClick={() => markAsReviewed(crimeReportObj?._id, 'reviewed')}
+                        disabled={crimeReportObj.isMarkAsReviewed}
                         startIcon={<img src={WhiteTick} alt="white tick" />}
-
                     >
-                        Mark as Reviewed
+                        {crimeReportObj.isMarkAsReviewed ? "Reviewed" : "Mark as Reviewed"}
                     </Button>
                     <Button
                         variant="contained"

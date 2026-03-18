@@ -50,6 +50,7 @@ const WantedInformation = lazy(() => import("./pages/Saps/WantedInformation"));
 const AddSapsMember = lazy(() => import("./pages/Saps/AddSapsMember"));
 const AddSapsWanted = lazy(() => import("./pages/Saps/AddSapsWanted"));
 const ListOfCrimeReports = lazy(() => import("./pages/crimeReports/ListOfCrimeReports"));
+const ListOfArcheivedCrimeReports = lazy(() => import("./pages/crimeReports/ListOfArcheivedCrimeReports"));
 const CrimeReport = lazy(() => import("./pages/crimeReports/CrimeReport"));
 const ForwardToPolice = lazy(() => import("./pages/crimeReports/ForwardToPolice"));
 const WorkInProgress = lazy(() => import("./common/WorkInProgress"));
@@ -66,6 +67,7 @@ const Reset2FAPage = lazy(() => import("./pages/Reset2FAPage"));
 const RequestUsers = lazy(() => import("./pages/RequestUsers"));
 const AdminSetting = lazy(() => import("./pages/setting/AdminSetting"));
 const EHailingView = lazy(() => import("./pages/e-hailing view/EHailingView"));
+const VerificationView = lazy(() => import("./pages/verificationView/VerificationView"));
 
 function App() {
     const router = useMemo(
@@ -108,6 +110,10 @@ function App() {
                         {
                             path: "",
                             element: <Home />
+                        },
+                        {
+                            path: "verification-view",
+                            element: <VerificationView />
                         },
                         {
                             path: 'reports',
@@ -179,249 +185,252 @@ function App() {
                                 }
                             ]
                         },
-                {
-                    path: "total-linked-trips",
-                    children: [
                         {
-                            path: "",
-                            element: <ListOfTrips />
+                            path: "total-linked-trips",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfTrips />
+                                },
+                                {
+                                    path: "user-information/:id",
+                                    element: <PassangerInformation />
+                                },
+                                {
+                                    path: "location",
+                                    element: <GoogleMaps />
+                                },
+                                {
+                                    path: "view-archeived",
+                                    element: <ListOfViewArcheived />
+                                },
+                            ]
                         },
                         {
-                            path: "user-information/:id",
-                            element: <PassangerInformation />
+                            path: "total-meeting-links",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfMeetingLinkTrips />
+                                },
+                                {
+                                    path: "user-information/:id",
+                                    element: <PassangerInformation />
+                                },
+                                {
+                                    path: "location",
+                                    element: <GoogleMaps />
+                                },
+                                {
+                                    path: "view-archeived",
+                                    element: <ListOfViewArcheivedMeeting />
+                                },
+                            ]
                         },
                         {
-                            path: "location",
-                            element: <GoogleMaps />
+                            path: "total-users",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfUsers />
+                                },
+                                {
+                                    path: "add-user",
+                                    element: <AddUser />
+                                },
+                                {
+                                    path: "user-information/:id",
+                                    element: <PassangerInformation />
+                                },
+                            ]
                         },
                         {
-                            path: "view-archeived",
-                            element: <ListOfViewArcheived />
-                        },
-                    ]
-                },
-                {
-                    path: "total-meeting-links",
-                    children: [
-                        {
-                            path: "",
-                            element: <ListOfMeetingLinkTrips />
-                        },
-                        {
-                            path: "user-information/:id",
-                            element: <PassangerInformation />
-                        },
-                        {
-                            path: "location",
-                            element: <GoogleMaps />
-                        },
-                        {
-                            path: "view-archeived",
-                            element: <ListOfViewArcheivedMeeting />
-                        },
-                    ]
-                },
-                {
-                    path: "total-users",
-                    children: [
-                        {
-                            path: "",
-                            element: <ListOfUsers />
+                            path: "total-sos-amount",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfSosAmount />
+                                },
+                                {
+                                    path: "add-sos",
+                                    element: <AddSosAmount />
+                                },
+                                {
+                                    path: "add-service",
+                                    element: <AddService />
+                                },
+                                {
+                                    path: "sos-amount/:id",
+                                    element: <ArmedSosAmount />
+                                },
+                            ]
                         },
                         {
-                            path: "add-user",
-                            element: <AddUser />
-                        },
-                        {
-                            path: "user-information/:id",
-                            element: <PassangerInformation />
-                        },
-                    ]
-                },
-                {
-                    path: "total-sos-amount",
-                    children: [
-                        {
-                            path: "",
-                            element: <ListOfSosAmount />
-                        },
-                        {
-                            path: "add-sos",
-                            element: <AddSosAmount />
-                        },
-                        {
-                            path: "add-service",
-                            element: <AddService />
-                        },
-                        {
-                            path: "sos-amount/:id",
-                            element: <ArmedSosAmount />
-                        },
-                    ]
-                },
-                {
-                    path: "total-missing-person",
-                    children: [
-                        {
-                            path: "",
-                            element: <ListofMissingPerson />
-                            // element: <WorkInProgress />
+                            path: "total-missing-person",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListofMissingPerson />
+                                    // element: <WorkInProgress />
 
-                        },
-                        {
-                            path: 'person-information/:id',
-                            element: <MissingPersonDetails />
-                        },
-                        {
-                            path: "view-archeived-person",
-                            element: <ListOfViewArcheivedMissingPerson />
-                        },
+                                },
+                                {
+                                    path: 'person-information/:id',
+                                    element: <MissingPersonDetails />
+                                },
+                                {
+                                    path: "view-archeived-person",
+                                    element: <ListOfViewArcheivedMissingPerson />
+                                },
 
-                    ]
-                },
-                {
-                    path: "total-sales-agent",
-                    children: [
-                        {
-                            path: "",
-                            element: <ListOfSalesAgent />
+                            ]
                         },
                         {
-                            path: "add-agent",
-                            element: <AddAgent />
+                            path: "total-sales-agent",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfSalesAgent />
+                                },
+                                {
+                                    path: "add-agent",
+                                    element: <AddAgent />
+                                },
+                                {
+                                    path: "agent-information/:id",
+                                    element: <AgentInformation />
+                                },
+                            ]
                         },
                         {
-                            path: "agent-information/:id",
-                            element: <AgentInformation />
+                            path: "total-saps-wanted",
+                            children: [
+                                {
+                                    path: "",
+                                    // element: <ListOfSapsWanted />
+                                    element: <WorkInProgress />
+
+                                },
+                                {
+                                    path: 'add-wanted',
+                                    element: <AddSapsWanted />
+                                },
+                                {
+                                    path: "wanted-inforamtion/:id",
+                                    element: <WantedInformation />
+                                },
+                                {
+                                    path: 'add-saps-member',
+                                    element: <AddSapsMember />
+                                }
+                            ]
                         },
-                    ]
-                },
-                {
-                    path: "total-saps-wanted",
-                    children: [
                         {
-                            path: "",
-                            // element: <ListOfSapsWanted />
+                            path: "total-stolen-cars",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfStolenCars />
+                                    // element: <WorkInProgress />
+
+                                },
+                                {
+                                    path: 'stolen-car/:id',
+                                    element: <StolenCarDetails />
+                                },
+                                {
+                                    path: "view-archeived-vehicale",
+                                    element: <ListOfViewArcheivedMissingVehicale />
+                                },
+                            ]
+                        },
+                        {
+                            path: "total-suspect",
+                            children: [
+                                {
+                                    path: "",
+                                    // element: <ListOfSuspect />
+                                    element: <WorkInProgress />
+
+                                },
+                                {
+                                    path: 'suspect-information/:id',
+                                    element: <SuspectDetail />
+                                },
+                            ]
+                        },
+                        {
+                            path: "flagged-report",
+                            children: [
+                                {
+                                    path: "",
+                                    // element: <FlaggedReport />
+                                    element: <WorkInProgress />
+
+                                },
+                            ]
+                        },
+                        {
+                            path: "crime-reports",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfCrimeReports />
+                                },
+                                {
+                                    path: "crime-report/:id",
+                                    element: <CrimeReport />
+                                }, {
+                                    path: 'forward-to-police',
+                                    // element: <WorkInProgress />
+                                    element: <ForwardToPolice />
+                                }, {
+                                    path: 'confirmation',
+                                    element: <Confirmation />
+                                },
+                                {
+                                    path: "view-archeived-crime-report",
+                                    element: <ListOfArcheivedCrimeReports />
+                                }
+                            ]
+                        },
+                        {
+                            path: "hardware-management",
+                            element: <RouteGuard><HardwareManagement /></RouteGuard>
+                        },
+                        {
+                            path: "profile",
+                            element: <Profile />
+                        },
+                        {
+                            path: 'work-in-progress',
                             element: <WorkInProgress />
-
                         },
                         {
-                            path: 'add-wanted',
-                            element: <AddSapsWanted />
+                            path: "settings",
+                            element: <AdminSetting />
                         },
                         {
-                            path: "wanted-inforamtion/:id",
-                            element: <WantedInformation />
-                        },
-                        {
-                            path: 'add-saps-member',
-                            element: <AddSapsMember />
-                        }
-                    ]
-                },
-                {
-                    path: "total-stolen-cars",
-                    children: [
-                        {
-                            path: "",
-                            element: <ListOfStolenCars />
-                            // element: <WorkInProgress />
-
-                        },
-                        {
-                            path: 'stolen-car/:id',
-                            element: <StolenCarDetails />
-                        },
-                        {
-                            path: "view-archeived-vehicale",
-                            element: <ListOfViewArcheivedMissingVehicale />
+                            path: "e-hailing-view",
+                            element: <EHailingView />
                         },
                     ]
                 },
                 {
-                    path: "total-suspect",
-                    children: [
-                        {
-                            path: "",
-                            // element: <ListOfSuspect />
-                            element: <WorkInProgress />
-
-                        },
-                        {
-                            path: 'suspect-information/:id',
-                            element: <SuspectDetail />
-                        },
-                    ]
+                    path: "/reset-password",
+                    element: <ResetPassword />
                 },
                 {
-                    path: "flagged-report",
-                    children: [
-                        {
-                            path: "",
-                            // element: <FlaggedReport />
-                            element: <WorkInProgress />
-
-                        },
-                    ]
+                    path: "/request-hardware",
+                    element: <RequestHardware />
                 },
                 {
-                    path: "crime-reports",
-                    children: [
-                        {
-                            path: "",
-                            // element: <ListOfCrimeReports />
-                            element: <WorkInProgress />
-
-                        },
-                        {
-                            path: "crime-report/:id",
-                            element: <CrimeReport />
-                        }, {
-                            path: 'forward-to-police',
-                            element: <ForwardToPolice />
-                        }, {
-                            path: 'confirmation',
-                            element: <Confirmation />
-                        }
-                    ]
-                },
-                {
-                    path: "hardware-management",
-                    element: <RouteGuard><HardwareManagement /></RouteGuard>
-                },
-                {
-                    path: "profile",
-                    element: <Profile />
-                },
-                {
-                    path: 'work-in-progress',
-                    element: <WorkInProgress />
-                },
-                {
-                    path: "settings",
-                    element: <AdminSetting />
-                },
-                {
-                    path: "e-hailing-view",
-                    element: <EHailingView />
-                },
-            ]
-        },
-        {
-            path: "/reset-password",
-            element: <ResetPassword />
-        },
-        {
-            path: "/request-hardware",
-            element: <RequestHardware />
-        },
-        {
-            path: '/reset-2fa',
-            element: <Reset2FAPage />
-        }
+                    path: '/reset-2fa',
+                    element: <Reset2FAPage />
+                }
 
 
-    ]),
+            ]),
         []
     );
     return (
