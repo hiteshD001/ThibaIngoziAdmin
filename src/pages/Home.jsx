@@ -165,7 +165,7 @@ const Home = () => {
             setRecentPage(1);
         }
     }
- 
+
     const changeSortOrder2 = (e) => {
         const field = e.currentTarget.id;
         if (!field) return;
@@ -1641,37 +1641,39 @@ const Home = () => {
                     ) : (
                         <List disablePadding>
                             {otherUsersModalItems.map((u, idx) => {
+                                const order = u.role != 'driver' && u.order ? u.order : 1
                                 const route = getOtherUserRoute(u);
                                 const label = getOtherUserName(u);
+
                                 return (
-                                    <Box key={getOtherUserId(u) || idx}>
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                gap: 1,
-                                                px: 0.5,
-                                            }}
-                                        >
-                                            <ListItemButton
-                                                disabled={!route}
-                                                onClick={() => {
-                                                    if (!route) return;
-                                                    closeOtherUsersModal();
-                                                    nav(route);
+                                    <>
+                                        {u.role === 'driver' && (
+                                            <Box
+                                                key={getOtherUserId(u) || idx}
+                                                sx={{
+                                                    border: '1px solid #E5E7EB',
+                                                    borderRadius: '16px',
+                                                    p: 2,
+                                                    mb: 2,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                                                    backgroundColor: u.role === 'driver' ? '#FFF9C4' : '#fff',
                                                 }}
-                                                sx={{ borderRadius: 2 }}
                                             >
-                                                <ListItemText
-                                                    primary={label}
-                                                    secondary={getOtherUserRole(u) || undefined}
-                                                />
-                                            </ListItemButton>
-                                            <Tooltip title="View" arrow placement="top">
-                                                <span>
-                                                    <IconButton
-                                                        size="small"
+                                                {/* Left Side */}
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                    <Avatar
+                                                        src={u?.selfieImage || nouser}
+                                                        alt="User"
+                                                        sx={{
+                                                            width: 56,
+                                                            height: 56
+                                                        }}
+                                                    />
+
+                                                    <ListItemButton
                                                         disabled={!route}
                                                         onClick={() => {
                                                             if (!route) return;
@@ -1679,17 +1681,142 @@ const Home = () => {
                                                             nav(route);
                                                         }}
                                                         sx={{
-                                                            color: '#1E73E8',
-                                                            "&:hover": { backgroundColor: "rgba(30,115,232,0.08)" },
+                                                            borderRadius: 2,
+                                                            p: 0,
+                                                            minWidth: '180px'
                                                         }}
                                                     >
-                                                        <VisibilityOutlinedIcon fontSize="small" />
-                                                    </IconButton>
-                                                </span>
-                                            </Tooltip>
-                                        </Box>
-                                        {idx !== otherUsersModalItems.length - 1 && <Divider />}
-                                    </Box>
+                                                        <ListItemText
+                                                            primary={label}
+                                                            secondary={'Driver'}
+                                                            primaryTypographyProps={{
+                                                                fontWeight: 600,
+                                                                fontSize: '18px',
+                                                                color: '#111827'
+                                                            }}
+                                                            secondaryTypographyProps={{
+                                                                fontSize: '14px',
+                                                                color: '#9B6C2D'
+                                                            }}
+                                                        />
+                                                    </ListItemButton>
+                                                </Box>
+
+                                                {/* Right Side View Button */}
+                                                <Tooltip title="View" arrow placement="top">
+                                                    <span>
+                                                        <IconButton
+                                                            size="small"
+                                                            disabled={!route}
+                                                            onClick={() => {
+                                                                if (!route) return;
+                                                                closeOtherUsersModal();
+                                                                nav(route);
+                                                            }}
+                                                            sx={{
+                                                                backgroundColor: '#1E73E8',
+                                                                color: '#fff',
+                                                                px: 3,
+                                                                py: 1,
+                                                                borderRadius: '20px',
+                                                                "&:hover": {
+                                                                    backgroundColor: '#1565C0'
+                                                                }
+                                                            }}
+                                                        >
+                                                            <VisibilityOutlinedIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </span>
+                                                </Tooltip>
+                                            </Box>
+                                        )}
+                                        {u.role != 'driver' && (
+                                            <>
+                                                <Typography variant="h6" my={1} fontWeight={590}>Linked Passengers</Typography>
+                                                <Box
+                                                    key={getOtherUserId(u) || idx}
+                                                    sx={{
+                                                        border: '1px solid #E5E7EB',
+                                                        borderRadius: '16px',
+                                                        p: 2,
+                                                        mb: 2,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                                                        backgroundColor: u.role === 'driver' ? '#FFF9C4' : '#fff',
+                                                    }}
+                                                >
+                                                    {/* Left Side */}
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                        <Avatar
+                                                            src={u?.selfieImage || nouser}
+                                                            alt="User"
+                                                            sx={{
+                                                                width: 56,
+                                                                height: 56
+                                                            }}
+                                                        />
+
+                                                        <ListItemButton
+                                                            disabled={!route}
+                                                            onClick={() => {
+                                                                if (!route) return;
+                                                                closeOtherUsersModal();
+                                                                nav(route);
+                                                            }}
+                                                            sx={{
+                                                                borderRadius: 2,
+                                                                p: 0,
+                                                                minWidth: '180px'
+                                                            }}
+                                                        >
+                                                            <ListItemText
+                                                                primary={label}
+                                                                secondary={order > 1 ? `Co-Passenger${order}` : `Passenger1`}
+                                                                primaryTypographyProps={{
+                                                                    fontWeight: 600,
+                                                                    fontSize: '18px',
+                                                                    color: '#111827'
+                                                                }}
+                                                                secondaryTypographyProps={{
+                                                                    fontSize: '14px',
+                                                                    color: '#6B7280'
+                                                                }}
+                                                            />
+                                                        </ListItemButton>
+                                                    </Box>
+
+                                                    {/* Right Side View Button */}
+                                                    <Tooltip title="View" arrow placement="top">
+                                                        <span>
+                                                            <IconButton
+                                                                size="small"
+                                                                disabled={!route}
+                                                                onClick={() => {
+                                                                    if (!route) return;
+                                                                    closeOtherUsersModal();
+                                                                    nav(route);
+                                                                }}
+                                                                sx={{
+                                                                    backgroundColor: '#1E73E8',
+                                                                    color: '#fff',
+                                                                    px: 3,
+                                                                    py: 1,
+                                                                    borderRadius: '20px',
+                                                                    "&:hover": {
+                                                                        backgroundColor: '#1565C0'
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <VisibilityOutlinedIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </span>
+                                                    </Tooltip>
+                                                </Box>
+                                            </>
+                                        )}
+                                    </>
                                 );
                             })}
                         </List>
