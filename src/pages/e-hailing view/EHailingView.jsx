@@ -1353,7 +1353,7 @@ const EHialingView = () => {
                         </Typography>
                     ) : (
                         <List disablePadding>
-                            {otherUsersModalItems.map((u, idx) => {
+                             {otherUsersModalItems.map((u, idx) => {
                                 const order = u.role != 'driver' && u.order ? u.order : 1
                                 const route = getOtherUserRoute(u);
                                 const label = getOtherUserName(u);
@@ -1443,9 +1443,24 @@ const EHialingView = () => {
                                                 </Tooltip>
                                             </Box>
                                         )}
+                                    </>
+                                );
+                            })}
+                            {otherUsersModalItems.some((u) => u.role !== 'driver') && (
+                                <Typography variant="h6" my={1} fontWeight={590}>
+                                    Linked Passengers
+                                </Typography>
+                            )}
+                            {otherUsersModalItems.map((u, idx) => {
+                                const order = u.role != 'driver' && u.order ? u.order : 1
+                                const route = getOtherUserRoute(u);
+                                const label = getOtherUserName(u);
+
+                                return (
+                                    <>
                                         {u.role != 'driver' && (
                                             <>
-                                                <Typography variant="h6" my={1} fontWeight={590}>Linked Passengers</Typography>
+
                                                 <Box
                                                     key={getOtherUserId(u) || idx}
                                                     sx={{
