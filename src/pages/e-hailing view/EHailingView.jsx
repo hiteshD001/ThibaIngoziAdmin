@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Slide, toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
-
+import nouser from "../../assets/images/NoUser.png";
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import NavigateNext from '@mui/icons-material/NavigateNext';
 import NavigateBefore from '@mui/icons-material/NavigateBefore';
@@ -450,6 +450,7 @@ const EHialingView = () => {
     }, [getOtherUserId, getOtherUserRole]);
 
     const openOtherUsersModal = useCallback((otherUser) => {
+      
         const items = normalizeOtherUsers(otherUser);
         setOtherUsersModalItems(items);
         setOtherUsersModalOpen(true);
