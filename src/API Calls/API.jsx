@@ -1999,6 +1999,7 @@ export const useGetCrimeReportList = (
     page,
     limit,
     filter,
+    locationFilter,
     startDate,
     endDate,
     archived,
@@ -2014,6 +2015,7 @@ export const useGetCrimeReportList = (
                 page,
                 limit,
                 filter,
+                locationFilter,
                 startDate,
                 endDate,
                 archived,
@@ -2030,6 +2032,7 @@ export const useGetCrimeReportList = (
             page,
             limit,
             filter,
+            locationFilter,
             startDate,
             endDate,
             archived,
@@ -2132,3 +2135,147 @@ export const usePutIsArchived = (onSucess, onError) => {
 
     return res;
 }
+
+// Get Police Units
+export const useGetPoliceUnits = (
+    key,
+    role,
+    page,
+    limit,
+    filter,
+    locationFilter,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/police-unit`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                locationFilter,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            locationFilter,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+// register user
+export const useAddPoliceUnit = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/police-unit/create`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+// get single user
+export const useGetPoliceUnitById = (userId) => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/police-unit/${userId}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["user", userId],
+        queryFn: queryFn,
+        staleTime: Infinity,
+        enabled: userId !== undefined,
+    });
+
+    return res;
+};
+
+export const useRemovePoliceUnit = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/police-unit/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const usePoliceUnitEdit = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/police-unit/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useGetPoliceUnitsByCity = (id) => {
+    const queryFn = async (queryId) => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/police-unit/police-unit-by-city?city_id=${queryId}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["Police Unit List", id],
+        queryFn: () => queryFn(id),
+        staleTime: 15 * 60 * 1000,
+        enabled: Boolean(id),
+        retry: false,
+    });
+
+    return res;
+};
+

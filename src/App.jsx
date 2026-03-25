@@ -68,6 +68,9 @@ const RequestUsers = lazy(() => import("./pages/RequestUsers"));
 const AdminSetting = lazy(() => import("./pages/setting/AdminSetting"));
 const EHailingView = lazy(() => import("./pages/e-hailing view/EHailingView"));
 const VerificationView = lazy(() => import("./pages/verificationView/VerificationView"));
+const ListOfPoliceUnits = lazy(() => import("./pages/police-unit/ListOfPoliceUnits"));
+const AddPoliceUnit = lazy(() => import("./pages/police-unit/AddPoliceUnit"));
+const PoliceUnitInformation = lazy(() => import("./pages/police-unit/PoliceUnitInformation"));
 
 function App() {
     const router = useMemo(
@@ -413,6 +416,23 @@ function App() {
                         {
                             path: "e-hailing-view",
                             element: <EHailingView />
+                        },
+                        {
+                            path: "police-unit",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfPoliceUnits />
+                                },
+                                {
+                                    path: "add-police-unit",
+                                    element: <RouteGuard><AddPoliceUnit /></RouteGuard>
+                                },
+                                {
+                                    path: "police-unit-information/:id",
+                                    element: <RouteGuard><PoliceUnitInformation /></RouteGuard>
+                                }
+                            ]
                         },
                     ]
                 },

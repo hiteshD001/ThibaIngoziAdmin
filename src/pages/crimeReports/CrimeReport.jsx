@@ -183,15 +183,17 @@ const CrimeReport = () => {
                     <Button
                         variant="contained"
                         sx={{ height: '48px', width: '240px', borderRadius: '8px', fontWeight: 500, backgroundColor: 'var(--Blue)' }}
-                        onClick={() => nav("/home/crime-reports/forward-to-police")}
-                        startIcon={<img src={forward} alt="forward" />}
+                        onClick={() => nav("/home/crime-reports/forward-to-police",{
+                            state: { details:crimeReportObj}
+                        })}
+                    startIcon={<img src={forward} alt="forward" />}
 
                     >
-                        Forward to Police Unit
-                    </Button>
-                </Box>
-            </Paper>
+                    Forward to Police Unit
+                </Button>
         </Box>
+            </Paper >
+        </Box >
     );
 };
 

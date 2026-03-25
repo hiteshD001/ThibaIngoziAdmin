@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem, Chip,
+    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Avatar, Stack, Select, MenuItem, Chip,
     Tooltip
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -9,9 +9,8 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import search from '../../assets/images/search.svg';
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import delBtn from '../../assets/images/delBtn.svg'
-import Listtrip from '../../assets/images/Listtrip.svg'
-
-import { useGetCrimeReportList, usePutIsArchived } from "../../API Calls/API";
+import whiteplus from '../../assets/images/whiteplus.svg';
+import { useGetPoliceUnits, usePutIsArchived } from "../../API Calls/API";
 import Loader from "../../common/Loader";
 import CustomFilter from '../../common/Custom/CustomFilter'
 import ImportSheet from "../../common/ImportSheet";
@@ -25,10 +24,9 @@ import { toast } from "react-toastify";
 import apiClient from '../../API Calls/APIClient'
 import { startOfYear } from "date-fns";
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
+import nouser from "../../assets/images/NoUser.png";
 
-
-
-const ListOfCrimeReports = () => {
+const ListOfPoliceUnits = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
@@ -37,10 +35,10 @@ const ListOfCrimeReports = () => {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const [filter, setfilter] = useState("");
+    const [locationFilter, setlocationFilter] = useState("");
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     const [archived, setArchived] = useState(false)
-    const [locationFilter, setlocationFilter] = useState("");
 
     // Sort
     const [sortBy, setSortBy] = useState("createdAt");
@@ -69,9 +67,11 @@ const ListOfCrimeReports = () => {
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
 
-    const UserList = useGetCrimeReportList("crime report list", "company", currentPage, rowsPerPage, filter,locationFilter, startDate, endDate, archived,sortBy, sortOrder);
-    const totalCrimeReportData = UserList.data?.data?.totalCrimeReportData || 0;
-    const totalPages = Math.ceil(totalCrimeReportData / rowsPerPage);
+    const UserList = useGetPoliceUnits("police unit list", "company", currentPage, rowsPerPage, filter,locationFilter, startDate, endDate, sortBy, sortOrder);
+
+
+    const totalpoliceUnitData = UserList.data?.data?.totalpoliceUnitData || 0;
+    const totalPages = Math.ceil(totalpoliceUnitData / rowsPerPage);
 
     const updateTripMutation = usePutIsArchived(
         (id, data) => {
@@ -88,24 +88,22 @@ const ListOfCrimeReports = () => {
 
     const handleExport = async ({ startDate, endDate, exportFormat }) => {
         try {
-            
-            const data  = UserList.data?.data
+            const data = UserList.data?.data
 
-            const allUsers = data?.crimeReportData || [];
+            const allUsers = data?.policeUnitData || [];
+
             if (!allUsers.length) {
-                toast.warning("No Crime Report data found for this period.");
+                toast.warning("No Police Unit data found for this period.");
                 return;
             }
 
             const exportData = allUsers.map(user => ({
-                "Crime ID": `${user.crime_report_number || ''}` || '',
-                "Reporter": user.user?.first_name || '',
-                "Location": `${user.address || ''}`,
-                "Description": user.description || '',
-                "Date Reported": user.createdAt || '',
-                "Status": user.report_status || ''
+                "Police Unit": `${user.police_unit_name || ''}` || '',
+                "Contact Name": user.contact_name || '',
+                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+                "Contact Email": user.email || ''
             }));
-            
+
             if (exportFormat === "xlsx") {
                 const worksheet = XLSX.utils.json_to_sheet(exportData);
                 const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
@@ -113,33 +111,30 @@ const ListOfCrimeReports = () => {
                 }));
                 worksheet['!cols'] = columnWidths;
                 const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-                XLSX.writeFile(workbook, "Crime_Report_List.xlsx");
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Police_Units");
+                XLSX.writeFile(workbook, "Ploice_Unit_List.xlsx");
             }
             else if (exportFormat === "csv") {
-                
                 const worksheet = XLSX.utils.json_to_sheet(exportData);
                 const csv = XLSX.utils.sheet_to_csv(worksheet);
                 const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'Crime_Report_List.csv';
+                link.download = 'Ploice_Unit_list.csv';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             }
             else if (exportFormat === "pdf") {
                 const doc = new jsPDF();
-                doc.text('Crime Report List', 14, 16);
+                doc.text('Police Unit List', 14, 16);
                 autoTable(doc, {
-                    head: [['Crime ID', 'Reporter', 'Location.', 'Description','Date Reported','Status']],
+                    head: [['Police Unit', 'Contact Name', 'Contact No.', 'Contact Email']],
                     body: allUsers.map(user => [
-                        user.crime_report_number ?? 'NA',
-                        `${user.user?.first_name || ''} ${user.user?.last_name || ''}` ?? 'NA',
-                        `${user.address || ''}` ?? 'NA',
-                        user.description ?? 'NA',
-                        user.createdAt ?? 'NA',
-                        user.report_status ?? 'NA'
+                        `${user.police_unit_name || ''}` ?? 'NA',
+                        user.contact_name ?? 'NA',
+                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
+                        user.email ?? 'NA'
                     ]),
                     startY: 20,
                     theme: 'striped',
@@ -147,7 +142,7 @@ const ListOfCrimeReports = () => {
                     margin: { top: 20 },
                     styles: { fontSize: 10 },
                 });
-                doc.save("Crime_Report_List.pdf");
+                doc.save("Ploice_Unit_List.pdf");
             }
 
         } catch (err) {
@@ -168,14 +163,15 @@ const ListOfCrimeReports = () => {
         setlocationFilter(filterText)
     };
 
+
     return (
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                     <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                        <Typography variant="h6" fontWeight={590}>All Crime Reports</Typography>
+                        <Typography variant="h6" fontWeight={590}>Police Units</Typography>
                         <Typography variant="h6" fontWeight={550}>
-                            {UserList.isSuccess ? UserList.data?.data?.totalCrimeReportData : 0}
+                            {UserList.isSuccess ? UserList.data?.data?.totalpoliceUnitData : 0}
                         </Typography>
                     </Grid>
                     <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
@@ -226,22 +222,18 @@ const ListOfCrimeReports = () => {
                                 icon={calender}
                             />
 
-                            {/* <Button
-                                variant="contained"
-                                sx={{ height: '40px', width: '150px', borderRadius: '8px' }}
-                                onClick={() => nav("/home/crime-reports")}
-                                startIcon={<img src={whiteplus} alt='white plus' />}
-                            >
-                                Add Report
-                            </Button> */}
+                            <Button variant="contained" onClick={() => nav("/home/police-unit/add-police-unit")} sx={{ height: '40px', fontSize: '0.8rem', width: '150px', borderRadius: '8px' }}
+                                startIcon={<img src={whiteplus} alt='white plus' />}>
+                                Add Police Unit
+                            </Button>
                             <CustomExportMenu onExport={handleExport} />
-                            <Button
+                            {/* <Button
                                 onClick={() => nav('/home/crime-reports/view-archeived-crime-report')}
                                 variant="contained"
                                 sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
                                 startIcon={<img src={ViewBtn} alt="View" />}>
                                 View Archeived
-                            </Button>
+                            </Button> */}
                         </Box>
 
                     </Grid>
@@ -251,15 +243,10 @@ const ListOfCrimeReports = () => {
                         <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
                             <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                                 <TableRow >
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Crime ID</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Location</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Short Description</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Reporter</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Request Reached</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Request Accepted</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Images</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Date Reported</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Police Unit</TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Contact Name</TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Email</TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Contact No.</TableCell>
                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -270,86 +257,38 @@ const ListOfCrimeReports = () => {
                                             <Loader />
                                         </TableCell>
                                     </TableRow>)
-                                    : (UserList.data?.data.crimeReportData?.length > 0 ?
-                                        UserList.data?.data.crimeReportData.map((report) => (
+                                    : (UserList.data?.data.policeUnitData?.length > 0 ?
+                                        UserList.data?.data.policeUnitData.map((report) => (
 
                                             <TableRow key={report._id}>
                                                 <TableCell sx={{ color: 'var(--Blue)' }}>
-                                                    {report.crime_report_number}
-                                                </TableCell>
-                                                <TableCell sx={{ color: '#4B5563' }}>
-
-                                                    {report.address || "-"}
-
-                                                </TableCell>
-                                                <TableCell sx={{ color: 'black' }}>
-
-                                                    {shortText(report.description)}
-
-                                                </TableCell>
-                                                <TableCell sx={{ color: '#4B5563' }}>
-
-                                                    {report.user?.first_name || "-"}
-
-                                                </TableCell>
-                                                <TableCell sx={{ color: '#F97316', textAlign: 'center' }}>
-
-
-                                                    {report?.requestReached || "0"}
-
-                                                </TableCell>
-                                                <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
-
-
-                                                    {report?.requestAccepted || "0"}
-
+                                                    {report.police_unit_name}
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Stack direction="row" alignItems="center" gap={1}>
-                                                        {report.evidence_image.map((item, index) => (
-                                                            <Grid size={{ xs: 6, sm: 3 }} key={index}>
-                                                                <Box
-                                                                    component="img"
-                                                                    src={item}
-                                                                    alt={`Placeholder ${index}`}
-                                                                    sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
-                                                                />
-                                                            </Grid>
-                                                        ))}
+                                                        <Avatar
+                                                            src={report?.selfieImage || nouser}
+                                                            alt="User"
+                                                        />
+
+                                                        {report?.contact_name || "-"}
+
                                                     </Stack>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
 
-                                                    {report.createdAt || "-"}
+                                                    {report.email || "-"}
 
                                                 </TableCell>
+                                                <TableCell sx={{ color: 'black' }}>
 
-                                                <TableCell sx={{ color: '#4B5563' }}>
-                                                    <Chip
-                                                        label={report.report_status}
-                                                        sx={{
-                                                            backgroundColor:
-                                                                report.report_status === 'With SAPS' ? '#DCFCE7' :
-                                                                    report.report_status === 'reviewing' ? '#FEF9C3' :
-                                                                        report.report_status == 'reviewed' ? '#DBEAFE' :
-                                                                            report.report_status == 'pending' ? '#F3F4F6' :
-                                                                                '#FEF9C3',
-                                                            '& .MuiChip-label': {
-                                                                textTransform: 'capitalize',
-                                                                color: report.report_status === 'With SAPS' ? 'green' :
-                                                                    report.report_status === 'reviewing' ? '#854D0E' :
-                                                                        report.report_status == 'reviewed' ? '#1E40AF' :
-                                                                            report.report_status == 'pending' ? '#1F2937' :
+                                                    {report.mobile_no_country_code}-{report.mobile_no}
 
-                                                                                'black',
-                                                            }
-                                                        }}
-                                                    />
                                                 </TableCell>
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}>
+                                                            <IconButton onClick={() => nav(`/home/police-unit/police-unit-information/${report._id}`)}>
                                                                 <img src={ViewBtn} alt="flagged button" />
                                                             </IconButton>
                                                         </Tooltip>
@@ -358,7 +297,7 @@ const ListOfCrimeReports = () => {
                                                                 <img src={delBtn} alt="delete button" />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        <Tooltip title="Archive" arrow placement="top">
+                                                        {/* <Tooltip title="Archive" arrow placement="top">
                                                             <IconButton onClick={() => {
                                                                 updateTripMutation.mutate({
                                                                     id: report?._id,
@@ -367,10 +306,10 @@ const ListOfCrimeReports = () => {
                                                             }}>
                                                                 <img src={Listtrip} alt="view button" />
                                                             </IconButton>
-                                                        </Tooltip>
+                                                        </Tooltip> */}
 
                                                         {confirmation === report?._id && (
-                                                            <DeleteConfirm id={report?._id} trip={"crimeReport"} setconfirmation={setconfirmation} />
+                                                            <DeleteConfirm id={report?._id} trip={"policeUnit"} setconfirmation={setconfirmation} />
                                                         )}
                                                     </Box>
 
@@ -392,7 +331,7 @@ const ListOfCrimeReports = () => {
 
                     </TableContainer>
 
-                    {!UserList.isFetching && UserList.data?.data.crimeReportData.length > 0 &&
+                    {!UserList.isFetching && UserList.data?.data.policeUnitData.length > 0 &&
                         <Grid container sx={{ px: { xs: 0, sm: 3 } }} justifyContent="space-between" alignItems="center" mt={2}>
                             <Grid>
                                 <Typography variant="body2">
@@ -459,4 +398,4 @@ const ListOfCrimeReports = () => {
         </Box>
     );
 }
-export default ListOfCrimeReports;
+export default ListOfPoliceUnits;

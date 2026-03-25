@@ -104,7 +104,7 @@ export const WebSocketProvider = ({ children }) => {
 
             if (data?.sos_update === true) {
                 if (Array.isArray(data.data)) {
-                    setActiveUserLists(normalizeSosList(data.data));
+                    setActiveUserLists( (data.data));
                 }
             }
 
