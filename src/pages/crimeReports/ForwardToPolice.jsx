@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { companyValidation } from "../../common/FormValidation";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetProvinceList, useGetCityList, useGetCountryList } from "../../API Calls/API";
+import { useGetProvinceList, useGetCityList, useGetCountryList, useGetPoliceUnitsByCity } from "../../API Calls/API";
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { toast } from "react-toastify";
@@ -24,7 +24,7 @@ const ForwardToPolice = () => {
             province: "",
             city: "",
             suburb: "",
-            policeStationName: "",
+            police_unit_name: "",
         },
         // validationSchema: companyValidation,
         onSubmit: (values) => {
@@ -36,29 +36,29 @@ const ForwardToPolice = () => {
             newcompany.mutate(formData);
         },
     });
-    const policeStation = [
-        {
-            _id: 1,
-            policeStation_name: 'Police Station 1'
-        },
-        {
-            _id: 2,
-            policeStation_name: 'Police Station 2'
-        }
-    ]
     const countryList = useGetCountryList()
     const provincelist = useGetProvinceList(SapsForm.values.country)
     const cityList = useGetCityList(SapsForm.values.province)
-    const nav = useNavigate()
+    const policeStation = useGetPoliceUnitsByCity(SapsForm.values.city);
 
-    const caseNumber = "CASE-2023-0458";
-    const description = "At approximately 9:30 PM on July 29, 2023, two masked individuals entered the Quick Stop convenience store at 1234 Main Street. Both suspects were armed with what appeared to be handguns.The suspects demanded cash from the register and also took several cartons of cigarettes.The store clerk complied with their demands and was not physically harmed.The suspects fled the scene in what witnesses describe as a dark - colored sedan, possibly a Honda Accord with tinted windows. The entire incident lasted approximately 3 minutes.Store security cameras were operational at the time of the incident.The store owner has been contacted and is arranging to provide the footage to authorities.";
-    const location = "Downtown Street, Sector 12";
-    const dateTime = "August 5, 2025 at 10:45 AM";
-    const reportDate = "August 5, 2025 at 10:45 AM"
+    const location = useLocation();
+    const data = location.state?.details;
+    const nav = useNavigate()
     const handleCancel = () => {
         nav("/home/crime-reports");
     };
+    useEffect(() => {
+        const police_unit = data?.crimeReportAssignPoliceUnit?.police_unit_id     
+        if (police_unit) {
+            SapsForm.setValues({
+                country:police_unit.country,
+                province:police_unit.province,
+                city:police_unit.city,
+                suburb:police_unit.suburb,
+                police_unit_name: police_unit._id || "",
+            });
+        }
+    }, []);
     return (
         <Box px={2} sx={{ height: '100vh' }}>
             <Paper elevation={0} sx={{ p: 3, mt: 3, mb: 3, borderRadius: '10px' }}>
@@ -130,15 +130,15 @@ const ForwardToPolice = () => {
                     <Grid size={{ xs: 12, sm: 6 }}>
                         <CustomSelect
                             label="Police Station Name"
-                            name="policeStationName"
-                            value={SapsForm.values.policeStationName}
+                            name="police_unit_name"
+                            value={SapsForm.values.police_unit_name}
                             onChange={SapsForm.handleChange}
-                            options={policeStation.map(city => ({
+                            options={policeStation.data?.data?.map(city => ({
                                 value: city._id,
-                                label: city.policeStation_name
+                                label: city.police_unit_name
                             })) || []}
-                            error={SapsForm.errors.policeStationName && SapsForm.touched.policeStationName}
-                            helperText={SapsForm.touched.policeStationName ? SapsForm.errors.policeStationName : ''}
+                            error={SapsForm.errors.police_unit_name && SapsForm.touched.police_unit_name}
+                            helperText={SapsForm.touched.police_unit_name ? SapsForm.errors.police_unit_name : ''}
                         />
                     </Grid>
                 </Grid>
@@ -155,7 +155,7 @@ const ForwardToPolice = () => {
                             Report Number:
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={1}>
-                            {caseNumber}
+                            {data?.crime_report_number}
                         </Typography>
                     </Grid>
                     <Grid size={{ xs: 12, sm: 3 }}>
@@ -164,7 +164,7 @@ const ForwardToPolice = () => {
                             Crime Type:
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={1}>
-                            Assult
+                            {data?.crime_type_id?.crimeType}
                         </Typography>
                     </Grid>
                     <Grid size={{ xs: 12, sm: 3 }}>
@@ -173,7 +173,7 @@ const ForwardToPolice = () => {
                             Location:
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={1}>
-                            {location}
+                            {data?.address}
                         </Typography>
                     </Grid>
                     <Grid size={{ xs: 12, sm: 3 }}>
@@ -182,7 +182,7 @@ const ForwardToPolice = () => {
                             Date Reported:
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={1}>
-                            {dateTime}
+                            {data?.submittedDate}
                         </Typography>
                     </Grid>
                 </Grid>
@@ -196,14 +196,14 @@ const ForwardToPolice = () => {
                         type="submit"
                         variant="contained"
                         onClick={() => {
-                            SapsForm.handleSubmit
-                            nav('/home/crime-reports/confirmation')
+                            // SapsForm.handleSubmit
+                            nav('/home/crime-reports/confirmation', {
+                                state: { details: data, police_unit_details: SapsForm.values.police_unit_name }
+                            })
                         }}
-                        // startIcon={<img src={plane} alt='publish' />}
-                        // disabled={newcompany.isPending}
+
                         sx={{ width: 220, height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                     >
-                        {/* {newcompany.isPending ? <Loader color="white" /> : "Save"} */}
                         Proceed to Confirmation
                     </Button>
                 </Box>
