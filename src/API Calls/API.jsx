@@ -55,7 +55,9 @@ export const useGetUserList = (
             sortOrder
         ],
         queryFn: queryFn,
-        placeholderData: keepPreviousData,
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnWindowFocus: false,
         retry: false,
     });
 
@@ -448,6 +450,10 @@ export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, end
     const res = useQuery({
         queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder, companyId],
         queryFn: queryFn,
+        // Do not cache trip table data (always refetch on param changes)
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnWindowFocus: false,
         retry: false,
     });
 
@@ -775,6 +781,8 @@ export const useGetSalesAgent = (page = 1, limit = 10, filter, startDate, endDat
             }),
         retry: false,
         refetchOnWindowFocus: false,
+        staleTime: 0,
+        gcTime: 0,
         onError: (error) => {
             console.log(error)
         },
@@ -992,8 +1000,8 @@ export const useGetRecentSOS = ({ page = 1, limit = 20, startDate, endDate, sear
     const res = useQuery({
         queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id],
         queryFn: queryFn,
-        keepPreviousData: true,
-        staleTime: 300000, // 5 minutes cache to prevent spamming
+        placeholderData: keepPreviousData,
+        staleTime: 0, // always refetch when sort/page change so second click triggers API
         refetchOnWindowFocus: false,
     });
 
@@ -1088,20 +1096,36 @@ export const useGetChartData = (company_id, time, startDate, endDate, notificati
 // get active sos 
 
 export const useGetActiveSosData = ({ page = 1, limit = 10, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id }) => {
-
+    
     const queryFn = async () => {
         return await apiClient.post(
             `${import.meta.env.VITE_BASEURL}/location/active/sos/data`, {
-            startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder, company_id
+                startDate, endDate, searchKey, type: type === 'all' ? "" : type, page, limit, sortBy, sortOrder, company_id
         }
         );
     };
-
+    
     const res = useQuery({
-        queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id],
+        // queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id],
+
+        queryKey: [
+            "activeSOS2",
+            page,
+            limit,
+            startDate,
+            endDate,
+            searchKey,
+            type,
+            sortBy,
+            sortOrder,
+            company_id,
+        ],
         queryFn: queryFn,
         placeholderData: keepPreviousData,
-        staleTime: 15 * 60 * 1000,
+        // Keep previous data while fetching, but avoid extra background refetches
+        staleTime: 30 * 1000,
+        refetchOnWindowFocus: false,
+        retry: false,
     });
 
     return res;
@@ -1121,7 +1145,10 @@ export const useGetActiveSosDataEhailing = ({ page = 1, limit = 10, startDate, e
         queryKey: ["activeSOS2", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, companyIds],
         queryFn: queryFn,
         placeholderData: keepPreviousData,
-        staleTime: 15 * 60 * 1000,
+        staleTime: 0,
+        gcTime: 0,
+        refetchOnWindowFocus: false,
+        retry: false,
     });
 
     return res;
@@ -1198,8 +1225,10 @@ export const useGetEHailingRecentSos = ({ page = 1, limit = 20, startDate, endDa
     const res = useQuery({
         queryKey: ["ehailingRecentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, companyIds],
         queryFn: queryFn,
-        staleTime: 300000,
+        staleTime: 0,
+        gcTime: 0,
         refetchOnWindowFocus: false,
+        retry: false,
     });
 
     return res;

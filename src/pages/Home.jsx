@@ -15,9 +15,14 @@ import {
     DialogContent,
     DialogContentText,
     DialogActions,
+    List,
+    ListItemButton,
+    ListItemText,
+    Divider,
     Switch,
     CircularProgress
 } from "@mui/material";
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import { useRef, useMemo } from "react";
@@ -64,6 +69,8 @@ const Home = () => {
     // filters
     const [filter, setfilter] = useState("");
     const [recentFilter, setRecentFilter] = useState("");
+    const [debouncedFilter, setDebouncedFilter] = useState("");
+    const [debouncedRecentFilter, setDebouncedRecentFilter] = useState("");
     const [statusUpdate, setStatusUpdate] = useState(false);
 
     // Audio Permission Modal (First Time Only)
@@ -74,6 +81,22 @@ const Home = () => {
             setOpenAudioModal(true);
         }
     }, []);
+
+    // debounce Active SOS search
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedFilter(filter.trim());
+        }, 1000);
+        return () => clearTimeout(handler);
+    }, [filter]);
+
+    // debounce Recently Closed SOS search
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedRecentFilter(recentFilter.trim());
+        }, 1000);
+        return () => clearTimeout(handler);
+    }, [recentFilter]);
 
     const [status, setStatus] = useState('')
     // const [activeUsers, setActiveUsers] = useState([])
@@ -131,23 +154,28 @@ const Home = () => {
     const [sortOrder2, setSortOrder2] = useState("desc");
 
     const changeSortOrder = (e) => {
-        const field = e.target.id;
+        const field = e.currentTarget.id;
+        if (!field) return;
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
+            setRecentPage(1);
         } else {
-            setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+            setSortOrder(p => p === 'asc' ? 'desc' : 'asc');
+            setRecentPage(1);
         }
     }
 
     const changeSortOrder2 = (e) => {
-        const field = e.target.id;
+        const field = e.currentTarget.id;
+        if (!field) return;
         if (field !== sortBy2) {
             setSortBy2(field);
             setSortOrder2("asc");
-
+            setActivePage(1);
         } else {
-            setSortOrder2(p => p === 'asc' ? 'desc' : 'asc')
+            setSortOrder2(p => p === 'asc' ? 'desc' : 'asc');
+            setActivePage(1);
         }
     }
 
@@ -156,13 +184,67 @@ const Home = () => {
     const role = localStorage.getItem("role");
     const userinfo = useGetUser(localStorage.getItem("userID"));
 
-    const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS({ page: recentPage, limit: recentLimit, startDate, endDate, searchKey: recentFilter, type: recentNotification, sortBy, sortOrder });
-    const activeSos = useGetActiveSosData({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, searchKey: filter, type: selectedNotification, sortBy: sortBy2, sortOrder: sortOrder2 });
-    // Detect if any active SOS filter has been applied by the user
+    const [otherUsersModalOpen, setOtherUsersModalOpen] = useState(false);
+    const [otherUsersModalItems, setOtherUsersModalItems] = useState([]);
+
+    const normalizeOtherUsers = (otherUser) => {
+        if (!otherUser) return [];
+        if (Array.isArray(otherUser)) return otherUser.filter(Boolean);
+        return [otherUser];
+    };
+
+    const getOtherUserId = (u) => u?._id || u?.user_id?._id || u?.user_id || u?.id;
+    const getOtherUserRole = (u) => u?.role || u?.user?.role || u?.user_id?.role;
+    const getOtherUserName = (u) => {
+        const first = u?.first_name || u?.user?.first_name || u?.user_id?.first_name || "";
+        const last = u?.last_name || u?.user?.last_name || u?.user_id?.last_name || "";
+        const full = `${first} ${last}`.trim();
+        return full || u?.phone || u?.email || getOtherUserId(u) || "Unknown user";
+    };
+    const getOtherUserRoute = (u) => {
+        const id = getOtherUserId(u);
+        if (!id) return null;
+        return getOtherUserRole(u) === "driver"
+            ? `/home/total-drivers/driver-information/${id}`
+            : `/home/total-users/user-information/${id}`;
+    };
+
+    const openOtherUsersModal = (otherUser) => {
+        const items = normalizeOtherUsers(otherUser);
+        setOtherUsersModalItems(items);
+        setOtherUsersModalOpen(true);
+    };
+    const closeOtherUsersModal = () => {
+        setOtherUsersModalOpen(false);
+        setOtherUsersModalItems([]);
+    };
+
+    const { data: recentSos, isFetching, refetch: refetchRecentSOS } = useGetRecentSOS({
+        page: recentPage,
+        limit: recentLimit,
+        startDate,
+        endDate,
+        searchKey: debouncedRecentFilter,
+        type: recentNotification,
+        sortBy,
+        sortOrder
+    });
+
+    const activeSos = useGetActiveSosData({
+        page: activePage,
+        limit: activeLimit,
+        startDate: startDateSos,
+        endDate: endDateSos,
+        searchKey: debouncedFilter,
+        type: selectedNotification,
+        sortBy: sortBy2,
+        sortOrder: sortOrder2
+    });
     const defaultStartDate = startOfYear(new Date()).toISOString();
     const isFilterActive = useMemo(() => {
         if (filter && filter.trim().length > 0) return true;
         if (selectedNotification !== "all") return true;
+        if (sortBy2 !== "createdAt" || sortOrder2 !== "desc") return true;
         // Check if date range has been changed from the default
         const defaultStart = startOfYear(new Date()).toISOString().split('T')[0];
         const currentStart = startDateSos.split('T')[0];
@@ -170,7 +252,7 @@ const Home = () => {
         const currentEnd = endDateSos.split('T')[0];
         if (currentStart !== defaultStart || currentEnd !== defaultEnd) return true;
         return false;
-    }, [filter, selectedNotification, startDateSos, endDateSos]);
+    }, [filter, selectedNotification, startDateSos, endDateSos, sortBy2, sortOrder2]);
 
     // Use WebSocket data by default; switch to API data when a filter is active
     const activeUserList = isFilterActive
@@ -481,7 +563,8 @@ const Home = () => {
         ? (activeSos?.data?.data?.totalItems || 0)
         : (activeUserLists?.length > 0 ? (activeUserList?.length || 0) : (activeSos?.data?.data?.totalItems || 0));
     const totalActivePages = Math.ceil(totalActiveItems / activeLimit) || 1;
-    const totalRecentItems = recentSos?.data?.totalItems
+    const recentSosItems = recentSos?.data?.items ?? recentSos?.data?.data?.items ?? [];
+    const totalRecentItems = recentSos?.data?.totalItems ?? recentSos?.data?.data?.totalItems ?? 0;
     const totalRecentPages = Math.ceil(totalRecentItems / recentLimit)
 
     return (
@@ -603,22 +686,22 @@ const Home = () => {
                                     <TableRow >
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
                                             <TableSortLabel
-                                                id="first_name"
-                                                active={sortBy2 === 'first_name'}
+                                                id="username"
+                                                active={sortBy2 === 'username'}
                                                 direction={sortOrder2}
                                                 onClick={changeSortOrder2}
-                                                IconComponent={() => <img src={sortBy2 === 'first_name' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy2 === 'username' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 User
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             <TableSortLabel
-                                                id="company_name"
-                                                active={sortBy2 === 'company_name'}
+                                                id="company"
+                                                active={sortBy2 === 'company'}
                                                 direction={sortOrder2}
                                                 onClick={changeSortOrder2}
-                                                IconComponent={() => <img src={sortBy2 === 'company_name' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy2 === 'company' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Company
                                             </TableSortLabel>
@@ -629,7 +712,7 @@ const Home = () => {
                                                 active={sortBy2 === 'address'}
                                                 direction={sortOrder2}
                                                 onClick={changeSortOrder2}
-                                                IconComponent={() => <img src={sortBy2 === 'address' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy2 === 'address' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Address
                                             </TableSortLabel>
@@ -640,7 +723,7 @@ const Home = () => {
                                                 active={sortBy2 === 'req_reach'}
                                                 direction={sortOrder2}
                                                 onClick={changeSortOrder2}
-                                                IconComponent={() => <img src={sortBy2 === 'req_reach' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy2 === 'req_reach' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Request reached
                                             </TableSortLabel>
@@ -651,7 +734,7 @@ const Home = () => {
                                                 active={sortBy2 === 'req_accept'}
                                                 direction={sortOrder2}
                                                 onClick={changeSortOrder2}
-                                                IconComponent={() => <img src={sortBy2 === 'req_accept' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy2 === 'req_accept' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Request Accepted
                                             </TableSortLabel>
@@ -662,7 +745,7 @@ const Home = () => {
                                                 active={sortBy2 === 'type'}
                                                 direction={sortOrder2}
                                                 onClick={changeSortOrder2}
-                                                IconComponent={() => <img src={sortBy2 === 'type' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy2 === 'type' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Type
                                             </TableSortLabel>
@@ -673,7 +756,7 @@ const Home = () => {
                                                 active={sortBy2 === 'createdAt'}
                                                 direction={sortOrder2}
                                                 onClick={changeSortOrder2}
-                                                IconComponent={() => <img src={sortBy2 === 'createdAt' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy2 === 'createdAt' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Time
                                             </TableSortLabel>
@@ -685,9 +768,9 @@ const Home = () => {
                                 </TableHead>
 
                                 <TableBody>
-                                    {(isFilterActive && activeSos.isPending) ?
+                                    {activeSos.isFetching ?
                                         <TableRow>
-                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={9} align="center">
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={10} align="center">
                                                 <Loader />
                                             </TableCell>
                                         </TableRow>
@@ -702,7 +785,7 @@ const Home = () => {
                                                                         src={nouser} // No selfie field mentioned for armedUserId, using default or check armedUserId.selfieImage?
                                                                         alt="User"
                                                                     />
-                                                                    {user?.user?.first_name} {user?.user?.last_name}
+                                                                    {user?.user?.fullName}
                                                                 </Stack>
                                                             ) : (
                                                                 user?.role === "driver" ? (
@@ -851,7 +934,7 @@ const Home = () => {
                                                                     <img src={ViewBtn} alt="view button" />
                                                                 </IconButton>
                                                             </Tooltip>
-                                                            {user?.type?.type === "linked_sos" && user?.otherUser?._id && (
+                                                            {user?.type?.type === "linked_sos" && normalizeOtherUsers(user?.otherUser).length > 0 && (
                                                                 <Tooltip title="Other User" arrow placement="top">
                                                                     <Button
                                                                         variant="contained"
@@ -870,7 +953,7 @@ const Home = () => {
                                                                             minWidth: "auto",
                                                                             "&:hover": { backgroundColor: "#1864c7" },
                                                                         }}
-                                                                        onClick={() => nav(`total-drivers/driver-information/${user?.otherUser?._id}`)}
+                                                                        onClick={() => openOtherUsersModal(user?.otherUser)}
                                                                     >
                                                                         Other User
                                                                     </Button>
@@ -917,7 +1000,7 @@ const Home = () => {
                                             ))
                                             :
                                             <TableRow>
-                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={9} align="center">
+                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={10} align="center">
                                                     <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                                                         No data found
                                                     </Typography>
@@ -1087,22 +1170,22 @@ const Home = () => {
                                     <TableRow >
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
                                             <TableSortLabel
-                                                id="first_name"
-                                                active={sortBy === 'first_name'}
+                                                id="username"
+                                                active={sortBy === 'username'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'username' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 User Name
                                             </TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             <TableSortLabel
-                                                id="company_name"
-                                                active={sortBy === 'company_name'}
+                                                id="company"
+                                                active={sortBy === 'company'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'company_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'company' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Company
                                             </TableSortLabel>
@@ -1113,7 +1196,7 @@ const Home = () => {
                                                 active={sortBy === 'address'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'address' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'address' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Last Active Status
                                             </TableSortLabel>
@@ -1124,7 +1207,7 @@ const Home = () => {
                                                 active={sortBy === 'req_reach'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'req_reach' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'req_reach' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Request reached
                                             </TableSortLabel>
@@ -1135,7 +1218,7 @@ const Home = () => {
                                                 active={sortBy === 'req_accept'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'req_accept' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'req_accept' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Request Accepted
                                             </TableSortLabel>
@@ -1146,7 +1229,7 @@ const Home = () => {
                                                 active={sortBy === 'createdAt'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Start Time Stamp
                                             </TableSortLabel>
@@ -1157,7 +1240,7 @@ const Home = () => {
                                                 active={sortBy === 'updatedAt'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'updatedAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'updatedAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 End Time Stamp
                                             </TableSortLabel>
@@ -1168,7 +1251,7 @@ const Home = () => {
                                                 active={sortBy === 'type'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'type' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                IconComponent={() => <img src={sortBy === 'type' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
                                             >
                                                 Type
                                             </TableSortLabel>
@@ -1185,12 +1268,12 @@ const Home = () => {
                                 <TableBody>
                                     {isFetching ?
                                         <TableRow>
-                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={7} align="center">
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={12} align="center">
                                                 <Loader />
                                             </TableCell>
                                         </TableRow>
-                                        : (recentSos?.data?.items?.length > 0 ?
-                                            recentSos?.data?.items?.map((row) => (
+                                        : (recentSosItems?.length > 0 ?
+                                            recentSosItems?.map((row) => (
                                                 <TableRow key={row?._id}>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
@@ -1207,7 +1290,7 @@ const Home = () => {
                                                                             alt="User"
                                                                         />
 
-                                                                        {row?.user?.first_name || ''} {row?.user?.last_name || ''}
+                                                                        {row?.user?.first_name} {row?.user?.last_name}
                                                                     </Stack>
 
                                                                 </Link>) : (
@@ -1223,14 +1306,14 @@ const Home = () => {
                                                                             alt="User"
                                                                         />
 
-                                                                        {row?.user?.first_name || ''} {row?.user?.last_name || ''}
+                                                                        {row?.user?.first_name} {row?.user?.last_name}
                                                                     </Stack>
                                                                 </Link>
                                                             )
                                                         }
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {row?.user?.company_name}
+                                                        {row?.user?.company_name || row?.company?.company_name || "-"}
                                                     </TableCell>
                                                     <TableCell sx={{
                                                         color: '#4B5563',
@@ -1307,7 +1390,7 @@ const Home = () => {
                                                     {row?.type?.type === "linked_sos" ? (
                                                         <TableCell>
                                                             <Box align="center" sx={{ display: "flex", justifyContent: "center" }}>
-                                                                {row?.otherUser?._id ? (
+                                                                {normalizeOtherUsers(row?.otherUser).length > 0 ? (
                                                                     <Tooltip title="Other User" arrow placement="top">
                                                                         <Button
                                                                             variant="contained"
@@ -1326,9 +1409,7 @@ const Home = () => {
                                                                                 minWidth: "auto",
                                                                                 "&:hover": { backgroundColor: "#1864c7" },
                                                                             }}
-                                                                            onClick={() =>
-                                                                                nav(`total-drivers/driver-information/${row?.otherUser?._id}`)
-                                                                            }
+                                                                            onClick={() => openOtherUsersModal(row?.otherUser)}
                                                                         >
                                                                             Other User
                                                                         </Button>
@@ -1343,7 +1424,7 @@ const Home = () => {
                                             ))
                                             :
                                             <TableRow>
-                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={7} align="center">
+                                                <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={12} align="center">
                                                     <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
                                                         No data found
                                                     </Typography>
@@ -1354,7 +1435,7 @@ const Home = () => {
                             </Table>
                         </TableContainer>
 
-                        {recentSos?.data?.items?.length > 0 && !isFetching && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                        {recentSosItems?.length > 0 && !isFetching && <Grid container sx={{ px: { xs: 0, sm: 1 } }} justifyContent="space-between" alignItems="center" mt={2}>
                             <Grid>
                                 <Typography variant="body2">
                                     Rows per page:&nbsp;
@@ -1556,6 +1637,208 @@ const Home = () => {
                     }} color="primary" variant="contained" autoFocus>
                         Yes, Enable Audio
                     </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                open={otherUsersModalOpen}
+                onClose={closeOtherUsersModal}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{ sx: { borderRadius: 3 } }}
+            >
+                <DialogTitle>Other Users</DialogTitle>
+                <DialogContent dividers>
+                    {otherUsersModalItems.length === 0 ? (
+                        <Typography variant="body2" color="text.secondary">
+                            No other users found.
+                        </Typography>
+                    ) : (
+                        <List disablePadding>
+                            {otherUsersModalItems.map((u, idx) => {
+                                const order = u.role != 'driver' && u.order ? u.order : 1
+                                const route = getOtherUserRoute(u);
+                                const label = getOtherUserName(u);
+
+                                return (
+                                    <>
+                                        {u.role === 'driver' && (
+                                            <Box
+                                                key={getOtherUserId(u) || idx}
+                                                sx={{
+                                                    border: '1px solid #E5E7EB',
+                                                    borderRadius: '16px',
+                                                    p: 2,
+                                                    mb: 2,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                    boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                                                    backgroundColor: u.role === 'driver' ? '#FFF9C4' : '#fff',
+                                                }}
+                                            >
+                                                {/* Left Side */}
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                    <Avatar
+                                                        src={u?.selfieImage || nouser}
+                                                        alt="User"
+                                                        sx={{
+                                                            width: 56,
+                                                            height: 56
+                                                        }}
+                                                    />
+
+                                                    <ListItemButton
+                                                        disabled={!route}
+                                                        onClick={() => {
+                                                            if (!route) return;
+                                                            closeOtherUsersModal();
+                                                            nav(route);
+                                                        }}
+                                                        sx={{
+                                                            borderRadius: 2,
+                                                            p: 0,
+                                                            minWidth: '180px'
+                                                        }}
+                                                    >
+                                                        <ListItemText
+                                                            primary={label}
+                                                            secondary={'Driver'}
+                                                            primaryTypographyProps={{
+                                                                fontWeight: 600,
+                                                                fontSize: '18px',
+                                                                color: '#111827'
+                                                            }}
+                                                            secondaryTypographyProps={{
+                                                                fontSize: '14px',
+                                                                color: '#9B6C2D'
+                                                            }}
+                                                        />
+                                                    </ListItemButton>
+                                                </Box>
+
+                                                {/* Right Side View Button */}
+                                                <Tooltip title="View" arrow placement="top">
+                                                    <span>
+                                                        <IconButton
+                                                            size="small"
+                                                            disabled={!route}
+                                                            onClick={() => {
+                                                                if (!route) return;
+                                                                closeOtherUsersModal();
+                                                                nav(route);
+                                                            }}
+                                                            sx={{
+                                                                backgroundColor: '#1E73E8',
+                                                                color: '#fff',
+                                                                px: 3,
+                                                                py: 1,
+                                                                borderRadius: '20px',
+                                                                "&:hover": {
+                                                                    backgroundColor: '#1565C0'
+                                                                }
+                                                            }}
+                                                        >
+                                                            <VisibilityOutlinedIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </span>
+                                                </Tooltip>
+                                            </Box>
+                                        )}
+                                        {u.role != 'driver' && (
+                                            <>
+                                                <Typography variant="h6" my={1} fontWeight={590}>Linked Passengers</Typography>
+                                                <Box
+                                                    key={getOtherUserId(u) || idx}
+                                                    sx={{
+                                                        border: '1px solid #E5E7EB',
+                                                        borderRadius: '16px',
+                                                        p: 2,
+                                                        mb: 2,
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between',
+                                                        boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                                                        backgroundColor: u.role === 'driver' ? '#FFF9C4' : '#fff',
+                                                    }}
+                                                >
+                                                    {/* Left Side */}
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                        <Avatar
+                                                            src={u?.selfieImage || nouser}
+                                                            alt="User"
+                                                            sx={{
+                                                                width: 56,
+                                                                height: 56
+                                                            }}
+                                                        />
+
+                                                        <ListItemButton
+                                                            disabled={!route}
+                                                            onClick={() => {
+                                                                if (!route) return;
+                                                                closeOtherUsersModal();
+                                                                nav(route);
+                                                            }}
+                                                            sx={{
+                                                                borderRadius: 2,
+                                                                p: 0,
+                                                                minWidth: '180px'
+                                                            }}
+                                                        >
+                                                            <ListItemText
+                                                                primary={label}
+                                                                secondary={order > 1 ? `Co-Passenger${order}` : `Passenger1`}
+                                                                primaryTypographyProps={{
+                                                                    fontWeight: 600,
+                                                                    fontSize: '18px',
+                                                                    color: '#111827'
+                                                                }}
+                                                                secondaryTypographyProps={{
+                                                                    fontSize: '14px',
+                                                                    color: '#6B7280'
+                                                                }}
+                                                            />
+                                                        </ListItemButton>
+                                                    </Box>
+
+                                                    {/* Right Side View Button */}
+                                                    <Tooltip title="View" arrow placement="top">
+                                                        <span>
+                                                            <IconButton
+                                                                size="small"
+                                                                disabled={!route}
+                                                                onClick={() => {
+                                                                    if (!route) return;
+                                                                    closeOtherUsersModal();
+                                                                    nav(route);
+                                                                }}
+                                                                sx={{
+                                                                    backgroundColor: '#1E73E8',
+                                                                    color: '#fff',
+                                                                    px: 3,
+                                                                    py: 1,
+                                                                    borderRadius: '20px',
+                                                                    "&:hover": {
+                                                                        backgroundColor: '#1565C0'
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <VisibilityOutlinedIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </span>
+                                                    </Tooltip>
+                                                </Box>
+                                            </>
+                                        )}
+                                    </>
+                                );
+                            })}
+                        </List>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeOtherUsersModal}>Close</Button>
                 </DialogActions>
             </Dialog>
         </Box >
