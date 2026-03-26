@@ -281,10 +281,10 @@ const ListOfUsers = () => {
                             </Button>
                             <Button variant="outlined" onClick={() => {
                                 setfilter("");
-                                setSortBy("first_name");
+                                setSortBy("username");
                                 setSortOrder("asc");
                                 setCurrentPage(1);
-                                setRowsPerPage(5);
+                                setRowsPerPage(10);
                                 setIsRange(true)
 
                                 client.removeQueries(['userListFilters']);
@@ -304,11 +304,11 @@ const ListOfUsers = () => {
                                 <TableRow >
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
                                         <TableSortLabel
-                                            id="first_name"
-                                            active={sortBy === 'first_name'}
+                                            id="username"
+                                            active={sortBy === 'username'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'username' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             User
                                         </TableSortLabel>
@@ -326,11 +326,11 @@ const ListOfUsers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="mobile_no_country_code"
-                                            active={sortBy === 'mobile_no_country_code'}
+                                            id="mobile_no"
+                                            active={sortBy === 'mobile_no'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'mobile_no_country_code' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'mobile_no' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Contact No.
                                         </TableSortLabel>
@@ -348,22 +348,22 @@ const ListOfUsers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="is_enroll"
-                                            active={sortBy === 'is_enroll'}
+                                            id="subscription_status"
+                                            active={sortBy === 'subscription_status'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'is_enroll' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'subscription_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Subscription Status
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="subscription_start_date"
-                                            active={sortBy === 'subscription_start_date'}
+                                            id="tag_connection"
+                                            active={sortBy === 'tag_connection'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'subscription_start_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'tag_connection' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
 
                                         >
                                             Tag Connection
@@ -371,11 +371,11 @@ const ListOfUsers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="subscription_end_date"
-                                            active={sortBy === 'subscription_end_date'}
+                                            id="tag_disconnection"
+                                            active={sortBy === 'tag_disconnection'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'subscription_end_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'tag_disconnection' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Tag Disconnection
                                         </TableSortLabel>

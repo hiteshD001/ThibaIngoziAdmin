@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useDebounce from "../hooks/useDebounce";
 import {
   Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, MenuItem, Chip,
   Tooltip,
@@ -48,21 +49,24 @@ const ListOfViewArcheived = () => {
   const role = localStorage.getItem("role");
   const companyId = role === 'company' ? localStorage.getItem("userID") : null;
 
-
+  const debouncedFilter = useDebounce(filter, 500);
   const changeSortOrder = (e) => {
-    const field = e.target.id;
+    const field = e.currentTarget.id;
+    if (!field) return;
     if (field !== sortBy) {
       setSortBy(field);
       setSortOrder("asc");
+      setPage(1);
     } else {
-      setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+      setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
+      setPage(1);
     }
-  }
+  };
 
   const [confirmation, setConfirmation] = useState("");
   const startDate = range[0].startDate.toISOString();
   const endDate = range[0].endDate.toISOString();
-  const trip = useGetTripList("Trip list", page, rowsPerPage, filter, startDate, endDate, archived, sortBy, sortOrder, companyId);
+  const trip = useGetTripList("Trip list", page, rowsPerPage, debouncedFilter, startDate, endDate, archived, sortBy, sortOrder, companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
@@ -110,6 +114,19 @@ const ListOfViewArcheived = () => {
     }
   };
 
+  const formatEndedBy = (raw) => {
+    if (!raw) return "-";
+    const value = String(raw).toLowerCase();
+    if (value === "admin_super" || value === "admit_super") return "Admin Super";
+    if (value === "admin") return "Admin";
+    if (value === "passenger") return "Passenger";
+    if (value === "driver") return "Driver";
+    return value
+      .split("_")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ");
+  };
+
   const handleExport = async ({ startDate, endDate, format: fileFormat }) => {
     try {
       const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/userTrip`, {
@@ -133,8 +150,8 @@ const ListOfViewArcheived = () => {
         "Driver": user.driver.first_name || '',
         "Passanger": user.passenger.first_name || '',
         "Started At": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
-        "Ended At": user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
-        "Ended By": user.ended_by || '',
+        "Ended At": user.trip_status === 'ended' && user.endedAt ? format(new Date(user.endedAt), "HH:mm:ss - dd/MM/yyyy") : '---',
+        "Ended By": formatEndedBy(user.ended_by),
         "Status": user.trip_status || '',
       }));
 
@@ -221,7 +238,10 @@ const ListOfViewArcheived = () => {
             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
               <CustomDateRangePicker
                 value={range}
-                onChange={setRange}
+                onChange={(nextRange) => {
+                  setRange(nextRange);
+                  setPage(1);
+                }}
                 icon={calender}
               />
               <CustomExportMenu onExport={handleExport} />
@@ -237,22 +257,34 @@ const ListOfViewArcheived = () => {
                 <TableRow>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
-                      id="first_name"
-                      active={sortBy === 'first_name'}
+                      id="driver.first_name"
+                      active={sortBy === 'driver.first_name'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'driver.first_name' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Driver
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#4B5563' }}>
                     <TableSortLabel
-                      id="first_name"
-                      active={sortBy === 'first_name'}
+                      id="passenger.first_name"
+                      active={sortBy === 'passenger.first_name'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'passenger.first_name' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Passenger
                     </TableSortLabel>
@@ -263,7 +295,13 @@ const ListOfViewArcheived = () => {
                       active={sortBy === 'createdAt'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'createdAt' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Started At
                     </TableSortLabel>
@@ -274,7 +312,13 @@ const ListOfViewArcheived = () => {
                       active={sortBy === 'endedAt'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'endedAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'endedAt' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Ended At
                     </TableSortLabel>
@@ -285,7 +329,13 @@ const ListOfViewArcheived = () => {
                       active={sortBy === 'ended_by'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'ended_by' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'ended_by' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Ended By
                     </TableSortLabel>
@@ -296,7 +346,13 @@ const ListOfViewArcheived = () => {
                       active={sortBy === 'trip_status'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'trip_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => (
+                        <img
+                          src={sortBy === 'trip_status' ? (sortOrder === 'asc' ? arrowup : arrowdown) : arrownuteral}
+                          style={{ marginLeft: 5 }}
+                          alt=""
+                        />
+                      )}
                     >
                       Status
                     </TableSortLabel>
@@ -321,18 +377,26 @@ const ListOfViewArcheived = () => {
                         <TableRow key={data._id}>
                           <TableCell>
                             <Link className="link2" to={`/home/total-drivers/driver-information/${data.driver._id}`}>
-                              {data.driver.first_name}
+                              {data.driver.first_name} {data.driver.last_name}
                             </Link>
                           </TableCell>
                           <TableCell>
                             <Link className="link2" to={`/home/total-trips/user-information/${data.passenger._id}`}>
-                              {data.passenger.first_name}
+                              {data.passenger.first_name} {data.passenger.last_name}
                             </Link>
                           </TableCell>
 
-                          <TableCell>{format(data?.createdAt, "HH:mm:ss - dd/MM/yyyy")}</TableCell>
-                          <TableCell>{data?.trip_status === 'ended' ? format(data.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---'}</TableCell>
-                          <TableCell>{data?.ended_by}</TableCell>
+                          <TableCell>
+                            {data?.createdAt
+                              ? format(new Date(data.createdAt), "HH:mm:ss - dd/MM/yyyy")
+                              : "-"}
+                          </TableCell>
+                          <TableCell>
+                            {data?.trip_status === 'ended' && data?.endedAt
+                              ? format(new Date(data.endedAt), "HH:mm:ss - dd/MM/yyyy")
+                              : '---'}
+                          </TableCell>
+                          <TableCell>{formatEndedBy(data?.ended_by)}</TableCell>
                           <TableCell>
                             <Chip
                               label={data.trip_status}

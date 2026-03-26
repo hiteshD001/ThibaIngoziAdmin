@@ -66,7 +66,7 @@ const ListOfCompanies = () => {
   }
 
   const [filter, setfilter] = useState("");
-  const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
+  const debouncedFilter = useDebounce(filter, 1000);
   const [confirmation, setconfirmation] = useState("");
   const [status, setStatus] = useState("");
   const [statusUpdate, setStatusUpdate] = useState(false);
@@ -237,10 +237,10 @@ const ListOfCompanies = () => {
               </Button>
               <Button variant="outlined" onClick={() => {
                 setfilter("");
-                setSortBy("first_name");
+                setSortBy("company_name");
                 setSortOrder("asc");
                 setCurrentPage(1);
-                setRowsPerPage(5);
+                setRowsPerPage(10);
                 setIsRange(true)
 
                 client.removeQueries(['userListFilters']);
@@ -270,11 +270,11 @@ const ListOfCompanies = () => {
                   </TableCell>
                   <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                     <TableSortLabel
-                      id="first_name"
-                      active={sortBy === 'first_name'}
+                      id="contact_name"
+                      active={sortBy === 'contact_name'}
                       direction={sortOrder}
                       onClick={changeSortOrder}
-                      IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                      IconComponent={() => <img src={sortBy === 'contact_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                     >
                       User name
                     </TableSortLabel>
@@ -304,11 +304,11 @@ const ListOfCompanies = () => {
                   {localStorage.getItem('role') === 'super_admin' && (
                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>
                       <TableSortLabel
-                        id="isActive"
-                        active={sortBy === 'isActive'}
+                        id="is_active"
+                        active={sortBy === 'is_active'}
                         direction={sortOrder}
                         onClick={changeSortOrder}
-                        IconComponent={() => <img src={sortBy === 'isActive' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                        IconComponent={() => <img src={sortBy === 'is_active' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                       >
                         Status
                       </TableSortLabel>
