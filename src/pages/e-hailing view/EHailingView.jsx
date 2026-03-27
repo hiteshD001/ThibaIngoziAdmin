@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Slide, toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
-
+import nouser from "../../assets/images/NoUser.png";
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import NavigateNext from '@mui/icons-material/NavigateNext';
 import NavigateBefore from '@mui/icons-material/NavigateBefore';
@@ -450,6 +450,7 @@ const EHialingView = () => {
     }, [getOtherUserId, getOtherUserRole]);
 
     const openOtherUsersModal = useCallback((otherUser) => {
+      
         const items = normalizeOtherUsers(otherUser);
         setOtherUsersModalItems(items);
         setOtherUsersModalOpen(true);
@@ -1358,7 +1359,7 @@ const EHialingView = () => {
                         </Typography>
                     ) : (
                         <List disablePadding>
-                            {otherUsersModalItems.map((u, idx) => {
+                             {otherUsersModalItems.map((u, idx) => {
                                 const order = u.role != 'driver' && u.order ? u.order : 1
                                 const route = getOtherUserRoute(u);
                                 const label = getOtherUserName(u);
@@ -1448,9 +1449,24 @@ const EHialingView = () => {
                                                 </Tooltip>
                                             </Box>
                                         )}
+                                    </>
+                                );
+                            })}
+                            {otherUsersModalItems.some((u) => u.role !== 'driver') && (
+                                <Typography variant="h6" my={1} fontWeight={590}>
+                                    Linked Passengers
+                                </Typography>
+                            )}
+                            {otherUsersModalItems.map((u, idx) => {
+                                const order = u.role != 'driver' && u.order ? u.order : 1
+                                const route = getOtherUserRoute(u);
+                                const label = getOtherUserName(u);
+
+                                return (
+                                    <>
                                         {u.role != 'driver' && (
                                             <>
-                                                <Typography variant="h6" my={1} fontWeight={590}>Linked Passengers</Typography>
+
                                                 <Box
                                                     key={getOtherUserId(u) || idx}
                                                     sx={{
