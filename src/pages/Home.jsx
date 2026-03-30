@@ -276,6 +276,9 @@ const Home = () => {
 
     const notifiedSosIds = useRef(new Set(activeUserLists?.map(u => u._id) || []));
     const lastFetchTime = useRef(0);
+    const sosSyncTimerRef = useRef(null);
+    const sosSyncInFlightRef = useRef(false);
+    const sosSyncQueuedRef = useRef(false);
 
     const handle2FAToggle = async (e) => {
         const newValue = e.target.checked;
@@ -309,6 +312,43 @@ const Home = () => {
 
         const handleAlert = async () => {
             try {
+                const runCoalescedActiveSync = () => {
+                    if (sosSyncInFlightRef.current) {
+                        sosSyncQueuedRef.current = true;
+                        return;
+                    }
+                    if (sosSyncTimerRef.current) {
+                        clearTimeout(sosSyncTimerRef.current);
+                    }
+                    sosSyncTimerRef.current = setTimeout(async () => {
+                        const now = Date.now();
+                        if (now - lastFetchTime.current < 1200) {
+                            runCoalescedActiveSync();
+                            return;
+                        }
+                        lastFetchTime.current = now;
+                        sosSyncInFlightRef.current = true;
+                        try {
+                            const res = await activeSos.refetch();
+                            if (res?.data?.data?.data && setActiveUserLists && activeUserLists?.length > 0) {
+                                const refetched = res.data.data.data;
+                                const byId = {};
+                                refetched.forEach((item) => { byId[item._id] = item; });
+                                setActiveUserLists((prev) =>
+                                    prev.map((item) => (byId[item._id] ? { ...item, ...byId[item._id] } : item))
+                                );
+                            }
+                        } catch (err) {
+                            console.error("Coalesced active SOS sync failed:", err);
+                        } finally {
+                            sosSyncInFlightRef.current = false;
+                            if (sosSyncQueuedRef.current) {
+                                sosSyncQueuedRef.current = false;
+                                runCoalescedActiveSync();
+                            }
+                        }
+                    }, 650);
+                };
 
                 // If we have WebSocket data, we trust the NEW_SOS signal
                 // WE REMOVED THROTTLING HERE to ensure audio plays for every alert
@@ -345,69 +385,9 @@ const Home = () => {
                     }
                     playAudio();
                     toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
-                    // Refetch and merge API data (e.g. createdAt) into WebSocket list so date shows in real time
-                    try {
-                        const res = await activeSos.refetch();
-                        if (res?.data?.data?.data && setActiveUserLists) {
-                            const refetched = res.data.data.data;
-                            const byId = {};
-                            refetched.forEach((item) => { byId[item._id] = item; });
-                            setActiveUserLists((prev) =>
-                                prev.map((item) => (byId[item._id] ? { ...item, ...byId[item._id] } : item))
-                            );
-                        }
-                    } catch (err) {
-                        console.error("Refetch for merging SOS data failed:", err);
-                    }
+                    runCoalescedActiveSync();
                 } else {
-                    // Start Throttle for API calls
-                    const now = Date.now();
-                    if (now - lastFetchTime.current < 500) {
-                        return;
-                    }
-                    lastFetchTime.current = now;
-                    // End Throttle
-
-                    const res = await activeSos.refetch();
-
-                    if (res?.data?.data?.data) {
-                        const newList = res.data.data.data || [];
-
-                        // Check for new IDs that we haven't notified about yet
-                        let hasNew = false;
-                        const newIds = [];
-
-                        for (const item of newList) {
-                            if (!notifiedSosIds.current.has(item._id)) {
-                                hasNew = true;
-                                newIds.push(item._id);
-                            }
-                        }
-
-
-                        if (hasNew) {
-                            const playAudio = async () => {
-                                try {
-                                    // Respect user preference for audio
-                                    const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
-
-                                    if (isAudioEnabled && audioRef.current) {
-                                        audioRef.current.loop = true; // Continuous sound
-                                        audioRef.current.currentTime = 0;
-                                        await audioRef.current.play();
-                                    }
-                                    setIsPlaying(true);
-                                } catch (e) {
-                                    console.error("Audio playback failed:", e);
-                                }
-                            }
-                            playAudio();
-                            toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
-
-                            // Mark these IDs as notified AFTER playing the alert
-                            newIds.forEach(id => notifiedSosIds.current.add(id));
-                        }
-                    }
+                    runCoalescedActiveSync();
                 }
             } catch (error) {
                 console.error("Refetch failed:", error);
@@ -416,6 +396,12 @@ const Home = () => {
 
         handleAlert();
     }, [newSOS.count, newSOS.type, newSOS.sosId, activeUserLists, activeSos, setActiveUserLists]);
+
+    useEffect(() => {
+        return () => {
+            if (sosSyncTimerRef.current) clearTimeout(sosSyncTimerRef.current);
+        };
+    }, []);
 
     // Stop audio helper
     const stopAudio = () => {

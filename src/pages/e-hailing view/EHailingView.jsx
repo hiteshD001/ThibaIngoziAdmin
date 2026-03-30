@@ -406,6 +406,9 @@ const EHialingView = () => {
     const lastFetchTime = useRef(0);
     const audioRef = useRef(new Audio(tone));
     const debounceTimerRef = useRef(null);
+    const sosRefetchTimerRef = useRef(null);
+    const sosRefetchInFlightRef = useRef(false);
+    const sosRefetchQueuedRef = useRef(false);
     const isNavigatingBack = useRef(false);
 
     const role = localStorage.getItem("role");
@@ -713,46 +716,36 @@ const EHialingView = () => {
 
     // Optimized debounced refetch function
     const debouncedRefetch = useCallback(() => {
-        if (debounceTimerRef.current) {
-            clearTimeout(debounceTimerRef.current);
+        if (sosRefetchInFlightRef.current) {
+            sosRefetchQueuedRef.current = true;
+            return;
+        }
+        if (sosRefetchTimerRef.current) {
+            clearTimeout(sosRefetchTimerRef.current);
         }
 
-        debounceTimerRef.current = setTimeout(async () => {
+        sosRefetchTimerRef.current = setTimeout(async () => {
             const now = Date.now();
-            if (now - lastFetchTime.current < 500) return;
+            if (now - lastFetchTime.current < 1200) {
+                debouncedRefetch();
+                return;
+            }
 
             lastFetchTime.current = now;
+            sosRefetchInFlightRef.current = true;
 
             try {
-                const res = await activeSos.refetch();
-
-                if (res?.data?.data?.data) {
-                    const newList = res.data.data.data || [];
-                    const newIds = newList.filter(item => !notifiedSosIds.current.has(item._id)).map(item => item._id);
-
-                    if (newIds.length > 0) {
-                        const playAudio = async () => {
-                            try {
-                                const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
-                                if (isAudioEnabled && audioRef.current) {
-                                    audioRef.current.loop = false;
-                                    audioRef.current.currentTime = 0;
-                                    await audioRef.current.play();
-                                }
-                            } catch (e) {
-                                console.error("Audio playback failed:", e);
-                            }
-                        };
-
-                        playAudio();
-                        toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
-                        newIds.forEach(id => notifiedSosIds.current.add(id));
-                    }
-                }
+                await activeSos.refetch();
             } catch (error) {
                 console.error("Refetch failed:", error);
+            } finally {
+                sosRefetchInFlightRef.current = false;
+                if (sosRefetchQueuedRef.current) {
+                    sosRefetchQueuedRef.current = false;
+                    debouncedRefetch();
+                }
             }
-        }, 300);
+        }, 650);
     }, [activeSos]);
 
     useEffect(() => {
@@ -795,6 +788,12 @@ const EHialingView = () => {
 
         handleAlert();
     }, [newSOS.count, newSOS.type, newSOS.sosId, activeUserLists, debouncedRefetch]);
+
+    useEffect(() => {
+        return () => {
+            if (sosRefetchTimerRef.current) clearTimeout(sosRefetchTimerRef.current);
+        };
+    }, []);
 
     // Optimized activeUserList change detection with debouncing
     useEffect(() => {
