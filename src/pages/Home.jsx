@@ -304,16 +304,7 @@ const Home = () => {
         setIs2FALoading(false);
     };
 
-    // Refetch active SOS when we receive new SOS notification from WebSocket
-    const isFirstRun = useRef(true);
-
     useEffect(() => {
-        if (isFirstRun.current) {
-            isFirstRun.current = false;
-            return;
-        }
-
-
         if (!newSOS.type || newSOS.count === 0) return;
 
         const handleAlert = async () => {
@@ -371,7 +362,7 @@ const Home = () => {
                 } else {
                     // Start Throttle for API calls
                     const now = Date.now();
-                    if (now - lastFetchTime.current < 2000) {
+                    if (now - lastFetchTime.current < 500) {
                         return;
                     }
                     lastFetchTime.current = now;
@@ -424,7 +415,7 @@ const Home = () => {
         };
 
         handleAlert();
-    }, [newSOS.count]);
+    }, [newSOS.count, newSOS.type, newSOS.sosId, activeUserLists, activeSos, setActiveUserLists]);
 
     // Stop audio helper
     const stopAudio = () => {

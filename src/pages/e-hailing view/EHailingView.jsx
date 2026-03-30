@@ -784,17 +784,17 @@ const EHialingView = () => {
                         }
                     }
                     playAudio();
-                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide })
-                } else {
-                    debouncedRefetch();
+                    toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
                 }
+                // Active table in e-hailing is API-driven; always refetch on SOS signal.
+                debouncedRefetch();
             } catch (error) {
                 console.error("Alert handling failed:", error);
             }
         };
 
         handleAlert();
-    }, [newSOS.count, activeUserLists, debouncedRefetch]);
+    }, [newSOS.count, newSOS.type, newSOS.sosId, activeUserLists, debouncedRefetch]);
 
     // Optimized activeUserList change detection with debouncing
     useEffect(() => {
