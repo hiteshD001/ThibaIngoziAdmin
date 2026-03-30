@@ -279,6 +279,62 @@ const Home = () => {
     const sosSyncTimerRef = useRef(null);
     const sosSyncInFlightRef = useRef(false);
     const sosSyncQueuedRef = useRef(false);
+    const handledSosEventRef = useRef("");
+    const latestActiveUsersRef = useRef(activeUserLists || []);
+    const activeSosRefetchRef = useRef(activeSos?.refetch);
+
+    useEffect(() => {
+        latestActiveUsersRef.current = activeUserLists || [];
+    }, [activeUserLists]);
+
+    useEffect(() => {
+        activeSosRefetchRef.current = activeSos?.refetch;
+    }, [activeSos]);
+
+    const scheduleActiveSosSync = useMemo(() => {
+        const runner = () => {
+            if (sosSyncInFlightRef.current) {
+                sosSyncQueuedRef.current = true;
+                return;
+            }
+            if (sosSyncTimerRef.current) {
+                clearTimeout(sosSyncTimerRef.current);
+            }
+            sosSyncTimerRef.current = setTimeout(async () => {
+                const elapsed = Date.now() - lastFetchTime.current;
+                const waitRemaining = Math.max(0, 1200 - elapsed);
+                if (waitRemaining > 0) {
+                    sosSyncTimerRef.current = setTimeout(runner, waitRemaining);
+                    return;
+                }
+
+                lastFetchTime.current = Date.now();
+                sosSyncInFlightRef.current = true;
+                try {
+                    const refetchFn = activeSosRefetchRef.current;
+                    if (!refetchFn) return;
+                    const res = await refetchFn();
+                    if (res?.data?.data?.data && setActiveUserLists && latestActiveUsersRef.current.length > 0) {
+                        const refetched = res.data.data.data;
+                        const byId = {};
+                        refetched.forEach((item) => { byId[item._id] = item; });
+                        setActiveUserLists((prev) =>
+                            prev.map((item) => (byId[item._id] ? { ...item, ...byId[item._id] } : item))
+                        );
+                    }
+                } catch (err) {
+                    console.error("Coalesced active SOS sync failed:", err);
+                } finally {
+                    sosSyncInFlightRef.current = false;
+                    if (sosSyncQueuedRef.current) {
+                        sosSyncQueuedRef.current = false;
+                        runner();
+                    }
+                }
+            }, 400);
+        };
+        return runner;
+    }, [setActiveUserLists]);
 
     const handle2FAToggle = async (e) => {
         const newValue = e.target.checked;
@@ -309,47 +365,12 @@ const Home = () => {
 
     useEffect(() => {
         if (!newSOS.type || newSOS.count === 0) return;
+        const eventKey = `${newSOS.type || ""}:${newSOS.sosId || ""}:${newSOS.count}`;
+        if (handledSosEventRef.current === eventKey) return;
+        handledSosEventRef.current = eventKey;
 
         const handleAlert = async () => {
             try {
-                const runCoalescedActiveSync = () => {
-                    if (sosSyncInFlightRef.current) {
-                        sosSyncQueuedRef.current = true;
-                        return;
-                    }
-                    if (sosSyncTimerRef.current) {
-                        clearTimeout(sosSyncTimerRef.current);
-                    }
-                    sosSyncTimerRef.current = setTimeout(async () => {
-                        const now = Date.now();
-                        if (now - lastFetchTime.current < 1200) {
-                            runCoalescedActiveSync();
-                            return;
-                        }
-                        lastFetchTime.current = now;
-                        sosSyncInFlightRef.current = true;
-                        try {
-                            const res = await activeSos.refetch();
-                            if (res?.data?.data?.data && setActiveUserLists && activeUserLists?.length > 0) {
-                                const refetched = res.data.data.data;
-                                const byId = {};
-                                refetched.forEach((item) => { byId[item._id] = item; });
-                                setActiveUserLists((prev) =>
-                                    prev.map((item) => (byId[item._id] ? { ...item, ...byId[item._id] } : item))
-                                );
-                            }
-                        } catch (err) {
-                            console.error("Coalesced active SOS sync failed:", err);
-                        } finally {
-                            sosSyncInFlightRef.current = false;
-                            if (sosSyncQueuedRef.current) {
-                                sosSyncQueuedRef.current = false;
-                                runCoalescedActiveSync();
-                            }
-                        }
-                    }, 650);
-                };
-
                 // If we have WebSocket data, we trust the NEW_SOS signal
                 // WE REMOVED THROTTLING HERE to ensure audio plays for every alert
                 if (activeUserLists?.length > 0) {
@@ -385,9 +406,9 @@ const Home = () => {
                     }
                     playAudio();
                     toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
-                    runCoalescedActiveSync();
+                    scheduleActiveSosSync();
                 } else {
-                    runCoalescedActiveSync();
+                    scheduleActiveSosSync();
                 }
             } catch (error) {
                 console.error("Refetch failed:", error);
@@ -395,7 +416,7 @@ const Home = () => {
         };
 
         handleAlert();
-    }, [newSOS.count, newSOS.type, newSOS.sosId, activeUserLists, activeSos, setActiveUserLists]);
+    }, [newSOS.count, newSOS.type, newSOS.sosId, activeUserLists, scheduleActiveSosSync]);
 
     useEffect(() => {
         return () => {

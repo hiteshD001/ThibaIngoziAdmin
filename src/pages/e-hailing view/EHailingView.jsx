@@ -541,6 +541,17 @@ const EHialingView = () => {
     const activeUserList = activeSos?.data?.data?.data;
     const prevLengthRef = useRef(activeUserList?.length);
     const notifiedSosIds = useRef(new Set(activeUserLists?.map(u => u._id) || []));
+    const handledSosEventRef = useRef("");
+    const latestActiveUsersRef = useRef(activeUserLists || []);
+    const activeSosRefetchRef = useRef(activeSos?.refetch);
+
+    useEffect(() => {
+        latestActiveUsersRef.current = activeUserLists || [];
+    }, [activeUserLists]);
+
+    useEffect(() => {
+        activeSosRefetchRef.current = activeSos?.refetch;
+    }, [activeSos]);
 
     // Merge API data with real-time WebSocket counts for optimal performance
     const mergedActiveUserList = useMemo(() => {
@@ -725,17 +736,21 @@ const EHialingView = () => {
         }
 
         sosRefetchTimerRef.current = setTimeout(async () => {
-            const now = Date.now();
-            if (now - lastFetchTime.current < 1200) {
-                debouncedRefetch();
+            const elapsed = Date.now() - lastFetchTime.current;
+            const waitRemaining = Math.max(0, 1200 - elapsed);
+            if (waitRemaining > 0) {
+                sosRefetchTimerRef.current = setTimeout(() => debouncedRefetch(), waitRemaining);
                 return;
             }
 
-            lastFetchTime.current = now;
+            lastFetchTime.current = Date.now();
             sosRefetchInFlightRef.current = true;
 
             try {
-                await activeSos.refetch();
+                const refetchFn = activeSosRefetchRef.current;
+                if (refetchFn) {
+                    await refetchFn();
+                }
             } catch (error) {
                 console.error("Refetch failed:", error);
             } finally {
@@ -746,14 +761,17 @@ const EHialingView = () => {
                 }
             }
         }, 650);
-    }, [activeSos]);
+    }, []);
 
     useEffect(() => {
         if (!newSOS.type || newSOS.count === 0) return;
+        const eventKey = `${newSOS.type || ""}:${newSOS.sosId || ""}:${newSOS.count}`;
+        if (handledSosEventRef.current === eventKey) return;
+        handledSosEventRef.current = eventKey;
 
         const handleAlert = async () => {
             try {
-                if (activeUserLists?.length > 0) {
+                if (latestActiveUsersRef.current?.length > 0) {
                     if (newSOS.sosId && notifiedSosIds.current.has(newSOS.sosId)) return;
 
                     const playAudio = async () => {
@@ -769,7 +787,7 @@ const EHialingView = () => {
                             if (newSOS.sosId) {
                                 notifiedSosIds.current.add(newSOS.sosId);
                             } else {
-                                activeUserLists.forEach(u => notifiedSosIds.current.add(u._id));
+                                latestActiveUsersRef.current.forEach(u => notifiedSosIds.current.add(u._id));
                             }
 
                         } catch (e) {
@@ -787,7 +805,7 @@ const EHialingView = () => {
         };
 
         handleAlert();
-    }, [newSOS.count, newSOS.type, newSOS.sosId, activeUserLists, debouncedRefetch]);
+    }, [newSOS.count, newSOS.type, newSOS.sosId, debouncedRefetch]);
 
     useEffect(() => {
         return () => {
