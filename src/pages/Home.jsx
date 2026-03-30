@@ -789,7 +789,7 @@ const Home = () => {
                                                                 </Stack>
                                                             ) : (
                                                                 user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id || user?._id}`} className="link">
+                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id || user?.user_id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={getImageLink(user?.user_id?.selfieImage)}
@@ -800,7 +800,7 @@ const Home = () => {
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${user?.user_id?._id || user?._id}`} className="link">
+                                                                    <Link to={`/home/total-users/user-information/${user?.user_id?._id || user?.user_id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={getImageLink(user?.user_id?.selfieImage)}
