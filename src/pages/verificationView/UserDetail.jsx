@@ -12,31 +12,31 @@ import PhoneIcon from "@mui/icons-material/PhoneOutlined";
 import EmailIcon from "@mui/icons-material/EmailOutlined";
 import LocationOnIcon from "@mui/icons-material/LocationOnOutlined";
 
-const contactItems = [
-  {
-    icon: <BadgeIcon sx={{ fontSize: 18, color: "#6B7280" }} />,
-    label: "ID / PASSPORT NUMBER",
-    value: "920415 0058 084",
-  },
-  {
-    icon: <PhoneIcon sx={{ fontSize: 18, color: "#6B7280" }} />,
-    label: "PHONE NUMBER",
-    value: "+27 82 123 4567",
-  },
-  {
-    icon: <EmailIcon sx={{ fontSize: 18, color: "#6B7280" }} />,
-    label: "EMAIL ADDRESS",
-    value: "lerato.m@example.com",
-  },
-];
-
-export default function UserDetail({ user }) {
+export default function UserDetail({ user}) {
   const {
-    name = "Lerato Mokoena",
-    location = "Johannesburg, South Africa",
+    name = `${user.first_name} ${user.last_name}`,
+    location = user.address ? user.address : "Johannesburg, South Africa",
     status = "Active User",
-    avatarUrl = null,
+    avatarUrl = user.fullImage,
   } = user || {};
+ 
+  const contactItems = [
+    {
+      icon: <BadgeIcon sx={{ fontSize: 18, color: "#6B7280" }} />,
+      label: "ID / PASSPORT NUMBER",
+      value: user.id_no,
+    },
+    {
+      icon: <PhoneIcon sx={{ fontSize: 18, color: "#6B7280" }} />,
+      label: "PHONE NUMBER",
+      value: user?.mobile_no ,
+    },
+    {
+      icon: <EmailIcon sx={{ fontSize: 18, color: "#6B7280" }} />,
+      label: "EMAIL ADDRESS",
+      value: user.email,
+    },
+  ];
 
   return (
     <Paper

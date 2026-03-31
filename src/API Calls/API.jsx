@@ -2308,3 +2308,36 @@ export const useGetPoliceUnitsByCity = (id) => {
     return res;
 };
 
+export const useGetViewVerification = (onSuccess, onError) => {
+     const mutationFn = async ({ id }) => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/view-verification/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useSaveTagPurchasedVerification = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/view-verification/save`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+

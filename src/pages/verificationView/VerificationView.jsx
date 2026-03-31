@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
     Box,
     Typography,
@@ -11,12 +10,14 @@ import {
     Button, InputAdornment, Accordion, AccordionDetails, AccordionSummary
 } from "@mui/material";
 import search from "../../assets/images/search.svg";
-
 import { BootstrapInput } from "../../common/BootstrapInput";
+import Loader from "../../common/Loader";
 import { useQueryClient } from "@tanstack/react-query";
 import SubscriptionDetails from "./SubscriptionDetail";
+import { useGetViewVerification } from "../../API Calls/API";
 import UserDetail from "./UserDetail";
 import CarDetail from "./CarDetail";
+import { toast } from "react-toastify";
 
 const VerificationView = () => {
     const client = useQueryClient();
@@ -24,12 +25,25 @@ const VerificationView = () => {
     const [userDetailFind, setUserDetailFind] = useState(false);
     const [userDetails, setUserDetails] = useState({});
     const [loader, setLoader] = useState(false);
+    const [inputData, setInputData] = useState("");
 
-    const nav = useNavigate();
+    const viewVerificationData = useGetViewVerification((data) => {
+        setUserDetailFind(true)
+        setLoader(true)
+        setUserDetails(data?.data?.data)
+    },
+        (err) => { toast.error(err.response.data.message) });
+
+    const handleSearch = () => {
+        viewVerificationData.mutate({
+            id: inputData
+        });
+
+    };
 
     return (
         <>
-            {userDetailFind ?
+            {!userDetailFind ?
                 (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '90vh' }}>
                         <Grid size={12} >
@@ -57,8 +71,8 @@ const VerificationView = () => {
                                                 name="identity"
                                                 placeholder="Enter ID or Passport Number"
                                                 type={"text"}
-                                                // value={changePasswordForm.values.newPassword}
-                                                // onChange={changePasswordForm.handleChange}
+                                                value={inputData}
+                                                onChange={(e) => { setInputData(e.target.value) }}
                                                 style={{ paddingRight: 0 }}
                                             />
                                         </FormControl>
@@ -69,6 +83,7 @@ const VerificationView = () => {
                                             variant="contained"
                                             // disabled={}
                                             sx={{ width: '100%', height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                            onClick={() => { handleSearch() }}
                                         >
                                             Search
                                             {/* {changePassword.isPending ? <Loader color="white" /> : "Submit"} */}
@@ -79,8 +94,10 @@ const VerificationView = () => {
                         </Grid>
                     </Box>
                 ) : (
-                    <Box p={2}>
-                        <Grid container spacing={3}>    
+                    <>
+                    {/* {!userDetails && <Loader />} */}
+                    {userDetails && <Box p={2}>
+                        <Grid container spacing={3}>
                             <Grid size={3} >
                                 <Box display="flex" flexDirection="column" gap={3}>
                                     <Paper
@@ -95,12 +112,12 @@ const VerificationView = () => {
                                                     </Typography>
 
                                                     <BootstrapInput
-                                                        id="searchCustomer"
+                                                        id="identity"
                                                         name="identity"
-                                                        placeholder="Enter ID Number"
+                                                        placeholder="Enter ID or Passport Number"
                                                         type={"text"}
-                                                        // value={changePasswordForm.values.newPassword}
-                                                        // onChange={changePasswordForm.handleChange}
+                                                        value={inputData}
+                                                        onChange={(e) => { setInputData(e.target.value) }}
                                                         style={{ paddingRight: 0 }}
                                                     />
                                                 </FormControl>
@@ -109,7 +126,7 @@ const VerificationView = () => {
                                                 <Button
                                                     type="submit"
                                                     variant="contained"
-                                                    // disabled={}
+                                                    onClick={() => { handleSearch() }}
                                                     sx={{ width: '100%', height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                                                 >
                                                     Search User
@@ -118,22 +135,23 @@ const VerificationView = () => {
                                             </Grid>
                                         </Grid>
                                     </Paper>
-                                    <UserDetail/>
+                                    <UserDetail user={userDetails?.contact}/>
                                 </Box>
                             </Grid>
                             <Grid size={9}>
                                 <Box display="flex" flexDirection="column" gap={3}>
                                     <Paper
                                         elevation={3}
-                                        sx={{ p: 3,  borderRadius: "10px" }}
+                                        sx={{ p: 3, borderRadius: "10px" }}
                                     >
-                                        <SubscriptionDetails></SubscriptionDetails>
+                                        <SubscriptionDetails subscriptionDetails = {userDetails?.subscriptionDetails}/>
                                     </Paper>
-                                    <CarDetail/>
+                                    <CarDetail vehicleDetails = {userDetails?.vehicleDetails}/>
                                 </Box>
                             </Grid>
                         </Grid>
-                    </Box>
+                    </Box>}
+                    </>
                 )
             }
         </>

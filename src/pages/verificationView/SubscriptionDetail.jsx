@@ -8,49 +8,99 @@ import {
   Select,
   MenuItem
 } from "@mui/material";
+import { toast } from 'react-toastify';
+import { useSaveTagPurchasedVerification } from "../../API Calls/API";
 
-const subscriptionData = [
-  { label: "Subscription", value: "Active", type: "status-active" },
-  { label: "Subscription Start", value: "12 Jan 2023" },
-  { label: "Subscription End", value: "12 Jan 2024" },
-  { label: "Physical Panic Button", value: "Purchased", type: "status-purchased" },
-  { label: "Order Number", value: "#ORD-2023-8892", type: "link" },
-  { label: "Approved Driver", value: "Yes", type: "dropdown" },
-  { label: "Approved By", value: "Tshepo Mazibuko" },
-  { label: "Date Approved", value: "14 Jan 2023, 09:30 AM" },
-];
+export default function SubscriptionDetails({ subscriptionDetails }) {
 
-export default function SubscriptionDetails() {
+  const subscriptionData = [
+    { label: "Subscription", value: subscriptionDetails.subscription_status, type: "status-active" },
+    { label: "Subscription Start", value: subscriptionDetails.subscription_start || "12 Jan 2023" },
+    { label: "Subscription End", value: subscriptionDetails.subscription_end || "12 Jan 2024" },
+    { label: "Physical Panic Button", value: subscriptionDetails.physicalPanicButton, type: "status-purchased" },
+    { label: "Order Date", value: subscriptionDetails.orderDate },
+    { label: "Order Number", value: subscriptionDetails.orderNumber, type: "link" },
+    { label: "Approved Driver", value: subscriptionDetails.approvedDriver ? 'Yes' : 'No', type: "dropdown" },
+    { label: "Approved By", value: subscriptionDetails.approvedBy },
+    { label: "Date Approved", value: subscriptionDetails.dateApproved },
+  ];
 
-  const [subscriptionValue, setsubscriptionValue] = useState('Yes');
+  const [subscriptionValue, setsubscriptionValue] = useState(subscriptionDetails.approvedDriver ? 'Yes' : 'No');
+  const onSuccess = () => {
+    toast.success("Status Updated Successfully.");
+  };
+  const onError = (error) => {
+    toast.error(
+      error.response.data.message || "Something went Wrong",
+    );
+  };
 
+  const { mutate } = useSaveTagPurchasedVerification(onSuccess, onError);
+
+
+
+  // APi Calling
+  const userID = localStorage.getItem("userID")
   const handleChange = (e) => {
     const { name, value } = e.target;
     setsubscriptionValue(value)
+    let saveObj = {
+      driver_id: subscriptionDetails.driver_id,
+      approvedBy_id:userID,
+      subscription_id: subscriptionDetails.subscription_id,
+      isApprovedDriver:value == 'Yes' ? true : false,
+      date_approved:new Date
+    }
+    mutate(saveObj)
   }
 
   const RowValue = ({ value, type }) => {
     if (type === "status-active") {
-      return (
-        <Typography
-          fontSize="0.875rem"
-          fontWeight={600}
-          sx={{ color: "#16A34A" }}
-        >
-          {value}
-        </Typography>
-      );
+      if (value === 'active') {
+        return (
+          <Typography
+            fontSize="0.875rem"
+            fontWeight={600}
+            sx={{ color: "#16A34A" }}
+          >
+            Active
+          </Typography>
+        );
+
+      } else {
+        return (
+          <Typography
+            fontSize="0.875rem"
+            fontWeight={600}
+            sx={{ color: "#E5565A" }}
+          >
+            InActive
+          </Typography>
+        );
+      }
     }
     if (type === "status-purchased") {
-      return (
-        <Typography
-          fontSize="0.875rem"
-          fontWeight={600}
-          sx={{ color: "#16A34A" }}
-        >
-          {value}
-        </Typography>
-      );
+      if (value === 'Purchased') {
+        return (
+          <Typography
+            fontSize="0.875rem"
+            fontWeight={600}
+            sx={{ color: "#16A34A" }}
+          >
+            {value}
+          </Typography>
+        );
+      } else {
+        return (
+          <Typography
+            fontSize="0.875rem"
+            fontWeight={600}
+            sx={{ color: "#E5565A" }}
+          >
+            {value}
+          </Typography>
+        );
+      }
     }
     if (type === "link") {
       return (
@@ -70,9 +120,9 @@ export default function SubscriptionDetails() {
           onChange={handleChange}
           label="Subscription"
           sx={{
-            m: "0px", 
-            p: "0px", 
-            height:"0px",
+            m: "0px",
+            p: "0px",
+            height: "0px",
             "& .MuiOutlinedInput-notchedOutline": {
               border: "none",
             },
