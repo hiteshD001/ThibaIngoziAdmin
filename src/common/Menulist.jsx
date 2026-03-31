@@ -16,6 +16,8 @@ import StolenCarIcon from '../assets/images/StolenCarIcon.svg'
 import MissingPersonIcon from '../assets/images/MissingPersonIcon.svg'
 import SuspectIcon from '../assets/images/SuspectIcon.svg'
 import changePasswordIcon from '../assets/images/changePasswordIcon.svg'
+import verificationView from '../assets/images/verificationView.png'
+import policestation from '../assets/images/SAPS.svg'
 import profile from "../assets/images/profile.png";
 import Logout from "../assets/images/Logout.svg";
 import Company from "../assets/images/Company.svg";
@@ -120,6 +122,14 @@ export const allMenuItems = [
         permission: "Crime Reporting"
     },
     {
+        id: "police-unit",
+        name: "Police Unit",
+        path: "/home/police-unit",
+        image: policestation,
+        permission: null
+        // permission: "police-unit"
+    },
+    {
         id: "total-suspect",
         name: "Suspect Sightings",
         path: "/home/total-suspect",
@@ -155,6 +165,14 @@ export const allMenuItems = [
         image: eHailing,
         company: "e-Hailing Views",
         permission: "e-Hailing View"
+    },
+    {
+        id: "verification-view",
+        name: "Verification View",
+        path: "/home/verification-view",
+        image: verificationView,
+        permission: null
+        // permission: "verification-view"
     },
     {
         id: "logout",

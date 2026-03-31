@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
-import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent } from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent, useDeleteCrimeReport,useRemovePoliceUnit } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useState } from "react";
@@ -44,11 +44,19 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
     setconfirmation("");
   }
 
+  const onSuccessCrimeReport = () => {
+    toast.success("Crime Report deleted successfully");
+    client.invalidateQueries("crime report list");
+    setconfirmation("");
+  }
+
   const deleteDriver = useDeleteUser(onSuccess, onError)
   const deleteTrip = useDeleteUserTrip(onSuccessTrip, onError)
   const deleteMeetingLinkTrip = useDeleteUserMeetingTripTrip(onSuccessMeetingTrip, onError)
   const deleteMissingPerson = useDeleteMissingPerson(onSuccessMissingPerson, onError)
   const deleteMissingVehicle = useDeleteMissingVehicale(onSuccessMissingVehicle, onError)
+  const deleteCrimeReport = useDeleteCrimeReport(onSuccessCrimeReport, onError)
+  const deleteusePoliceUnit = useRemovePoliceUnit(onSuccessCrimeReport, onError)
 
   const handleConfirm = () => {
     if (trip === "trip") {
@@ -59,7 +67,11 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
       deleteMissingPerson.mutate(id);
     } else if (trip === "missingVehicle") {
       deleteMissingVehicle.mutate(id);
-    } 
+    } else if (trip === "crimeReport"){
+      deleteCrimeReport.mutate(id);
+    } else if (trip === "policeUnit"){
+      deleteusePoliceUnit.mutate(id);
+    }
     else {
       deleteDriver.mutate(id);
     }

@@ -112,14 +112,17 @@ const ListOfDrivers = () => {
     }, [debouncedFilter, sortBy, sortOrder, range, client]);
 
     const changeSortOrder = (e) => {
-        const field = e.target.id;
+        const field = e.currentTarget.id;
+        if (!field) return;
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
+            setpage(1);
         } else {
-            setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
+            setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
+            setpage(1);
         }
-    }
+    };
 
     const companyInfo = useGetUser(userId);
     const driverList = useGetUserList(
@@ -941,7 +944,10 @@ const ListOfDrivers = () => {
                         <Box display="flex" gap={1} sx={{ justifyContent: { xs: "space-between" } }}>
                             <CustomDateRangePicker
                                 value={range}
-                                onChange={setRange}
+                                onChange={(nextRange) => {
+                                    setRange(nextRange);
+                                    setpage(1);
+                                }}
                                 icon={calender}
                             />
                             <CustomExportMenu onExport={handleExport} />
@@ -954,7 +960,7 @@ const ListOfDrivers = () => {
                             </Button>
                             <Button variant="outlined" onClick={() => {
                                 setfilter("");
-                                setSortBy("first_name");
+                                setSortBy("username");
                                 setSortOrder("asc");
                                 setpage(1);
                                 setRowsPerPage(10);
@@ -989,11 +995,11 @@ const ListOfDrivers = () => {
                                 <TableRow>
                                     <TableCell sx={{ backgroundColor: "#F9FAFB", borderTopLeftRadius: '10px', color: "#4B5563" }}>
                                         <TableSortLabel
-                                            id="first_name"
-                                            active={sortBy === 'first_name'}
+                                            id="username"
+                                            active={sortBy === 'username'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'username' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Driver
                                         </TableSortLabel>
@@ -1022,11 +1028,11 @@ const ListOfDrivers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
                                         <TableSortLabel
-                                            id="mobile_no_country_code"
-                                            active={sortBy === 'mobile_no_country_code'}
+                                            id="mobile_no"
+                                            active={sortBy === 'mobile_no'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'mobile_no_country_code' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'mobile_no' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Contact No.
                                         </TableSortLabel>
@@ -1055,22 +1061,22 @@ const ListOfDrivers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="subscription_start_date"
-                                            active={sortBy === 'subscription_start_date'}
+                                            id="tag_connection"
+                                            active={sortBy === 'tag_connection'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'subscription_start_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'tag_connection' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Tag Connection
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="subscription_end_date"
-                                            active={sortBy === 'subscription_end_date'}
+                                            id="tag_disconnection"
+                                            active={sortBy === 'tag_disconnection'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'subscription_end_date' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'tag_disconnection' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Tag Disconnection
                                         </TableSortLabel>
@@ -1156,17 +1162,26 @@ const ListOfDrivers = () => {
                                                 </TableCell>
 
                                                 <TableCell sx={{ color: "#4B5563" }}>
-                                                    <Chip
-                                                        label={driver.isEnroll ? "active" : "inactive"}
-                                                        sx={{
-                                                            backgroundColor: driver?.isEnroll ? '#DCFCE7' : '#E5565A1A',
-                                                            '& .MuiChip-label': {
-                                                                textTransform: 'capitalize',
-                                                                fontWeight: 500,
-                                                                color: driver?.isEnroll ? '#15803D' : '#E5565A',
-                                                            }
-                                                        }}
-                                                    />
+                                                    {(() => {
+                                                        const status = driver?.subscription_status;
+                                                        const isActive = status === 'active';
+                                                        const label = status
+                                                            ? String(status).charAt(0).toUpperCase() + String(status).slice(1).toLowerCase()
+                                                            : 'Inactive';
+                                                        return (
+                                                            <Chip
+                                                                label={label}
+                                                                sx={{
+                                                                    backgroundColor: isActive ? '#DCFCE7' : '#E5565A1A',
+                                                                    '& .MuiChip-label': {
+                                                                        textTransform: 'capitalize',
+                                                                        fontWeight: 500,
+                                                                        color: isActive ? '#15803D' : '#E5565A',
+                                                                    }
+                                                                }}
+                                                            />
+                                                        );
+                                                    })()}
                                                 </TableCell>
 
                                                 <TableCell sx={{ color: '#4B5563' }}>

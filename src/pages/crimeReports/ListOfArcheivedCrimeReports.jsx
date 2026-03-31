@@ -28,7 +28,7 @@ import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 
 
 
-const ListOfCrimeReports = () => {
+const ListOfArcheivedCrimeReports = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
@@ -39,8 +39,7 @@ const ListOfCrimeReports = () => {
     const [filter, setfilter] = useState("");
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
-    const [archived, setArchived] = useState(false)
-    const [locationFilter, setlocationFilter] = useState("");
+    const [archived, setArchived] = useState(true)
 
     // Sort
     const [sortBy, setSortBy] = useState("createdAt");
@@ -69,7 +68,7 @@ const ListOfCrimeReports = () => {
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
 
-    const UserList = useGetCrimeReportList("crime report list", "company", currentPage, rowsPerPage, filter,locationFilter, startDate, endDate, archived,sortBy, sortOrder);
+    const UserList = useGetCrimeReportList("crime report list", "company", currentPage, rowsPerPage, filter, startDate, endDate, archived,sortBy, sortOrder);
     const totalCrimeReportData = UserList.data?.data?.totalCrimeReportData || 0;
     const totalPages = Math.ceil(totalCrimeReportData / rowsPerPage);
 
@@ -86,27 +85,34 @@ const ListOfCrimeReports = () => {
     const shortText = (text, limit = 30) =>
         text.length > limit ? text.substring(0, limit) + '...' : text;
 
-    const handleExport = async ({ startDate, endDate, exportFormat }) => {
+    const handleExport = async ({ startDate, endDate, format }) => {
         try {
-            
-            const data  = UserList.data?.data
+            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/flagged-reports`, {
+                params: {
+                    role: "passanger",
+                    page: 1,
+                    limit: 10000,
+                    filter: "",
+                    company_id: paramId,
+                    startDate,
+                    endDate,
+                },
+            });
 
-            const allUsers = data?.crimeReportData || [];
+            const allUsers = data?.users || [];
             if (!allUsers.length) {
-                toast.warning("No Crime Report data found for this period.");
+                toast.warning("No User data found for this period.");
                 return;
             }
 
             const exportData = allUsers.map(user => ({
-                "Crime ID": `${user.crime_report_number || ''}` || '',
-                "Reporter": user.user?.first_name || '',
-                "Location": `${user.address || ''}`,
-                "Description": user.description || '',
-                "Date Reported": user.createdAt || '',
-                "Status": user.report_status || ''
+                "User": `${user.first_name || ''} ${user.last_name || ''}` || '',
+                "Company Name": user.company_name || '',
+                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
+                "Contact Email": user.email || ''
             }));
-            
-            if (exportFormat === "xlsx") {
+
+            if (format === "xlsx") {
                 const worksheet = XLSX.utils.json_to_sheet(exportData);
                 const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
                     wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
@@ -114,32 +120,29 @@ const ListOfCrimeReports = () => {
                 worksheet['!cols'] = columnWidths;
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-                XLSX.writeFile(workbook, "Crime_Report_List.xlsx");
+                XLSX.writeFile(workbook, "User_List.xlsx");
             }
-            else if (exportFormat === "csv") {
-                
+            else if (format === "csv") {
                 const worksheet = XLSX.utils.json_to_sheet(exportData);
                 const csv = XLSX.utils.sheet_to_csv(worksheet);
                 const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'Crime_Report_List.csv';
+                link.download = 'user_list.csv';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             }
-            else if (exportFormat === "pdf") {
+            else if (format === "pdf") {
                 const doc = new jsPDF();
-                doc.text('Crime Report List', 14, 16);
+                doc.text('User List', 14, 16);
                 autoTable(doc, {
-                    head: [['Crime ID', 'Reporter', 'Location.', 'Description','Date Reported','Status']],
+                    head: [['User', 'Company Name', 'Contact No.', 'Contact Email']],
                     body: allUsers.map(user => [
-                        user.crime_report_number ?? 'NA',
-                        `${user.user?.first_name || ''} ${user.user?.last_name || ''}` ?? 'NA',
-                        `${user.address || ''}` ?? 'NA',
-                        user.description ?? 'NA',
-                        user.createdAt ?? 'NA',
-                        user.report_status ?? 'NA'
+                        `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
+                        user.company_name ?? 'NA',
+                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
+                        user.email ?? 'NA'
                     ]),
                     startY: 20,
                     theme: 'striped',
@@ -147,7 +150,7 @@ const ListOfCrimeReports = () => {
                     margin: { top: 20 },
                     styles: { fontSize: 10 },
                 });
-                doc.save("Crime_Report_List.pdf");
+                doc.save("User_List.pdf");
             }
 
         } catch (err) {
@@ -155,25 +158,12 @@ const ListOfCrimeReports = () => {
             toast.error("Export failed.");
         }
     };
-
-    const handleFilterData = (data) => {
-
-        const params = Object.fromEntries(
-            Object.entries(data).filter(
-                ([_, value]) => value !== "" && value !== undefined && value !== null
-            )
-        );
-
-        const filterText = new URLSearchParams(params).toString();
-        setlocationFilter(filterText)
-    };
-
     return (
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                     <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                        <Typography variant="h6" fontWeight={590}>All Crime Reports</Typography>
+                        <Typography variant="h6" fontWeight={590}>Archeived Reports</Typography>
                         <Typography variant="h6" fontWeight={550}>
                             {UserList.isSuccess ? UserList.data?.data?.totalCrimeReportData : 0}
                         </Typography>
@@ -218,7 +208,7 @@ const ListOfCrimeReports = () => {
                             }}
                         />
                         <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
-                            <CustomFilter onApply={handleFilterData} />
+                            <CustomFilter />
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
@@ -235,13 +225,8 @@ const ListOfCrimeReports = () => {
                                 Add Report
                             </Button> */}
                             <CustomExportMenu onExport={handleExport} />
-                            <Button
-                                onClick={() => nav('/home/crime-reports/view-archeived-crime-report')}
-                                variant="contained"
-                                sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
-                                startIcon={<img src={ViewBtn} alt="View" />}>
-                                View Archeived
-                            </Button>
+
+
                         </Box>
 
                     </Grid>
@@ -329,14 +314,14 @@ const ListOfCrimeReports = () => {
                                                         label={report.report_status}
                                                         sx={{
                                                             backgroundColor:
-                                                                report.report_status === 'With SAPS' ? '#DCFCE7' :
+                                                                report.report_status === 'actioned' ? '#DCFCE7' :
                                                                     report.report_status === 'reviewing' ? '#FEF9C3' :
                                                                         report.report_status == 'reviewed' ? '#DBEAFE' :
                                                                             report.report_status == 'pending' ? '#F3F4F6' :
                                                                                 '#FEF9C3',
                                                             '& .MuiChip-label': {
                                                                 textTransform: 'capitalize',
-                                                                color: report.report_status === 'With SAPS' ? 'green' :
+                                                                color: report.report_status === 'actioned' ? 'green' :
                                                                     report.report_status === 'reviewing' ? '#854D0E' :
                                                                         report.report_status == 'reviewed' ? '#1E40AF' :
                                                                             report.report_status == 'pending' ? '#1F2937' :
@@ -362,7 +347,7 @@ const ListOfCrimeReports = () => {
                                                             <IconButton onClick={() => {
                                                                 updateTripMutation.mutate({
                                                                     id: report?._id,
-                                                                    data: { isArchived: true }
+                                                                    data: { isArchived: false }
                                                                 });
                                                             }}>
                                                                 <img src={Listtrip} alt="view button" />
@@ -459,4 +444,4 @@ const ListOfCrimeReports = () => {
         </Box>
     );
 }
-export default ListOfCrimeReports;
+export default ListOfArcheivedCrimeReports;
