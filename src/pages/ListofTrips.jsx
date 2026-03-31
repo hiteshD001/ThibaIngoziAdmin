@@ -6,7 +6,7 @@ import {
 	Tooltip,
 	TableSortLabel
 } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import search from "../assets/images/search.svg";
 import calender from '../assets/images/calender.svg';
@@ -33,19 +33,20 @@ import arrownuteral from '../assets/images/arrownuteral.svg';
 
 const ListOfTrips = () => {
 	const nav = useNavigate();
-	const [page, setPage] = useState(1);
-	const [rowsPerPage, setRowsPerPage] = useState(10);
-	const [filter, setFilter] = useState("");
+	const [searchParams, setSearchParams] = useSearchParams();
+	const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+	const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+
+	const [range, setRange] = useState([{
+		startDate: new Date(startDateParam),
+		endDate: new Date(endDateParam),
+		key: 'selection'
+	}]);
+	const page = Number(searchParams.get("page")) || 1;
+	const filter = searchParams.get("filter") || "";
+	const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
 	const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
 	const [archived, setArchived] = useState(false)
-	const [range, setRange] = useState([
-		{
-			startDate: startOfYear(new Date()),
-			endDate: new Date(),
-			key: 'selection'
-		}
-	]);
-
 	const [viewcopassenger, setViewcopassenger] = useState([])
 
 	// Sort
@@ -59,11 +60,11 @@ const ListOfTrips = () => {
 		if (field !== sortBy) {
 			setSortBy(field);
 			setSortOrder("asc");
-			setPage(1);
+			updateParams({page:1});
 			setViewcopassenger([]);
 		} else {
 			setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
-			setPage(1);
+			updateParams({page:1});
 			setViewcopassenger([]);
 		}
 	};
@@ -78,7 +79,16 @@ const ListOfTrips = () => {
 	const tripList = trip?.data?.data?.tripData || [];
 	const totalTrips = trip?.data?.data?.totalTripData || 0;
 	const totalPages = Math.ceil(totalTrips / rowsPerPage);
-
+	const updateParams = (newParams) => {
+		setSearchParams({
+			page,
+			rowsPerPage: rowsPerPage,
+			startDate: startDateParam,
+			endDate: endDateParam,
+			filter,
+			...newParams,
+		});
+	};
 	const Data = {
 		"isArchived": true
 	}
@@ -257,7 +267,7 @@ const ListOfTrips = () => {
 							variant="outlined"
 							placeholder="Search"
 							value={filter}
-							onChange={(e) => setFilter(e.target.value)}
+							onChange={(e) => updateParams({filter:e.target.value})}
 							fullWidth
 							sx={{
 								width: "100%",
@@ -281,7 +291,11 @@ const ListOfTrips = () => {
 								value={range}
 								onChange={(nextRange) => {
 									setRange(nextRange);
-									setPage(1);
+									updateParams({
+										startDate: new Date(nextRange[0].startDate).toISOString(),
+										endDate: new Date(nextRange[0].endDate).toISOString(),
+										page: 1,
+									});
 								}}
 								icon={calender}
 							/>
@@ -487,8 +501,7 @@ const ListOfTrips = () => {
 									size="small"
 									value={rowsPerPage}
 									onChange={(e) => {
-										setRowsPerPage(Number(e.target.value));
-										setPage(1);
+										updateParams({rowsPerPage:Number(e.target.value),page:1});
 									}}
 									sx={{
 										border: 'none',
@@ -505,10 +518,10 @@ const ListOfTrips = () => {
 						<Grid item>
 							<Box display="flex" alignItems="center" gap={2}>
 								<Typography variant="body2">{page} / {totalPages}</Typography>
-								<IconButton disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+								<IconButton disabled={page === 1} onClick={() => updateParams({page:page - 1})}>
 									<NavigateBeforeIcon fontSize="small" />
 								</IconButton>
-								<IconButton disabled={page === totalPages} onClick={() => setPage((p) => p + 1)}>
+								<IconButton disabled={page === totalPages} onClick={() => updateParams({page:page + 1})}>
 									<NavigateNextIcon fontSize="small" />
 								</IconButton>
 							</Box>

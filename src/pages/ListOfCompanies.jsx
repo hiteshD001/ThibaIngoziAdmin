@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useDebounce from "../hooks/useDebounce";
 import {
   Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
@@ -42,13 +42,15 @@ import { startOfYear } from "date-fns";
 
 const ListOfCompanies = () => {
   const nav = useNavigate();
-  const [range, setRange] = useState([
-    {
-      startDate: startOfYear(new Date()),
-      endDate: new Date(),
-      key: 'selection'
-    }
-  ]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+  const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+
+  const [range, setRange] = useState([{
+    startDate: new Date(startDateParam),
+    endDate: new Date(endDateParam),
+    key: 'selection'
+  }]);
 
   // Sort
   const [sortBy, setSortBy] = useState("company_name");
@@ -65,7 +67,7 @@ const ListOfCompanies = () => {
     }
   }
 
-  const [filter, setfilter] = useState("");
+  const filter = searchParams.get("filter") || "";
   const debouncedFilter = useDebounce(filter, 1000);
   const [confirmation, setconfirmation] = useState("");
   const [status, setStatus] = useState("");
@@ -73,14 +75,24 @@ const ListOfCompanies = () => {
   const [selectedId, setSelectedId] = useState("");
   const [statusConfirmation, setStatusConfirmation] = useState({ show: false, userId: null, newStatus: null });
   const [isRange, setIsRange] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
-  const startDate = isRange ? "" : (range[0]?.startDate?.toISOString() || "");
-  const endDate = isRange ? "" : (range[0]?.endDate?.toISOString() || "");
+  const startDate = isRange ? "" : new Date(range[0].startDate).toISOString()
+  const endDate = isRange ? "" : new Date(range[0].endDate).toISOString()
+  const currentPage = Number(searchParams.get("currentPage")) || 1;
+  const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
   const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder)
   const totalCompany = companyList.data?.data?.totalUsers || 0;
   const totalPages = Math.ceil(totalCompany / rowsPerPage);
 
+  const updateParams = (newParams) => {
+    setSearchParams({
+      currentPage,
+      rowsPerPage: rowsPerPage,
+      startDate: startDateParam,
+      endDate: endDateParam,
+      filter,
+      ...newParams,
+    });
+  };
 
   const handleStatusUpdate = async () => {
     const { userId, newStatus } = statusConfirmation;
@@ -105,6 +117,11 @@ const ListOfCompanies = () => {
 
   const handleDateRangeChange = (newRange) => {
     setRange(newRange);
+    updateParams({
+      startDate: newRange[0].startDate.toISOString(),
+      endDate: newRange[0].endDate.toISOString(),
+      page: 1,
+    });
     setIsRange(false); // Reset isRange when specific dates are selected
   }
 
@@ -198,7 +215,7 @@ const ListOfCompanies = () => {
               variant="outlined"
               placeholder="Search"
               value={filter}
-              onChange={(e) => setfilter(e.target.value)}
+              onChange={(e) => updateParams({filter:e.target.value})}
               fullWidth
               sx={{
                 width: '100%',
@@ -236,11 +253,9 @@ const ListOfCompanies = () => {
                 Add Company
               </Button>
               <Button variant="outlined" onClick={() => {
-                setfilter("");
+                updateParams({filter:"",currentPage:1,rowsPerPage:10});
                 setSortBy("company_name");
                 setSortOrder("asc");
-                setCurrentPage(1);
-                setRowsPerPage(10);
                 setIsRange(true)
 
                 client.removeQueries(['userListFilters']);
@@ -488,8 +503,7 @@ const ListOfCompanies = () => {
                   }}
                   value={rowsPerPage}
                   onChange={(e) => {
-                    setRowsPerPage(Number(e.target.value));
-                    setCurrentPage(1);
+                    updateParams({rowsPerPage:Number(e.target.value),currentPage:1});
                   }}
                 >
                   {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -507,7 +521,7 @@ const ListOfCompanies = () => {
                 </Typography>
                 <IconButton
                   disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                  onClick={() => updateParams({currentPage:currentPage - 1})}
                 >
                   <NavigateBeforeIcon fontSize="small" sx={{
                     color: currentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
@@ -515,7 +529,7 @@ const ListOfCompanies = () => {
                 </IconButton>
                 <IconButton
                   disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                  onClick={() => updateParams({currentPage:currentPage + 1})}
                 >
                   <NavigateNextIcon fontSize="small" />
                 </IconButton>

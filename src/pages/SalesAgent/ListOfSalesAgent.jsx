@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useDebounce from "../../hooks/useDebounce";
 import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
 import {
@@ -50,12 +50,21 @@ const ListOfSalesAgent = () => {
     const buttonRefs = useRef({});
     const [popup, setpopup] = useState(false)
     const nav = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+
+    const [range, setRange] = useState([{
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
+        key: 'selection'
+    }]);
+    const page = Number(searchParams.get("page")) || 1;
+    const filter = searchParams.get("filter") || "";
+    const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
-    const [page, setpage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [sharingId, setSharingId] = useState(null);
-    const [filter, setfilter] = useState("");
     const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
@@ -63,13 +72,6 @@ const ListOfSalesAgent = () => {
     const [selectedUser, setSelectedUser] = useState(null);
 
     const [payPopup, setPopup] = useState('')
-    const [range, setRange] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
     const fileInputRef = useRef(null);
 
     const [sortBy, setSortBy] = useState("username");
@@ -79,10 +81,10 @@ const ListOfSalesAgent = () => {
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
-            setpage(1);
+            updateParams({page:1});
         } else {
             setSortOrder(p => p === 'asc' ? 'desc' : 'asc');
-            setpage(1);
+            updateParams({page:1});
         }
     }
 
@@ -370,6 +372,17 @@ const ListOfSalesAgent = () => {
     const unpaid = getTrendData("unpaid");
     const paid = getTrendData("paid");
     const userTrend = getTrendData("user");
+    const updateParams = (newParams) => {
+		setSearchParams({
+			page,
+			rowsPerPage: rowsPerPage,
+			startDate: startDateParam,
+			endDate: endDateParam,
+			filter,
+			...newParams,
+		});
+	};
+
     return (
         <Box p={2}>
             <Grid container spacing={2}>
@@ -502,7 +515,7 @@ const ListOfSalesAgent = () => {
                                     variant="outlined"
                                     placeholder="Search"
                                     value={filter}
-                                    onChange={(e) => setfilter(e.target.value)}
+                                    onChange={(e) => updateParams({filter:e.target.value})}
                                     fullWidth
                                     sx={{
                                         width: "100%",
@@ -528,7 +541,13 @@ const ListOfSalesAgent = () => {
                                 <Box display="flex" gap={1} sx={{ justifyContent: { xs: "space-between" } }}>
                                     <CustomDateRangePicker
                                         value={range}
-                                        onChange={setRange}
+                                        onChange={(nextRange) => {
+                                            setRange(nextRange);
+                                            updateParams({
+                                                startDate: nextRange[0].startDate.toISOString(),
+                                                endDate: nextRange[0].endDate.toISOString(),
+                                            });
+                                        }}
                                         icon={calender}
                                     />
                                     <CustomExportMenu onExport={handleExport} />
@@ -967,8 +986,7 @@ const ListOfSalesAgent = () => {
                                             }}
                                             value={rowsPerPage}
                                             onChange={(e) => {
-                                                setRowsPerPage(Number(e.target.value));
-                                                setpage(1);
+                                                updateParams({rowsPerPage:Number(e.target.value),page:1});
                                             }}
                                         >
                                             {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -987,7 +1005,7 @@ const ListOfSalesAgent = () => {
                                         </Typography>
                                         <IconButton
                                             disabled={page === 1}
-                                            onClick={() => setpage((prev) => prev - 1)}
+                                            onClick={() => updateParams({page:page - 1})}
                                         >
                                             <NavigateBeforeIcon
                                                 fontSize="small"
@@ -998,7 +1016,7 @@ const ListOfSalesAgent = () => {
                                         </IconButton>
                                         <IconButton
                                             disabled={page === totalPages}
-                                            onClick={() => setpage((prev) => prev + 1)}
+                                            onClick={() => updateParams({page:page + 1})}
                                         >
                                             <NavigateNextIcon fontSize="small" />
                                         </IconButton>
