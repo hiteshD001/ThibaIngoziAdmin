@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useRef, useMemo, useEffect, useState, useCallback, memo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Slide, toast } from 'react-toastify';
-import { format } from 'date-fns';
+import { format,startOfYear } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 import NavigateNext from '@mui/icons-material/NavigateNext';
@@ -402,6 +402,30 @@ const EHialingView = () => {
     const { isLoaded: isMapLoaded } = useMaps();
     const nav = useNavigate();
     const queryClient = useQueryClient();
+    const [searchParams, setSearchParams] = useSearchParams();
+    // Active SOS pagination
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+    const [rangeSos, setRangeSos] = useState([{
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
+        key: 'selection'
+    }]);
+    const activePage = Number(searchParams.get("activePage")) || 1;
+    const activeLimit = Number(searchParams.get("activeLimit")) || 10;
+
+    // Recent Filter And Pagination
+    const [recentSearchParams, setRecentSearchParams] = useSearchParams();
+    const startDateRecentParam = recentSearchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateRecentParam = recentSearchParams.get("endDate") || new Date().toISOString();
+
+    const [range, setRange] = useState([{
+        startDate: new Date(startDateRecentParam),
+        endDate: new Date(endDateRecentParam),
+        key: 'selection'
+    }]);
+    const recentPage = Number(recentSearchParams.get("recentPage")) || 1;
+    const recentLimit = Number(recentSearchParams.get("recentLimit")) || 10;
 
     const lastFetchTime = useRef(0);
     const audioRef = useRef(new Audio(tone));
@@ -462,12 +486,6 @@ const EHialingView = () => {
         setOtherUsersModalItems([]);
     }, []);
 
-    // pagination
-    const [recentPage, setRecentPage] = useState(1);
-    const [recentLimit, setRecentLimit] = useState(10);
-    const [activePage, setActivePage] = useState(1);
-    const [activeLimit, setActiveLimit] = useState(10);
-
     // Sort
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
@@ -476,30 +494,30 @@ const EHialingView = () => {
     const [sortOrder2, setSortOrder2] = useState("desc");
 
     // date picker 
-    const [rangeSos, setRangeSos] = useState([
-        {
-            startDate: null,
-            endDate: null,
-            key: 'selection'
-        }
-        // {
-        //     startDate: startOfYear(new Date()),
-        //     endDate: new Date(),
-        //     key: 'selection'
-        // }
-    ]);
-    const [range, setRange] = useState([
-        {
-            startDate: null,
-            endDate: null,
-            key: 'selection'
-        }
-        // {
-        //     startDate: startOfYear(new Date()),
-        //     endDate: new Date(),
-        //     key: 'selection'
-        // }
-    ]);
+    // const [rangeSos, setRangeSos] = useState([
+    //     {
+    //         startDate: null,
+    //         endDate: null,
+    //         key: 'selection'
+    //     }
+    //     // {
+    //     //     startDate: startOfYear(new Date()),
+    //     //     endDate: new Date(),
+    //     //     key: 'selection'
+    //     // }
+    // ]);
+    // const [range, setRange] = useState([
+    //     {
+    //         startDate: null,
+    //         endDate: null,
+    //         key: 'selection'
+    //     }
+    //     // {
+    //     //     startDate: startOfYear(new Date()),
+    //     //     endDate: new Date(),
+    //     //     key: 'selection'
+    //     // }
+    // ]);
     const startDate = range[0].startDate?.toISOString();
     const endDate = range[0].endDate?.toISOString();
     const startDateSos = rangeSos[0].startDate?.toISOString();
@@ -597,10 +615,10 @@ const EHialingView = () => {
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
-            setRecentPage(1);
+            updateRecentParams({recentPage:1});
         } else {
             setSortOrder(p => p === 'asc' ? 'desc' : 'asc');
-            setRecentPage(1);
+            updateRecentParams({recentPage:1});
         }
     }, [sortBy]);
 
@@ -610,10 +628,10 @@ const EHialingView = () => {
         if (field !== sortBy2) {
             setSortBy2(field);
             setSortOrder2("asc");
-            setActivePage(1);
+            updateParams({activePage:1});
         } else {
             setSortOrder2(p => p === 'asc' ? 'desc' : 'asc');
-            setActivePage(1);
+            updateParams({activePage:1});
         }
     }, [sortBy2]);
 
@@ -649,7 +667,7 @@ const EHialingView = () => {
         }
 
         debounceTimerRef.current = setTimeout(() => {
-            setActivePage(newPage);
+            updateParams({activePage:newPage});
         }, 150);
     }, []);
 
@@ -659,7 +677,7 @@ const EHialingView = () => {
         }
 
         debounceTimerRef.current = setTimeout(() => {
-            setRecentPage(newPage);
+            updateRecentParams({newPage});
         }, 150);
     }, []);
 
@@ -669,8 +687,7 @@ const EHialingView = () => {
         }
 
         debounceTimerRef.current = setTimeout(() => {
-            setActiveLimit(newLimit);
-            setActivePage(1);
+            updateParams({activeLimit:newLimit,activePage:1});
         }, 150);
     }, []);
 
@@ -680,8 +697,7 @@ const EHialingView = () => {
         }
 
         debounceTimerRef.current = setTimeout(() => {
-            setRecentLimit(newLimit);
-            setRecentPage(1);
+            updateRecentParams({recentLimit:newLimit,recentPage:1});
         }, 150);
     }, []);
 
@@ -866,6 +882,28 @@ const EHialingView = () => {
         }
     }, [range])
 
+    // Update Active Sos Params
+    const updateParams = (newParams) => {
+        setSearchParams({
+            activePage,
+            activeLimit,
+            startDate: startDateParam,
+            endDate: endDateParam,
+            ...newParams,
+        });
+    };
+
+    // Update Recent Sos Params
+    const updateRecentParams = (newParams) => {
+        setRecentSearchParams({
+            recentPage,
+            recentLimit,
+            startDate: startDateRecentParam,
+            endDate: endDateRecentParam,
+            ...newParams,
+        });
+    };
+
     return (
         <Box>
             <style>
@@ -906,7 +944,15 @@ const EHialingView = () => {
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
-                                onChange={setRange}
+                                // onChange={setRange}
+                                onChange={(nextRange) => {
+                                    setRange(nextRange);
+                                    updateRecentParams({
+                                        startDate: nextRange[0].startDate.toISOString(),
+                                        endDate: nextRange[0].endDate.toISOString(),
+                                        page: 1,
+                                    });
+                                }}
                                 icon={calender}
                             />
                         </Box>
@@ -931,7 +977,15 @@ const EHialingView = () => {
                         <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
                             <CustomDateRangePicker
                                 value={rangeSos}
-                                onChange={setRangeSos}
+                                // onChange={setRangeSos}
+                                onChange={(nextRange) => {
+                                    setRangeSos(nextRange);
+                                    updateParams({
+                                        startDate: nextRange[0].startDate.toISOString(),
+                                        endDate: nextRange[0].endDate.toISOString(),
+                                        page: 1,
+                                    });
+                                }}
                                 icon={calender}
                             />
                         </Grid>
@@ -1150,7 +1204,14 @@ const EHialingView = () => {
                         <Grid size={{ xs: 12, lg: 8 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
                             <CustomDateRangePicker
                                 value={range}
-                                onChange={setRange}
+                                onChange={(nextRange) => {
+                                    setRange(nextRange);
+                                    updateRecentParams({
+                                        startDate: nextRange[0].startDate.toISOString(),
+                                        endDate: nextRange[0].endDate.toISOString(),
+                                        page: 1,
+                                    });
+                                }}
                                 icon={calender}
                             />
                         </Grid>

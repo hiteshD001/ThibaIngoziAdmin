@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
     // useGetActiveSOS,
     useGetRecentSOS,
@@ -66,9 +66,33 @@ const copyButtonStyles = {
 
 const Home = () => {
     const { isLoaded: isMapLoaded } = useMaps();
-    // filters
-    const [filter, setfilter] = useState("");
-    const [recentFilter, setRecentFilter] = useState("");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const filter = searchParams.get("filter") || "";
+    // Active SOS pagination
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+    const [rangeSos, setRangeSos] = useState([{
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
+        key: 'selection'
+    }]);
+    const activePage = Number(searchParams.get("activePage")) || 1;
+    const activeLimit = Number(searchParams.get("activeLimit")) || 20;
+
+    // Recent Filter And Pagination
+    const [recentSearchParams, setRecentSearchParams] = useSearchParams();
+    const startDateRecentParam = recentSearchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateRecentParam = recentSearchParams.get("endDate") || new Date().toISOString();
+
+    const [range, setRange] = useState([{
+        startDate: new Date(startDateRecentParam),
+        endDate: new Date(endDateRecentParam),
+        key: 'selection'
+    }]);
+    const recentFilter = recentSearchParams.get("recentFilter") || "";
+    const recentPage = Number(recentSearchParams.get("recentPage")) || 1;
+    const recentLimit = Number(recentSearchParams.get("recentLimit")) || 20;
+
     const [debouncedFilter, setDebouncedFilter] = useState("");
     const [debouncedRecentFilter, setDebouncedRecentFilter] = useState("");
     const [statusUpdate, setStatusUpdate] = useState(false);
@@ -109,12 +133,6 @@ const Home = () => {
 
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
-    // Recent SOS pagination
-    const [recentPage, setRecentPage] = useState(1);
-    const [recentLimit, setRecentLimit] = useState(10);
-    // Active SOS pagination
-    const [activePage, setActivePage] = useState(1);
-    const [activeLimit, setActiveLimit] = useState(20);
 
     // Audio Control
     const audioRef = useRef(new Audio(tone));
@@ -126,21 +144,6 @@ const Home = () => {
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
     const [is2FALoading, setIs2FALoading] = useState(false);
 
-    // date picker 
-    const [rangeSos, setRangeSos] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
-    const [range, setRange] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
     const startDateSos = rangeSos[0].startDate.toISOString();
@@ -159,10 +162,10 @@ const Home = () => {
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
-            setRecentPage(1);
+            updateRecentParams({recentPage:1});
         } else {
             setSortOrder(p => p === 'asc' ? 'desc' : 'asc');
-            setRecentPage(1);
+            updateRecentParams({recentPage:1});
         }
     }
 
@@ -172,10 +175,10 @@ const Home = () => {
         if (field !== sortBy2) {
             setSortBy2(field);
             setSortOrder2("asc");
-            setActivePage(1);
+            updateParams({ activePage: 1 });
         } else {
             setSortOrder2(p => p === 'asc' ? 'desc' : 'asc');
-            setActivePage(1);
+            updateParams({ activePage: 1 });
         }
     }
 
@@ -565,6 +568,30 @@ const Home = () => {
     const totalRecentItems = recentSos?.data?.totalItems ?? recentSos?.data?.data?.totalItems ?? 0;
     const totalRecentPages = Math.ceil(totalRecentItems / recentLimit)
 
+    // Update Active Sos Params
+    const updateParams = (newParams) => {
+        setSearchParams({
+            activePage,
+            activeLimit,
+            startDate: startDateParam,
+            endDate: endDateParam,
+            filter,
+            ...newParams,
+        });
+    };
+
+    // Update Recent Sos Params
+    const updateRecentParams = (newParams) => {
+        setRecentSearchParams({
+            recentPage,
+            recentLimit,
+            startDate: startDateRecentParam,
+            endDate: endDateRecentParam,
+            recentFilter,
+            ...newParams,
+        });
+    };
+
     return (
         <Box>
             <Analytics
@@ -602,7 +629,7 @@ const Home = () => {
                                 variant="outlined"
                                 placeholder="Search"
                                 value={filter}
-                                onChange={(e) => setfilter(e.target.value)}
+                                onChange={(e) => updateParams({ filter: e.target.value })}
                                 fullWidth
                                 sx={{
                                     width: '100%',
@@ -627,7 +654,14 @@ const Home = () => {
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
                                 <CustomDateRangePicker
                                     value={rangeSos}
-                                    onChange={setRangeSos}
+                                    onChange={(nextRange) => {
+                                        setRangeSos(nextRange);
+                                        updateParams({
+                                            startDate: nextRange[0].startDate.toISOString(),
+                                            endDate: nextRange[0].endDate.toISOString(),
+                                            page: 1,
+                                        });
+                                    }}
                                     icon={calender}
                                 />
                                 <FormControl size="small" sx={{ maxWidth: 200 }}>
@@ -650,8 +684,7 @@ const Home = () => {
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
-
-                                        setfilter("");
+                                        updateParams({ filter: "" , activeLimit: 20, activePage: 1});
                                         setSelectedNotification("all");
                                         setRangeSos([
                                             {
@@ -660,8 +693,7 @@ const Home = () => {
                                                 key: 'selection'
                                             }
                                         ]);
-                                        setActivePage(1);
-                                        setActiveLimit(20);
+                                        
                                         setSortBy2("createdAt");
                                         setSortOrder2("desc");
 
@@ -1036,8 +1068,7 @@ const Home = () => {
                                         }}
                                         value={activeLimit}
                                         onChange={(e) => {
-                                            setActiveLimit(Number(e.target.value));
-                                            setActivePage(1);
+                                            updateParams({ activeLimit: Number(e.target.value), activePage: 1 });
                                         }}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -1055,7 +1086,7 @@ const Home = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={activePage === 1}
-                                        onClick={() => setActivePage((prev) => prev - 1)}
+                                        onClick={() => updateParams({ activePage: activePage - 1 })}
                                     >
                                         <NavigateBeforeIcon fontSize="small" sx={{
                                             color: activePage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
@@ -1063,7 +1094,7 @@ const Home = () => {
                                     </IconButton>
                                     <IconButton
                                         disabled={activePage === totalActivePages}
-                                        onClick={() => setActivePage((prev) => prev + 1)}
+                                        onClick={() => updateParams({ activePage: activePage + 1 })}
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>
@@ -1089,7 +1120,7 @@ const Home = () => {
                                 variant="outlined"
                                 placeholder="Search"
                                 value={recentFilter}
-                                onChange={(e) => setRecentFilter(e.target.value)}
+                                onChange={(e) => updateRecentParams({recentFilter:e.target.value})}
                                 fullWidth
                                 sx={{
                                     width: '100%',
@@ -1114,7 +1145,14 @@ const Home = () => {
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
                                 <CustomDateRangePicker
                                     value={range}
-                                    onChange={setRange}
+                                    onChange={(nextRange) => {
+                                        setRange(nextRange);
+                                        updateRecentParams({
+                                            startDate: nextRange[0].startDate.toISOString(),
+                                            endDate: nextRange[0].endDate.toISOString(),
+                                            page: 1,
+                                        });
+                                    }}
                                     icon={calender}
                                 />
                                 <FormControl size="small" sx={{ maxWidth: 200 }}>
@@ -1136,7 +1174,7 @@ const Home = () => {
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
-                                        setRecentFilter("");
+                                        updateRecentParams({recentFilter:"",recentLimit:20,recentPage:1});
                                         setRecentNotification("all");
                                         setRange([
                                             {
@@ -1145,8 +1183,6 @@ const Home = () => {
                                                 key: "selection",
                                             },
                                         ]);
-                                        setRecentPage(1);
-                                        setRecentLimit(20);
                                         setSortBy("createdAt");
                                         setSortOrder("desc");
 
@@ -1459,8 +1495,7 @@ const Home = () => {
                                         }}
                                         value={recentLimit}
                                         onChange={(e) => {
-                                            setRecentLimit(Number(e.target.value));
-                                            setRecentPage(1);
+                                            updateRecentParams({recentLimit:Number(e.target.value),recentPage:1});
                                         }}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -1478,7 +1513,7 @@ const Home = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={recentPage === 1}
-                                        onClick={() => setRecentPage((prev) => prev - 1)}
+                                        onClick={() => updateRecentParams({recentPage:recentPage - 1})}
                                     >
                                         <NavigateBeforeIcon fontSize="small" sx={{
                                             color: recentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
@@ -1486,7 +1521,7 @@ const Home = () => {
                                     </IconButton>
                                     <IconButton
                                         disabled={recentPage === totalRecentPages}
-                                        onClick={() => setRecentPage((prev) => prev + 1)}
+                                        onClick={() => updateRecentParams({recentPage:recentPage + 1})}
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>
