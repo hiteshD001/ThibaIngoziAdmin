@@ -30,6 +30,8 @@ import totalsuspect from "../../assets/images/permission/total-suspect.svg"
 import totalusers from "../../assets/images/permission/total-users.svg"
 import ehailing from "../../assets/images/permission/e-hailing-view.svg"
 import application from "../../assets/images/permission/home.svg"
+import policeUnitIcn from "../../assets/images/permission/total-saps-wanted.svg"
+import verificationViewIcn from "../../assets/images/permission/view-verification.png"
 
 const CreateRole = ({ editRoleId, setEditRoleId }) => {
     const client = useQueryClient()
@@ -579,5 +581,13 @@ const icons = [
     {
         name: "Application",
         icon: application
+    },
+    {
+        name: "Police Unit",
+        icon: policeUnitIcn
+    },
+    {
+        name: "Verification View",
+        icon: verificationViewIcn
     }
 ]
