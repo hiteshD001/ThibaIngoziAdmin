@@ -985,7 +985,7 @@ const Home = () => {
                                                                         }}
                                                                         onClick={() => openOtherUsersModal(user?.otherUser)}
                                                                     >
-                                                                        Other User
+                                                                        Other Users
                                                                     </Button>
                                                                 </Tooltip>
                                                             )}
@@ -1445,7 +1445,7 @@ const Home = () => {
                                                                             }}
                                                                             onClick={() => openOtherUsersModal(row?.otherUser)}
                                                                         >
-                                                                            Other User
+                                                                            Other Users
                                                                         </Button>
                                                                     </Tooltip>
                                                                 ) : (

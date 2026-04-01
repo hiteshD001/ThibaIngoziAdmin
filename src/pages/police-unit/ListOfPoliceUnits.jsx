@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Avatar, Stack, Select, MenuItem, Chip,
     Tooltip
@@ -31,11 +31,18 @@ const ListOfPoliceUnits = () => {
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
-    const [page, setpage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [filter, setfilter] = useState("");
-    const [locationFilter, setlocationFilter] = useState("");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+    const [range, setRange] = useState([{
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
+        key: 'selection'
+    }]);
+    const currentPage = Number(searchParams.get("currentPage")) || 1;
+    const filter = searchParams.get("filter") || "";
+    const locationFilter = searchParams.get("locationFilter") || "";
+    const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     const [archived, setArchived] = useState(false)
@@ -57,13 +64,6 @@ const ListOfPoliceUnits = () => {
 
     let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;
-    const [range, setRange] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
 
@@ -160,7 +160,19 @@ const ListOfPoliceUnits = () => {
         );
 
         const filterText = new URLSearchParams(params).toString();
-        setlocationFilter(filterText)
+        updateParams({locationFilter:filterText})
+    };
+
+    const updateParams = (newParams) => {
+        setSearchParams({
+            currentPage,
+            rowsPerPage: rowsPerPage,
+            startDate: startDateParam,
+            endDate: endDateParam,
+            filter,
+            locationFilter,
+            ...newParams,
+        });
     };
 
 
@@ -180,7 +192,7 @@ const ListOfPoliceUnits = () => {
                             variant="outlined"
                             placeholder="Search"
                             value={filter}
-                            onChange={(e) => setfilter(e.target.value)}
+                            onChange={(e) => updateParams({filter:e.target.value})}
                             fullWidth
                             sx={{
                                 width: '100%',
@@ -214,11 +226,17 @@ const ListOfPoliceUnits = () => {
                             }}
                         />
                         <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
-                            <CustomFilter onApply={handleFilterData} />
+                            <CustomFilter onApply={handleFilterData} isSuburbVisible ={false} />
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
-                                onChange={setRange}
+                                onChange={(nextRange) => {
+									setRange(nextRange);
+									updateParams({
+										startDate: new Date(nextRange[0].startDate).toISOString(),
+										endDate: new Date(nextRange[0].endDate).toISOString(),
+									});
+								}}
                                 icon={calender}
                             />
 
@@ -358,8 +376,7 @@ const ListOfPoliceUnits = () => {
                                         }}
                                         value={rowsPerPage}
                                         onChange={(e) => {
-                                            setRowsPerPage(Number(e.target.value));
-                                            setCurrentPage(1);
+                                            updateParams({rowsPerPage:Number(e.target.value),currentPage:1});
                                         }}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -377,7 +394,7 @@ const ListOfPoliceUnits = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={currentPage === 1}
-                                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                                        onClick={() => updateParams({currentPage:currentPage - 1})}
                                     >
                                         <NavigateBeforeIcon fontSize="small" sx={{
                                             color: currentPage === 1 ? '#BDBDBD' : '#1976d2'
@@ -385,7 +402,7 @@ const ListOfPoliceUnits = () => {
                                     </IconButton>
                                     <IconButton
                                         disabled={currentPage === totalPages}
-                                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                                        onClick={() => updateParams({currentPage:currentPage + 1})}
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>
