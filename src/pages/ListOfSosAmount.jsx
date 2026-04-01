@@ -7,7 +7,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useState } from "react";
 import useDebounce from "../hooks/useDebounce";
 import plus from '../assets/images/plus.svg'
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import search from '../assets/images/search.svg'
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
@@ -18,21 +18,27 @@ import Loader from "../common/Loader";
 
 const ListOfSosAmount = () => {
     const nav = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const page = Number(searchParams.get("page")) || 1;
+    const currentPage = Number(searchParams.get("currentPage")) || 1;
+    const filter = searchParams.get("filter") || "";
+    const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
     const [role] = useState(localStorage.getItem("role"));
-    const [page, setPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [filter, setFilter] = useState("");
     const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [confirmation, setConfirmation] = useState("");
 
-    const [currentPage, setCurrentPage] = useState(1);
     const sosList = useGetSoSAmountList("ArmedSOSAmount List", page, rowsPerPage, debouncedFilter);
     const totalPages = Math.ceil(sosList?.data?.data.total / rowsPerPage);
-    const handleChangePage = (event, newPage) => setPage(newPage);
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
+
+    const updateParams = (newParams) => {
+		setSearchParams({
+			page,
+			currentPage,
+			rowsPerPage: rowsPerPage,
+			filter,
+			...newParams,
+		});
+	};
 
     return (
         <Box p={2}>
@@ -46,7 +52,7 @@ const ListOfSosAmount = () => {
                             variant="outlined"
                             placeholder="Search"
                             value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
+                            onChange={(e) => updateParams({filter:e.target.value})}
                             fullWidth
                             sx={{
                                 width: '100%',
@@ -155,8 +161,7 @@ const ListOfSosAmount = () => {
                                             },
                                         }}
                                         onChange={(e) => {
-                                            setRowsPerPage(Number(e.target.value));
-                                            setCurrentPage(1);
+                                            updateParams({rowsPerPage:Number(e.target.value),currentPage:1});
                                         }}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -175,17 +180,15 @@ const ListOfSosAmount = () => {
                                     <IconButton
                                         disabled={currentPage === 1}
                                         onClick={() => {
-                                            setCurrentPage((prev) => prev - 1)
-                                            setPage((prev) => prev - 1)
+                                            updateParams({currentPage:currentPage - 1,page:page-1})
                                         }}
-                                    >
+                                        >
                                         <ArrowBackIosNewIcon fontSize="small" />
                                     </IconButton>
                                     <IconButton
                                         disabled={currentPage === totalPages}
                                         onClick={() => {
-                                            setCurrentPage((prev) => prev + 1)
-                                            setPage((prev) => prev + 1)
+                                            updateParams({currentPage:currentPage + 1,page:page+1})
                                         }}
                                     >
                                         <ArrowForwardIosIcon fontSize="small" />
