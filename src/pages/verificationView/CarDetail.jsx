@@ -6,22 +6,22 @@ import {
   Divider,
 } from "@mui/material";
 
-const defaultPhotos = [
-  { label: "Front Side", src: "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400&q=80" },
-  { label: "Back Side",  src: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400&q=80" },
-  { label: "Right Side", src: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=400&q=80" },
-  { label: "Left Side",  src: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&q=80" },
-  { label: "Car Number Plate",  src: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&q=80" },
-  { label: "License Disc Image",  src: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&q=80" },
-];
 
-const CarDetail = () => {
-  const parts = ["AB", "99", "YZ", "GP"];
-  // const colors = ["#FACC15", "#FACC15", "#FACC15", "#22C55E"];
+const CarDetail = ({vehicleDetails}) => {
+
+  const defaultPhotos = [
+    { label: "Front Side", src: vehicleDetails.image_front_side },
+    { label: "Back Side",  src: vehicleDetails.image_back_side },
+    { label: "Right Side", src: vehicleDetails.image_right_side },
+    { label: "Left Side",  src: vehicleDetails.image_left_side },
+    { label: "Car Number Plate",  src: vehicleDetails.image_car_number_plate },
+    { label: "License Disc Image",  src: vehicleDetails.image_driver_license },
+  ];
+  const parts = vehicleDetails?.reg_no.match(/.{1,2}/g) || ["AB", "99", "YZ", "GP"];
   let car = {}
   let photos = "" 
   const {
-    vehicle = "Toyota Corolla Cross",
+    vehicle = vehicleDetails.vehicle_name,
     regNo = "AB 99 YZ GP",
   } = car || {};
 
