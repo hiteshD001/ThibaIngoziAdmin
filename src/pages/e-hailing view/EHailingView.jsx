@@ -239,7 +239,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                                     }}
                                     onClick={handleOtherUserClick}
                                 >
-                                    Other User
+                                    Other Users
                                 </Button>
                             </IconButton>
                         </Tooltip>
@@ -383,7 +383,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                                     }}
                                     onClick={() => onOpenOtherUsers?.(row?.otherUser)}
                                 >
-                                    Other User
+                                    Other Users
                                 </Button>
                             </Tooltip>
                         ) : (
@@ -1153,7 +1153,7 @@ const EHialingView = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={activePage === 1}
-                                        onClick={() => handleActivePageChange(activePage - 1)}
+                                        onClick={() => handleActivePageChange(updateParams({activePage:activePage - 1}))}
                                     >
                                         <NavigateBefore fontSize="small" sx={{
                                             color: activePage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
@@ -1161,7 +1161,7 @@ const EHialingView = () => {
                                     </IconButton>
                                     <IconButton
                                         disabled={activePage === totalActivePages}
-                                        onClick={() => handleActivePageChange(activePage + 1)}
+                                        onClick={() => handleActivePageChange(updateParams({activePage:activePage + 1}))}
                                     >
                                         <NavigateNext fontSize="small" />
                                     </IconButton>
@@ -1380,7 +1380,7 @@ const EHialingView = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={recentPage === 1}
-                                        onClick={() => handleRecentPageChange(recentPage - 1)}
+                                        onClick={() => handleRecentPageChange(updateRecentParams({recentPage:recentPage - 1}))}
                                     >
                                         <NavigateBefore fontSize="small" sx={{
                                             color: recentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
@@ -1388,7 +1388,7 @@ const EHialingView = () => {
                                     </IconButton>
                                     <IconButton
                                         disabled={recentPage === totalRecentPages}
-                                        onClick={() => handleRecentPageChange(recentPage + 1)}
+                                        onClick={() => handleRecentPageChange(updateRecentParams({recentPage:recentPage + 1}))}
                                     >
                                         <NavigateNext fontSize="small" />
                                     </IconButton>
