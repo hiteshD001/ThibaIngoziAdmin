@@ -78,11 +78,12 @@ const Home = () => {
     }]);
     const activePage = Number(searchParams.get("activePage")) || 1;
     const activeLimit = Number(searchParams.get("activeLimit")) || 20;
-
+    const selectedNotification = searchParams.get("selectedNotification") || "all"
     // Recent Filter And Pagination
     const [recentSearchParams, setRecentSearchParams] = useSearchParams();
     const startDateRecentParam = recentSearchParams.get("startDate") || startOfYear(new Date()).toISOString();
     const endDateRecentParam = recentSearchParams.get("endDate") || new Date().toISOString();
+    const recentNotification = searchParams.get("recentNotification") || "all"
 
     const [range, setRange] = useState([{
         startDate: new Date(startDateRecentParam),
@@ -125,8 +126,6 @@ const Home = () => {
     const [status, setStatus] = useState('')
     // const [activeUsers, setActiveUsers] = useState([])
     const [selectedId, setSelectedId] = useState("");
-    const [selectedNotification, setSelectedNotification] = useState("all");
-    const [recentNotification, setRecentNotification] = useState("all");
     const [updatingId, setUpdatingId] = useState(""); // Track which ID is being updated
     const { newSOS, requestCounts, activeUserLists, setActiveUserLists } = useWebSocket();
     const location = useLocation();
@@ -497,10 +496,10 @@ const Home = () => {
     };
 
     const handleNotificationChange = (e) => {
-        setSelectedNotification(e.target.value);
+        updateParams({selectedNotification:e.target.value})
     };
     const handleRecentNotificationChange = (e) => {
-        setRecentNotification(e.target.value)
+        updateRecentParams({recentNotification:e.target.value})
     }
 
     const [textToCopy, setTextToCopy] = useState('')
@@ -576,6 +575,7 @@ const Home = () => {
             startDate: startDateParam,
             endDate: endDateParam,
             filter,
+            selectedNotification,
             ...newParams,
         });
     };
@@ -588,6 +588,7 @@ const Home = () => {
             startDate: startDateRecentParam,
             endDate: endDateRecentParam,
             recentFilter,
+            recentNotification,
             ...newParams,
         });
     };
@@ -684,8 +685,7 @@ const Home = () => {
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
-                                        updateParams({ filter: "" , activeLimit: 20, activePage: 1});
-                                        setSelectedNotification("all");
+                                        updateParams({ filter: "" , activeLimit: 20, activePage: 1,selectedNotification:"all"});
                                         setRangeSos([
                                             {
                                                 startDate: startOfYear(new Date()),
@@ -1174,8 +1174,7 @@ const Home = () => {
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
-                                        updateRecentParams({recentFilter:"",recentLimit:20,recentPage:1});
-                                        setRecentNotification("all");
+                                        updateRecentParams({recentFilter:"",recentLimit:20,recentPage:1,recentNotification:'all'});
                                         setRange([
                                             {
                                                 startDate: startOfYear(new Date()),
