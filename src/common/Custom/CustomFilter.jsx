@@ -15,7 +15,7 @@ import {
 } from '../../API Calls/API';
 import filter from '../../assets/images/filter.svg';
 
-const CustomFilter = ({ onApply }) => {
+const CustomFilter = ({ onApply,isSuburbVisible = true}) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [filters, setFilters] = useState({
         country: '',
@@ -118,7 +118,7 @@ const CustomFilter = ({ onApply }) => {
                     </FormControl>
 
                     {/* Suburb */}
-                    <FormControl fullWidth size="small">
+                    {isSuburbVisible && <FormControl fullWidth size="small">
                         <InputLabel>Suburb</InputLabel>
                         <Select
                             name="suburb"
@@ -129,7 +129,7 @@ const CustomFilter = ({ onApply }) => {
                             <MenuItem value="Option1">Option 1</MenuItem>
                             <MenuItem value="Option2">Option 2</MenuItem>
                         </Select>
-                    </FormControl>
+                    </FormControl>}
 
                     {/* Police Station */}
                     {/* <FormControl fullWidth size="small">
