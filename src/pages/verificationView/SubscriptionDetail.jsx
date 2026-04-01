@@ -182,7 +182,7 @@ export default function SubscriptionDetails({ subscriptionDetails }) {
         </Typography>
         <Box sx={{ px: 3, backgroundColor: "#F9FAFB", borderRadius: "10px", p: 1 }}>
           <Typography fontSize="0.75rem" color="text.secondary">
-            Last updated: Just now
+            Last updated: {subscriptionDetails?.subscriptionDetailsUpdate}
           </Typography>
         </Box>
       </Box>

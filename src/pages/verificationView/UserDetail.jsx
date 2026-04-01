@@ -16,7 +16,7 @@ export default function UserDetail({ user}) {
   const {
     name = `${user.first_name} ${user.last_name}`,
     location = user.address ? user.address : "Johannesburg, South Africa",
-    status = "Active User",
+    status = user.isActive ? "Active User" : "InActive User",
     avatarUrl = user.fullImage,
   } = user || {};
  
@@ -73,7 +73,7 @@ export default function UserDetail({ user}) {
             size="small"
             sx={{
               backgroundColor: "#EFF6FF",
-              color: "#2563EB",
+              color: `${user.isActive ? "#2563EB" : "#E5565A"} `,
               fontWeight: 500,
               fontSize: "0.7rem",
               height: 22,

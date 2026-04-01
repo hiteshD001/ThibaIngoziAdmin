@@ -85,7 +85,7 @@ const VerificationView = () => {
                                             sx={{ width: '100%', height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
                                             onClick={() => { handleSearch() }}
                                         >
-                                            Search
+                                            {viewVerificationData.isPending ? <Loader color="white" /> : "Search"}
                                             {/* {changePassword.isPending ? <Loader color="white" /> : "Submit"} */}
                                         </Button>
                                     </Grid>
@@ -95,62 +95,61 @@ const VerificationView = () => {
                     </Box>
                 ) : (
                     <>
-                    {/* {!userDetails && <Loader />} */}
-                    {userDetails && <Box p={2}>
-                        <Grid container spacing={3}>
-                            <Grid size={3} >
-                                <Box display="flex" flexDirection="column" gap={3}>
-                                    <Paper
-                                        elevation={3}
-                                        sx={{ backgroundColor: "rgb(253, 253, 253)", p: 4, maxWidth: 500, borderRadius: "10px" }}
-                                    >
-                                        <Grid container spacing={3}>
-                                            <Grid size={{ xs: 12 }}>
-                                                <FormControl variant="standard" fullWidth sx={{ position: 'relative' }}>
-                                                    <Typography variant="h6" fontWeight={550} mb={2}>
-                                                        <img src={search} alt="search icon" height={"16px"} width={"16px"} /> Search Customer
-                                                    </Typography>
+                        {/* {!userDetails && <Loader />} */}
+                        {userDetails && <Box p={2}>
+                            <Grid container spacing={3}>
+                                <Grid size={3} >
+                                    <Box display="flex" flexDirection="column" gap={3}>
+                                        <Paper
+                                            elevation={3}
+                                            sx={{ backgroundColor: "rgb(253, 253, 253)", p: 4, maxWidth: 500, borderRadius: "10px" }}
+                                        >
+                                            <Grid container spacing={3}>
+                                                <Grid size={{ xs: 12 }}>
+                                                    <FormControl variant="standard" fullWidth sx={{ position: 'relative' }}>
+                                                        <Typography variant="h6" fontWeight={550} mb={2}>
+                                                            <img src={search} alt="search icon" height={"16px"} width={"16px"} /> Search Customer
+                                                        </Typography>
 
-                                                    <BootstrapInput
-                                                        id="identity"
-                                                        name="identity"
-                                                        placeholder="Enter ID or Passport Number"
-                                                        type={"text"}
-                                                        value={inputData}
-                                                        onChange={(e) => { setInputData(e.target.value) }}
-                                                        style={{ paddingRight: 0 }}
-                                                    />
-                                                </FormControl>
+                                                        <BootstrapInput
+                                                            id="identity"
+                                                            name="identity"
+                                                            placeholder="Enter ID or Passport Number"
+                                                            type={"text"}
+                                                            value={inputData}
+                                                            onChange={(e) => { setInputData(e.target.value) }}
+                                                            style={{ paddingRight: 0 }}
+                                                        />
+                                                    </FormControl>
+                                                </Grid>
+                                                <Grid size={12}>
+                                                    <Button
+                                                        type="submit"
+                                                        variant="contained"
+                                                        onClick={() => { handleSearch() }}
+                                                        sx={{ width: '100%', height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
+                                                    >
+                                                      {viewVerificationData.isPending ? <Loader color="white" /> : "Search User"}
+                                                    </Button>
+                                                </Grid>
                                             </Grid>
-                                            <Grid size={12}>
-                                                <Button
-                                                    type="submit"
-                                                    variant="contained"
-                                                    onClick={() => { handleSearch() }}
-                                                    sx={{ width: '100%', height: 48, borderRadius: '10px', backgroundColor: 'var(--Blue)' }}
-                                                >
-                                                    Search User
-
-                                                </Button>
-                                            </Grid>
-                                        </Grid>
-                                    </Paper>
-                                    <UserDetail user={userDetails?.contact}/>
-                                </Box>
+                                        </Paper>
+                                        <UserDetail user={userDetails?.contact} />
+                                    </Box>
+                                </Grid>
+                                <Grid size={9}>
+                                    <Box display="flex" flexDirection="column" gap={3}>
+                                        <Paper
+                                            elevation={3}
+                                            sx={{ p: 3, borderRadius: "10px" }}
+                                        >
+                                            <SubscriptionDetails subscriptionDetails={userDetails?.subscriptionDetails} />
+                                        </Paper>
+                                        <CarDetail vehicleDetails={userDetails?.vehicleDetails} />
+                                    </Box>
+                                </Grid>
                             </Grid>
-                            <Grid size={9}>
-                                <Box display="flex" flexDirection="column" gap={3}>
-                                    <Paper
-                                        elevation={3}
-                                        sx={{ p: 3, borderRadius: "10px" }}
-                                    >
-                                        <SubscriptionDetails subscriptionDetails = {userDetails?.subscriptionDetails}/>
-                                    </Paper>
-                                    <CarDetail vehicleDetails = {userDetails?.vehicleDetails}/>
-                                </Box>
-                            </Grid>
-                        </Grid>
-                    </Box>}
+                        </Box>}
                     </>
                 )
             }
