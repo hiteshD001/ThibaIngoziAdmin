@@ -43,8 +43,6 @@ const SideBar = ({ setActive, isActive, sidebarRef }) => {
             </div>
 
             <ul>
-                {/* <li><span className="" onClick={()=>nav('verification-view')}><img src={""} />Verification View</span></li> */}
-                {/* <li><span className="" onClick={()=>nav('police-unit')}><img src={""} />Police Unit</span></li> */}
                 {menulist.map(menu =>
                     <li key={menu.name} onClick={() => menu.id === "logout" ? setconfirm(true) : nav(menu.path)}>
                         <span

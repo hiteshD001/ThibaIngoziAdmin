@@ -126,8 +126,7 @@ export const allMenuItems = [
         name: "Police Unit",
         path: "/home/police-unit",
         image: policestation,
-        permission: null
-        // permission: "police-unit"
+        permission: "Police Unit"
     },
     {
         id: "total-suspect",
@@ -171,8 +170,7 @@ export const allMenuItems = [
         name: "Verification View",
         path: "/home/verification-view",
         image: verificationView,
-        permission: null
-        // permission: "verification-view"
+        permission: "Verification View"
     },
     {
         id: "logout",
