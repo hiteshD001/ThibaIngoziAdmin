@@ -17,6 +17,7 @@ import SubscriptionDetails from "./SubscriptionDetail";
 import { useGetViewVerification } from "../../API Calls/API";
 import UserDetail from "./UserDetail";
 import CarDetail from "./CarDetail";
+import UserImages from "./UserImage";
 import { toast } from "react-toastify";
 
 const VerificationView = () => {
@@ -143,8 +144,9 @@ const VerificationView = () => {
                                             elevation={3}
                                             sx={{ p: 3, borderRadius: "10px" }}
                                         >
-                                            <SubscriptionDetails subscriptionDetails={userDetails?.subscriptionDetails} />
+                                            <SubscriptionDetails subscriptionDetailsProps={userDetails?.subscriptionDetails} />
                                         </Paper>
+                                        <UserImages user={userDetails?.contact} />
                                         <CarDetail vehicleDetails={userDetails?.vehicleDetails} />
                                     </Box>
                                 </Grid>
