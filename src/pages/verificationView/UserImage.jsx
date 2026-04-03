@@ -8,31 +8,21 @@ import {
 import nouser from "../../assets/images/NoUser.png";
 import SingleImagePreview from "../../common/SingleImagePreview";
 
-const CarDetail = ({ vehicleDetails }) => {
+const UserImages = ({ user }) => {
 
   const defaultPhotos = [
-    { label: "Front Side", src: vehicleDetails.image_front_side || nouser },
-    { label: "Back Side", src: vehicleDetails.image_back_side || nouser },
-    { label: "Right Side", src: vehicleDetails.image_right_side || nouser },
-    { label: "Left Side", src: vehicleDetails.image_left_side || nouser },
-    { label: "Car Number Plate", src: vehicleDetails.image_car_number_plate || nouser },
-    { label: "License Disc Image", src: vehicleDetails.image_driver_license || nouser },
-    { label: "Live Car Photo", src: vehicleDetails.image_vehicle_live || nouser },
+    { label: "Selfie Image", src: user.selfieImage || nouser },
+    { label: "Full Image", src: user.fullImage || nouser},
+    { label: "Verification Image", src: user.VerificationImage || nouser },
   ];
-  const parts = vehicleDetails?.reg_no.match(/.{1,2}/g) || ["AB", "99", "YZ", "GP"];
-  let car = {}
-  let photos = ""
-  const {
-    vehicle = vehicleDetails.vehicle_name,
-    regNo = vehicleDetails?.reg_no,
-  } = car || {};
 
-  const carPhotos = photos || defaultPhotos;
   const [previewImage, setPreviewImage] = useState({
     open: false,
     src: '',
     label: ''
   });
+  const carPhotos = defaultPhotos;
+
   const handleImageClick = (src, label) => {
     if (src) {
       setPreviewImage({
@@ -46,7 +36,6 @@ const CarDetail = ({ vehicleDetails }) => {
   const handleClosePreview = () => {
     setPreviewImage(prev => ({ ...prev, open: false }));
   };
-
 
   return (
     <>
@@ -75,44 +64,8 @@ const CarDetail = ({ vehicleDetails }) => {
           }}
         >
           <Typography variant="h6" fontWeight={600} fontSize="1rem">
-            Car Details
+            User Images
           </Typography>
-
-          {/* Vehicle + Reg */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
-            <Box sx={{ textAlign: "right" }}>
-              <Typography fontSize="0.7rem" color="text.secondary">
-                Vehicle
-              </Typography>
-              <Typography fontSize="0.82rem" fontWeight={500}>
-                {vehicle}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography fontSize="0.7rem" color="text.secondary" mb={0.4}>
-                Reg No.
-              </Typography>
-              {/* <RegPlate plate={regNo} /> */}
-
-              <Box sx={{ display: "flex", gap: 0, borderRadius: "4px", backgroundColor: "#FACC15", }}>
-                {/* {parts.map((part, i) => ( */}
-                <Box
-
-                  sx={{
-                    px: 0.6,
-                    py: 0.1,
-                    minWidth: 24,
-                    textAlign: "center",
-                  }}
-                >
-                  <Typography fontSize="0.7rem" fontWeight={700} color="#854D0E">
-                    {regNo}
-                  </Typography>
-                </Box>
-                {/* ))}  */}
-              </Box>
-            </Box>
-          </Box>
         </Box>
 
         {/* 2x2 photo grid */}
@@ -157,4 +110,4 @@ const CarDetail = ({ vehicleDetails }) => {
     </>
   );
 }
-export default CarDetail
+export default UserImages

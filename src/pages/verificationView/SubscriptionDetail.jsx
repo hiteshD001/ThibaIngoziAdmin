@@ -9,23 +9,27 @@ import {
   MenuItem
 } from "@mui/material";
 import { toast } from 'react-toastify';
-import { useSaveTagPurchasedVerification } from "../../API Calls/API";
+import { useSaveTagPurchasedVerification,useGetUser } from "../../API Calls/API";
+import moment from "moment";
 
-export default function SubscriptionDetails({ subscriptionDetails }) {
 
+export default function SubscriptionDetails({ subscriptionDetailsProps }) {
+  
+  const [subscriptionDetails, setsubscriptionDetails] = useState(subscriptionDetailsProps);
+  const [latestUpdate, setLatestUpdate] = useState(subscriptionDetails?.subscriptionDetailsUpdate);
   const subscriptionData = [
-    { label: "Subscription", value: subscriptionDetails.subscription_status, type: "status-active" },
-    { label: "Subscription Start", value: subscriptionDetails.subscription_start || "12 Jan 2023" },
-    { label: "Subscription End", value: subscriptionDetails.subscription_end || "12 Jan 2024" },
-    { label: "Physical Panic Button", value: subscriptionDetails.physicalPanicButton, type: "status-purchased" },
-    { label: "Order Date", value: subscriptionDetails.orderDate },
-    { label: "Order Number", value: subscriptionDetails.orderNumber, type: "link" },
-    { label: "Approved Driver", value: subscriptionDetails.approvedDriver ? 'Yes' : 'No', type: "dropdown" },
-    { label: "Approved By", value: subscriptionDetails.approvedBy },
-    { label: "Date Approved", value: subscriptionDetails.dateApproved },
+    { label: "Subscription", value: subscriptionDetails?.subscription_status, type: "status-active" },
+    { label: "Subscription Start", value: subscriptionDetails?.subscription_start || "12 Jan 2023" },
+    { label: "Subscription End", value: subscriptionDetails?.subscription_end || "12 Jan 2024" },
+    { label: "Physical Panic Button", value: subscriptionDetails?.physicalPanicButton, type: "status-purchased" },
+    { label: "Order Date", value: subscriptionDetails?.orderDate },
+    { label: "Order Number", value: subscriptionDetails?.orderNumber, type: "link" },
+    { label: "Approved Driver", value: subscriptionDetails?.approvedDriver === true ? 'Yes' : 'No', type: "dropdown" },
+    { label: "Approved By", value: subscriptionDetails?.approvedBy },
+    { label: "Date Approved", value: subscriptionDetails?.dateApproved },
   ];
 
-  const [subscriptionValue, setsubscriptionValue] = useState(subscriptionDetails.approvedDriver ? 'Yes' : 'No');
+  const [subscriptionValue, setsubscriptionValue] = useState(subscriptionDetails?.approvedDriver === true ? 'Yes' : 'No');
   const onSuccess = () => {
     toast.success("Status Updated Successfully.");
   };
@@ -37,26 +41,45 @@ export default function SubscriptionDetails({ subscriptionDetails }) {
 
   const { mutate } = useSaveTagPurchasedVerification(onSuccess, onError);
 
-
-
   // APi Calling
   const userID = localStorage.getItem("userID")
+  const userinfo = useGetUser(localStorage.getItem("userID"));
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
     setsubscriptionValue(value)
+    if(!subscriptionDetails.subscription_id){
+      toast.error(
+        "Your Nor Purchase Subscription",
+      );
+      return
+    }
+    
     let saveObj = {
       driver_id: subscriptionDetails.driver_id,
-      approvedBy_id:userID,
+      approvedBy_id: userID,
       subscription_id: subscriptionDetails.subscription_id,
-      isApprovedDriver:value == 'Yes' ? true : false,
-      date_approved:new Date
+      isApprovedDriver: value == 'Yes' ? true : false,
+      date_approved: new Date
     }
     mutate(saveObj)
+    const first_name = userinfo.data?.data.user?.first_name || "-";
+    const last_name = userinfo.data?.data.user?.last_name || "-";
+    const updatedData = {
+      ...subscriptionDetails,
+      approvedDriver: value === 'Yes',
+      approvedBy:first_name +'-'+ last_name,
+      dateApproved: moment().format("DD MMM YYYY, hh:mm A"),
+    };
+    setLatestUpdate(moment().fromNow())
+
+    setsubscriptionDetails(updatedData);
   }
 
   const RowValue = ({ value, type }) => {
     if (type === "status-active") {
-      if (value === 'active') {
+      if (value) {
         return (
           <Typography
             fontSize="0.875rem"
@@ -135,10 +158,10 @@ export default function SubscriptionDetails({ subscriptionDetails }) {
           }}
         >
 
-          <MenuItem value={'No'}>
+          <MenuItem value={'No'} selected>
             No
           </MenuItem>
-          <MenuItem value={'Yes'} selected>
+          <MenuItem value={'Yes'} >
             Yes
           </MenuItem>
 
@@ -182,7 +205,7 @@ export default function SubscriptionDetails({ subscriptionDetails }) {
         </Typography>
         <Box sx={{ px: 3, backgroundColor: "#F9FAFB", borderRadius: "10px", p: 1 }}>
           <Typography fontSize="0.75rem" color="text.secondary">
-            Last updated: {subscriptionDetails?.subscriptionDetailsUpdate}
+            Last updated: {latestUpdate}
           </Typography>
         </Box>
       </Box>
