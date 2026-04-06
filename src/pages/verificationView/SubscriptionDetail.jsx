@@ -131,10 +131,19 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
       return (
         <Typography
           fontSize="0.875rem"
-          sx={{ color: "#2563EB", cursor: "pointer", "&:hover": { textDecoration: "underline" } }}
-          onClick={handleGeneratePdf}
+          sx={{
+            color: value && value !== '-' ? "#2563EB" : "#9CA3AF",
+            cursor: value && value !== '-' ? "pointer" : "not-allowed",
+            pointerEvents: value && value !== '-' ? "auto" : "none",
+            "&:hover": value && value !== '-' ? { textDecoration: "underline" } : {}
+          }}
+          onClick={() => {
+            if (value && value !== '-') {
+              handleGeneratePdf();
+            }
+          }}
         >
-          {value}
+          {value || "-"}
         </Typography>
       );
     }
@@ -207,7 +216,7 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
 
     const subtotal = parseFloat(sales_order_obj.items[0].price_incl_tax || 0).toFixed(2);
     const shipping = parseFloat(sales_order_obj.shipping?.charge?.amount_incl_tax || 0).toFixed(2);
-    const grandTotal = parseFloat(sales_order_obj.total_incl_tax || 0).toFixed(2);
+    const grandTotal = (parseFloat(subtotal) + parseFloat(shipping)).toFixed(2);
 
     fetch(logo3)
       .then(res => res.blob())
