@@ -55,6 +55,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import tone from "../assets/audio/notification.mp3"
 import { enable2FA } from "../API Calls/authAPI";
 import QRCode from 'qrcode';
+import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -77,7 +78,7 @@ const Home = () => {
         key: 'selection'
     }]);
     const activePage = Number(searchParams.get("activePage")) || 1;
-    const activeLimit = Number(searchParams.get("activeLimit")) || 20;
+    const activeLimit = Number(searchParams.get("activeLimit")) || 10;
     const selectedNotification = searchParams.get("selectedNotification") || "all"
     // Recent Filter And Pagination
     const [recentSearchParams, setRecentSearchParams] = useSearchParams();
@@ -92,7 +93,7 @@ const Home = () => {
     }]);
     const recentFilter = recentSearchParams.get("recentFilter") || "";
     const recentPage = Number(recentSearchParams.get("recentPage")) || 1;
-    const recentLimit = Number(recentSearchParams.get("recentLimit")) || 20;
+    const recentLimit = Number(recentSearchParams.get("recentLimit")) || 10;
 
     const [debouncedFilter, setDebouncedFilter] = useState("");
     const [debouncedRecentFilter, setDebouncedRecentFilter] = useState("");
@@ -161,10 +162,10 @@ const Home = () => {
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
-            updateRecentParams({recentPage:1});
+            updateRecentParams({ recentPage: 1 });
         } else {
             setSortOrder(p => p === 'asc' ? 'desc' : 'asc');
-            updateRecentParams({recentPage:1});
+            updateRecentParams({ recentPage: 1 });
         }
     }
 
@@ -211,10 +212,27 @@ const Home = () => {
             : `/home/total-users/user-information/${id}`;
     };
 
-    const openOtherUsersModal = (otherUser) => {
+    const openOtherUsersModal = (otherUser, type,selectedId) => {
         const items = normalizeOtherUsers(otherUser);
         setOtherUsersModalItems(items);
         setOtherUsersModalOpen(true);
+        
+        if (type == 'ACTIVE') {
+            updateParams({
+                modal: true,
+                type: type,
+                selectedUser:selectedId,
+                modalData: encodeURIComponent(JSON.stringify(items)),
+            });
+        }
+        if (type == 'RECENT') {
+            updateRecentParams({
+                modal: true,
+                type: type,
+                selectedUser:selectedId,
+                modalData: encodeURIComponent(JSON.stringify(items)),
+            });
+        }
     };
     const closeOtherUsersModal = () => {
         setOtherUsersModalOpen(false);
@@ -496,10 +514,10 @@ const Home = () => {
     };
 
     const handleNotificationChange = (e) => {
-        updateParams({selectedNotification:e.target.value})
+        updateParams({ selectedNotification: e.target.value })
     };
     const handleRecentNotificationChange = (e) => {
-        updateRecentParams({recentNotification:e.target.value})
+        updateRecentParams({ recentNotification: e.target.value })
     }
 
     const [textToCopy, setTextToCopy] = useState('')
@@ -593,6 +611,31 @@ const Home = () => {
         });
     };
 
+    const activemodal = searchParams.get("modal");
+    const recentmodal = recentSearchParams.get("modal");
+    const modalData = searchParams.get("modalData") || "";
+    const modalrecentData = recentSearchParams.get("modalData") || '';
+    // Handle Scroll Event store 
+    const handleView = (url) => {
+        saveScrollPosition('homePageScroll');
+        nav(url)
+    };
+    useEffect(() => {
+        if (paginatedActiveUserList.length && recentSos?.data?.items.length) {
+            restoreScrollPosition("homePageScroll");
+            if ((paginatedActiveUserList.length > 0) && (activemodal === true || activemodal === "true")) {
+                setOtherUsersModalOpen(true);
+                const parsedData = JSON.parse(decodeURIComponent(modalData)) || [];
+                setOtherUsersModalItems(parsedData);
+            }
+            if ((recentSos?.data?.items.length > 0) && (recentmodal === true || recentmodal === "true")) {
+                setOtherUsersModalOpen(true);
+                const parsedData = JSON.parse(decodeURIComponent(modalrecentData)) || [];
+                setOtherUsersModalItems(parsedData);
+            }
+        }
+    }, [paginatedActiveUserList, recentSos]);
+
     return (
         <Box>
             <Analytics
@@ -685,7 +728,7 @@ const Home = () => {
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
-                                        updateParams({ filter: "" , activeLimit: 20, activePage: 1,selectedNotification:"all"});
+                                        updateParams({ filter: "", activeLimit: 20, activePage: 1, selectedNotification: "all" });
                                         setRangeSos([
                                             {
                                                 startDate: startOfYear(new Date()),
@@ -693,7 +736,7 @@ const Home = () => {
                                                 key: 'selection'
                                             }
                                         ]);
-                                        
+
                                         setSortBy2("createdAt");
                                         setSortOrder2("desc");
 
@@ -819,8 +862,8 @@ const Home = () => {
                                                                 </Stack>
                                                             ) : (
                                                                 user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id || user?.user_id}`} className="link">
-                                                                        <Stack direction="row" alignItems="center" gap={1}>
+                                                                    // <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id || user?.user_id}`} className="link">
+                                                                        <Stack direction="row" sx={{"cursor":'pointer'}} alignItems="center" gap={1} onClick={()=>handleView(`/home/total-drivers/driver-information/${user?.user_id?._id || user?.user_id}`)}>
                                                                             <Avatar
                                                                                 src={getImageLink(user?.user_id?.selfieImage)}
                                                                                 sx={{ '&:hover': { textDecoration: 'none' } }}
@@ -829,9 +872,10 @@ const Home = () => {
 
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
-                                                                    </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${user?.user_id?._id || user?.user_id}`} className="link">
-                                                                        <Stack direction="row" alignItems="center" gap={1}>
+                                                                    // </Link>
+                                                                ) : (
+                                                                    // <Link to={`/home/total-users/user-information/${user?.user_id?._id || user?.user_id}`} className="link">
+                                                                        <Stack direction="row" sx={{"cursor":'pointer'}} alignItems="center" gap={1} onClick={()=>handleView(`/home/total-users/user-information/${user?.user_id?._id || user?.user_id}`)}>
                                                                             <Avatar
                                                                                 src={getImageLink(user?.user_id?.selfieImage)}
                                                                                 alt="User"
@@ -839,7 +883,7 @@ const Home = () => {
 
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
-                                                                    </Link>
+                                                                    // </Link>
                                                                 )
                                                             )
                                                         }
@@ -960,7 +1004,7 @@ const Home = () => {
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row', alignItems: "center", gap: 2 }}>
                                                             <Tooltip title="View" arrow placement="top">
-                                                                <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${user?._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`)}>
+                                                                <IconButton onClick={() =>  handleView(`/home/hotspot/location?locationId=${user?._id}&lat=${user?.lat}&long=${user?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${user?.req_reach}&req_accept=${user?.req_accept}`)}>
                                                                     <img src={ViewBtn} alt="view button" />
                                                                 </IconButton>
                                                             </Tooltip>
@@ -983,7 +1027,7 @@ const Home = () => {
                                                                             minWidth: "auto",
                                                                             "&:hover": { backgroundColor: "#1864c7" },
                                                                         }}
-                                                                        onClick={() => openOtherUsersModal(user?.otherUser)}
+                                                                        onClick={() => openOtherUsersModal(user?.otherUser, 'ACTIVE',user?._id)}
                                                                     >
                                                                         Other Users
                                                                     </Button>
@@ -1120,7 +1164,7 @@ const Home = () => {
                                 variant="outlined"
                                 placeholder="Search"
                                 value={recentFilter}
-                                onChange={(e) => updateRecentParams({recentFilter:e.target.value})}
+                                onChange={(e) => updateRecentParams({ recentFilter: e.target.value })}
                                 fullWidth
                                 sx={{
                                     width: '100%',
@@ -1174,7 +1218,7 @@ const Home = () => {
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
-                                        updateRecentParams({recentFilter:"",recentLimit:20,recentPage:1,recentNotification:'all'});
+                                        updateRecentParams({ recentFilter: "", recentLimit: 20, recentPage: 1, recentNotification: 'all' });
                                         setRange([
                                             {
                                                 startDate: startOfYear(new Date()),
@@ -1311,8 +1355,8 @@ const Home = () => {
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
                                                             row.user?.role === "driver" ? (
-                                                                <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link">
-                                                                    <Stack direction="row" alignItems="center" gap={1}>
+                                                                // <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link">
+                                                                    <Stack direction="row" sx={{"cursor":'pointer'}} alignItems="center" gap={1} onClick={()=>handleView(`/home/total-drivers/driver-information/${row.user._id}`)}>
 
                                                                         <Avatar
                                                                             src={
@@ -1326,9 +1370,10 @@ const Home = () => {
                                                                         {row?.user?.first_name} {row?.user?.last_name}
                                                                     </Stack>
 
-                                                                </Link>) : (
-                                                                <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link">
-                                                                    <Stack direction="row" alignItems="center" gap={1}>
+                                                                // </Link>
+                                                            ) : (
+                                                                // <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link">
+                                                                    <Stack direction="row" sx={{"cursor":'pointer'}} alignItems="center" gap={1} onClick={()=>handleView(`/home/total-users/user-information/${row?.user?._id}`)}>
 
                                                                         <Avatar
                                                                             src={
@@ -1341,7 +1386,7 @@ const Home = () => {
 
                                                                         {row?.user?.first_name} {row?.user?.last_name}
                                                                     </Stack>
-                                                                </Link>
+                                                                // </Link>
                                                             )
                                                         }
                                                     </TableCell>
@@ -1414,7 +1459,7 @@ const Home = () => {
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
-                                                                <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`)}>
+                                                                <IconButton onClick={() => handleView(`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`)}>
                                                                     <img src={ViewBtn} alt="view button" />
                                                                 </IconButton>
                                                             </Tooltip>
@@ -1442,7 +1487,7 @@ const Home = () => {
                                                                                 minWidth: "auto",
                                                                                 "&:hover": { backgroundColor: "#1864c7" },
                                                                             }}
-                                                                            onClick={() => openOtherUsersModal(row?.otherUser)}
+                                                                            onClick={() => openOtherUsersModal(row?.otherUser, "RECENT",row?._Id)}
                                                                         >
                                                                             Other Users
                                                                         </Button>
@@ -1494,7 +1539,7 @@ const Home = () => {
                                         }}
                                         value={recentLimit}
                                         onChange={(e) => {
-                                            updateRecentParams({recentLimit:Number(e.target.value),recentPage:1});
+                                            updateRecentParams({ recentLimit: Number(e.target.value), recentPage: 1 });
                                         }}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -1512,7 +1557,7 @@ const Home = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={recentPage === 1}
-                                        onClick={() => updateRecentParams({recentPage:recentPage - 1})}
+                                        onClick={() => updateRecentParams({ recentPage: recentPage - 1 })}
                                     >
                                         <NavigateBeforeIcon fontSize="small" sx={{
                                             color: recentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
@@ -1520,7 +1565,7 @@ const Home = () => {
                                     </IconButton>
                                     <IconButton
                                         disabled={recentPage === totalRecentPages}
-                                        onClick={() => updateRecentParams({recentPage:recentPage + 1})}
+                                        onClick={() => updateRecentParams({ recentPage: recentPage + 1 })}
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>
@@ -1691,7 +1736,7 @@ const Home = () => {
                                 const order = u.role != 'driver' && u.order ? u.order : 1
                                 const route = getOtherUserRoute(u);
                                 const label = getOtherUserName(u);
-
+            
                                 return (
                                     <>
                                         {u.role === 'driver' && (
@@ -1725,7 +1770,8 @@ const Home = () => {
                                                         onClick={() => {
                                                             if (!route) return;
                                                             closeOtherUsersModal();
-                                                            nav(route);
+                                                            // nav(route);
+                                                            handleView(route)
                                                         }}
                                                         sx={{
                                                             borderRadius: 2,
@@ -1758,7 +1804,8 @@ const Home = () => {
                                                             onClick={() => {
                                                                 if (!route) return;
                                                                 closeOtherUsersModal();
-                                                                nav(route);
+                                                                // nav(route);
+                                                                handleView(route)
                                                             }}
                                                             sx={{
                                                                 backgroundColor: '#1E73E8',
@@ -1825,7 +1872,8 @@ const Home = () => {
                                                             onClick={() => {
                                                                 if (!route) return;
                                                                 closeOtherUsersModal();
-                                                                nav(route);
+                                                                // nav(route);
+                                                                handleView(route)
                                                             }}
                                                             sx={{
                                                                 borderRadius: 2,
@@ -1858,7 +1906,8 @@ const Home = () => {
                                                                 onClick={() => {
                                                                     if (!route) return;
                                                                     closeOtherUsersModal();
-                                                                    nav(route);
+                                                                    // nav(route);
+                                                                    handleView(route)
                                                                 }}
                                                                 sx={{
                                                                     backgroundColor: '#1E73E8',
@@ -1885,7 +1934,7 @@ const Home = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={closeOtherUsersModal}>Close</Button>
+                    <Button onClick={()=>{closeOtherUsersModal(),updateRecentParams({modal: false,modalData: null}),updateParams({modal: false,modalData: null})}}>Close</Button>
                 </DialogActions>
             </Dialog>
         </Box >

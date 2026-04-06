@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useDebounce from "../hooks/useDebounce";
 import {
 	Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, MenuItem, Chip,
@@ -30,6 +30,7 @@ import apiClient from "../API Calls/APIClient";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
+import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 
 const ListOfTrips = () => {
 	const nav = useNavigate();
@@ -588,6 +589,17 @@ const CustomTableRow = ({
 			.join(" ");
 	};
 
+	const handleView = (user) => {
+		saveScrollPosition("tripListScroll");
+		nav(`/home/total-linked-trips/location?lat=${user?.startlat}&long=${user?.startlong}&end_lat=${user?.endlat}&end_long=${user?.endlong}`)
+	};
+	// Handle Scroll Event store 
+	useEffect(() => {
+		if (data) {
+			restoreScrollPosition("tripListScroll");
+		}
+	}, [data]);
+
 	return (
 		<TableRow key={data._id}>
 			<TableCell sx={{ textWrap: 'nowrap' }}>
@@ -646,7 +658,7 @@ const CustomTableRow = ({
 					flexDirection: 'row',
 				}}>
 					<Tooltip title="VIew" arrow placement="top">
-						<IconButton onClick={() => nav(`/home/total-linked-trips/location?lat=${location?.startlat}&long=${location?.startlong}&end_lat=${location?.endlat}&end_long=${location?.endlong}`)}>
+						<IconButton onClick={() => handleView(location)}>
 							<img src={ViewBtn} alt="View" />
 						</IconButton>
 					</Tooltip>

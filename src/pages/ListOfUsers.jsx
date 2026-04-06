@@ -32,7 +32,7 @@ import { startOfYear, startOfDay, endOfDay } from "date-fns";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
-
+import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 
 const ListOfUsers = () => {
     const [popup, setpopup] = useState(false);
@@ -244,6 +244,16 @@ const ListOfUsers = () => {
             toast.error("Export failed.");
         }
     };
+    // Handle Scroll Event store 
+    const handleView = (user) => {
+        saveScrollPosition("userListScroll");
+        nav(`/home/total-users/user-information/${user._id}`)
+    };
+    useEffect(() => {
+        if (UserList.data?.data?.users?.length) {
+            restoreScrollPosition("userListScroll");
+        }
+    }, [UserList.data?.data?.users]);
     return (
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
@@ -470,7 +480,7 @@ const ListOfUsers = () => {
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`/home/total-users/user-information/${user._id}`)}>
+                                                            <IconButton onClick={() => handleView(user)}>
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>

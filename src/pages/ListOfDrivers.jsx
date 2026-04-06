@@ -55,6 +55,7 @@ import nouser from "../assets/images/NoUser.png";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
+import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 
 const ListOfDrivers = () => {
     const [edit, setedit] = useState(false);
@@ -523,6 +524,18 @@ const ListOfDrivers = () => {
             </components.DropdownIndicator>
         );
     };
+
+    // Handle Scroll Event store 
+    const handleView = (user) => {
+        saveScrollPosition("driverListScroll");
+        nav(`/home/total-drivers/driver-information/${user._id}`);
+    };
+    useEffect(() => {
+        if (driverList.data?.data?.users?.length) {
+            restoreScrollPosition("driverListScroll");
+        }
+    }, [driverList.data?.data?.users]);
+    
     return (
         <Box p={2}>
             {/* Company Info (when params.id is present) */}
@@ -1239,7 +1252,7 @@ const ListOfDrivers = () => {
                                                     >
                                                         <Tooltip title="View" arrow placement="top">
                                                             <IconButton onClick={() =>
-                                                                nav(`/home/total-drivers/driver-information/${driver._id}`)
+                                                                handleView(driver)
                                                             }>
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import useDebounce from "../hooks/useDebounce";
 import {
   Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, Chip, MenuItem,
@@ -29,6 +29,7 @@ import apiClient from "../API Calls/APIClient";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
+import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 
 const ListOfMeetingLinkTrips = () => {
   const nav = useNavigate();
@@ -205,6 +206,19 @@ const ListOfMeetingLinkTrips = () => {
     }
   };
 
+  const handleView = (user) => {
+    const [startlat, startlong] = user?.trip_start?.split(",") || [];
+    const [endlat, endlong] = user?.trip_end?.split(",") || [];
+    saveScrollPosition("meetingListScroll");
+    nav(`/home/total-meeting-links/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
+  };
+  // Handle Scroll Event store 
+  useEffect(() => {
+    if (trip.data?.data?.tripData?.length) {
+      restoreScrollPosition("meetingListScroll");
+    }
+  }, [trip.data?.data?.tripData?.length]);
+
   return (
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "#fdfdfd", padding: 2, borderRadius: "10px" }}>
@@ -365,9 +379,6 @@ const ListOfMeetingLinkTrips = () => {
                   </TableRow>
                   : (tripList.length > 0 ?
                     tripList.map((data) => {
-                      const [startlat, startlong] = data?.trip_start?.split(",") || [];
-                      const [endlat, endlong] = data?.trip_end?.split(",") || [];
-
                       return (
                         <TableRow key={data._id}>
                           <TableCell>
@@ -443,7 +454,7 @@ const ListOfMeetingLinkTrips = () => {
                               <Tooltip title="View" arrow placement="top">
                                 <IconButton
                                   onClick={() =>
-                                    nav(`/home/total-meeting-links/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
+                                    handleView(data)
                                   }
                                 >
                                   <img src={ViewBtn} alt="view button" />
