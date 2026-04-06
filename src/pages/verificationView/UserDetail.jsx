@@ -18,7 +18,7 @@ export default function UserDetail({ user}) {
   const {
     name = `${user.first_name} ${user.last_name}`,
     location = user.address ? user.address : "Johannesburg, South Africa",
-    status = user.isActive ? "Active User" : "Not Verified",
+    status = user.isActive ? "Verified" : "Not Verified",
     avatarUrl = user.selfieImage ? user.selfieImage : nouser ,
   } = user || {};
  
