@@ -111,12 +111,12 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                         alignItems: 'center',
                         justifyContent: 'space-between',
                     }}>
+                        {`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`}
                         <Box sx={{
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
                         }}>
-                            {`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`}
                             <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
                                 <IconButton
                                     onClick={() => handleCopyAddress(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`)}
@@ -146,12 +146,12 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                             alignItems: 'center',
                             justifyContent: 'space-between',
                         }}>
+                            {user?.address}
                                 <Box sx={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
                                 }}>
-                                    {user?.address}
                                     <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
                                         <IconButton
                                             onClick={() => handleCopyAddress(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id || user?.deepLinks?._id}`)}
