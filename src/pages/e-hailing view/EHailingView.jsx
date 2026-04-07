@@ -111,16 +111,33 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                         alignItems: 'center',
                         justifyContent: 'space-between',
                     }}>
-                        {`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`}
-                        <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                            <IconButton
-                                onClick={() => handleCopyAddress(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`)}
-                                sx={copyButtonStyles}
-                                aria-label="copy address"
-                            >
-                                <ContentCopy fontSize="medium" className="copy-btn" />
-                            </IconButton>
-                        </Tooltip>
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                        }}>
+                            {`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`}
+                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                <IconButton
+                                    onClick={() => handleCopyAddress(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`)}
+                                    sx={copyButtonStyles}
+                                    aria-label="copy address"
+                                >
+                                    <ContentCopy fontSize="medium" className="copy-btn" />
+                                </IconButton>
+                            </Tooltip>
+                            <Typography sx={{ fontSize: "25px" }}>
+                                <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                    <IconButton
+                                        onClick={() => { handleCopyAddress(`${user?.lat},${user?.long}`) }}
+                                        sx={copyButtonStyles}
+                                        aria-label="copy coordinate"
+                                    >
+                                        🌍
+                                    </IconButton>
+                                </Tooltip>
+                            </Typography>
+                        </Box>
                     </Box>
                 ) : (
                     user?.address ?
@@ -129,16 +146,33 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                             alignItems: 'center',
                             justifyContent: 'space-between',
                         }}>
-                            {user?.address}
-                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                <IconButton
-                                    onClick={() => handleCopyAddress(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id || user?.deepLinks?._id}`)}
-                                    sx={copyButtonStyles}
-                                    aria-label="copy address"
-                                >
-                                    <ContentCopy fontSize="medium" className="copy-btn" />
-                                </IconButton>
-                            </Tooltip>
+                                <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}>
+                                    {user?.address}
+                                    <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                        <IconButton
+                                            onClick={() => handleCopyAddress(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id || user?.deepLinks?._id}`)}
+                                            sx={copyButtonStyles}
+                                            aria-label="copy address"
+                                        >
+                                            <ContentCopy fontSize="medium" className="copy-btn" />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Typography sx={{ fontSize: "25px" }}>
+                                        <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                            <IconButton
+                                                onClick={() => { handleCopyAddress(`${user?.lat},${user?.long}`) }}
+                                                sx={copyButtonStyles}
+                                                aria-label="copy coordinate"
+                                            >
+                                                🌍
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Typography>
+                                </Box>
                         </Box>
                         :
                         "-"
