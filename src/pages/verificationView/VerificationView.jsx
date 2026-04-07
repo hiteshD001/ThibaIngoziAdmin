@@ -103,7 +103,7 @@ const VerificationView = () => {
                                     <Box display="flex" flexDirection="column" gap={3}>
                                         <Paper
                                             elevation={3}
-                                            sx={{ backgroundColor: "rgb(253, 253, 253)", p: 4, maxWidth: 500, borderRadius: "10px" }}
+                                            sx={{ backgroundColor: "rgb(253, 253, 253)", p: 4, borderRadius: "10px" }}
                                         >
                                             <Grid container spacing={3}>
                                                 <Grid size={{ xs: 12 }}>

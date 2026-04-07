@@ -13,6 +13,9 @@ import EmailIcon from "@mui/icons-material/EmailOutlined";
 import LocationOnIcon from "@mui/icons-material/LocationOnOutlined";
 import nouser from "../../assets/images/NoUser.png";
 import SingleImagePreview from "../../common/SingleImagePreview";
+import phoneIcn from '../../assets/images/phoneIcn.svg'
+import emailIcn from '../../assets/images/emailIcn.svg'
+import badgeIdIcn from '../../assets/images/badgeId.svg'
 
 export default function UserDetail({ user}) {
   const {
@@ -24,17 +27,17 @@ export default function UserDetail({ user}) {
  
   const contactItems = [
     {
-      icon: <BadgeIcon sx={{ fontSize: 18, color: "#6B7280" }} />,
+      icon: <img src={badgeIdIcn} alt="confirmation icon" />,
       label: "ID / PASSPORT NUMBER",
       value: user.id_no,
     },
     {
-      icon: <PhoneIcon sx={{ fontSize: 18, color: "#6B7280" }} />,
+      icon: <img src={phoneIcn} alt="confirmation icon" />,
       label: "PHONE NUMBER",
       value: user?.mobile_no ,
     },
     {
-      icon: <EmailIcon sx={{ fontSize: 18, color: "#6B7280" }} />,
+      icon: <img src={emailIcn} alt="confirmation icon" />,
       label: "EMAIL ADDRESS",
       value: user.email,
     },
@@ -70,10 +73,11 @@ export default function UserDetail({ user}) {
       <Paper
         elevation={2}
         sx={{
-          maxWidth: 260,
+          // maxWidth: 260,
           borderRadius: "12px",
           overflow: "hidden",
           backgroundColor: "#FFFFFF",
+          font:'Montserrat'
         }}
       >
         {/* Blue header banner + avatar */}
@@ -95,15 +99,15 @@ export default function UserDetail({ user}) {
         </Box>
 
         {/* Name + status + location */}
-        <Box sx={{ pt: 4, px: 2, pb: 2 }}>
+        <Box sx={{ pt: 4, px: 2}}>
           {/* Active User chip — right-aligned near avatar */}
           <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 0.5 }}>
             <Chip
               label={status}
               size="small"
               sx={{
-                backgroundColor: "#EFF6FF",
-                color: `${user.isActive ? "#2563EB" : "#E5565A"} `,
+                backgroundColor:`${user.isActive ? "#DCFCE7" : '#FEE2E2'} `,
+                color: `${user.isActive ? "#10B981" : "#E5565A"} `,
                 fontWeight: 500,
                 fontSize: "0.7rem",
                 height: 22,
@@ -123,8 +127,6 @@ export default function UserDetail({ user}) {
           </Box>
         </Box>
 
-        <Divider sx={{ borderColor: "#F3F4F6" }} />
-
         {/* Contact rows */}
         <Box sx={{ px: 2, py: 1.5 }}>
           {contactItems.map((item, index) => (
@@ -133,12 +135,15 @@ export default function UserDetail({ user}) {
               sx={{
                 display: "flex",
                 alignItems: "flex-start",
-                gap: 1.5,
-                py: 1.2,
-                borderBottom:
+                gap: '16px',
+                p: 1.2,
+                my: 1.2,
+                border:
                   index < contactItems.length - 1
-                    ? "1px solid #F3F4F6"
+                    ? "1px solid #F1F5F9"
                     : "none",
+                borderRadius: "8px",
+                backgroundColor:'#F8FAFC' 
               }}
             >
               {/* Icon box */}
@@ -148,6 +153,7 @@ export default function UserDetail({ user}) {
                   height: 34,
                   borderRadius: "8px",
                   border: "1px solid #E5E7EB",
+                  backgroundColor:'white', 
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -158,15 +164,15 @@ export default function UserDetail({ user}) {
               </Box>
               <Box>
                 <Typography
-                  fontSize="0.65rem"
-                  fontWeight={600}
-                  color="text.secondary"
-                  letterSpacing="0.05em"
+                  fontSize="12px"
+                  fontWeight={500}
+                  color="#64748B"
+                  letterSpacing="0.3px"
                   textTransform="uppercase"
                 >
                   {item.label}
                 </Typography>
-                <Typography fontSize="0.82rem" fontWeight={500} color="text.primary">
+                <Typography fontSize="14px" fontWeight={500} letterSpacing="0px" color="#0E0E0E" sx={{wordBreak: "break-word",overflowWrap: "break-word"}}>
                   {item.value}
                 </Typography>
               </Box>
