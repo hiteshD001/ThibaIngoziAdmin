@@ -857,19 +857,39 @@ const Home = () => {
                                                                 justifyContent: 'space-between',
                                                             }}>
                                                                 {`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`}
+                                                                <Box sx={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'space-between',
+                                                                }}>
 
-                                                                <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                                    <IconButton
-                                                                        onClick={() => {
-                                                                            setTextToCopy(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`);
-                                                                            handleCopy();
-                                                                        }}
-                                                                        sx={copyButtonStyles}
-                                                                        aria-label="copy address"
-                                                                    >
-                                                                        <ContentCopyIcon fontSize="medium" className="copy-btn" />
-                                                                    </IconButton>
-                                                                </Tooltip>
+                                                                    <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                        <IconButton
+                                                                            onClick={() => {
+                                                                                setTextToCopy(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`);
+                                                                                handleCopy();
+                                                                            }}
+                                                                            sx={copyButtonStyles}
+                                                                            aria-label="copy address"
+                                                                        >
+                                                                            <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                    <Typography sx={{ fontSize: "25px" }}>
+                                                                        <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                            <IconButton
+                                                                                onClick={() => {
+                                                                                    setTextToCopy(`${user?.lat},${user?.long}`);
+                                                                                    handleCopy();
+                                                                                }}
+                                                                                sx={copyButtonStyles}
+                                                                                aria-label="copy coordinate"
+                                                                            >
+                                                                                🌍
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                    </Typography>
+                                                                </Box>
                                                             </Box>
                                                         ) : (
                                                             user?.address ?
@@ -879,19 +899,38 @@ const Home = () => {
                                                                     justifyContent: 'space-between',
                                                                 }}>
                                                                     {user?.address}
-
-                                                                    <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                                        <IconButton
-                                                                            onClick={() => {
-                                                                                setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id}`);
-                                                                                handleCopy();
-                                                                            }}
-                                                                            sx={copyButtonStyles}
-                                                                            aria-label="copy address"
-                                                                        >
-                                                                            <ContentCopyIcon fontSize="medium" className="copy-btn" />
-                                                                        </IconButton>
-                                                                    </Tooltip>
+                                                                        <Box sx={{
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'space-between'
+                                                                        }}>
+                                                                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                                <IconButton
+                                                                                    onClick={() => {
+                                                                                        setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id}`);
+                                                                                        handleCopy();
+                                                                                    }}
+                                                                                    sx={copyButtonStyles}
+                                                                                    aria-label="copy address"
+                                                                                >
+                                                                                    <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                                                </IconButton>
+                                                                            </Tooltip>
+                                                                            <Typography sx={{  fontSize: "25px" }}>
+                                                                                <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                                    <IconButton
+                                                                                        onClick={() => {
+                                                                                            setTextToCopy(`${user?.lat},${user?.long}`);
+                                                                                            handleCopy();
+                                                                                        }}
+                                                                                        sx={copyButtonStyles}
+                                                                                        aria-label="copy coordinate"
+                                                                                    >
+                                                                                        🌍
+                                                                                    </IconButton>
+                                                                                </Tooltip>
+                                                                            </Typography>
+                                                                        </Box>
                                                                 </Box>
                                                                 :
                                                                 "-"
