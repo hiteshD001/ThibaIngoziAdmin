@@ -9,15 +9,19 @@ import nouser from "../../assets/images/NoUser.png";
 import SingleImagePreview from "../../common/SingleImagePreview";
 
 const CarDetail = ({ vehicleDetails }) => {
-
+  const isAllEmpty = (obj) => {
+    return Object.values(obj).every(
+      value => value === undefined || value === null || value === ""
+    );
+  };
   const defaultPhotos = [
-    { label: "Front Side", src: vehicleDetails.image_front_side || nouser },
-    { label: "Back Side", src: vehicleDetails.image_back_side || nouser },
-    { label: "Right Side", src: vehicleDetails.image_right_side || nouser },
-    { label: "Left Side", src: vehicleDetails.image_left_side || nouser },
-    { label: "Car Number Plate", src: vehicleDetails.image_car_number_plate || nouser },
-    { label: "License Disc Image", src: vehicleDetails.image_driver_license || nouser },
-    { label: "Live Car Photo", src: vehicleDetails.image_vehicle_live || nouser },
+    { label: "Front Side", src: vehicleDetails.image_front_side},
+    { label: "Back Side", src: vehicleDetails.image_back_side},
+    { label: "Right Side", src: vehicleDetails.image_right_side},
+    { label: "Left Side", src: vehicleDetails.image_left_side},
+    { label: "Car Number Plate", src: vehicleDetails.image_car_number_plate},
+    { label: "License Disc Image", src: vehicleDetails.image_driver_license},
+    { label: "Live Car Photo", src: vehicleDetails.image_vehicle_live},
   ];
   const parts = vehicleDetails?.reg_no.match(/.{1,2}/g) || ["AB", "99", "YZ", "GP"];
   let car = {}
@@ -61,6 +65,8 @@ const CarDetail = ({ vehicleDetails }) => {
           borderRadius: "12px",
           overflow: "hidden",
           backgroundColor: "#FFFFFF",
+          font:'Montserrat',
+          fontFamily:'Montserrat'
         }}
       >
         {/* Header row */}
@@ -81,20 +87,20 @@ const CarDetail = ({ vehicleDetails }) => {
           {/* Vehicle + Reg */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
             <Box sx={{ textAlign: "right" }}>
-              <Typography fontSize="0.7rem" color="text.secondary">
+              <Typography fontSize="14px" color="#4B5563">
                 Vehicle
               </Typography>
-              <Typography fontSize="0.82rem" fontWeight={500}>
+              <Typography fontSize="14px" fontWeight={700}>
                 {vehicle}
               </Typography>
             </Box>
             <Box>
-              <Typography fontSize="0.7rem" color="text.secondary" mb={0.4}>
+              <Typography fontSize="14px" color="#4B5563" mb={0.4}>
                 Reg No.
               </Typography>
               {/* <RegPlate plate={regNo} /> */}
 
-              <Box sx={{ display: "flex", gap: 0, borderRadius: "4px", backgroundColor: "#FACC15", }}>
+              {regNo && <Box sx={{ display: "flex", gap: 0, borderRadius: "4px", backgroundColor: "#FACC15", }}>
                 {/* {parts.map((part, i) => ( */}
                 <Box
 
@@ -105,18 +111,18 @@ const CarDetail = ({ vehicleDetails }) => {
                     textAlign: "center",
                   }}
                 >
-                  <Typography fontSize="0.7rem" fontWeight={700} color="#854D0E">
+                  <Typography fontSize="14px" fontWeight={700} color="#854D0E">
                     {regNo}
                   </Typography>
                 </Box>
                 {/* ))}  */}
-              </Box>
+              </Box>}
             </Box>
           </Box>
         </Box>
 
         {/* 2x2 photo grid */}
-        <Box
+        {!isAllEmpty(vehicleDetails) ? <Box
           sx={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
@@ -127,8 +133,8 @@ const CarDetail = ({ vehicleDetails }) => {
           {carPhotos.map((photo) => (
             <Box key={photo.label}>
               <Typography
-                fontSize="0.8rem"
-                color="text.secondary"
+                fontSize="14px"
+                color="#4B5563"
                 fontWeight={500}
                 mb={0.8}
               >
@@ -136,12 +142,12 @@ const CarDetail = ({ vehicleDetails }) => {
               </Typography>
               <Box
                 component="img"
-                src={photo.src}
+                src={photo.src ? photo.src : nouser}
                 alt={photo.label}
                 onClick={() => handleImageClick(photo.src,photo.label)}
                 sx={{
                   // width: "100%",
-                  width: "332.33px",
+                  width: photo.src ? "332.33px" : '100',
                   height: "192px",
                   objectFit: "cover",
                   borderRadius: "8px",
@@ -152,7 +158,12 @@ const CarDetail = ({ vehicleDetails }) => {
               />
             </Box>
           ))}
+        </Box> : 
+        <Box sx={{display:"flex",justifyContent:"center", gap: 2,
+            p: 3,}}>
+         No Car Details
         </Box>
+        }
       </Paper>
     </>
   );
