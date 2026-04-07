@@ -876,7 +876,7 @@ const Home = () => {
                                                                         </IconButton>
                                                                     </Tooltip>
                                                                     <Typography sx={{ fontSize: "25px" }}>
-                                                                        <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                        <Tooltip title={copied ? 'Copied!' : `${user?.lat}, ${user?.long}`} placement="top">
                                                                             <IconButton
                                                                                 onClick={() => {
                                                                                     setTextToCopy(`${user?.lat},${user?.long}`);
@@ -917,7 +917,7 @@ const Home = () => {
                                                                                 </IconButton>
                                                                             </Tooltip>
                                                                             <Typography sx={{  fontSize: "25px" }}>
-                                                                                <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                                <Tooltip title={copied ? 'Copied!' : `${user?.lat}, ${user?.long}`} placement="top">
                                                                                     <IconButton
                                                                                         onClick={() => {
                                                                                             setTextToCopy(`${user?.lat},${user?.long}`);
