@@ -14,11 +14,13 @@ import moment from "moment";
 import logo3 from "../../assets/images/logo3.svg";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import Loader from "../../common/Loader";
 
 export default function SubscriptionDetails({ subscriptionDetailsProps}) {
   
   const [subscriptionDetails, setsubscriptionDetails] = useState(subscriptionDetailsProps);
-  const [latestUpdate, setLatestUpdate] = useState(subscriptionDetails?.subscriptionDetailsUpdate);
+  const [latestUpdate, setLatestUpdate] = useState(subscriptionDetails?.subscriptionDetailsUpdate ? subscriptionDetails?.subscriptionDetailsUpdate : 'Not Updated');
+  const [pdfLoader, setPdfLoader] = useState(false);
   const subscriptionData = [
     { label: "Subscription", value: subscriptionDetails?.subscription_status, type: "status-active" },
     { label: "Subscription Start", value: subscriptionDetails?.subscription_start || "12 Jan 2023" },
@@ -84,8 +86,8 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
       if (value) {
         return (
           <Typography
-            fontSize="0.875rem"
-            fontWeight={600}
+            fontSize="14px"
+            fontWeight={500}
             sx={{ color: "#16A34A" }}
           >
             Active
@@ -95,8 +97,8 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
       } else {
         return (
           <Typography
-            fontSize="0.875rem"
-            fontWeight={600}
+            fontSize="14px"
+            fontWeight={500}
             sx={{ color: "#E5565A" }}
           >
             InActive
@@ -108,8 +110,8 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
       if (value === 'Purchased') {
         return (
           <Typography
-            fontSize="0.875rem"
-            fontWeight={600}
+            fontSize="14px"
+            fontWeight={500}
             sx={{ color: "#16A34A" }}
           >
             {value}
@@ -118,8 +120,8 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
       } else {
         return (
           <Typography
-            fontSize="0.875rem"
-            fontWeight={600}
+            fontSize="14px"
+            fontWeight={500}
             sx={{ color: "#E5565A" }}
           >
             {value}
@@ -130,9 +132,10 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
     if (type === "link") {
       return (
         <Typography
-          fontSize="0.875rem"
+          fontSize="14px"
+          fontWeight={500}
           sx={{
-            color: value && value !== '-' ? "#2563EB" : "#9CA3AF",
+            color: value && value !== '-' ? "#367BE0" : "#9CA3AF",
             cursor: value && value !== '-' ? "pointer" : "not-allowed",
             pointerEvents: value && value !== '-' ? "auto" : "none",
             "&:hover": value && value !== '-' ? { textDecoration: "underline" } : {}
@@ -181,13 +184,14 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
       );
     }
     return (
-      <Typography fontSize="0.875rem" color="text.primary">
+      <Typography fontSize="14px" fontWeight={500} color='#4B5563'>
         {value}
       </Typography>
     );
   };
 
   const handleGeneratePdf = () => {
+    setPdfLoader(true)
     const sales_order_obj = subscriptionDetails.sales_order_details || {};
 
     const phoneHtml = (sales_order_obj.contact?.phones || [])
@@ -456,18 +460,37 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
           const pdfBlob = pdf.output('blob');
           const pdfUrl = URL.createObjectURL(pdfBlob);
           window.open(pdfUrl, '_blank');
+          setPdfLoader(false)
         });
       });
   };
 
   useEffect(() => {
     setsubscriptionDetails(subscriptionDetailsProps);
-    setLatestUpdate(subscriptionDetailsProps?.subscriptionDetailsUpdate);
+    setLatestUpdate(subscriptionDetailsProps?.subscriptionDetailsUpdate ? subscriptionDetailsProps?.subscriptionDetailsUpdate : 'Not Updated');
     setsubscriptionValue(subscriptionDetailsProps?.approvedDriver === true ? 'Yes' : 'No');
   }, [subscriptionDetailsProps]);
 
   return (
     <>
+      {pdfLoader && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.34)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999
+          }}
+        >
+          <Loader color="white" />
+        </Box>
+      )}
       <Box
         sx={{
           px: 3,
@@ -476,13 +499,14 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
           justifyContent: "space-between",
           alignItems: "center",
           borderBottom: "1px solid #E5E7EB",
+          fontFamily:'Montserrat'
         }}
       >
         <Typography variant="h6" fontWeight={600} fontSize="1.1rem">
           Subscription Details
         </Typography>
         <Box sx={{ px: 3, backgroundColor: "#F9FAFB", borderRadius: "10px", p: 1 }}>
-          <Typography fontSize="0.75rem" color="text.secondary">
+          <Typography fontSize="12px" fontWeight={400} color="#94A3B8">
             Last updated: {latestUpdate}
           </Typography>
         </Box>
@@ -490,20 +514,23 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
 
       <Divider sx={{ borderColor: "#F3F4F6" }} />
       {/* Table rows */}
-      <Box sx={{ px: 3, backgroundColor: "#F9FAFB", borderRadius: "16px", p: 3, mt: 3 }}>
+      <Box sx={{ px: 3, backgroundColor: "#F9FAFB", borderRadius: "16px", p: 3, mt: 3,border:'1px solid #E2E8F0' }}>
         {subscriptionData.map((row, index) => (
           <React.Fragment key={row.label}>
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
+                display: "grid",
+                gridTemplateColumns: "220px 1fr",  // ← fixed label col + value col
                 alignItems: "center",
                 py: 1.75,
+                borderTop:'1px solid #F1F5F9',
+                borderBottom:'1px solid #F1F5F9'
               }}
             >
               <Typography
-                fontSize="0.875rem"
-                color="text.secondary"
+                fontSize="14px"
+                fontWeight={500}
+                color="#4B5563"
                 sx={{ minWidth: 180 }}
               >
                 {row.label}
