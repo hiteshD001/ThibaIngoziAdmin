@@ -2148,6 +2148,34 @@ export const useUpdateMarkAsReviewed = (onSucess, onError) => {
     return res;
 }
 
+export const useGetCrimeReportRequestUsers = (crimeReportId, page = 1, limit = 10,requestAccepted = false ,search = "") => {
+    const queryFn = async () => {
+        const queryParams = new URLSearchParams({
+            page: page.toString(),
+            limit: limit.toString(),
+            requestAccepted: requestAccepted,
+            isWeb: true,
+            ...(search && search.trim() ? { search: search.trim() } : {})
+        }).toString();
+
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/crime-report/request-users/${crimeReportId}?${queryParams}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: [crimeReportId, page, limit, requestAccepted, search],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
 export const usePutIsArchived = (onSucess, onError) => {
     const mutationFn = async ({ id, data }) => {
         return await apiClient.put(
