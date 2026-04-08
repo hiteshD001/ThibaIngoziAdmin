@@ -11,7 +11,6 @@ import ViewBtn from '../../assets/images/ViewBtn.svg'
 import delBtn from '../../assets/images/delBtn.svg'
 import Listtrip from '../../assets/images/Listtrip.svg'
 import SingleImagePreview from "../../common/SingleImagePreview";
-
 import { useGetCrimeReportList, usePutIsArchived } from "../../API Calls/API";
 import Loader from "../../common/Loader";
 import CustomFilter from '../../common/Custom/CustomFilter'
@@ -69,7 +68,7 @@ const ListOfCrimeReports = () => {
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
 
-    const UserList = useGetCrimeReportList("crime report list", "", currentPage, rowsPerPage, filter,locationFilter, startDate, endDate, archived,sortBy, sortOrder);
+    const UserList = useGetCrimeReportList("crime report list", role, currentPage, rowsPerPage, filter,locationFilter, startDate, endDate, archived,sortBy, sortOrder);
     const totalCrimeReportData = UserList.data?.data?.totalCrimeReportData || 0;
     const totalPages = Math.ceil(totalCrimeReportData / rowsPerPage);
 
