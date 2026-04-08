@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams,Link } from "react-router-dom";
 import {
-    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem, Chip,
+    Box, Typography, Avatar, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem, Chip,
     Tooltip
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -10,7 +10,7 @@ import search from '../../assets/images/search.svg';
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import delBtn from '../../assets/images/delBtn.svg'
 import Listtrip from '../../assets/images/Listtrip.svg'
-
+import SingleImagePreview from "../../common/SingleImagePreview";
 import { useGetCrimeReportList, usePutIsArchived } from "../../API Calls/API";
 import Loader from "../../common/Loader";
 import CustomFilter from '../../common/Custom/CustomFilter'
@@ -25,7 +25,7 @@ import { toast } from "react-toastify";
 import apiClient from '../../API Calls/APIClient'
 import { startOfYear } from "date-fns";
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
-
+import moment from "moment";
 
 
 const ListOfCrimeReports = () => {
@@ -68,7 +68,7 @@ const ListOfCrimeReports = () => {
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
 
-    const UserList = useGetCrimeReportList("crime report list", "company", currentPage, rowsPerPage, filter,locationFilter, startDate, endDate, archived,sortBy, sortOrder);
+    const UserList = useGetCrimeReportList("crime report list", role, currentPage, rowsPerPage, filter,locationFilter, startDate, endDate, archived,sortBy, sortOrder);
     const totalCrimeReportData = UserList.data?.data?.totalCrimeReportData || 0;
     const totalPages = Math.ceil(totalCrimeReportData / rowsPerPage);
 
@@ -178,8 +178,37 @@ const ListOfCrimeReports = () => {
             ...newParams,
         });
     };
+    const getImageLink = (name) => {
+        if (!name) return undefined;
+        return `https://gaurdianlink.blob.core.windows.net/gaurdianlink/${name}`;
+    }
+
+    const [previewImage, setPreviewImage] = useState({
+        open: false,
+        src: '',
+        label: ''
+    });
+    const handleImageClick = (src, label) => {
+        if (src) {
+            setPreviewImage({
+                open: true,
+                src: src instanceof File ? URL.createObjectURL(src) : src,
+                label: label
+            });
+        }
+    };
+
+    const handleClosePreview = () => {
+        setPreviewImage(prev => ({ ...prev, open: false }));
+    };
 
     return (
+        <>
+            <SingleImagePreview
+                show={previewImage.open}
+                onClose={handleClosePreview}
+                image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
+            />
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
@@ -242,15 +271,6 @@ const ListOfCrimeReports = () => {
 								}}
                                 icon={calender}
                             />
-
-                            {/* <Button
-                                variant="contained"
-                                sx={{ height: '40px', width: '150px', borderRadius: '8px' }}
-                                onClick={() => nav("/home/crime-reports")}
-                                startIcon={<img src={whiteplus} alt='white plus' />}
-                            >
-                                Add Report
-                            </Button> */}
                             <CustomExportMenu onExport={handleExport} />
                             <Button
                                 onClick={() => nav('/home/crime-reports/view-archeived-crime-report')}
@@ -277,6 +297,7 @@ const ListOfCrimeReports = () => {
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Images</TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Date Reported</TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Sighting Reported</TableCell>
                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -305,40 +326,80 @@ const ListOfCrimeReports = () => {
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-
-                                                    {report.user?.first_name || "-"}
-
+                                                    <Link to={report.user?.role === "driver" ? `/home/total-drivers/driver-information/${report.user_id}` : `/home/total-users/user-information/${report.user_id}`} className="link2">
+                                                        <Stack direction="row" alignItems="center" gap={1}>
+                                                            <Avatar
+                                                                src={getImageLink(report.user?.selfieImage)}
+                                                                sx={{ '&:hover': { textDecoration: 'none' } }}
+                                                                alt="User"
+                                                            />
+                                                            {report.user?.first_name + ' ' + report.user?.last_name || "-"}
+                                                        </Stack>
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#F97316', textAlign: 'center' }}>
-
-
-                                                    {report?.requestReached || "0"}
-
+                                                    <Link style={{
+                                                                textDecoration: 'none',
+                                                                color: 'var(--orange)',
+                                                                cursor: 'pointer',
+                                                            }} to={`/home/crime-reports/request-reached-users/${report?._id}`}>{report?.requestReached || "0"}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
-
-
-                                                    {report?.requestAccepted || "0"}
-
+                                                    <Link style={{
+                                                        textDecoration: 'none',
+                                                        color: '#01C971',
+                                                        cursor: 'pointer',
+                                                    }} to={`/home/crime-reports/request-reached-users/${report?._id}`} state={{ isAccepted: true }}
+>
+                                                        {report?.requestAccepted || "0"}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    <Stack direction="row" alignItems="center" gap={1}>
-                                                        {report.evidence_image.map((item, index) => (
-                                                            <Grid size={{ xs: 6, sm: 3 }} key={index}>
-                                                                <Box
-                                                                    component="img"
-                                                                    src={item}
-                                                                    alt={`Placeholder ${index}`}
-                                                                    sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
-                                                                />
-                                                            </Grid>
+                                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                                        {report.evidence_image.slice(0, 2).map((item, index) => (
+                                                            <Box
+                                                                key={index}
+                                                                component="img"
+                                                                src={item}
+                                                                onClick={() => handleImageClick(item,`evidence-${index+1}`)}
+                                                                alt={`evidence-${index}`}
+                                                                sx={{
+                                                                    width: "32px",
+                                                                    height: "32px",
+                                                                    objectFit: 'cover',
+                                                                    borderRadius: '6px',
+                                                                    cursor:'pointer',
+                                                                    border: '1px solid #E5E7EB'
+                                                                }}
+                                                            />
                                                         ))}
+                                                        {report.evidence_image.length > 2 && (
+                                                            <Box
+                                                                sx={{
+                                                                    width: 32,
+                                                                    height: 32,
+                                                                    backgroundColor: '#D1D5DB',
+                                                                    borderRadius: '6px',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center',
+                                                                    fontSize: '14px',
+                                                                    color: '#374151',
+                                                                    cursor: 'pointer',
+                                                                    fontWeight: 500
+                                                                }}
+                                                                onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}
+                                                            >
+                                                                +{report.evidence_image.length - 2}
+                                                            </Box>
+                                                        )}
                                                     </Stack>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-
-                                                    {report.createdAt || "-"}
-
+                                                    {moment(report.createdAt).isSame(moment(), "day")
+                                                        ? `Today, ${moment(report.createdAt).format("hh:mm A")}`
+                                                        : moment(report.createdAt).format("HH:mm:ss - DD/MM/YYYY")}
                                                 </TableCell>
 
                                                 <TableCell sx={{ color: '#4B5563' }}>
@@ -362,6 +423,9 @@ const ListOfCrimeReports = () => {
                                                             }
                                                         }}
                                                     />
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
+                                                    0
                                                 </TableCell>
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
@@ -473,6 +537,7 @@ const ListOfCrimeReports = () => {
             </Paper>
             {popup && <ImportSheet setpopup={setpopup} type="user" />}
         </Box>
+        </>
     );
 }
 export default ListOfCrimeReports;

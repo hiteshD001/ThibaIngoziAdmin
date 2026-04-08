@@ -71,6 +71,7 @@ const VerificationView = lazy(() => import("./pages/verificationView/Verificatio
 const ListOfPoliceUnits = lazy(() => import("./pages/police-unit/ListOfPoliceUnits"));
 const AddPoliceUnit = lazy(() => import("./pages/police-unit/AddPoliceUnit"));
 const PoliceUnitInformation = lazy(() => import("./pages/police-unit/PoliceUnitInformation"));
+const CrimeReportRequestUsers = lazy(() => import("./pages/crimeReports/CrimeReportRequestUsers"));
 
 function App() {
     const router = useMemo(
@@ -394,7 +395,15 @@ function App() {
                                 {
                                     path: "view-archeived-crime-report",
                                     element: <ListOfArcheivedCrimeReports />
-                                }
+                                },
+                                {
+                                    path: "request-reached-users/:id",
+                                    element: <CrimeReportRequestUsers />
+                                },
+                                {
+                                    path: "request-accepted-users/:id",
+                                    element: <CrimeReportRequestUsers />
+                                },
                             ]
                         },
                         {
