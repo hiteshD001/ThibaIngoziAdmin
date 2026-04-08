@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useDebounce from "../hooks/useDebounce";
 import {
 	Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, MenuItem, Chip,
@@ -31,6 +31,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
+import { loadListPageState, saveListPageState } from "../common/ListPageState";
 
 const ListOfTrips = () => {
 	const nav = useNavigate();
@@ -48,7 +49,11 @@ const ListOfTrips = () => {
 	const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
 	const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
 	const [archived, setArchived] = useState(false)
-	const [viewcopassenger, setViewcopassenger] = useState([])
+	const [viewcopassenger, setViewcopassenger] = useState(() => {
+		const savedState = loadListPageState("total-linked-trips", {});
+		return Array.isArray(savedState?.viewcopassenger) ? savedState.viewcopassenger : [];
+	});
+	const hasRestoredScroll = useRef(false);
 
 	// Sort
 	const [sortBy, setSortBy] = useState("createdAt");
@@ -80,6 +85,18 @@ const ListOfTrips = () => {
 	const tripList = trip?.data?.data?.tripData || [];
 	const totalTrips = trip?.data?.data?.totalTripData || 0;
 	const totalPages = Math.ceil(totalTrips / rowsPerPage);
+
+	useEffect(() => {
+		saveListPageState("total-linked-trips", { viewcopassenger });
+	}, [viewcopassenger]);
+
+	useEffect(() => {
+		if (!hasRestoredScroll.current && tripList.length > 0) {
+			restoreScrollPosition("tripListScroll");
+			hasRestoredScroll.current = true;
+		}
+	}, [tripList.length]);
+
 	const updateParams = (newParams) => {
 		setSearchParams({
 			page,
@@ -593,13 +610,6 @@ const CustomTableRow = ({
 		saveScrollPosition("tripListScroll");
 		nav(`/home/total-linked-trips/location?lat=${user?.startlat}&long=${user?.startlong}&end_lat=${user?.endlat}&end_long=${user?.endlong}`)
 	};
-	// Handle Scroll Event store 
-	useEffect(() => {
-		if (data) {
-			restoreScrollPosition("tripListScroll");
-		}
-	}, [data]);
-
 	return (
 		<TableRow key={data._id}>
 			<TableCell sx={{ textWrap: 'nowrap' }}>

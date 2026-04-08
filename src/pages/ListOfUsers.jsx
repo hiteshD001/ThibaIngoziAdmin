@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useDebounce from "../hooks/useDebounce";
 import {
@@ -13,7 +13,6 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import search from '../assets/images/search.svg';
 import whiteplus from '../assets/images/whiteplus.svg';
 import { useGetUser, useGetUserList } from "../API Calls/API";
-import { useQueryClient } from "@tanstack/react-query";
 import Loader from "../common/Loader";
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
@@ -33,6 +32,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
+import { clearListPageState, loadListPageState, saveListPageState } from "../common/ListPageState";
 
 const ListOfUsers = () => {
     const [popup, setpopup] = useState(false);
@@ -51,11 +51,11 @@ const ListOfUsers = () => {
     const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
-    const client = useQueryClient();
     const [page, setpage] = useState(1);
     const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
+    const hasRestoredScroll = useRef(false);
     let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;
     const [isRange, setIsRange] = useState(false);
@@ -69,9 +69,9 @@ const ListOfUsers = () => {
     const [sortBy, setSortBy] = useState("first_name");
     const [sortOrder, setSortOrder] = useState("asc");
 
-    // Save/restore filter state using React Query cache
+    // Save/restore local-only list UI state using session storage.
     useEffect(() => {
-        const savedState = client.getQueryData(['userListFilters']);
+        const savedState = loadListPageState("total-users", null);
         if (savedState) {
             updateParams({filter:savedState.filter || ""});
             setSortBy(savedState.sortBy || "first_name");
@@ -93,16 +93,16 @@ const ListOfUsers = () => {
                     ]
             );
         }
-    }, [client]);
+    }, []);
 
     useEffect(() => {
-        client.setQueryData(['userListFilters'], {
+        saveListPageState("total-users", {
             filter: debouncedFilter,
             sortBy,
             sortOrder,
             range
         });
-    }, [debouncedFilter, sortBy, sortOrder, range, client]);
+    }, [debouncedFilter, sortBy, sortOrder, range]);
 
     const changeSortOrder = (e) => {
         const field = e.target.id;
@@ -250,8 +250,9 @@ const ListOfUsers = () => {
         nav(`/home/total-users/user-information/${user._id}`)
     };
     useEffect(() => {
-        if (UserList.data?.data?.users?.length) {
+        if (!hasRestoredScroll.current && UserList.data?.data?.users?.length) {
             restoreScrollPosition("userListScroll");
+            hasRestoredScroll.current = true;
         }
     }, [UserList.data?.data?.users]);
     return (
@@ -321,7 +322,7 @@ const ListOfUsers = () => {
                                 setSortOrder("asc");
                                 setIsRange(true)
 
-                                client.removeQueries(['userListFilters']);
+                                clearListPageState("total-users");
                             }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
                                 View All
                             </Button>

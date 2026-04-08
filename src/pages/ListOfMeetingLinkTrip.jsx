@@ -30,6 +30,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
+import { loadListPageState, saveListPageState } from "../common/ListPageState";
 
 const ListOfMeetingLinkTrips = () => {
   const nav = useNavigate();
@@ -47,10 +48,11 @@ const ListOfMeetingLinkTrips = () => {
   const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
   const [isArchived, setIsArchived] = useState(false);
   const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
+  const hasRestoredScroll = useRef(false);
 
   // Sort 1
-  const [sortBy, setSortBy] = useState("first_name");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortBy, setSortBy] = useState(() => loadListPageState("total-meeting-links", {})?.sortBy || "first_name");
+  const [sortOrder, setSortOrder] = useState(() => loadListPageState("total-meeting-links", {})?.sortOrder || "asc");
   const role = localStorage.getItem("role");
   const companyId = role === 'company' ? localStorage.getItem("userID") : null;
 
@@ -75,6 +77,11 @@ const ListOfMeetingLinkTrips = () => {
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalMeetingLinkTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
+
+  useEffect(() => {
+    saveListPageState("total-meeting-links", { sortBy, sortOrder });
+  }, [sortBy, sortOrder]);
+
   const updateParams = (newParams) => {
     setSearchParams({
       page,
@@ -212,10 +219,11 @@ const ListOfMeetingLinkTrips = () => {
     saveScrollPosition("meetingListScroll");
     nav(`/home/total-meeting-links/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
   };
-  // Handle Scroll Event store 
+  // Handle Scroll Event store
   useEffect(() => {
-    if (trip.data?.data?.tripData?.length) {
+    if (!hasRestoredScroll.current && trip.data?.data?.tripData?.length) {
       restoreScrollPosition("meetingListScroll");
+      hasRestoredScroll.current = true;
     }
   }, [trip.data?.data?.tripData?.length]);
 

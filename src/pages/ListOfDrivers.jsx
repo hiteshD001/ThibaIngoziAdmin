@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useEffect } from "react";
+import { useState, useLayoutEffect, useEffect, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useDebounce from "../hooks/useDebounce";
 import { Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select as MuiSelect, MenuItem, Checkbox, FormControlLabel, Divider, FormGroup, Tooltip, TableSortLabel, Chip, Skeleton } from "@mui/material";
@@ -56,6 +56,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
+import { clearListPageState, loadListPageState, saveListPageState } from "../common/ListPageState";
 
 const ListOfDrivers = () => {
     const [edit, setedit] = useState(false);
@@ -64,6 +65,7 @@ const ListOfDrivers = () => {
     const client = useQueryClient();
     const nav = useNavigate();
     const params = useParams();
+    const listStateKey = params.id ? `total-drivers:${params.id}` : "total-drivers";
     const userId = localStorage.getItem("userID");
     const [role] = useState(localStorage.getItem("role"));
     const [confirmation, setconfirmation] = useState("");
@@ -72,6 +74,7 @@ const ListOfDrivers = () => {
     const [payPopup, setPopup] = useState("");
     const [selectedPayoutType, setSelectedPayoutType] = useState("");
     const [selectedDriver, setSelectedDriver] = useState(null);
+    const hasRestoredScroll = useRef(false);
     const [searchParams, setSearchParams] = useSearchParams();
     const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
     const endDateParam = searchParams.get("endDate") || new Date().toISOString();
@@ -104,9 +107,9 @@ const ListOfDrivers = () => {
     const [sortBy, setSortBy] = useState("first_name");
     const [sortOrder, setSortOrder] = useState("asc");
 
-    // Save/restore filter state using React Query cache
+    // Save/restore local-only list UI state using session storage.
     useEffect(() => {
-        const savedState = client.getQueryData(['driverListFilters']);
+        const savedState = loadListPageState(listStateKey, null);
         if (savedState) {
             updateParams({filter:savedState.filter || ""});
             setSortBy(savedState.sortBy || "first_name");
@@ -129,10 +132,10 @@ const ListOfDrivers = () => {
                     ]
             );
         }
-    }, [client]);
+    }, [listStateKey]);
 
     useEffect(() => {
-        client.setQueryData(['driverListFilters'], {
+        saveListPageState(listStateKey, {
             filter: debouncedFilter,
             sortBy,
             sortOrder,
@@ -144,7 +147,7 @@ const ListOfDrivers = () => {
                 }
             ]
         });
-    }, [debouncedFilter, sortBy, sortOrder, range, client]);
+    }, [debouncedFilter, sortBy, sortOrder, range, listStateKey]);
 
     const changeSortOrder = (e) => {
         const field = e.currentTarget.id;
@@ -531,8 +534,9 @@ const ListOfDrivers = () => {
         nav(`/home/total-drivers/driver-information/${user._id}`);
     };
     useEffect(() => {
-        if (driverList.data?.data?.users?.length) {
+        if (!hasRestoredScroll.current && driverList.data?.data?.users?.length) {
             restoreScrollPosition("driverListScroll");
+            hasRestoredScroll.current = true;
         }
     }, [driverList.data?.data?.users]);
     
@@ -1018,7 +1022,7 @@ const ListOfDrivers = () => {
                                     endDate: new Date(endDateParam),
                                     key: 'selection'
                                 }]);
-                                client.removeQueries(['driverListFilters']);
+                                clearListPageState(listStateKey);
                             }} sx={{ height: '40px', fontSize: '0.8rem', width: '120px', borderRadius: '8px', border: '1px solid var(--Blue)' }}>
                                 View All
                             </Button>
