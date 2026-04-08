@@ -54,7 +54,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
 
     const handleCopyAddress = useCallback((address) => {
         setTextToCopy(address);
-        handleCopy();
+        handleCopy(address);
     }, [setTextToCopy, handleCopy]);
 
     const handleViewLocation = useCallback(() => {
@@ -138,15 +138,32 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                         justifyContent: 'space-between',
                     }}>
                         {`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`}
-                        <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                            <IconButton
-                                onClick={() => handleCopyAddress(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`)}
-                                sx={copyButtonStyles}
-                                aria-label="copy address"
-                            >
-                                <ContentCopy fontSize="medium" className="copy-btn" />
-                            </IconButton>
-                        </Tooltip>
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                        }}>
+                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                <IconButton
+                                    onClick={() => handleCopyAddress(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`)}
+                                    sx={copyButtonStyles}
+                                    aria-label="copy address"
+                                >
+                                    <ContentCopy fontSize="medium" className="copy-btn" />
+                                </IconButton>
+                            </Tooltip>
+                            <Typography sx={{ fontSize: "25px" }}>
+                                <Tooltip title={copied ? 'Copied!' : `${user?.lat}, ${user?.long}`} placement="top">
+                                    <IconButton
+                                        onClick={() => { handleCopyAddress(`${user?.lat},${user?.long}`) }}
+                                        sx={copyButtonStyles}
+                                        aria-label="copy coordinate"
+                                    >
+                                        🌍
+                                    </IconButton>
+                                </Tooltip>
+                            </Typography>
+                        </Box>
                     </Box>
                 ) : (
                     user?.address ?
@@ -156,15 +173,32 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                             justifyContent: 'space-between',
                         }}>
                             {user?.address}
-                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                <IconButton
-                                    onClick={() => handleCopyAddress(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id || user?.deepLinks?._id}`)}
-                                    sx={copyButtonStyles}
-                                    aria-label="copy address"
-                                >
-                                    <ContentCopy fontSize="medium" className="copy-btn" />
-                                </IconButton>
-                            </Tooltip>
+                                <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                }}>
+                                    <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                        <IconButton
+                                            onClick={() => handleCopyAddress(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id || user?.deepLinks?._id}`)}
+                                            sx={copyButtonStyles}
+                                            aria-label="copy address"
+                                        >
+                                            <ContentCopy fontSize="medium" className="copy-btn" />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Typography sx={{ fontSize: "25px" }}>
+                                        <Tooltip title={copied ? 'Copied!' : `${user?.lat}, ${user?.long}`} placement="top">
+                                            <IconButton
+                                                onClick={() => { handleCopyAddress(`${user?.lat},${user?.long}`) }}
+                                                sx={copyButtonStyles}
+                                                aria-label="copy coordinate"
+                                            >
+                                                🌍
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Typography>
+                                </Box>
                         </Box>
                         :
                         "-"
@@ -281,7 +315,7 @@ ActiveSOSTableRow.displayName = 'ActiveSOSTableRow';
 const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, userinfo, isNavigatingBack, onOpenOtherUsers,updateRecentParams,recentSearchParams }) => {
     const handleCopyAddress = useCallback((address) => {
         setTextToCopy(address);
-        handleCopy();
+        handleCopy(address);
     }, [setTextToCopy, handleCopy]);
 
     const handleViewLocation = useCallback(() => {
@@ -343,6 +377,11 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                     justifyContent: 'space-between'
                 }}>
                     {row?.address}
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                }}>
                     <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
                         <IconButton
                             onClick={() => handleCopyAddress(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?.deepLinks._id}`)}
@@ -352,6 +391,18 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                             <ContentCopy fontSize="medium" className="copy-btn" />
                         </IconButton>
                     </Tooltip>
+                    <Typography sx={{ fontSize: "25px" }}>
+                        <Tooltip title={copied ? 'Copied!' : `${row?.lat}, ${row?.long}`} placement="top">
+                            <IconButton
+                                onClick={() => { handleCopyAddress(`${row?.lat},${row?.long}`) }}
+                                sx={copyButtonStyles}
+                                aria-label="copy coordinate"
+                            >
+                                🌍
+                            </IconButton>
+                        </Tooltip>
+                    </Typography>
+                </Box>
                 </Box>
             </TableCell>
             <TableCell sx={{ color: 'var(--orange)' }}>
@@ -711,11 +762,11 @@ const EHialingView = () => {
         }
     };
 
-    const handleCopy = useCallback(async () => {
+    const handleCopy = useCallback(async (textToCopy) => {
         await navigator.clipboard.writeText(textToCopy);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-    }, [textToCopy]);
+    });
 
     const handleUpdate = useCallback(() => {
         setUpdatingId(selectedId);

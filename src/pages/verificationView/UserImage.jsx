@@ -11,9 +11,9 @@ import SingleImagePreview from "../../common/SingleImagePreview";
 const UserImages = ({ user }) => {
 
   const defaultPhotos = [
-    { label: "Selfie Image", src: user.selfieImage || nouser },
-    { label: "Full Image", src: user.fullImage || nouser},
-    { label: "Verification Image", src: user.VerificationImage || nouser },
+    { label: "Selfie Image", src: user.selfieImage},
+    { label: "Full Image", src: user.fullImage},
+    { label: "Verification Image", src: user.VerificationImage},
   ];
 
   const [previewImage, setPreviewImage] = useState({
@@ -80,8 +80,8 @@ const UserImages = ({ user }) => {
           {carPhotos.map((photo) => (
             <Box key={photo.label}>
               <Typography
-                fontSize="0.8rem"
-                color="text.secondary"
+                fontSize="14px"
+                color="#4B5563"
                 fontWeight={500}
                 mb={0.8}
               >
@@ -89,12 +89,12 @@ const UserImages = ({ user }) => {
               </Typography>
               <Box
                 component="img"
-                src={photo.src}
+                src={photo.src ? photo.src : nouser}
                 alt={photo.label}
                 onClick={() => handleImageClick(photo.src,photo.label)}
                 sx={{
                   // width: "100%",
-                  width: "332.33px",
+                  width: photo.src ? "332.33px" : '100',
                   height: "192px",
                   objectFit: "cover",
                   borderRadius: "8px",
