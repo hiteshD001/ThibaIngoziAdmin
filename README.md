@@ -16,10 +16,11 @@ Detailed runbook: `docs/deploy.md`.
 
 - `.github/workflows/ci.yml`
   - Runs on pull requests and pushes to `master`
-  - Executes:
+  - Hard gate (`quality` job) executes:
     - `npm ci`
-    - `npm run lint`
     - `npm run build`
+  - Non-blocking visibility job executes:
+    - `npm run lint`
   - Uploads the tested `dist` artifact for push events to `master`
 
 - `.github/workflows/deploy-prod.yml`
@@ -68,7 +69,7 @@ Configure branch protection for `master`:
 ### Release flow
 
 1. PR is opened against `master`
-2. CI validates lint/build
+2. CI validates build (lint is reported but non-blocking)
 3. PR is merged to `master`
 4. CI runs again on push
 5. Deploy workflow SSHes to server, checks out target commit, builds, and runs `pm2 reload all`
@@ -76,7 +77,8 @@ Configure branch protection for `master`:
 
 ### Failure matrix
 
-- **Lint/build failure:** deploy is blocked
+- **Build failure:** deploy is blocked
+- **Lint failure:** visible in CI but does not block deploy
 - **Server deploy failure:** deploy workflow fails, rollback workflow is called
 - **Smoke check failure:** deploy workflow fails, rollback workflow is called
 - **Rollback verification failure:** rollback workflow reports failure for manual intervention

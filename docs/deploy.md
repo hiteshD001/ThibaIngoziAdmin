@@ -7,7 +7,7 @@ Configure these once in GitHub:
 1. Branch protection on `master`
    - Require a pull request before merging
    - Require status checks to pass before merging
-   - Required check: `quality` from `CI`
+   - Required check: `quality (build gate)` from `CI`
    - Require branches to be up to date before merging
    - Optionally require at least one approving review
 
@@ -25,9 +25,9 @@ Configure these once in GitHub:
 1. Merge PR into `master`
 2. `CI` workflow runs:
    - install dependencies
-   - lint
    - build
    - artifact upload (`dist`)
+   - non-blocking lint report (`lint (non-blocking)`)
 3. `Deploy Production` workflow runs only if CI succeeded on push to `master`
 4. Deploy connects to server over SSH
 5. In `PROD_PATH`, server runs: `git fetch`, `git checkout <sha>`, `npm ci`, `npm run build`, `pm2 reload all`
