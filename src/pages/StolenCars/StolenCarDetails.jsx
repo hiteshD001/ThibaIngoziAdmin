@@ -39,7 +39,7 @@ const StolenCarDetails = () => {
             missingVehicaleById.refetch()
         },
         (error) => {
-            console.log("error", error)
+            console.log("err", error)
         }
     )
 
