@@ -127,7 +127,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                                 </IconButton>
                             </Tooltip>
                             <Typography sx={{ fontSize: "25px" }}>
-                                <Tooltip title={copied ? 'Copied!' : `${user?.lat}, ${user?.long}`} placement="top">
+                                <Tooltip title={copied ? 'Copied!' : `Copy Coordinates`} placement="top">
                                     <IconButton
                                         onClick={() => { handleCopyAddress(`${user?.lat},${user?.long}`) }}
                                         sx={copyButtonStyles}
@@ -162,7 +162,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                                         </IconButton>
                                     </Tooltip>
                                     <Typography sx={{ fontSize: "25px" }}>
-                                        <Tooltip title={copied ? 'Copied!' : `${user?.lat}, ${user?.long}`} placement="top">
+                                        <Tooltip title={copied ? 'Copied!' : `Copy Coordinates`} placement="top">
                                             <IconButton
                                                 onClick={() => { handleCopyAddress(`${user?.lat},${user?.long}`) }}
                                                 sx={copyButtonStyles}
@@ -348,7 +348,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                         </IconButton>
                     </Tooltip>
                     <Typography sx={{ fontSize: "25px" }}>
-                        <Tooltip title={copied ? 'Copied!' : `${row?.lat}, ${row?.long}`} placement="top">
+                        <Tooltip title={copied ? 'Copied!' : `Copy Coordinates`} placement="top">
                             <IconButton
                                 onClick={() => { handleCopyAddress(`${row?.lat},${row?.long}`) }}
                                 sx={copyButtonStyles}
