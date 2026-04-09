@@ -157,12 +157,14 @@ const PassangerInformation = () => {
 
     const vehicleInfo = useGetUser(params.id);
     const [physicalPanicButton, setphysicalPanicButton] = useState('')
+    const [passport_no, setpassport_no] = useState('')
     useEffect(() => {
         const data = vehicleInfo.data?.data;
 
         if (data) {
             const user = data?.user;
             setphysicalPanicButton(user.physicalPanicButton)
+            setpassport_no(user.passport_no)
             setdriverformvalues({
                 form: driverform,
                 data: {
@@ -418,6 +420,9 @@ const PassangerInformation = () => {
                                         {driverform.touched.email && <FormHelperText error>{driverform.errors.email}</FormHelperText>}
                                     </FormControl>
                                 ) : displayField("Email", driverform.values.email)}
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                               { displayField("Passport Number", passport_no)}
                             </Grid>
                             <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
                                 {editInfo ? (
