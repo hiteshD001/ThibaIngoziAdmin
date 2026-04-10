@@ -486,9 +486,7 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
             </a>
           </td>
           <td style="padding:5px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-            <a href="${item.product?.url || '#'}" style="text-decoration:none;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#333;">
-              ${item.product?.name || '-'}
-            </a>
+            <a href="http://thibaingozi.com/itag-for-thiba-ingozi-app-powered-by-smartops" style="text-decoration: none; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">Thiba Ingozi Powered By SmartOps&nbsp;&nbsp;SOS ITAG POWERED BY SMARTOPS</a>
             <div style="padding-top:3px;"></div>
           </td>
           <td align="center" style="padding:5px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
@@ -559,7 +557,7 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
                 <table width="600" border="0" align="center" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
                   <tr style="margin-bottom:5px;">
                     <td align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-                      <h1 style="margin:0;padding:0;color:#202020;font-size:24px;line-height:150%;">ORDER CONFIRMATION</h1>
+                      <h1 style="margin:0;padding:0;color:#202020;font-size:24px;line-height:150%;">ORDER CONFIRMATION-CERTIFICATE</h1>
                     </td>
                   </tr>
                   <tr height="20px" style="color:#404040;font-size:15px;line-height:150%;text-align:center;padding-bottom:10px;">
@@ -598,6 +596,13 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
                                         ${sales_order_obj.contact?.first_name || ''} ${sales_order_obj.contact?.last_name || ''}
                                       </td>
                                     </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                               <tr>
+                                <td valign="top" style="padding-bottom:20px;line-height:150%;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#404040;font-size:14px;">
+                                  <h5 style="padding-bottom:5px;margin:0;padding:0;color:#202020;font-size:14px;line-height:150%;">PASSPORT NUMBER</h5>
+                                  <table width="99%" border="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
                                     <tr>
                                       <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
                                       ${sales_order_obj.custom_fields?.id_number || ''}
@@ -607,7 +612,6 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
                                 </td>
                               </tr>
                             </table>
-
                             <!-- CONTACT DETAILS -->
                             <table align="left" border="0" cellpadding="0" cellspacing="0" width="280" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
                               <tr>
@@ -830,22 +834,28 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
     margin:0;
     padding:20px;
     font-family:Arial,sans-serif;
-    background:#f5f5f5;
+    background:#E0E0E0;
     display:flex;
     flex-direction:column;
     align-items:center;
   ">
-    <div style="
-      width:794px;
-      min-height:1123px;
-      background:white;
-      padding:20px;
-      box-sizing:border-box;
-      box-shadow:0 0 10px rgba(0,0,0,.15);
+     <div style="
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%) rotate(-30deg);
+      font-size:60px;
+      color:#000;
+      opacity:0.05;
+      z-index:0;
+      pointer-events:none;
+      white-space:nowrap;
+      font-weight:bold;
     ">
+      Digital Certificate
+    </div>
           ${container}
-        </div>
-
+       
       </body>
     </html>
   `;
