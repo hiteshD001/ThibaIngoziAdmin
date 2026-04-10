@@ -33,12 +33,15 @@ jobs:
           test -n "$DEPLOY_PATH" || (echo "PROD_PATH/DEPLOY_PATH is missing" && exit 1)
           test -n "$PROD_URL" || (echo "PROD_URL is missing" && exit 1)
 
-      - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Prepare SSH key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_KEY || secrets.SSH_PRIVATE_KEY }}
-        with:
-          ssh-private-key: ${{ secrets.PROD_SSH_KEY || secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          key_file="${RUNNER_TEMP}/prod_ssh_key"
+          printf '%s\n' "${SSH_PRIVATE_KEY}" > "${key_file}"
+          chmod 600 "${key_file}"
+          echo "SSH_KEY_FILE=${key_file}" >> "${GITHUB_ENV}"
 
       - name: Trust server host key
         env:
@@ -60,7 +63,8 @@ jobs:
         run: |
           set -euo pipefail
           port="${DEPLOY_PORT:-22}"
-          ssh -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+          ssh_opts="-i ${SSH_KEY_FILE} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          ssh ${ssh_opts} -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
             "DEPLOY_PATH='${DEPLOY_PATH}' PREVIOUS_COMMIT_INPUT='${PREVIOUS_COMMIT_INPUT}' bash -s" <<'EOF'
           set -euo pipefail
           cd "${DEPLOY_PATH}"
