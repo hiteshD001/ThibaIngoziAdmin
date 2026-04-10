@@ -339,6 +339,17 @@ const ListOfUsers = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
+                                            id="PassportNo."
+                                            active={sortBy === 'passport_no'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'passport_no' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            ID / Passport No.
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
                                             id="company_name"
                                             active={sortBy === 'company_name'}
                                             direction={sortOrder}
@@ -428,6 +439,9 @@ const ListOfUsers = () => {
                                                         {user.first_name} {user.last_name}
 
                                                     </Stack>
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {user.passport_no || '-'}
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
 
