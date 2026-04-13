@@ -205,3 +205,14 @@ export const policeUnitValidation = yup.object({
     postal_code: Number,
     country: String,
 })
+
+export const captureValidation = yup.object({
+    otherComments:String,
+    arrival_comment_id:String,
+    assessment_comment_id:String,
+    contact_attempt_comment_id:String,
+    resolution_comment_id:String,
+    closure_comment_id:String,
+    location_id:String,
+    capture_by_id:String
+})

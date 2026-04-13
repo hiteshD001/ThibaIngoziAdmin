@@ -73,6 +73,9 @@ const AddPoliceUnit = lazy(() => import("./pages/police-unit/AddPoliceUnit"));
 const PoliceUnitInformation = lazy(() => import("./pages/police-unit/PoliceUnitInformation"));
 const CrimeReportRequestUsers = lazy(() => import("./pages/crimeReports/CrimeReportRequestUsers"));
 const ListOfcaptureReports = lazy(() => import("./pages/capture-report/ListOfCaptureReports"));
+const ListOfArcheivedcaptureReports = lazy(() => import("./pages/capture-report/ListOfArcheivedcaptureReports"));
+const CaptureReport = lazy(() => import("./pages/capture-report/CaptureReport"));
+const AddCaptureReport = lazy(() => import("./pages/capture-report/AddCaptureReport"));
 
 function App() {
     const router = useMemo(
@@ -414,14 +417,18 @@ function App() {
                                     path: "",
                                     element: <ListOfcaptureReports />
                                 },
-                                // {
-                                //     path: "capture-report/:id",
-                                //     element: <captureReport />
-                                // },
-                                // {
-                                //     path: "view-archeived-capture-report",
-                                //     element: <ListOfArcheivedCaptureReports />
-                                // }
+                                {
+                                    path: ":id",
+                                    element: <CaptureReport />
+                                },
+                                {
+                                    path: "save",
+                                    element: <AddCaptureReport />
+                                },
+                                {
+                                    path: "view-archeived-capture-report",
+                                    element: <ListOfArcheivedcaptureReports />
+                                }
                             ]
                         },
                         {

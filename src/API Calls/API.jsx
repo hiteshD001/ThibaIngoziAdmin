@@ -2428,20 +2428,20 @@ export const useGetCaptureReportList = (
     return res;
 };
 
-export const useGetCaptureReportById = (crime_report_id) => {
+export const useGetCaptureReportById = (capture_report_id) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(
-            `${import.meta.env.VITE_BASEURL}/crime-report/${crime_report_id}`
+            `${import.meta.env.VITE_BASEURL}/capture-report/${capture_report_id}`
         );
     };
 
     const res = useQuery({
-        queryKey: ["crimereport", crime_report_id],
+        queryKey: ["capturereport", capture_report_id],
         queryFn: queryFn,
         staleTime: Infinity,
-        enabled: crime_report_id !== undefined,
+        enabled: capture_report_id !== undefined,
     });
 
     if (res.error && res.error.response?.status === 401) {
@@ -2496,4 +2496,17 @@ export const useCaptureIsArchived = (onSucess, onError) => {
     return res;
 }
 
+export const useGetCommentsList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/comment`);
+    };
 
+    const res = useQuery({
+        queryKey: ["Comment List"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    return res;
+};

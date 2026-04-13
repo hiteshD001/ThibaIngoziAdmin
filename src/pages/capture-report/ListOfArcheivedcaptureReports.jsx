@@ -27,7 +27,7 @@ import whiteplus from '../../assets/images/whiteplus.svg';
 import {getImageLink,formatDateTime } from '../../common/commonFn';
 import SingleImagePreview from "../../common/SingleImagePreview";
 
-const ListOfCaptureReports = () => {
+const ListOfArcheivedcaptureReports = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
@@ -41,7 +41,7 @@ const ListOfCaptureReports = () => {
     const [locationFilter, setlocationFilter] = useState("");
     const location = useLocation();
     const getQueryParams = new URLSearchParams(location.search);
-    const [archived, setArchived] = useState(false)
+    const [archived, setArchived] = useState(true)
    
     // Sort
     const [sortBy, setSortBy] = useState("createdAt");
@@ -252,22 +252,22 @@ const ListOfCaptureReports = () => {
                                 icon={calender}
                             />
 
-                            {/* <Button
+                            <Button
                                 variant="contained"
                                 sx={{ height: '40px', width: '150px', borderRadius: '8px' }}
-                                onClick={() => nav("/home/capture-reports/save")}
-                                startIcon={<img src={whiteplus} alt='white plus' />}
+                                onClick={() => nav("/")}
+                                // startIcon={<img src={whiteplus} alt='white plus' />}
                             >
                                Capture Report
-                            </Button> */}
+                            </Button>
                             <CustomExportMenu onExport={handleExport} />
-                            <Button
-                                onClick={() => nav(`/home/capture-reports/view-archeived-capture-report?location_id=${getQueryParams.get("location_id")}`)}
+                            {/* <Button
+                                onClick={() => nav(`/home/capture-reports?location_id=${getQueryParams.get("location_id")}`)}
                                 variant="contained"
                                 sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
                                 startIcon={<img src={ViewBtn} alt="View" />}>
                                 View Archeived
-                            </Button>
+                            </Button> */}
                         </Box>
 
                     </Grid>
@@ -463,7 +463,7 @@ const ListOfCaptureReports = () => {
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`/home/capture-reports/${report._id}`)}>
+                                                            <IconButton onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}>
                                                                 <img src={ViewBtn} alt="flagged button" />
                                                             </IconButton>
                                                         </Tooltip>
@@ -476,7 +476,7 @@ const ListOfCaptureReports = () => {
                                                             <IconButton onClick={() => {
                                                                 updateTripMutation.mutate({
                                                                     id: report?._id,
-                                                                    data: { isArchived: true }
+                                                                    data: { isArchived: false }
                                                                 });
                                                             }}>
                                                                 <img src={Listtrip} alt="view button" />
@@ -574,4 +574,4 @@ const ListOfCaptureReports = () => {
         </>
     );
 }
-export default ListOfCaptureReports;
+export default ListOfArcheivedcaptureReports;
