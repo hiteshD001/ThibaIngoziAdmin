@@ -72,6 +72,7 @@ const ListOfPoliceUnits = lazy(() => import("./pages/police-unit/ListOfPoliceUni
 const AddPoliceUnit = lazy(() => import("./pages/police-unit/AddPoliceUnit"));
 const PoliceUnitInformation = lazy(() => import("./pages/police-unit/PoliceUnitInformation"));
 const CrimeReportRequestUsers = lazy(() => import("./pages/crimeReports/CrimeReportRequestUsers"));
+const ListOfcaptureReports = lazy(() => import("./pages/capture-report/ListOfCaptureReports"));
 
 function App() {
     const router = useMemo(
