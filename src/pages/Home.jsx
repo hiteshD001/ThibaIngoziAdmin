@@ -31,6 +31,7 @@ import calender from '../assets/images/calender.svg';
 import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
 import search from '../assets/images/search.svg';
 import ViewBtn from '../assets/images/ViewBtn.svg'
+import fileBtn from '../assets/images/fileBtn.svg'
 import { useWebSocket } from "../API Calls/WebSocketContext";
 import nouser from "../assets/images/NoUser.png";
 import CustomPagination from "../common/Custom/CustomPagination";
@@ -959,6 +960,11 @@ const Home = () => {
                                                                     </Button>
                                                                 </Tooltip>
                                                             )}
+                                                            <Tooltip title="Incident Report" arrow placement="top">
+                                                                <IconButton onClick={() => nav(`/home/capture-reports?location_id=${user?._id}`)}>
+                                                                    <img src={fileBtn} alt="button" />
+                                                                </IconButton>
+                                                            </Tooltip>
                                                         </Box>
                                                     </TableCell>
                                                     {/* {user?.type?.type === "linked_sos" ? (
