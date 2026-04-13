@@ -224,13 +224,14 @@ const VehicleInformation = () => {
     const countrylist = useGetCountryList();
     const cityList = useGetCityList(driverform.values.province)
     const vehicleTypeList = useGetVehicleTypeList()
+    const [physicalPanicButton, setphysicalPanicButton] = useState('')
 
 
     useEffect(() => {
         const data = vehicleInfo.data?.data;
-
         if (data) {
             const user = data?.user;
+            setphysicalPanicButton(user.physicalPanicButton)
             setdriverformvalues({
                 form: driverform,
                 data: {
@@ -269,6 +270,7 @@ const VehicleInformation = () => {
         if (!data) return;
 
         const user = data.user;
+
         setdriverformvalues({
             form: driverform,
             data: {
@@ -796,7 +798,7 @@ const VehicleInformation = () => {
 
 
                             </Grid>
-
+                            
                             {/* Enrolment Information Row */}
                             <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                                 {displayField("Start Enrolment", driverform.values.EnrollStartDate ? new Date(driverform.values.EnrollStartDate).toLocaleDateString() : 'N/A')}
@@ -807,7 +809,19 @@ const VehicleInformation = () => {
                             <Grid size={{ xs: 12, sm: 4, md: 4 }}>
                                 {displayField("Enrolment Type", driverform.values.EnrollType || 'N/A')}
                             </Grid>
-
+                            <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                                {(displayField("Physical Panic Button", <Chip
+                                    label={physicalPanicButton}
+                                    sx={{
+                                        backgroundColor: physicalPanicButton == 'Purchased' ? '#DCFCE7' : '#E5565A1A',
+                                        '& .MuiChip-label': {
+                                            textTransform: 'capitalize',
+                                            fontWeight: 500,
+                                            color: physicalPanicButton == 'Purchased' ? '#15803D' : '#E5565A',
+                                        }
+                                    }}
+                                />))}
+                            </Grid>
                             {/* Enrol Now button — only shown when user is NOT currently enrolled */}
                             {/* {!driverform.values.isEnroll && (
                                 <Grid size={12}>

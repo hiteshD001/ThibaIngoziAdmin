@@ -16,6 +16,7 @@ import CrimeReportMap from "../../common/CrimeReportMap";
 import { toast } from "react-toastify";
 import { toastOption } from "../../common/ToastOptions";
 import { useQueryClient } from "@tanstack/react-query";
+import SingleImagePreview from "../../common/SingleImagePreview";
 
 const CrimeReport = () => {
     // Mock data – replace with actual props or API data
@@ -56,8 +57,32 @@ const CrimeReport = () => {
             data: { report_status: report_status },
         });
     }
+    const [previewImage, setPreviewImage] = useState({
+        open: false,
+        src: '',
+        label: ''
+    });
+    const handleImageClick = (src, label) => {
+        if (src) {
+            setPreviewImage({
+                open: true,
+                src: src instanceof File ? URL.createObjectURL(src) : src,
+                label: label
+            });
+        }
+    };
+
+    const handleClosePreview = () => {
+        setPreviewImage(prev => ({ ...prev, open: false }));
+    };
 
     return (
+        <>
+        <SingleImagePreview
+            show={previewImage.open}
+            onClose={handleClosePreview}
+            image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
+        />
         <Box px={2} sx={{ display: 'flex', gap: 3, flexDirection: 'column' }}>
             <Paper
                 elevation={0}
@@ -159,12 +184,13 @@ const CrimeReport = () => {
                     </Typography>
                     <Grid container spacing={2} mt={2}>
                         {crimeReportObj.evidence_image?.map((item, index) => (
-                            <Grid size={{ xs: 6, sm: 3 }} key={index}>
+                            <Grid size={{ xs: 1, sm:3 }} key={index}>
                                 <Box
                                     component="img"
                                     src={item}
+                                    onClick={() => handleImageClick(item,`evidence-${index+1}`)}
                                     alt={`Placeholder ${index}`}
-                                    sx={{ width: '100%', height: 'auto', borderRadius: '6px' }}
+                                    sx={{ width: "100%", maxWidth: "241px", height: "160px", objectFit: "cover",border: "1px solid #E5E7EB", borderRadius: "6px",cursor:"pointer" }}
                                 />
                             </Grid>
                         ))}
@@ -194,6 +220,7 @@ const CrimeReport = () => {
         </Box>
             </Paper >
         </Box >
+        </>
     );
 };
 

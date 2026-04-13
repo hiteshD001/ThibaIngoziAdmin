@@ -65,23 +65,39 @@ const ListOfDrivers = () => {
     const params = useParams();
     const userId = localStorage.getItem("userID");
     const [role] = useState(localStorage.getItem("role"));
-    const [page, setpage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [filter, setfilter] = useState("");
-    const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [confirmation, setconfirmation] = useState("");
     const [servicesList, setServicesList] = useState([]);
     const [GrpservicesList, setGrpservicesList] = useState([]);
     const [payPopup, setPopup] = useState("");
     const [selectedPayoutType, setSelectedPayoutType] = useState("");
     const [selectedDriver, setSelectedDriver] = useState(null);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+    
     const [range, setRange] = useState([{
-        startDate: startOfYear(new Date()),
-        endDate: new Date(),
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
         key: 'selection'
     }]);
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = new Date(range[0].startDate).toISOString();
+    const endDate = new Date(range[0].endDate).toISOString();
+    
+    const page = Number(searchParams.get("page")) || 1;
+    const filter = searchParams.get("filter") || "";
+    const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
+    
+    const updateParams = (newParams) => {
+        setSearchParams({
+            page,
+            rowsPerPage: rowsPerPage,
+            startDate: startDateParam,
+            endDate: endDateParam,
+            filter,
+            ...newParams,
+        });
+    };
+    const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
 
     // Sort 1
     const [sortBy, setSortBy] = useState("first_name");
@@ -91,14 +107,26 @@ const ListOfDrivers = () => {
     useEffect(() => {
         const savedState = client.getQueryData(['driverListFilters']);
         if (savedState) {
-            setfilter(savedState.filter || "");
+            updateParams({filter:savedState.filter || ""});
             setSortBy(savedState.sortBy || "first_name");
             setSortOrder(savedState.sortOrder || "asc");
-            setRange(savedState.range || [{
-                startDate: startOfYear(new Date()),
-                endDate: new Date(),
-                key: 'selection'
-            }]);
+            setRange(
+                savedState.range
+                    ? [
+                        {
+                            startDate: new Date(savedState.range[0].startDate),
+                            endDate: new Date(savedState.range[0].endDate),
+                            key: "selection"
+                        }
+                    ]
+                    : [
+                        {
+                            startDate: new Date(startDateParam),
+                            endDate: new Date(endDateParam),
+                            key: "selection"
+                        }
+                    ]
+            );
         }
     }, [client]);
 
@@ -107,7 +135,13 @@ const ListOfDrivers = () => {
             filter: debouncedFilter,
             sortBy,
             sortOrder,
-            range
+            range: [
+                {
+                    startDate: range[0].startDate.toISOString(),
+                    endDate: range[0].endDate.toISOString(),
+                    key: "selection"
+                }
+            ]
         });
     }, [debouncedFilter, sortBy, sortOrder, range, client]);
 
@@ -117,10 +151,10 @@ const ListOfDrivers = () => {
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
-            setpage(1);
+            updateParams({page:1});
         } else {
             setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
-            setpage(1);
+            updateParams({page:1});
         }
     };
 
@@ -918,7 +952,7 @@ const ListOfDrivers = () => {
                             variant="outlined"
                             placeholder="Search"
                             value={filter}
-                            onChange={(e) => setfilter(e.target.value)}
+                            onChange={(e) => updateParams({filter:e.target.value || ""})}
                             fullWidth
                             sx={{
                                 width: "100%",
@@ -946,7 +980,11 @@ const ListOfDrivers = () => {
                                 value={range}
                                 onChange={(nextRange) => {
                                     setRange(nextRange);
-                                    setpage(1);
+                                    updateParams({
+                                        startDate: nextRange[0].startDate.toISOString(),
+                                        endDate: nextRange[0].endDate.toISOString(),
+                                        page: 1,
+                                    });
                                 }}
                                 icon={calender}
                             />
@@ -959,14 +997,12 @@ const ListOfDrivers = () => {
                                 Add Driver
                             </Button>
                             <Button variant="outlined" onClick={() => {
-                                setfilter("");
                                 setSortBy("username");
                                 setSortOrder("asc");
-                                setpage(1);
-                                setRowsPerPage(10);
+                                updateParams({page:1,rowsPerPage:10,filter: ""});
                                 setRange([{
-                                    startDate: startOfYear(new Date()),
-                                    endDate: new Date(),
+                                    startDate: new Date(startDateParam),
+                                    endDate: new Date(endDateParam),
                                     key: 'selection'
                                 }]);
                                 client.removeQueries(['driverListFilters']);
@@ -1012,7 +1048,7 @@ const ListOfDrivers = () => {
                                             onClick={changeSortOrder}
                                             IconComponent={() => <img src={sortBy === 'passport_no' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
-                                            Driver ID
+                                            ID / Passport No.
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>
@@ -1279,8 +1315,10 @@ const ListOfDrivers = () => {
                                     }}
                                     value={rowsPerPage}
                                     onChange={(e) => {
-                                        setRowsPerPage(Number(e.target.value));
-                                        setpage(1);
+                                        updateParams({
+                                            rowsPerPage: Number(e.target.value),
+                                            page: 1,
+                                        });
                                     }}
                                 >
                                     {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -1299,7 +1337,7 @@ const ListOfDrivers = () => {
                                 </Typography>
                                 <IconButton
                                     disabled={page === 1}
-                                    onClick={() => setpage((prev) => prev - 1)}
+                                    onClick={() => updateParams({ page: page - 1 })}
                                 >
                                     <NavigateBeforeIcon
                                         fontSize="small"
@@ -1310,7 +1348,7 @@ const ListOfDrivers = () => {
                                 </IconButton>
                                 <IconButton
                                     disabled={page === totalPages}
-                                    onClick={() => setpage((prev) => prev + 1)}
+                                    onClick={() => updateParams({ page: page + 1 })}
                                 >
                                     <NavigateNextIcon fontSize="small" />
                                 </IconButton>

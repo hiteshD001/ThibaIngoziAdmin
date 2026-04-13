@@ -2148,6 +2148,34 @@ export const useUpdateMarkAsReviewed = (onSucess, onError) => {
     return res;
 }
 
+export const useGetCrimeReportRequestUsers = (crimeReportId, page = 1, limit = 10,requestAccepted = false ,search = "") => {
+    const queryFn = async () => {
+        const queryParams = new URLSearchParams({
+            page: page.toString(),
+            limit: limit.toString(),
+            requestAccepted: requestAccepted,
+            isWeb: true,
+            ...(search && search.trim() ? { search: search.trim() } : {})
+        }).toString();
+
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/crime-report/request-users/${crimeReportId}?${queryParams}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: [crimeReportId, page, limit, requestAccepted, search],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
 export const usePutIsArchived = (onSucess, onError) => {
     const mutationFn = async ({ id, data }) => {
         return await apiClient.put(
@@ -2307,131 +2335,4 @@ export const useGetPoliceUnitsByCity = (id) => {
 
     return res;
 };
-
-// Capture Report APIs
-export const useGetCaptureReportList = (
-    key,
-    location_id,
-    role,
-    page,
-    limit,
-    filter,
-    startDate,
-    endDate,
-    archived,
-    sortBy,
-    sortOrder
-) => {
-    const nav = useNavigate();
-
-    const queryFn = async () => {
-        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/capture-report`, {
-            params: {
-                location_id,
-                role,
-                page,
-                limit,
-                filter,
-                startDate,
-                endDate,
-                archived,
-                sortBy,
-                sortOrder
-            },
-        });
-    };
-
-    const res = useQuery({
-        queryKey: [
-            key,
-            location_id,
-            role,
-            page,
-            limit,
-            filter,
-            startDate,
-            endDate,
-            archived,
-            sortBy,
-            sortOrder
-        ],
-        queryFn: queryFn,
-        placeholderData: keepPreviousData,
-        retry: false,
-    });
-
-    if (res.error && res.error.response?.status === 401) {
-        localStorage.clear();
-        nav("/");
-    }
-    return res;
-};
-
-export const useGetCaptureReportById = (crime_report_id) => {
-    const nav = useNavigate();
-
-   const queryFn = async () => {
-        return await apiClient.get(
-            `${import.meta.env.VITE_BASEURL}/crime-report/${crime_report_id}`
-        );
-    };
-
-    const res = useQuery({
-        queryKey: ["crimereport", crime_report_id],
-        queryFn: queryFn,
-        staleTime: Infinity,
-        enabled: crime_report_id !== undefined,
-    });
-
-    if (res.error && res.error.response?.status === 401) {
-        localStorage.clear();
-        nav("/");
-    }
-    return res;
-};
-
-export const usePutCapture = (onSuccess, onError) => {
-    const mutationFn = async ({ id, data }) => {
-        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/userTrip/${id}`, data)
-    }
-    const mutation = useMutation({
-        mutationFn,
-        onSuccess,
-        onError
-    })
-    return mutation
-}
-
-export const useDeleteCaptureReport = (onSuccess, onError) => {
-    const mutationFn = async (id) => {
-        return await apiClient.delete(
-            `${import.meta.env.VITE_BASEURL}/capture-report/${id}`
-        );
-    };
-
-    const mutation = useMutation({
-        mutationFn,
-        onSuccess,
-        onError,
-    });
-
-    return mutation;
-}
-
-export const useCaptureIsArchived = (onSucess, onError) => {
-    const mutationFn = async ({ id, data }) => {
-        return await apiClient.put(
-            `${import.meta.env.VITE_BASEURL}/capture-report/isArchived/${id}`,
-            data
-        );
-    };
-
-    const res = useMutation({
-        mutationFn: mutationFn,
-        onSuccess: () => onSucess(),
-        onError: (err) => onError(err),
-    });
-
-    return res;
-}
 

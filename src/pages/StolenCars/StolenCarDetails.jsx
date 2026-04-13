@@ -59,7 +59,7 @@ const StolenCarDetails = () => {
                         Stolen Car Sighting Details
                     </Typography>
                 </Box>
-
+ 
                 {/* Suspect Info */}
                 <Box mt={2}>
                     <Typography variant="h5" fontWeight={600}>

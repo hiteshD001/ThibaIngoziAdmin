@@ -11,7 +11,7 @@ import CustomExportMenu from "../common/Custom/CustomExport";
 import CustomDateRangePicker from '../common/Custom/CustomDateRangePicker';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
 import ViewBtn from '../assets/images/ViewBtn.svg'
 import delBtn from '../assets/images/delBtn.svg'
@@ -32,17 +32,19 @@ import arrownuteral from '../assets/images/arrownuteral.svg';
 
 const ListOfMeetingLinkTrips = () => {
   const nav = useNavigate();
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [searchParams, setSearchParams] = useSearchParams();
+	const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+	const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+
+	const [range, setRange] = useState([{
+		startDate: new Date(startDateParam),
+		endDate: new Date(endDateParam),
+		key: 'selection'
+	}]);
+	const page = Number(searchParams.get("page")) || 1;
+	const filter = searchParams.get("filter") || "";
+	const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
   const [isArchived, setIsArchived] = useState(true);
-  const [filter, setFilter] = useState("");
-  const [range, setRange] = useState([
-    {
-      startDate: startOfYear(new Date()),
-      endDate: new Date(),
-      key: 'selection'
-    }
-  ]);
 
   // Sort 1
   const [sortBy, setSortBy] = useState("first_name");
@@ -58,10 +60,10 @@ const ListOfMeetingLinkTrips = () => {
     if (field !== sortBy) {
       setSortBy(field);
       setSortOrder("asc");
-      setPage(1);
+      updateParams({page:1});
     } else {
       setSortOrder((p) => (p === "asc" ? "desc" : "asc"));
-      setPage(1);
+      updateParams({page:1});
     }
   };
 
@@ -161,6 +163,17 @@ const ListOfMeetingLinkTrips = () => {
     }
   };
 
+  const updateParams = (newParams) => {
+    setSearchParams({
+      page,
+      rowsPerPage: rowsPerPage,
+      startDate: startDateParam,
+      endDate: endDateParam,
+      filter,
+      ...newParams,
+    });
+  };
+
   return (
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "#fdfdfd", padding: 2, borderRadius: "10px" }}>
@@ -174,7 +187,7 @@ const ListOfMeetingLinkTrips = () => {
               variant="outlined"
               placeholder="Search"
               value={filter}
-              onChange={(e) => setFilter(e.target.value)}
+              onChange={(e) => updateParams({filter:e.target.value})}
               fullWidth
               sx={{
                 width: "100%",
@@ -195,9 +208,13 @@ const ListOfMeetingLinkTrips = () => {
               <CustomDateRangePicker
                 value={range}
                 onChange={(nextRange) => {
-                  setRange(nextRange);
-                  setPage(1);
-                }}
+									setRange(nextRange);
+									updateParams({
+										startDate: new Date(nextRange[0].startDate).toISOString(),
+										endDate: new Date(nextRange[0].endDate).toISOString(),
+										page: 1,
+									});
+								}}
                 icon={calender}
               />
 
@@ -457,8 +474,7 @@ const ListOfMeetingLinkTrips = () => {
                   size="small"
                   value={rowsPerPage}
                   onChange={(e) => {
-                    setRowsPerPage(Number(e.target.value));
-                    setPage(1);
+                    updateParams({rowsPerPage:Number(e.target.value),page:1});
                   }}
                   sx={{
                     border: 'none',
@@ -480,13 +496,13 @@ const ListOfMeetingLinkTrips = () => {
                 <Typography variant="body2">{page} / {totalPages}</Typography>
                 <IconButton
                   disabled={page === 1}
-                  onClick={() => setPage((prev) => prev - 1)}
+                  onClick={() => updateParams({page:page - 1})}
                 >
                   <NavigateBeforeIcon fontSize="small" />
                 </IconButton>
                 <IconButton
                   disabled={page === totalPages}
-                  onClick={() => setPage((prev) => prev + 1)}
+                  onClick={() => updateParams({page:page + 1})}
                 >
                   <NavigateNextIcon fontSize="small" />
                 </IconButton>

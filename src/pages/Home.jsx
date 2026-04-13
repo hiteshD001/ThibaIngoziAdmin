@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
     // useGetActiveSOS,
     useGetRecentSOS,
@@ -67,9 +67,34 @@ const copyButtonStyles = {
 
 const Home = () => {
     const { isLoaded: isMapLoaded } = useMaps();
-    // filters
-    const [filter, setfilter] = useState("");
-    const [recentFilter, setRecentFilter] = useState("");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const filter = searchParams.get("filter") || "";
+    // Active SOS pagination
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+    const [rangeSos, setRangeSos] = useState([{
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
+        key: 'selection'
+    }]);
+    const activePage = Number(searchParams.get("activePage")) || 1;
+    const activeLimit = Number(searchParams.get("activeLimit")) || 20;
+    const selectedNotification = searchParams.get("selectedNotification") || "all"
+    // Recent Filter And Pagination
+    const [recentSearchParams, setRecentSearchParams] = useSearchParams();
+    const startDateRecentParam = recentSearchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateRecentParam = recentSearchParams.get("endDate") || new Date().toISOString();
+    const recentNotification = searchParams.get("recentNotification") || "all"
+
+    const [range, setRange] = useState([{
+        startDate: new Date(startDateRecentParam),
+        endDate: new Date(endDateRecentParam),
+        key: 'selection'
+    }]);
+    const recentFilter = recentSearchParams.get("recentFilter") || "";
+    const recentPage = Number(recentSearchParams.get("recentPage")) || 1;
+    const recentLimit = Number(recentSearchParams.get("recentLimit")) || 20;
+
     const [debouncedFilter, setDebouncedFilter] = useState("");
     const [debouncedRecentFilter, setDebouncedRecentFilter] = useState("");
     const [statusUpdate, setStatusUpdate] = useState(false);
@@ -102,20 +127,12 @@ const Home = () => {
     const [status, setStatus] = useState('')
     // const [activeUsers, setActiveUsers] = useState([])
     const [selectedId, setSelectedId] = useState("");
-    const [selectedNotification, setSelectedNotification] = useState("all");
-    const [recentNotification, setRecentNotification] = useState("all");
     const [updatingId, setUpdatingId] = useState(""); // Track which ID is being updated
     const { newSOS, requestCounts, activeUserLists, setActiveUserLists } = useWebSocket();
     const location = useLocation();
 
     const queryClient = useQueryClient();
     const notificationTypes = useGetNotificationType();
-    // Recent SOS pagination
-    const [recentPage, setRecentPage] = useState(1);
-    const [recentLimit, setRecentLimit] = useState(10);
-    // Active SOS pagination
-    const [activePage, setActivePage] = useState(1);
-    const [activeLimit, setActiveLimit] = useState(20);
 
     // Audio Control
     const audioRef = useRef(new Audio(tone));
@@ -127,21 +144,6 @@ const Home = () => {
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
     const [is2FALoading, setIs2FALoading] = useState(false);
 
-    // date picker 
-    const [rangeSos, setRangeSos] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
-    const [range, setRange] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
     const startDateSos = rangeSos[0].startDate.toISOString();
@@ -160,10 +162,10 @@ const Home = () => {
         if (field !== sortBy) {
             setSortBy(field);
             setSortOrder("asc");
-            setRecentPage(1);
+            updateRecentParams({recentPage:1});
         } else {
             setSortOrder(p => p === 'asc' ? 'desc' : 'asc');
-            setRecentPage(1);
+            updateRecentParams({recentPage:1});
         }
     }
 
@@ -173,10 +175,10 @@ const Home = () => {
         if (field !== sortBy2) {
             setSortBy2(field);
             setSortOrder2("asc");
-            setActivePage(1);
+            updateParams({ activePage: 1 });
         } else {
             setSortOrder2(p => p === 'asc' ? 'desc' : 'asc');
-            setActivePage(1);
+            updateParams({ activePage: 1 });
         }
     }
 
@@ -277,6 +279,65 @@ const Home = () => {
 
     const notifiedSosIds = useRef(new Set(activeUserLists?.map(u => u._id) || []));
     const lastFetchTime = useRef(0);
+    const sosSyncTimerRef = useRef(null);
+    const sosSyncInFlightRef = useRef(false);
+    const sosSyncQueuedRef = useRef(false);
+    const handledSosEventRef = useRef("");
+    const latestActiveUsersRef = useRef(activeUserLists || []);
+    const activeSosRefetchRef = useRef(activeSos?.refetch);
+
+    useEffect(() => {
+        latestActiveUsersRef.current = activeUserLists || [];
+    }, [activeUserLists]);
+
+    useEffect(() => {
+        activeSosRefetchRef.current = activeSos?.refetch;
+    }, [activeSos]);
+
+    const scheduleActiveSosSync = useMemo(() => {
+        const runner = () => {
+            if (sosSyncInFlightRef.current) {
+                sosSyncQueuedRef.current = true;
+                return;
+            }
+            if (sosSyncTimerRef.current) {
+                clearTimeout(sosSyncTimerRef.current);
+            }
+            sosSyncTimerRef.current = setTimeout(async () => {
+                const elapsed = Date.now() - lastFetchTime.current;
+                const waitRemaining = Math.max(0, 1200 - elapsed);
+                if (waitRemaining > 0) {
+                    sosSyncTimerRef.current = setTimeout(runner, waitRemaining);
+                    return;
+                }
+
+                lastFetchTime.current = Date.now();
+                sosSyncInFlightRef.current = true;
+                try {
+                    const refetchFn = activeSosRefetchRef.current;
+                    if (!refetchFn) return;
+                    const res = await refetchFn();
+                    if (res?.data?.data?.data && setActiveUserLists && latestActiveUsersRef.current.length > 0) {
+                        const refetched = res.data.data.data;
+                        const byId = {};
+                        refetched.forEach((item) => { byId[item._id] = item; });
+                        setActiveUserLists((prev) =>
+                            prev.map((item) => (byId[item._id] ? { ...item, ...byId[item._id] } : item))
+                        );
+                    }
+                } catch (err) {
+                    console.error("Coalesced active SOS sync failed:", err);
+                } finally {
+                    sosSyncInFlightRef.current = false;
+                    if (sosSyncQueuedRef.current) {
+                        sosSyncQueuedRef.current = false;
+                        runner();
+                    }
+                }
+            }, 400);
+        };
+        return runner;
+    }, [setActiveUserLists]);
 
     const handle2FAToggle = async (e) => {
         const newValue = e.target.checked;
@@ -305,21 +366,14 @@ const Home = () => {
         setIs2FALoading(false);
     };
 
-    // Refetch active SOS when we receive new SOS notification from WebSocket
-    const isFirstRun = useRef(true);
-
     useEffect(() => {
-        if (isFirstRun.current) {
-            isFirstRun.current = false;
-            return;
-        }
-
-
         if (!newSOS.type || newSOS.count === 0) return;
+        const eventKey = `${newSOS.type || ""}:${newSOS.sosId || ""}:${newSOS.count}`;
+        if (handledSosEventRef.current === eventKey) return;
+        handledSosEventRef.current = eventKey;
 
         const handleAlert = async () => {
             try {
-
                 // If we have WebSocket data, we trust the NEW_SOS signal
                 // WE REMOVED THROTTLING HERE to ensure audio plays for every alert
                 if (activeUserLists?.length > 0) {
@@ -355,69 +409,9 @@ const Home = () => {
                     }
                     playAudio();
                     toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
-                    // Refetch and merge API data (e.g. createdAt) into WebSocket list so date shows in real time
-                    try {
-                        const res = await activeSos.refetch();
-                        if (res?.data?.data?.data && setActiveUserLists) {
-                            const refetched = res.data.data.data;
-                            const byId = {};
-                            refetched.forEach((item) => { byId[item._id] = item; });
-                            setActiveUserLists((prev) =>
-                                prev.map((item) => (byId[item._id] ? { ...item, ...byId[item._id] } : item))
-                            );
-                        }
-                    } catch (err) {
-                        console.error("Refetch for merging SOS data failed:", err);
-                    }
+                    scheduleActiveSosSync();
                 } else {
-                    // Start Throttle for API calls
-                    const now = Date.now();
-                    if (now - lastFetchTime.current < 2000) {
-                        return;
-                    }
-                    lastFetchTime.current = now;
-                    // End Throttle
-
-                    const res = await activeSos.refetch();
-
-                    if (res?.data?.data?.data) {
-                        const newList = res.data.data.data || [];
-
-                        // Check for new IDs that we haven't notified about yet
-                        let hasNew = false;
-                        const newIds = [];
-
-                        for (const item of newList) {
-                            if (!notifiedSosIds.current.has(item._id)) {
-                                hasNew = true;
-                                newIds.push(item._id);
-                            }
-                        }
-
-
-                        if (hasNew) {
-                            const playAudio = async () => {
-                                try {
-                                    // Respect user preference for audio
-                                    const isAudioEnabled = localStorage.getItem("sosAudioEnabled") === 'true';
-
-                                    if (isAudioEnabled && audioRef.current) {
-                                        audioRef.current.loop = true; // Continuous sound
-                                        audioRef.current.currentTime = 0;
-                                        await audioRef.current.play();
-                                    }
-                                    setIsPlaying(true);
-                                } catch (e) {
-                                    console.error("Audio playback failed:", e);
-                                }
-                            }
-                            playAudio();
-                            toast.info("New SOS Alert Received", { autoClose: 2000, hideProgressBar: true, transition: Slide });
-
-                            // Mark these IDs as notified AFTER playing the alert
-                            newIds.forEach(id => notifiedSosIds.current.add(id));
-                        }
-                    }
+                    scheduleActiveSosSync();
                 }
             } catch (error) {
                 console.error("Refetch failed:", error);
@@ -425,7 +419,13 @@ const Home = () => {
         };
 
         handleAlert();
-    }, [newSOS.count]);
+    }, [newSOS.count, newSOS.type, newSOS.sosId, activeUserLists, scheduleActiveSosSync]);
+
+    useEffect(() => {
+        return () => {
+            if (sosSyncTimerRef.current) clearTimeout(sosSyncTimerRef.current);
+        };
+    }, []);
 
     // Stop audio helper
     const stopAudio = () => {
@@ -497,17 +497,17 @@ const Home = () => {
     };
 
     const handleNotificationChange = (e) => {
-        setSelectedNotification(e.target.value);
+        updateParams({selectedNotification:e.target.value})
     };
     const handleRecentNotificationChange = (e) => {
-        setRecentNotification(e.target.value)
+        updateRecentParams({recentNotification:e.target.value})
     }
 
-    const [textToCopy, setTextToCopy] = useState('')
+    // const [textToCopy, setTextToCopy] = useState('')
 
     const [copied, setCopied] = useState(false);
 
-    const handleCopy = async () => {
+    const handleCopy = async (textToCopy) => {
         await navigator.clipboard.writeText(textToCopy);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -568,6 +568,32 @@ const Home = () => {
     const totalRecentItems = recentSos?.data?.totalItems ?? recentSos?.data?.data?.totalItems ?? 0;
     const totalRecentPages = Math.ceil(totalRecentItems / recentLimit)
 
+    // Update Active Sos Params
+    const updateParams = (newParams) => {
+        setSearchParams({
+            activePage,
+            activeLimit,
+            startDate: startDateParam,
+            endDate: endDateParam,
+            filter,
+            selectedNotification,
+            ...newParams,
+        });
+    };
+
+    // Update Recent Sos Params
+    const updateRecentParams = (newParams) => {
+        setRecentSearchParams({
+            recentPage,
+            recentLimit,
+            startDate: startDateRecentParam,
+            endDate: endDateRecentParam,
+            recentFilter,
+            recentNotification,
+            ...newParams,
+        });
+    };
+
     return (
         <Box>
             <Analytics
@@ -605,7 +631,7 @@ const Home = () => {
                                 variant="outlined"
                                 placeholder="Search"
                                 value={filter}
-                                onChange={(e) => setfilter(e.target.value)}
+                                onChange={(e) => updateParams({ filter: e.target.value })}
                                 fullWidth
                                 sx={{
                                     width: '100%',
@@ -630,7 +656,14 @@ const Home = () => {
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
                                 <CustomDateRangePicker
                                     value={rangeSos}
-                                    onChange={setRangeSos}
+                                    onChange={(nextRange) => {
+                                        setRangeSos(nextRange);
+                                        updateParams({
+                                            startDate: nextRange[0].startDate.toISOString(),
+                                            endDate: nextRange[0].endDate.toISOString(),
+                                            page: 1,
+                                        });
+                                    }}
                                     icon={calender}
                                 />
                                 <FormControl size="small" sx={{ maxWidth: 200 }}>
@@ -653,9 +686,7 @@ const Home = () => {
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
-
-                                        setfilter("");
-                                        setSelectedNotification("all");
+                                        updateParams({ filter: "" , activeLimit: 20, activePage: 1,selectedNotification:"all"});
                                         setRangeSos([
                                             {
                                                 startDate: startOfYear(new Date()),
@@ -663,8 +694,7 @@ const Home = () => {
                                                 key: 'selection'
                                             }
                                         ]);
-                                        setActivePage(1);
-                                        setActiveLimit(20);
+                                        
                                         setSortBy2("createdAt");
                                         setSortOrder2("desc");
 
@@ -790,7 +820,7 @@ const Home = () => {
                                                                 </Stack>
                                                             ) : (
                                                                 user?.role === "driver" ? (
-                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id || user?._id}`} className="link">
+                                                                    <Link to={`/home/total-drivers/driver-information/${user?.user_id?._id || user?.user_id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={getImageLink(user?.user_id?.selfieImage)}
@@ -801,7 +831,7 @@ const Home = () => {
                                                                             {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                                                                         </Stack>
                                                                     </Link>) : (
-                                                                    <Link to={`/home/total-users/user-information/${user?.user_id?._id || user?._id}`} className="link">
+                                                                    <Link to={`/home/total-users/user-information/${user?.user_id?._id || user?.user_id}`} className="link">
                                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                                             <Avatar
                                                                                 src={getImageLink(user?.user_id?.selfieImage)}
@@ -828,19 +858,39 @@ const Home = () => {
                                                                 justifyContent: 'space-between',
                                                             }}>
                                                                 {`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`}
+                                                                <Box sx={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'space-between',
+                                                                }}>
 
-                                                                <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                                    <IconButton
-                                                                        onClick={() => {
-                                                                            setTextToCopy(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`);
-                                                                            handleCopy();
-                                                                        }}
-                                                                        sx={copyButtonStyles}
-                                                                        aria-label="copy address"
-                                                                    >
-                                                                        <ContentCopyIcon fontSize="medium" className="copy-btn" />
-                                                                    </IconButton>
-                                                                </Tooltip>
+                                                                    <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                        <IconButton
+                                                                            onClick={() => {
+                                                                                // setTextToCopy(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`);
+                                                                                handleCopy(`${user?.armedLocationId?.houseNumber || ''} ${user?.armedLocationId?.street || ''}, ${user?.armedLocationId?.suburb || ''}`);
+                                                                            }}
+                                                                            sx={copyButtonStyles}
+                                                                            aria-label="copy address"
+                                                                        >
+                                                                            <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                                        </IconButton>
+                                                                    </Tooltip>
+                                                                    <Typography sx={{ fontSize: "25px" }}>
+                                                                        <Tooltip title={copied ? 'Copied!' : `Copy Coordinates`} placement="top">
+                                                                            <IconButton
+                                                                                onClick={() => {
+                                                                                    // setTextToCopy(`${user?.lat},${user?.long}`);
+                                                                                    handleCopy(`${user?.lat},${user?.long}`);
+                                                                                }}
+                                                                                sx={copyButtonStyles}
+                                                                                aria-label="copy coordinate"
+                                                                            >
+                                                                                🌍
+                                                                            </IconButton>
+                                                                        </Tooltip>
+                                                                    </Typography>
+                                                                </Box>
                                                             </Box>
                                                         ) : (
                                                             user?.address ?
@@ -850,19 +900,38 @@ const Home = () => {
                                                                     justifyContent: 'space-between',
                                                                 }}>
                                                                     {user?.address}
-
-                                                                    <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
-                                                                        <IconButton
-                                                                            onClick={() => {
-                                                                                setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id}`);
-                                                                                handleCopy();
-                                                                            }}
-                                                                            sx={copyButtonStyles}
-                                                                            aria-label="copy address"
-                                                                        >
-                                                                            <ContentCopyIcon fontSize="medium" className="copy-btn" />
-                                                                        </IconButton>
-                                                                    </Tooltip>
+                                                                        <Box sx={{
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            justifyContent: 'space-between'
+                                                                        }}>
+                                                                            <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                                                <IconButton
+                                                                                    onClick={() => {
+                                                                                        // setTextToCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id}`);
+                                                                                        handleCopy(`${user?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.deepLinks?.[0]?._id}`);
+                                                                                    }}
+                                                                                    sx={copyButtonStyles}
+                                                                                    aria-label="copy address"
+                                                                                >
+                                                                                    <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                                                </IconButton>
+                                                                            </Tooltip>
+                                                                            <Typography sx={{  fontSize: "25px" }}>
+                                                                                <Tooltip title={copied ? 'Copied!' : `Copy Coordinates`} placement="top">
+                                                                                    <IconButton
+                                                                                        onClick={() => {
+                                                                                            // setTextToCopy(`${user?.lat},${user?.long}`);
+                                                                                            handleCopy(`${user?.lat},${user?.long}`);
+                                                                                        }}
+                                                                                        sx={copyButtonStyles}
+                                                                                        aria-label="copy coordinate"
+                                                                                    >
+                                                                                        🌍
+                                                                                    </IconButton>
+                                                                                </Tooltip>
+                                                                            </Typography>
+                                                                        </Box>
                                                                 </Box>
                                                                 :
                                                                 "-"
@@ -956,7 +1025,7 @@ const Home = () => {
                                                                         }}
                                                                         onClick={() => openOtherUsersModal(user?.otherUser)}
                                                                     >
-                                                                        Other User
+                                                                        Other Users
                                                                     </Button>
                                                                 </Tooltip>
                                                             )}
@@ -1044,8 +1113,7 @@ const Home = () => {
                                         }}
                                         value={activeLimit}
                                         onChange={(e) => {
-                                            setActiveLimit(Number(e.target.value));
-                                            setActivePage(1);
+                                            updateParams({ activeLimit: Number(e.target.value), activePage: 1 });
                                         }}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -1063,7 +1131,7 @@ const Home = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={activePage === 1}
-                                        onClick={() => setActivePage((prev) => prev - 1)}
+                                        onClick={() => updateParams({ activePage: activePage - 1 })}
                                     >
                                         <NavigateBeforeIcon fontSize="small" sx={{
                                             color: activePage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
@@ -1071,7 +1139,7 @@ const Home = () => {
                                     </IconButton>
                                     <IconButton
                                         disabled={activePage === totalActivePages}
-                                        onClick={() => setActivePage((prev) => prev + 1)}
+                                        onClick={() => updateParams({ activePage: activePage + 1 })}
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>
@@ -1097,7 +1165,7 @@ const Home = () => {
                                 variant="outlined"
                                 placeholder="Search"
                                 value={recentFilter}
-                                onChange={(e) => setRecentFilter(e.target.value)}
+                                onChange={(e) => updateRecentParams({recentFilter:e.target.value})}
                                 fullWidth
                                 sx={{
                                     width: '100%',
@@ -1122,7 +1190,14 @@ const Home = () => {
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
                                 <CustomDateRangePicker
                                     value={range}
-                                    onChange={setRange}
+                                    onChange={(nextRange) => {
+                                        setRange(nextRange);
+                                        updateRecentParams({
+                                            startDate: nextRange[0].startDate.toISOString(),
+                                            endDate: nextRange[0].endDate.toISOString(),
+                                            page: 1,
+                                        });
+                                    }}
                                     icon={calender}
                                 />
                                 <FormControl size="small" sx={{ maxWidth: 200 }}>
@@ -1144,8 +1219,7 @@ const Home = () => {
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
-                                        setRecentFilter("");
-                                        setRecentNotification("all");
+                                        updateRecentParams({recentFilter:"",recentLimit:20,recentPage:1,recentNotification:'all'});
                                         setRange([
                                             {
                                                 startDate: startOfYear(new Date()),
@@ -1153,8 +1227,6 @@ const Home = () => {
                                                 key: "selection",
                                             },
                                         ]);
-                                        setRecentPage(1);
-                                        setRecentLimit(20);
                                         setSortBy("createdAt");
                                         setSortOrder("desc");
 
@@ -1331,11 +1403,16 @@ const Home = () => {
                                                         }}>
                                                             {row?.address}
 
+                                                        <Box sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'space-between'
+                                                        }}>
                                                             <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
                                                                 <IconButton
                                                                     onClick={() => {
-                                                                        setTextToCopy(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?.deepLinks._id}`);
-                                                                        handleCopy();
+                                                                        // setTextToCopy(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?.deepLinks._id}`);
+                                                                        handleCopy(`${row?.address} View:https://api.thibaingozi.com/api/?sosId=${row?.deepLinks._id}`);
                                                                     }}
                                                                     sx={copyButtonStyles}
                                                                     aria-label="copy address"
@@ -1343,6 +1420,21 @@ const Home = () => {
                                                                     <ContentCopyIcon fontSize="medium" className="copy-btn" />
                                                                 </IconButton>
                                                             </Tooltip>
+                                                            <Typography sx={{ fontSize: "25px" }}>
+                                                                <Tooltip title={copied ? 'Copied!' : `Copy Coordinates`} placement="top">
+                                                                    <IconButton
+                                                                        onClick={() => {
+                                                                            // setTextToCopy(`${row?.lat},${row?.long}`);
+                                                                            handleCopy(`${row?.lat},${row?.long}`);
+                                                                        }}
+                                                                        sx={copyButtonStyles}
+                                                                        aria-label="copy coordinate"
+                                                                    >
+                                                                        🌍
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            </Typography>
+                                                        </Box>
                                                         </Box>
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
@@ -1417,7 +1509,7 @@ const Home = () => {
                                                                             }}
                                                                             onClick={() => openOtherUsersModal(row?.otherUser)}
                                                                         >
-                                                                            Other User
+                                                                            Other Users
                                                                         </Button>
                                                                     </Tooltip>
                                                                 ) : (
@@ -1467,8 +1559,7 @@ const Home = () => {
                                         }}
                                         value={recentLimit}
                                         onChange={(e) => {
-                                            setRecentLimit(Number(e.target.value));
-                                            setRecentPage(1);
+                                            updateRecentParams({recentLimit:Number(e.target.value),recentPage:1});
                                         }}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -1486,7 +1577,7 @@ const Home = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={recentPage === 1}
-                                        onClick={() => setRecentPage((prev) => prev - 1)}
+                                        onClick={() => updateRecentParams({recentPage:recentPage - 1})}
                                     >
                                         <NavigateBeforeIcon fontSize="small" sx={{
                                             color: recentPage === 1 ? '#BDBDBD !important' : '#1976d2 !important'
@@ -1494,7 +1585,7 @@ const Home = () => {
                                     </IconButton>
                                     <IconButton
                                         disabled={recentPage === totalRecentPages}
-                                        onClick={() => setRecentPage((prev) => prev + 1)}
+                                        onClick={() => updateRecentParams({recentPage:recentPage + 1})}
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import {
-    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem, Chip,
+    Box, Typography, Avatar, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem, Chip,
     Tooltip
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -10,7 +10,6 @@ import search from '../../assets/images/search.svg';
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import delBtn from '../../assets/images/delBtn.svg'
 import Listtrip from '../../assets/images/Listtrip.svg'
-
 import { useGetCrimeReportList, usePutIsArchived } from "../../API Calls/API";
 import Loader from "../../common/Loader";
 import CustomFilter from '../../common/Custom/CustomFilter'
@@ -25,7 +24,8 @@ import { toast } from "react-toastify";
 import apiClient from '../../API Calls/APIClient'
 import { startOfYear } from "date-fns";
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
-
+import SingleImagePreview from "../../common/SingleImagePreview";
+import moment from "moment";
 
 
 const ListOfArcheivedCrimeReports = () => {
@@ -33,10 +33,18 @@ const ListOfArcheivedCrimeReports = () => {
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
-    const [page, setpage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [filter, setfilter] = useState("");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+    const [range, setRange] = useState([{
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
+        key: 'selection'
+    }]);
+    const currentPage = Number(searchParams.get("currentPage")) || 1;
+    const filter = searchParams.get("filter") || "";
+    const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
+    const locationFilter = searchParams.get("locationFilter") || "";
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     const [archived, setArchived] = useState(true)
@@ -58,17 +66,10 @@ const ListOfArcheivedCrimeReports = () => {
 
     let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;
-    const [range, setRange] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
 
-    const UserList = useGetCrimeReportList("crime report list", "company", currentPage, rowsPerPage, filter, startDate, endDate, archived,sortBy, sortOrder);
+    const UserList = useGetCrimeReportList("crime report list", role, currentPage, rowsPerPage, filter,locationFilter ,startDate, endDate, archived,sortBy, sortOrder);
     const totalCrimeReportData = UserList.data?.data?.totalCrimeReportData || 0;
     const totalPages = Math.ceil(totalCrimeReportData / rowsPerPage);
 
@@ -85,34 +86,27 @@ const ListOfArcheivedCrimeReports = () => {
     const shortText = (text, limit = 30) =>
         text.length > limit ? text.substring(0, limit) + '...' : text;
 
-    const handleExport = async ({ startDate, endDate, format }) => {
+    const handleExport = async ({ startDate, endDate, exportFormat }) => {
         try {
-            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/flagged-reports`, {
-                params: {
-                    role: "passanger",
-                    page: 1,
-                    limit: 10000,
-                    filter: "",
-                    company_id: paramId,
-                    startDate,
-                    endDate,
-                },
-            });
 
-            const allUsers = data?.users || [];
+            const data = UserList.data?.data
+
+            const allUsers = data?.crimeReportData || [];
             if (!allUsers.length) {
-                toast.warning("No User data found for this period.");
+                toast.warning("No Crime Report data found for this period.");
                 return;
             }
 
             const exportData = allUsers.map(user => ({
-                "User": `${user.first_name || ''} ${user.last_name || ''}` || '',
-                "Company Name": user.company_name || '',
-                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
-                "Contact Email": user.email || ''
+                "Crime ID": `${user.crime_report_number || ''}` || '',
+                "Reporter": user.user?.first_name || '',
+                "Location": `${user.address || ''}`,
+                "Description": user.description || '',
+                "Date Reported": user.createdAt || '',
+                "Status": user.report_status || ''
             }));
 
-            if (format === "xlsx") {
+            if (exportFormat === "xlsx") {
                 const worksheet = XLSX.utils.json_to_sheet(exportData);
                 const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
                     wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
@@ -120,29 +114,32 @@ const ListOfArcheivedCrimeReports = () => {
                 worksheet['!cols'] = columnWidths;
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-                XLSX.writeFile(workbook, "User_List.xlsx");
+                XLSX.writeFile(workbook, "Crime_Report_List.xlsx");
             }
-            else if (format === "csv") {
+            else if (exportFormat === "csv") {
+
                 const worksheet = XLSX.utils.json_to_sheet(exportData);
                 const csv = XLSX.utils.sheet_to_csv(worksheet);
                 const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'user_list.csv';
+                link.download = 'Crime_Report_List.csv';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
             }
-            else if (format === "pdf") {
+            else if (exportFormat === "pdf") {
                 const doc = new jsPDF();
-                doc.text('User List', 14, 16);
+                doc.text('Crime Report List', 14, 16);
                 autoTable(doc, {
-                    head: [['User', 'Company Name', 'Contact No.', 'Contact Email']],
+                    head: [['Crime ID', 'Reporter', 'Location.', 'Description', 'Date Reported', 'Status']],
                     body: allUsers.map(user => [
-                        `${user.first_name || ''} ${user.last_name || ''}` ?? 'NA',
-                        user.company_name ?? 'NA',
-                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
-                        user.email ?? 'NA'
+                        user.crime_report_number ?? 'NA',
+                        `${user.user?.first_name || ''} ${user.user?.last_name || ''}` ?? 'NA',
+                        `${user.address || ''}` ?? 'NA',
+                        user.description ?? 'NA',
+                        user.createdAt ?? 'NA',
+                        user.report_status ?? 'NA'
                     ]),
                     startY: 20,
                     theme: 'striped',
@@ -150,7 +147,7 @@ const ListOfArcheivedCrimeReports = () => {
                     margin: { top: 20 },
                     styles: { fontSize: 10 },
                 });
-                doc.save("User_List.pdf");
+                doc.save("Crime_Report_List.pdf");
             }
 
         } catch (err) {
@@ -158,7 +155,62 @@ const ListOfArcheivedCrimeReports = () => {
             toast.error("Export failed.");
         }
     };
+
+    const handleFilterData = (data) => {
+
+        const params = Object.fromEntries(
+            Object.entries(data).filter(
+                ([_, value]) => value !== "" && value !== undefined && value !== null
+            )
+        );
+
+        const filterText = new URLSearchParams(params).toString();
+        updateParams({locationFilter:filterText})
+    };
+
+    const updateParams = (newParams) => {
+        setSearchParams({
+            currentPage,
+            rowsPerPage: rowsPerPage,
+            startDate: startDateParam,
+            endDate: endDateParam,
+            filter,
+            locationFilter,
+            ...newParams,
+        });
+    };
+
+    const getImageLink = (name) => {
+        if (!name) return undefined;
+        return `https://gaurdianlink.blob.core.windows.net/gaurdianlink/${name}`;
+    }
+
+    const [previewImage, setPreviewImage] = useState({
+        open: false,
+        src: '',
+        label: ''
+    });
+
+    const handleImageClick = (src, label) => {
+        if (src) {
+            setPreviewImage({
+                open: true,
+                src: src instanceof File ? URL.createObjectURL(src) : src,
+                label: label
+            });
+        }
+    };
+    const handleClosePreview = () => {
+        setPreviewImage(prev => ({ ...prev, open: false }));
+    };
+
     return (
+        <>
+        <SingleImagePreview
+            show={previewImage.open}
+            onClose={handleClosePreview}
+            image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
+        />
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
@@ -174,7 +226,7 @@ const ListOfArcheivedCrimeReports = () => {
                             variant="outlined"
                             placeholder="Search"
                             value={filter}
-                            onChange={(e) => setfilter(e.target.value)}
+                            onChange={(e) => updateParams({filter:e.target.value})}
                             fullWidth
                             sx={{
                                 width: '100%',
@@ -208,11 +260,17 @@ const ListOfArcheivedCrimeReports = () => {
                             }}
                         />
                         <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
-                            <CustomFilter />
+                            <CustomFilter onApply={handleFilterData} isSuburbVisible ={false} />
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
-                                onChange={setRange}
+                                onChange={(nextRange) => {
+									setRange(nextRange);
+									updateParams({
+										startDate: new Date(nextRange[0].startDate).toISOString(),
+										endDate: new Date(nextRange[0].endDate).toISOString(),
+									});
+								}}
                                 icon={calender}
                             />
 
@@ -245,6 +303,7 @@ const ListOfArcheivedCrimeReports = () => {
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Images</TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Date Reported</TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Sighting Reported</TableCell>
                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -273,42 +332,81 @@ const ListOfArcheivedCrimeReports = () => {
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-
-                                                    {report.user?.first_name || "-"}
-
+                                                    <Link to={report.user?.role === "driver" ? `/home/total-drivers/driver-information/${report.user_id}` : `/home/total-users/user-information/${report.user_id}`} className="link2">
+                                                        <Stack direction="row" alignItems="center" gap={1}>
+                                                            <Avatar
+                                                                src={getImageLink(report.user?.selfieImage)}
+                                                                sx={{ '&:hover': { textDecoration: 'none' } }}
+                                                                alt="User"
+                                                            />
+                                                            {report.user?.first_name + ' ' + report.user?.last_name || "-"}
+                                                        </Stack>
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#F97316', textAlign: 'center' }}>
-
-
-                                                    {report?.requestReached || "0"}
-
+                                                    <Link style={{
+                                                        textDecoration: 'none',
+                                                        color: 'var(--orange)',
+                                                        cursor: 'pointer',
+                                                    }} to={`/home/crime-reports/request-reached-users/${report?._id}`}>{report?.requestReached || "0"}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
-
-
-                                                    {report?.requestAccepted || "0"}
-
+                                                    <Link style={{
+                                                        textDecoration: 'none',
+                                                        color: '#01C971',
+                                                        cursor: 'pointer',
+                                                    }} to={`/home/crime-reports/request-reached-users/${report?._id}`} state={{ isAccepted: true }}
+                                                    >
+                                                        {report?.requestAccepted || "0"}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    <Stack direction="row" alignItems="center" gap={1}>
-                                                        {report.evidence_image.map((item, index) => (
-                                                            <Grid size={{ xs: 6, sm: 3 }} key={index}>
-                                                                <Box
-                                                                    component="img"
-                                                                    src={item}
-                                                                    alt={`Placeholder ${index}`}
-                                                                    sx={{ width: '50px', height: 'auto', borderRadius: '6px' }}
-                                                                />
-                                                            </Grid>
+                                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                                        {report.evidence_image.slice(0, 2).map((item, index) => (
+                                                            <Box
+                                                                key={index}
+                                                                component="img"
+                                                                src={item}
+                                                                onClick={() => handleImageClick(item, `evidence-${index + 1}`)}
+                                                                alt={`evidence-${index}`}
+                                                                sx={{
+                                                                    width: "32px",
+                                                                    height: "32px",
+                                                                    objectFit: 'cover',
+                                                                    borderRadius: '6px',
+                                                                    cursor: 'pointer',
+                                                                    border: '1px solid #E5E7EB'
+                                                                }}
+                                                            />
                                                         ))}
+                                                        {report.evidence_image.length > 2 && (
+                                                            <Box
+                                                                sx={{
+                                                                    width: 32,
+                                                                    height: 32,
+                                                                    backgroundColor: '#D1D5DB',
+                                                                    borderRadius: '6px',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center',
+                                                                    fontSize: '14px',
+                                                                    color: '#374151',
+                                                                    cursor: 'pointer',
+                                                                    fontWeight: 500
+                                                                }}
+                                                                onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}
+                                                            >
+                                                                +{report.evidence_image.length - 2}
+                                                            </Box>
+                                                        )}
                                                     </Stack>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-
-                                                    {report.createdAt || "-"}
-
+                                                    {moment(report.createdAt).isSame(moment(), "day")
+                                                        ? `Today, ${moment(report.createdAt).format("hh:mm A")}`
+                                                        : moment(report.createdAt).format("HH:mm:ss - DD/MM/YYYY")}
                                                 </TableCell>
-
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Chip
                                                         label={report.report_status}
@@ -330,6 +428,9 @@ const ListOfArcheivedCrimeReports = () => {
                                                             }
                                                         }}
                                                     />
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
+                                                    0
                                                 </TableCell>
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
@@ -404,8 +505,7 @@ const ListOfArcheivedCrimeReports = () => {
                                         }}
                                         value={rowsPerPage}
                                         onChange={(e) => {
-                                            setRowsPerPage(Number(e.target.value));
-                                            setCurrentPage(1);
+                                            updateParams({rowsPerPage:Number(e.target.value),currentPage:1});
                                         }}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -423,7 +523,7 @@ const ListOfArcheivedCrimeReports = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={currentPage === 1}
-                                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                                        onClick={() => updateParams({currentPage:currentPage - 1})}
                                     >
                                         <NavigateBeforeIcon fontSize="small" sx={{
                                             color: currentPage === 1 ? '#BDBDBD' : '#1976d2'
@@ -431,7 +531,7 @@ const ListOfArcheivedCrimeReports = () => {
                                     </IconButton>
                                     <IconButton
                                         disabled={currentPage === totalPages}
-                                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                                        onClick={() => updateParams({currentPage:currentPage + 1})}
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>
@@ -442,6 +542,7 @@ const ListOfArcheivedCrimeReports = () => {
             </Paper>
             {popup && <ImportSheet setpopup={setpopup} type="user" />}
         </Box>
+        </>
     );
 }
 export default ListOfArcheivedCrimeReports;

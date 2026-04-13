@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import useDebounce from "../hooks/useDebounce";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
@@ -37,26 +37,28 @@ import arrownuteral from '../assets/images/arrownuteral.svg';
 const ListOfUsers = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+
+    const [range, setRange] = useState([{
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
+        key: 'selection'
+    }]);
+    const currentPage = Number(searchParams.get("currentPage")) || 1;
+    const filter = searchParams.get("filter") || "";
+    const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
     const client = useQueryClient();
     const [page, setpage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [filter, setfilter] = useState("");
     const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;
     const [isRange, setIsRange] = useState(false);
-    const [range, setRange] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
 
     // Calculate startDate and endDate reactively from range state
     // Use startOfDay/endOfDay to normalize to local day boundaries before converting to ISO
@@ -71,14 +73,25 @@ const ListOfUsers = () => {
     useEffect(() => {
         const savedState = client.getQueryData(['userListFilters']);
         if (savedState) {
-            setfilter(savedState.filter || "");
+            updateParams({filter:savedState.filter || ""});
             setSortBy(savedState.sortBy || "first_name");
             setSortOrder(savedState.sortOrder || "asc");
-            setRange(savedState.range || [{
-                startDate: startOfYear(new Date()),
-                endDate: new Date(),
-                key: 'selection'
-            }]);
+            setRange(savedState.range
+                    ? [
+                        {
+                            startDate: new Date(savedState.range[0].startDate),
+                            endDate: new Date(savedState.range[0].endDate),
+                            key: "selection"
+                        }
+                    ]
+                    : [
+                        {
+                            startDate: new Date(startDateParam),
+                            endDate: new Date(endDateParam),
+                            key: "selection"
+                        }
+                    ]
+            );
         }
     }, [client]);
 
@@ -104,13 +117,26 @@ const ListOfUsers = () => {
     // Handle date range changes from date picker
     const handleDateRangeChange = (newRange) => {
         setRange(newRange);
+        updateParams({
+            startDate: new Date(newRange[0].startDate).toISOString(),
+            endDate: new Date(newRange[0].endDate).toISOString(),
+        });
         setIsRange(false); // Reset isRange when specific dates are selected
     }
 
     const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder);
     const totalUsers = UserList.data?.data?.totalUsers || 0;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
-
+    const updateParams = (newParams) => {
+		setSearchParams({
+			currentPage,
+			rowsPerPage: rowsPerPage,
+			startDate: startDateParam,
+			endDate: endDateParam,
+			filter,
+			...newParams,
+		});
+	};
     let loginUser = useGetUser(localStorage.getItem("userID"));
     loginUser = loginUser?.data?.data?.user;
     const handleExport = async ({ startDate, endDate, exportFormat }) => {
@@ -234,7 +260,7 @@ const ListOfUsers = () => {
                             variant="outlined"
                             placeholder="Search"
                             value={filter}
-                            onChange={(e) => setfilter(e.target.value)}
+                            onChange={(e) => updateParams({filter:e.target.value})}
                             fullWidth
                             sx={{
                                 width: '100%',
@@ -280,11 +306,9 @@ const ListOfUsers = () => {
                                 Add User
                             </Button>
                             <Button variant="outlined" onClick={() => {
-                                setfilter("");
+                                updateParams({filter:"",rowsPerPage:10,currentPage:1});
                                 setSortBy("username");
                                 setSortOrder("asc");
-                                setCurrentPage(1);
-                                setRowsPerPage(10);
                                 setIsRange(true)
 
                                 client.removeQueries(['userListFilters']);
@@ -311,6 +335,17 @@ const ListOfUsers = () => {
                                             IconComponent={() => <img src={sortBy === 'username' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             User
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="PassportNo."
+                                            active={sortBy === 'passport_no'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'passport_no' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            ID / Passport No.
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
@@ -404,6 +439,9 @@ const ListOfUsers = () => {
                                                         {user.first_name} {user.last_name}
 
                                                     </Stack>
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    {user.passport_no || '-'}
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
 
@@ -507,8 +545,7 @@ const ListOfUsers = () => {
                                     }}
                                     value={rowsPerPage}
                                     onChange={(e) => {
-                                        setRowsPerPage(Number(e.target.value));
-                                        setCurrentPage(1);
+                                        updateParams({rowsPerPage:Number(e.target.value),currentPage:1});
                                     }}
                                 >
                                     {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -526,7 +563,7 @@ const ListOfUsers = () => {
                                 </Typography>
                                 <IconButton
                                     disabled={currentPage === 1}
-                                    onClick={() => setCurrentPage((prev) => prev - 1)}
+                                    onClick={() => updateParams({currentPage:currentPage - 1})}
                                 >
                                     <NavigateBeforeIcon fontSize="small" sx={{
                                         color: currentPage === 1 ? '#BDBDBD' : '#1976d2'
@@ -534,7 +571,7 @@ const ListOfUsers = () => {
                                 </IconButton>
                                 <IconButton
                                     disabled={currentPage === totalPages}
-                                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                                    onClick={() => updateParams({currentPage:currentPage + 1})}
                                 >
                                     <NavigateNextIcon fontSize="small" />
                                 </IconButton>
