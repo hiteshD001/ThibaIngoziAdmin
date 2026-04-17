@@ -131,7 +131,7 @@ const CaptureReport = () => {
                                         Arrival Comments
                                     </Typography>
                                     <Typography fontSize="1.05rem" mt={1}>
-                                        {dataObj.comments?.arrival?.comment}
+                                        {dataObj.comments?.arrival?.comment || '-'}
                                     </Typography>
                                 </Box>
 
@@ -140,7 +140,7 @@ const CaptureReport = () => {
                                         Contact Attempt Comments
                                     </Typography>
                                     <Typography fontSize="1.05rem" mt={1}>
-                                        {dataObj.comments?.contact_attempt?.comment}
+                                        {dataObj.comments?.contact_attempt?.comment || '-'}
                                     </Typography>
                                 </Box>
 
@@ -149,7 +149,7 @@ const CaptureReport = () => {
                                         Closure Comments
                                     </Typography>
                                     <Typography fontSize="1.05rem" mt={1}>
-                                        {dataObj.comments?.closure?.comment}
+                                        {dataObj.comments?.closure?.comment || '-'}
                                     </Typography>
                                 </Box>
                             </Grid>
@@ -160,7 +160,7 @@ const CaptureReport = () => {
                                         Assessment Comments
                                     </Typography>
                                     <Typography fontSize="1.05rem" mt={1}>
-                                        {dataObj.comments?.assessment?.comment}
+                                        {dataObj.comments?.assessment?.comment || '-'}
                                     </Typography>
                                 </Box>
                                 <Box>
@@ -168,7 +168,7 @@ const CaptureReport = () => {
                                         Resolutions Comments
                                     </Typography>
                                     <Typography fontSize="1.05rem" mt={1}>
-                                        {dataObj.comments?.resolution?.comment}
+                                        {dataObj.comments?.resolution?.comment || '-'}
                                     </Typography>
                                 </Box>
                             </Grid>
@@ -247,7 +247,7 @@ const CaptureReport = () => {
                                 <Box
                                     component="img"
                                     src={item}
-                                    onClick={() => handleImageClick(item,`evidence-${index+1}`)}
+                                    onClick={() => handleImageClick(item,`Evidence-${index+1}`)}
                                     alt={`Placeholder ${index}`}
                                     sx={{ width: "100%", maxWidth: "241px", height: "160px", objectFit: "cover",border: "1px solid #E5E7EB", borderRadius: "6px",cursor:"pointer" }}
                                 />

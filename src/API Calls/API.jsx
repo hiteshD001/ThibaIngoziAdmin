@@ -2452,8 +2452,8 @@ export const useGetCaptureReportById = (capture_report_id) => {
 };
 
 export const usePutCapture = (onSuccess, onError) => {
-    const mutationFn = async ({ id, data }) => {
-        return await apiClient.put(`${import.meta.env.VITE_BASEURL}/userTrip/${id}`, data)
+    const mutationFn = async (data) => {
+        return await apiClient.post(`${import.meta.env.VITE_BASEURL}/capture-report/admin_save_capture_report`, data)
     }
     const mutation = useMutation({
         mutationFn,
