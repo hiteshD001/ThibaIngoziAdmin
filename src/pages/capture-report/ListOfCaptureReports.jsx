@@ -557,9 +557,9 @@ const ListOfCaptureReports = () => {
                                                                     cursor: 'pointer',
                                                                     fontWeight: 500
                                                                 }}
-                                                                onClick={() => nav(`/home/capture-reports/${report._id}`)}
+                                                                onClick={() => nav(`/home/capture-reports/${report?.capture_report?._id}`)}
                                                             >
-                                                                +{report.evidence_image.length - 2}
+                                                                +{report?.capture_report?.evidence_image.length - 2}
                                                             </Box>
                                                         )}
                                                     </Stack>
