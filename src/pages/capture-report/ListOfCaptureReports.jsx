@@ -195,7 +195,6 @@ const ListOfCaptureReports = () => {
     };
 
     const openSummaryReportModel = (dataObj) => {
-        
         setSummaryReportData(dataObj);
         setOpenSummaryModel(true);
     };
@@ -270,7 +269,7 @@ const ListOfCaptureReports = () => {
 
                             <Button
                                 variant="contained"
-                                sx={{ height: '40px', width: '150px', borderRadius: '8px' }}
+                                sx={{ height: '40px', width: '170px', borderRadius: '8px' }}
                                 onClick={() => nav(`/home/capture-reports/save?location_id=${getQueryParams.get("location_id")}`)}
                                 startIcon={<img src={whiteplus} alt='white plus' />}
                             >
@@ -384,7 +383,7 @@ const ListOfCaptureReports = () => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
 
-                                                    {report.address || "-"}
+                                                    {report.location.address || "-"}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
@@ -414,7 +413,7 @@ const ListOfCaptureReports = () => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {report.isRespond ? 'Yes' : 'No'}
+                                                    {report?.capture_report?.isRespond ? 'Yes' : 'No'}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
@@ -609,7 +608,7 @@ const ListOfCaptureReports = () => {
                                             Arrival Comments
                                         </Typography>
                                         <Typography fontSize="1.05rem" mt={1}>
-                                            {summaryReportData?.capture_report?.comments?.arrival?.comment || '-'}
+                                            {summaryReportData?.comments?.arrival?.comment || '-'}
                                         </Typography>
                                     </Box>
 
@@ -618,7 +617,7 @@ const ListOfCaptureReports = () => {
                                             Contact Attempt Comments
                                         </Typography>
                                         <Typography fontSize="1.05rem" mt={1}>
-                                            {summaryReportData?.capture_report?.comments?.contact_attempt?.comment || '-'}
+                                            {summaryReportData?.comments?.contact_attempt?.comment || '-'}
                                         </Typography>
                                     </Box>
 
@@ -627,7 +626,7 @@ const ListOfCaptureReports = () => {
                                             Closure Comments
                                         </Typography>
                                         <Typography fontSize="1.05rem" mt={1}>
-                                            {summaryReportData?.capture_report?.comments?.closure?.comment || '-'}
+                                            {summaryReportData?.comments?.closure?.comment || '-'}
                                         </Typography>
                                     </Box>
                                 </Grid>
@@ -638,7 +637,7 @@ const ListOfCaptureReports = () => {
                                             Assessment Comments
                                         </Typography>
                                         <Typography fontSize="1.05rem" mt={1}>
-                                            {summaryReportData?.capture_report?.comments?.assessment?.comment || '-'}
+                                            {summaryReportData?.comments?.assessment?.comment || '-'}
                                         </Typography>
                                     </Box>
                                     <Box>
@@ -646,7 +645,7 @@ const ListOfCaptureReports = () => {
                                             Resolutions Comments
                                         </Typography>
                                         <Typography fontSize="1.05rem" mt={1}>
-                                            {summaryReportData?.capture_report?.comments?.resolution?.comment || '-'}
+                                            {summaryReportData?.comments?.resolution?.comment || '-'}
                                         </Typography>
                                     </Box>
                                 </Grid>
@@ -683,8 +682,8 @@ const ListOfCaptureReports = () => {
                                     <Grid size={{ xs: 1, sm: 3 }} key={index}>
                                         <Box
                                             component="img"
-                                            src={item}
-                                            onClick={() => handleImageClick(item, `Evidence-${index + 1}`)}
+                                            src={getImageLink(item)}
+                                            onClick={() => handleImageClick(getImageLink(item), `Evidence-${index + 1}`)}
                                             alt={`Placeholder ${index}`}
                                             sx={{ width: "100%", maxWidth: "241px", height: "160px", objectFit: "cover", border: "1px solid #E5E7EB", borderRadius: "6px", cursor: "pointer" }}
                                         />

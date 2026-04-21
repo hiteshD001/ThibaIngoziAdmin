@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams, Link} from "react-router-dom";
 import {
     Box, Typography, TextField, Avatar, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem, Chip,
-    Tooltip
+    Tooltip, DialogTitle,Dialog,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -24,10 +27,13 @@ import { toast } from "react-toastify";
 import { startOfYear } from "date-fns";
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import whiteplus from '../../assets/images/whiteplus.svg';
-import {getImageLink,formatDateTime } from '../../common/commonFn';
 import SingleImagePreview from "../../common/SingleImagePreview";
+import {getImageLink,formatDateTime,calculteTime } from '../../common/commonFn';
+import fileBtn from '../../assets/images/fileBtn.svg'
 
 const ListOfArcheivedcaptureReports = () => {
+
+    
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
@@ -42,6 +48,8 @@ const ListOfArcheivedcaptureReports = () => {
     const location = useLocation();
     const getQueryParams = new URLSearchParams(location.search);
     const [archived, setArchived] = useState(true)
+    const [openSummaryModel, setOpenSummaryModel] = useState(false);
+    const [summaryReportData, setSummaryReportData] = useState({});
    
     // Sort
     const [sortBy, setSortBy] = useState("createdAt");
@@ -69,8 +77,7 @@ const ListOfArcheivedcaptureReports = () => {
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
     
-    // const UserList = useGetCaptureReportList("capture report list", getQueryParams.get("location_id"), role, currentPage, rowsPerPage, filter, startDate, endDate, archived,sortBy, sortOrder);
-    const UserList = useGetCaptureReportList("capture report list", '69cfbd9d6fe99c3f2906d0bc', role, currentPage, rowsPerPage, filter, startDate, endDate, archived,sortBy, sortOrder);
+    const UserList = useGetCaptureReportList("capture report list", getQueryParams.get("location_id"), role, currentPage, rowsPerPage, filter, startDate, endDate, archived,sortBy, sortOrder);
     const totalData = UserList.data?.data?.totalData || 0;
     const totalPages = Math.ceil(totalData / rowsPerPage);
 
@@ -94,7 +101,7 @@ const ListOfArcheivedcaptureReports = () => {
 
             const allUsers = data?.data || [];
             if (!allUsers.length) {
-                toast.warning("No Crime Report data found for this period.");
+                toast.warning("No Capture Report data found for this period.");
                 return;
             }
 
@@ -188,6 +195,15 @@ const ListOfArcheivedcaptureReports = () => {
         setPreviewImage(prev => ({ ...prev, open: false }));
     };
 
+    const openSummaryReportModel = (dataObj) => {
+        setSummaryReportData(dataObj);
+        setOpenSummaryModel(true);
+    };
+    const closeOtherUsersModal = () => {
+        setOpenSummaryModel(false);
+        setSummaryReportData([]);
+    };
+
     return (
         <>
         <SingleImagePreview
@@ -254,20 +270,13 @@ const ListOfArcheivedcaptureReports = () => {
 
                             <Button
                                 variant="contained"
-                                sx={{ height: '40px', width: '150px', borderRadius: '8px' }}
-                                onClick={() => nav("/")}
-                                // startIcon={<img src={whiteplus} alt='white plus' />}
+                                sx={{ height: '40px', width: '170px', borderRadius: '8px' }}
+                                onClick={() => nav(`/home/capture-reports/save?location_id=${getQueryParams.get("location_id")}`)}
+                                startIcon={<img src={whiteplus} alt='white plus' />}
                             >
                                Capture Report
                             </Button>
                             <CustomExportMenu onExport={handleExport} />
-                            {/* <Button
-                                onClick={() => nav(`/home/capture-reports?location_id=${getQueryParams.get("location_id")}`)}
-                                variant="contained"
-                                sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
-                                startIcon={<img src={ViewBtn} alt="View" />}>
-                                View Archeived
-                            </Button> */}
                         </Box>
 
                     </Grid>
@@ -302,10 +311,10 @@ const ListOfArcheivedcaptureReports = () => {
                                     </TableRow>)
                                     : (UserList.data?.data.data?.length > 0 ?
                                         UserList.data?.data.data.map((report) => (
-
+                                            
                                             <TableRow key={report._id}>
                                                 <TableCell sx={{ color: 'var(--Blue)' }}>
-                                                    {report.report_number}
+                                                    {report?.location?.sosNumber || '-'}
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {
@@ -335,8 +344,8 @@ const ListOfArcheivedcaptureReports = () => {
                                                     }
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    {
-                                                        report?.capture_by?.role === "driver" ? (
+                                                    {report?.capture_by ?
+                                                        (report?.capture_by?.role === "driver" ? (
                                                             <Link to={`/home/total-drivers/driver-information/${report?.capture_by?._id}`} className="link">
                                                                 <Stack direction="row" alignItems="center" gap={1}>
                                                                     <Avatar
@@ -358,7 +367,7 @@ const ListOfArcheivedcaptureReports = () => {
                                                                     {report?.capture_by?.first_name} {report?.capture_by?.last_name}
                                                                 </Stack>
                                                             </Link>
-                                                        )
+                                                        )) : '-'
                                                     }
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
@@ -368,22 +377,17 @@ const ListOfArcheivedcaptureReports = () => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
 
-                                                    {report.address || "-"}
+                                                    {report.location.address || "-"}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {2}km
+                                                    {report.distance}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {formatDateTime(report.createdAt,"HH:mm:ss") || "-"}
-
-                                                </TableCell>
-                                                <TableCell sx={{ color: 'black' }}>
-
-                                                    {formatDateTime(report.createdAt,"HH:mm:ss") || "-"}
+                                                    {report.eta || "-"}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
@@ -393,26 +397,31 @@ const ListOfArcheivedcaptureReports = () => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {formatDateTime(report.createdAt,"HH:mm:ss") || "-"}
+                                                    {report.arrival || "-"}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {report.isRespond ? 'Yes' : 'No'}
+                                                    {calculteTime(report.createdAt,report.arrival) || "-"}
+
+                                                </TableCell>
+                                                <TableCell sx={{ color: 'black' }}>
+
+                                                    {report?.capture_report?.isRespond ? 'Yes' : 'No'}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Chip
-                                                        label={report.report_status}
+                                                        label={report?.capture_report?.report_status || 'No Report'}
                                                         sx={{
                                                             backgroundColor:
-                                                                report.report_status === 'No Report' ? '#4B55631A' :
-                                                                    report.report_status === 'View Report' ? '#367BE01A' :
-                                                                                '#FEF9C3',
+                                                                report?.capture_report?.report_status === 'No Report' ? '#4B55631A' :
+                                                                    report?.capture_report?.report_status === 'View Report' ? '#367BE01A' :
+                                                                                '#4B55631A',
                                                             '& .MuiChip-label': {
                                                                 textTransform: 'capitalize',
-                                                                color: report.report_status === 'No Report' ? '#4B5563' :
-                                                                    report.report_status === 'View Report' ? '#367BE0' :
+                                                                color: report?.capture_report?.report_status === 'No Report' ? '#4B5563' :
+                                                                    report?.capture_report?.report_status === 'View Report' ? '#367BE0' :
                                                                                 'black',
                                                             }
                                                         }}
@@ -420,12 +429,12 @@ const ListOfArcheivedcaptureReports = () => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Stack direction="row" alignItems="center" spacing={1}>
-                                                        {report.evidence_image.slice(0, 2).map((item, index) => (
+                                                        {report?.capture_report?.evidence_image.slice(0, 2).map((item, index) => (
                                                             <Box
                                                                 key={index}
                                                                 component="img"
-                                                                src={item}
-                                                                onClick={() => handleImageClick(item, `Evidence-${index + 1}`)}
+                                                                src={getImageLink(item)}
+                                                                onClick={() => handleImageClick(getImageLink(item), `Evidence-${index + 1}`)}
                                                                 alt={`evidence-${index}`}
                                                                 sx={{
                                                                     width: "32px",
@@ -437,7 +446,7 @@ const ListOfArcheivedcaptureReports = () => {
                                                                 }}
                                                             />
                                                         ))}
-                                                        {report.evidence_image.length > 2 && (
+                                                        {report?.capture_report?.evidence_image.length > 2 && (
                                                             <Box
                                                                 sx={{
                                                                     width: 32,
@@ -452,7 +461,7 @@ const ListOfArcheivedcaptureReports = () => {
                                                                     cursor: 'pointer',
                                                                     fontWeight: 500
                                                                 }}
-                                                                onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}
+                                                                onClick={() => nav(`/home/capture-reports/${report._id}`)}
                                                             >
                                                                 +{report.evidence_image.length - 2}
                                                             </Box>
@@ -462,24 +471,29 @@ const ListOfArcheivedcaptureReports = () => {
                                                 
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
-                                                        <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}>
+                                                        {report?.capture_report?._id && <Tooltip title="View" arrow placement="top">
+                                                            <IconButton onClick={() => nav(`/home/capture-reports/${report?.capture_report?._id}`)}>
                                                                 <img src={ViewBtn} alt="flagged button" />
                                                             </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip title="Delete" arrow placement="top">
+                                                        </Tooltip>}
+                                                        {/* <Tooltip title="Delete" arrow placement="top">
                                                             <IconButton onClick={() => setconfirmation(report?._id)}>
                                                                 <img src={delBtn} alt="delete button" />
                                                             </IconButton>
-                                                        </Tooltip>
+                                                        </Tooltip> */}
                                                         <Tooltip title="Archive" arrow placement="top">
                                                             <IconButton onClick={() => {
                                                                 updateTripMutation.mutate({
                                                                     id: report?._id,
-                                                                    data: { isArchived: false }
+                                                                    data: { isArchived:false }
                                                                 });
                                                             }}>
                                                                 <img src={Listtrip} alt="view button" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Capture Report" arrow placement="top">
+                                                            <IconButton onClick={()=>{openSummaryReportModel(report)}}>
+                                                                <img src={fileBtn} alt=" button" />
                                                             </IconButton>
                                                         </Tooltip>
 
@@ -487,8 +501,6 @@ const ListOfArcheivedcaptureReports = () => {
                                                             <DeleteConfirm id={report?._id} trip={"captureReport"} setconfirmation={setconfirmation} />
                                                         )}
                                                     </Box>
-
-
                                                 </TableCell>
                                             </TableRow>
                                         )) : (
@@ -571,7 +583,118 @@ const ListOfArcheivedcaptureReports = () => {
             </Paper>
             {popup && <ImportSheet setpopup={setpopup} type="user" />}
         </Box>
+
+            <Dialog
+                open={openSummaryModel}
+                onClose={closeOtherUsersModal}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{ sx: { borderRadius: 3 } }}
+            >
+                <DialogTitle sx={{textAlign:"center"}}>Case Report</DialogTitle>
+                <DialogContent dividers>
+                    <Box>
+                        <Box mt={3}>
+                            <Grid container spacing={4}>
+                                <Grid item xs={12} md={6}>
+                                    <Box mb={2}>
+                                        <Typography fontSize="1rem" fontWeight={700} color="#4b5563">
+                                            Arrival Comments
+                                        </Typography>
+                                        <Typography fontSize="1.05rem" mt={1}>
+                                            {summaryReportData?.comments?.arrival?.comment || '-'}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box mb={2}>
+                                        <Typography fontSize="1rem" fontWeight={700} color="#4b5563">
+                                            Contact Attempt Comments
+                                        </Typography>
+                                        <Typography fontSize="1.05rem" mt={1}>
+                                            {summaryReportData?.comments?.contact_attempt?.comment || '-'}
+                                        </Typography>
+                                    </Box>
+
+                                    <Box>
+                                        <Typography fontSize="1rem" fontWeight={700} color="#4b5563">
+                                            Closure Comments
+                                        </Typography>
+                                        <Typography fontSize="1.05rem" mt={1}>
+                                            {summaryReportData?.comments?.closure?.comment || '-'}
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+
+                                <Grid item xs={12} md={6}>
+                                    <Box mb={2}>
+                                        <Typography fontSize="1rem" fontWeight={700} color="#4b5563">
+                                            Assessment Comments
+                                        </Typography>
+                                        <Typography fontSize="1.05rem" mt={1}>
+                                            {summaryReportData?.comments?.assessment?.comment || '-'}
+                                        </Typography>
+                                    </Box>
+                                    <Box>
+                                        <Typography fontSize="1rem" fontWeight={700} color="#4b5563">
+                                            Resolutions Comments
+                                        </Typography>
+                                        <Typography fontSize="1.05rem" mt={1}>
+                                            {summaryReportData?.comments?.resolution?.comment || '-'}
+                                        </Typography>
+                                    </Box>
+                                </Grid>
+
+                            </Grid>
+                        </Box>
+                        {/* Description */}
+                        <Box my={2}>
+                            <Typography fontSize={'1rem'} fontWeight={500} color="text.secondary">
+                                Other Comments (Optional)
+                            </Typography>
+                            <Typography variant="body1" mt={1} sx={{ backgroundColor: '#F9FAFB', borderRadius: '6px', p: 1.5 }}>
+                                {summaryReportData?.capture_report?.otherComments}
+
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ mt: 2 }}>
+                            <Typography fontSize={'1rem'} fontWeight={500} color="text.secondary">
+                                Time and Date
+                            </Typography>
+                            <Typography fontSize={'1.05rem'} mt={0.5}>
+                                {formatDateTime(summaryReportData?.capture_report?.createdAt,'MMM DD YYYY HH:mm A') || '-'}
+                            </Typography>
+
+                        </Box>
+
+                        <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
+                            <Typography variant='subtitle1' fontWeight={550}>
+                                Images
+                            </Typography>
+                            <Grid container spacing={2} mt={2}>
+                                {summaryReportData?.capture_report?.evidence_image?.map((item, index) => (
+                                    <Grid size={{ xs: 1, sm: 3 }} key={index}>
+                                        <Box
+                                            component="img"
+                                            src={getImageLink(item)}
+                                            onClick={() => handleImageClick(getImageLink(item), `Evidence-${index + 1}`)}
+                                            alt={`Placeholder ${index}`}
+                                            sx={{ width: "100%", maxWidth: "241px", height: "160px", objectFit: "cover", border: "1px solid #E5E7EB", borderRadius: "6px", cursor: "pointer" }}
+                                        />
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </Box>
+                    </Box>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeOtherUsersModal}>Close</Button>
+                </DialogActions>
+            </Dialog>
+
         </>
     );
+
+
 }
 export default ListOfArcheivedcaptureReports;

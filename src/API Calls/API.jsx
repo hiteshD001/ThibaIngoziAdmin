@@ -2428,6 +2428,22 @@ export const useGetCaptureReportList = (
     return res;
 };
 
+export const useGetCaptureReportListV2 = async (
+    location_id,
+    role,
+    page,
+    limit
+) => {
+    return await apiClient.get(`${import.meta.env.VITE_BASEURL}/capture-report`, {
+        params: {
+            location_id,
+            role,
+            page,
+            limit
+        },
+    });
+};
+
 export const useGetCaptureReportById = (capture_report_id) => {
     const nav = useNavigate();
 
