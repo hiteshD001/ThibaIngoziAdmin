@@ -1998,7 +1998,6 @@ const Home = () => {
                     sx: {
                         borderRadius: 3,
                         width: 499,
-                        height: 334,
                         boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                     }
                 }}

@@ -6,7 +6,7 @@ import {
     DialogTitle,
     DialogContent,
     DialogContentText,
-    DialogActions,
+    DialogActions,TableSortLabel
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -31,6 +31,9 @@ import whiteplus from '../../assets/images/whiteplus.svg';
 import {getImageLink,formatDateTime,calculteTime } from '../../common/commonFn';
 import SingleImagePreview from "../../common/SingleImagePreview";
 import fileBtn from '../../assets/images/fileBtn.svg'
+import arrowup from '../../assets/images/arrowup.svg';
+import arrowdown from '../../assets/images/arrowdown.svg';
+import arrownuteral from '../../assets/images/arrownuteral.svg';
 
 const ListOfCaptureReports = () => {
     const [popup, setpopup] = useState(false);
@@ -290,18 +293,107 @@ const ListOfCaptureReports = () => {
                         <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
                             <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                                 <TableRow >
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>SOS ID</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Responder</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Captured By</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Reported Date</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Capture Location</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Distance</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>ETA</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Trigger</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Arrival</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Response Time</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Responded</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Assessment</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                            <TableSortLabel
+                                                id="sosNUmber"
+                                                active={sortBy === 'sosNUmber'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'sosNUmber' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >SOS ID</TableSortLabel></TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="responder"
+                                                active={sortBy === 'responder'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'responder' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Responder</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="captureBy"
+                                                active={sortBy === 'captureBy'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'captureBy' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Captured By</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="createdAt"
+                                                active={sortBy === 'createdAt'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Reported Date</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="captureLocation"
+                                                active={sortBy === 'captureLocation'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'captureLocation' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Capture Location</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="distance"
+                                                active={sortBy === 'distance'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'report.distance' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Distance</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="eta"
+                                                active={sortBy === 'eta'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'eta' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >ETA</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="trigger"
+                                                active={sortBy === 'trigger'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'trigger' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Trigger</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="arrival"
+                                                active={sortBy === 'arrival'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'arrival' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Arrival</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        Response Time
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="responded"
+                                                active={sortBy === 'responded'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'responded' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Responded</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="assessment"
+                                                active={sortBy === 'assessment'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'assessment' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Assessment</TableSortLabel>
+                                    </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Media</TableCell>
                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                 </TableRow>
