@@ -100,8 +100,17 @@ const CrimeReport = () => {
                 </Box>
 
                 <Grid container spacing={3}>
-                    <Grid size={7}>
-                        {/* Subtitle */}
+                        <Grid size={7}>
+                        <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
+                            <Typography variant='subtitle1' fontWeight={550}>
+                                Crime Type
+                            </Typography>
+                        </Box>
+                        <Box my={2}>
+                            <Typography variant="body1" mt={1}>
+                                {crimeReportObj?.crime_type_id?.crimeType}
+                            </Typography>
+                        </Box>
                         <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
                             <Typography variant='subtitle1' fontWeight={550}>
                                 Sighting Details
