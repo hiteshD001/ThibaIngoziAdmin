@@ -105,12 +105,11 @@ const ListOfCaptureReports = () => {
             }
 
             const exportData = allUsers.map(user => ({
-                "Crime ID": `${user.crime_report_number || ''}` || '',
-                "Reporter": user.user?.first_name || '',
-                "Location": `${user.address || ''}`,
-                "Description": user.description || '',
+                "SOS Number ID": `${user?.location.sosNumber || ''}` || '',
+                "Responder": user.user?.first_name + user.user?.last_name || '',
+                "Location": `${user?.location.address || ''}`,
                 "Date Reported": user.createdAt || '',
-                "Status": user.report_status || ''
+                "Status": user?.capture_report?.report_status || ''
             }));
             
             if (exportFormat === "xlsx") {
@@ -121,7 +120,7 @@ const ListOfCaptureReports = () => {
                 worksheet['!cols'] = columnWidths;
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-                XLSX.writeFile(workbook, "Crime_Report_List.xlsx");
+                XLSX.writeFile(workbook, "Capture_Report_List.xlsx");
             }
             else if (exportFormat === "csv") {
                 
@@ -130,7 +129,7 @@ const ListOfCaptureReports = () => {
                 const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = 'Crime_Report_List.csv';
+                link.download = 'Capture_Report_List.csv';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -139,14 +138,13 @@ const ListOfCaptureReports = () => {
                 const doc = new jsPDF();
                 doc.text('Crime Report List', 14, 16);
                 autoTable(doc, {
-                    head: [['Crime ID', 'Reporter', 'Location.', 'Description','Date Reported','Status']],
+                    head: [['SOS Number ID', 'Responder', 'Location.','Date Reported','Status']],
                     body: allUsers.map(user => [
-                        user.crime_report_number ?? 'NA',
+                        user?.location.sosNumber ?? 'NA',
                         `${user.user?.first_name || ''} ${user.user?.last_name || ''}` ?? 'NA',
-                        `${user.address || ''}` ?? 'NA',
-                        user.description ?? 'NA',
+                        `${user?.location.address || ''}` ?? 'NA',
                         user.createdAt ?? 'NA',
-                        user.report_status ?? 'NA'
+                        user?.capture_report?.report_status ?? 'NA'
                     ]),
                     startY: 20,
                     theme: 'striped',
@@ -154,7 +152,7 @@ const ListOfCaptureReports = () => {
                     margin: { top: 20 },
                     styles: { fontSize: 10 },
                 });
-                doc.save("Crime_Report_List.pdf");
+                doc.save("Capture_Report_List.pdf");
             }
 
         } catch (err) {

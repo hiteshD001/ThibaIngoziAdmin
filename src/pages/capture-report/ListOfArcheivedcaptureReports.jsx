@@ -95,74 +95,72 @@ const ListOfArcheivedcaptureReports = () => {
         text.length > limit ? text.substring(0, limit) + '...' : text;
 
     const handleExport = async ({ startDate, endDate, exportFormat }) => {
-        try {
-            
-            const data  = UserList.data?.data
-
-            const allUsers = data?.data || [];
-            if (!allUsers.length) {
-                toast.warning("No Capture Report data found for this period.");
-                return;
-            }
-
-            const exportData = allUsers.map(user => ({
-                "Crime ID": `${user.crime_report_number || ''}` || '',
-                "Reporter": user.user?.first_name || '',
-                "Location": `${user.address || ''}`,
-                "Description": user.description || '',
-                "Date Reported": user.createdAt || '',
-                "Status": user.report_status || ''
-            }));
-            
-            if (exportFormat === "xlsx") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
-                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
-                }));
-                worksheet['!cols'] = columnWidths;
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-                XLSX.writeFile(workbook, "Crime_Report_List.xlsx");
-            }
-            else if (exportFormat === "csv") {
+            try {
                 
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const csv = XLSX.utils.sheet_to_csv(worksheet);
-                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'Crime_Report_List.csv';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                const data  = UserList.data?.data
+    
+                const allUsers = data?.data || [];
+                if (!allUsers.length) {
+                    toast.warning("No Capture Report data found for this period.");
+                    return;
+                }
+    
+                const exportData = allUsers.map(user => ({
+                    "SOS Number ID": `${user?.location.sosNumber || ''}` || '',
+                    "Responder": user.user?.first_name + user.user?.last_name || '',
+                    "Location": `${user?.location.address || ''}`,
+                    "Date Reported": user.createdAt || '',
+                    "Status": user?.capture_report?.report_status || ''
+                }));
+                
+                if (exportFormat === "xlsx") {
+                    const worksheet = XLSX.utils.json_to_sheet(exportData);
+                    const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                        wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+                    }));
+                    worksheet['!cols'] = columnWidths;
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+                    XLSX.writeFile(workbook, "Capture_Report_List.xlsx");
+                }
+                else if (exportFormat === "csv") {
+                    
+                    const worksheet = XLSX.utils.json_to_sheet(exportData);
+                    const csv = XLSX.utils.sheet_to_csv(worksheet);
+                    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'Capture_Report_List.csv';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+                else if (exportFormat === "pdf") {
+                    const doc = new jsPDF();
+                    doc.text('Crime Report List', 14, 16);
+                    autoTable(doc, {
+                        head: [['SOS Number ID', 'Responder', 'Location.','Date Reported','Status']],
+                        body: allUsers.map(user => [
+                            user?.location.sosNumber ?? 'NA',
+                            `${user.user?.first_name || ''} ${user.user?.last_name || ''}` ?? 'NA',
+                            `${user?.location.address || ''}` ?? 'NA',
+                            user.createdAt ?? 'NA',
+                            user?.capture_report?.report_status ?? 'NA'
+                        ]),
+                        startY: 20,
+                        theme: 'striped',
+                        headStyles: { fillColor: '#367BE0' },
+                        margin: { top: 20 },
+                        styles: { fontSize: 10 },
+                    });
+                    doc.save("Capture_Report_List.pdf");
+                }
+    
+            } catch (err) {
+                console.error("Error exporting data:", err);
+                toast.error("Export failed.");
             }
-            else if (exportFormat === "pdf") {
-                const doc = new jsPDF();
-                doc.text('Crime Report List', 14, 16);
-                autoTable(doc, {
-                    head: [['Crime ID', 'Reporter', 'Location.', 'Description','Date Reported','Status']],
-                    body: allUsers.map(user => [
-                        user.crime_report_number ?? 'NA',
-                        `${user.user?.first_name || ''} ${user.user?.last_name || ''}` ?? 'NA',
-                        `${user.address || ''}` ?? 'NA',
-                        user.description ?? 'NA',
-                        user.createdAt ?? 'NA',
-                        user.report_status ?? 'NA'
-                    ]),
-                    startY: 20,
-                    theme: 'striped',
-                    headStyles: { fillColor: '#367BE0' },
-                    margin: { top: 20 },
-                    styles: { fontSize: 10 },
-                });
-                doc.save("Crime_Report_List.pdf");
-            }
-
-        } catch (err) {
-            console.error("Error exporting data:", err);
-            toast.error("Export failed.");
-        }
-    };
+        };
 
     const handleFilterData = (data) => {
 
