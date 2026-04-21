@@ -72,6 +72,10 @@ const ListOfPoliceUnits = lazy(() => import("./pages/police-unit/ListOfPoliceUni
 const AddPoliceUnit = lazy(() => import("./pages/police-unit/AddPoliceUnit"));
 const PoliceUnitInformation = lazy(() => import("./pages/police-unit/PoliceUnitInformation"));
 const CrimeReportRequestUsers = lazy(() => import("./pages/crimeReports/CrimeReportRequestUsers"));
+const ListOfcaptureReports = lazy(() => import("./pages/capture-report/ListOfCaptureReports"));
+const ListOfArcheivedcaptureReports = lazy(() => import("./pages/capture-report/ListOfArcheivedcaptureReports"));
+const CaptureReport = lazy(() => import("./pages/capture-report/CaptureReport"));
+const AddCaptureReport = lazy(() => import("./pages/capture-report/AddCaptureReport"));
 
 function App() {
     const router = useMemo(
@@ -404,6 +408,27 @@ function App() {
                                     path: "request-accepted-users/:id",
                                     element: <CrimeReportRequestUsers />
                                 },
+                            ]
+                        },
+                        {
+                            path: "capture-reports",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfcaptureReports />
+                                },
+                                {
+                                    path: ":id",
+                                    element: <CaptureReport />
+                                },
+                                {
+                                    path: "save",
+                                    element: <AddCaptureReport />
+                                },
+                                {
+                                    path: "view-archeived-capture-report",
+                                    element: <ListOfArcheivedcaptureReports />
+                                }
                             ]
                         },
                         {
