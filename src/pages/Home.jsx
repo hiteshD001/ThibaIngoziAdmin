@@ -4,7 +4,7 @@ import {
     useGetRecentSOS,
     useGetUser,
     useGetActiveSosData,
-    useUpdateLocationStatus, useGetNotificationType,
+    useUpdateLocationStatus, useGetNotificationType,useGetCaptureReportListV2
 } from "../API Calls/API";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, FormControl, InputLabel,
@@ -20,7 +20,8 @@ import {
     ListItemText,
     Divider,
     Switch,
-    CircularProgress
+    Chip,
+    CircularProgress,Popover 
 } from "@mui/material";
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -31,6 +32,7 @@ import calender from '../assets/images/calender.svg';
 import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
 import search from '../assets/images/search.svg';
 import ViewBtn from '../assets/images/ViewBtn.svg'
+import fileBtn from '../assets/images/fileBtn.svg'
 import { useWebSocket } from "../API Calls/WebSocketContext";
 import nouser from "../assets/images/NoUser.png";
 import CustomPagination from "../common/Custom/CustomPagination";
@@ -593,6 +595,26 @@ const Home = () => {
         });
     };
 
+    const [captureReportModalOpen, setCaptureReportModalOpen] = useState(false);
+    const [captureReportModalItems, setCaptureReportModalItems] = useState([]);
+    const [locationId, setLocationId] = useState(null);
+    const [captureReportAnchorEl, setCaptureReportAnchorEl] = useState(null);
+
+    const openCaptureReportModal = async (location_id,event) => {
+        setCaptureReportAnchorEl(event.currentTarget); 
+        setLocationId(location_id)
+        let captureList = await  useGetCaptureReportListV2(location_id, role, 1, 3);
+        let items = captureList.data?.data || [] 
+        
+        setCaptureReportModalItems(items);
+        setCaptureReportModalOpen(true);
+    };
+    const closeCaptureReportModal = () => {
+        setCaptureReportModalOpen(false);
+        setCaptureReportModalItems([]);
+        setCaptureReportAnchorEl(null);
+    };
+
     return (
         <Box>
             <Analytics
@@ -1028,6 +1050,11 @@ const Home = () => {
                                                                     </Button>
                                                                 </Tooltip>
                                                             )}
+                                                            <Tooltip title="Incident Report" arrow placement="top">
+                                                                <IconButton onClick={(e) => openCaptureReportModal(user?._id, e)}>
+                                                                    <img src={fileBtn} alt="button" />
+                                                                </IconButton>
+                                                            </Tooltip>
                                                         </Box>
                                                     </TableCell>
                                                     {/* {user?.type?.type === "linked_sos" ? (
@@ -1475,6 +1502,12 @@ const Home = () => {
                                                             <Tooltip title="View" arrow placement="top">
                                                                 <IconButton onClick={() => nav(`/home/hotspot/location?locationId=${row?._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`)}>
                                                                     <img src={ViewBtn} alt="view button" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title="Incident Report" arrow placement="top">
+                                                                {/* <IconButton onClick={() => nav(`/home/capture-reports?location_id=${row?._id}`)}> */}
+                                                                <IconButton onClick={(e) => openCaptureReportModal(row?._id, e)}>
+                                                                    <img src={fileBtn} alt="button" />
                                                                 </IconButton>
                                                             </Tooltip>
                                                         </Box>
@@ -1947,6 +1980,105 @@ const Home = () => {
                     <Button onClick={closeOtherUsersModal}>Close</Button>
                 </DialogActions>
             </Dialog>
+
+            {/* View Capture Report */}
+            <Popover
+                open={captureReportModalOpen}
+                anchorEl={captureReportAnchorEl}
+                onClose={closeCaptureReportModal}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        width: 499,
+                        height: 334,
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                    }
+                }}
+            >
+                {/* DialogTitle */}
+                <Box sx={{ px: 3, pt: 2, pb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography fontWeight={600} fontSize={16}>
+                        Incident Reports (Multi-Report)
+                    </Typography>
+                    <Chip
+                        label={'View All'}
+                        sx={{
+                            backgroundColor: '#9CA3AF26',
+                            '& .MuiChip-label': { textTransform: 'capitalize', color: '#9CA3AF' }
+                        }}
+                        onClick={() => nav(`/home/capture-reports?location_id=${locationId}`)}
+                    />
+                </Box>
+
+                <Divider />
+
+                {/* Content */}
+                <Box sx={{ px: 2, py: 1, maxHeight: 360, overflowY: 'auto' }}>
+                    {captureReportModalItems.length === 0 ? (
+                        <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
+                            No other users found.
+                        </Typography>
+                    ) : (
+                        <List disablePadding>
+                            {captureReportModalItems.map((u, idx) => {
+                                let fullName = u?.user?.first_name + u?.user?.last_name ||  "-"
+                                return (
+                                    <Box
+                                        key={getOtherUserId(u._id) || idx}
+                                        sx={{
+                                            border: '1px solid #E5E7EB',
+                                            borderRadius: '16px',
+                                            p: 2,
+                                            mb: 1.5,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                                            backgroundColor: '#fff',
+                                        }}
+                                    >
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                            <Avatar
+                                                src={getImageLink(u?.user.selfieImage) || nouser}
+                                                alt="User"
+                                                sx={{ width: 48, height: 48 }}
+                                            />
+                                            <Typography fontWeight={600} fontSize={15} color="#111827">
+                                                {fullName || '-'}
+                                            </Typography>
+                                        </Box>
+                                        <Chip
+                                            label={u?.capture_report?.report_status || 'No Report'}
+                                            sx={{
+                                                backgroundColor:
+                                                    u?.capture_report?.report_status === 'View Report'
+                                                        ? '#367BE01A' : '#4B55631A',
+                                                '& .MuiChip-label': {
+                                                    color: u?.capture_report?.report_status === 'View Report'
+                                                        ? '#367BE0' : '#4B5563',
+                                                }
+                                            }}
+                                        />
+                                    </Box>
+                                );
+                            })}
+                        </List>
+                    )}
+                </Box>
+
+                <Divider />
+                <Box sx={{ px: 2, py: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button onClick={closeCaptureReportModal} size="small">Close</Button>
+                </Box>
+            </Popover>
         </Box >
     );
 };

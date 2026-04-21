@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
-import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent, useDeleteCrimeReport,useRemovePoliceUnit } from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent, useDeleteCrimeReport,useRemovePoliceUnit, useDeleteCaptureReport } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useState } from "react";
@@ -50,6 +50,12 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
     setconfirmation("");
   }
 
+  const onSuccessCaptureReport = () => {
+    toast.success("Incident Report deleted successfully");
+    client.invalidateQueries("Incident report list");
+    setconfirmation("");
+  }
+
   const deleteDriver = useDeleteUser(onSuccess, onError)
   const deleteTrip = useDeleteUserTrip(onSuccessTrip, onError)
   const deleteMeetingLinkTrip = useDeleteUserMeetingTripTrip(onSuccessMeetingTrip, onError)
@@ -57,6 +63,7 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
   const deleteMissingVehicle = useDeleteMissingVehicale(onSuccessMissingVehicle, onError)
   const deleteCrimeReport = useDeleteCrimeReport(onSuccessCrimeReport, onError)
   const deleteusePoliceUnit = useRemovePoliceUnit(onSuccessCrimeReport, onError)
+  const deleteuseIncidentReport = useDeleteCaptureReport(onSuccessCaptureReport, onError)
 
   const handleConfirm = () => {
     if (trip === "trip") {
@@ -71,6 +78,8 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
       deleteCrimeReport.mutate(id);
     } else if (trip === "policeUnit"){
       deleteusePoliceUnit.mutate(id);
+    } else if (trip === "captureReport"){
+      deleteuseIncidentReport.mutate(id);
     }
     else {
       deleteDriver.mutate(id);
