@@ -1,0 +1,90 @@
+name: Rollback Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      previous_commit:
+        description: "Git commit SHA to rollback to (optional)"
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      previous_commit:
+        required: false
+        type: string
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate secrets exist
+        env:
+          DEPLOY_HOST: ${{ secrets.PROD_HOST || secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.PROD_USER || secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.PORT_PORT || secrets.DEPLOY_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_KEY || secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_PATH: ${{ secrets.PROD_PATH || secrets.DEPLOY_PATH }}
+          PROD_URL: ${{ secrets.PROD_URL }}
+        run: |
+          test -n "$DEPLOY_HOST" || (echo "DEPLOY_HOST is missing" && exit 1)
+          test -n "$DEPLOY_USER" || (echo "DEPLOY_USER is missing" && exit 1)
+          test -n "$DEPLOY_PORT" || (echo "DEPLOY_PORT is missing" && exit 1)
+          test -n "$SSH_PRIVATE_KEY" || (echo "SSH_PRIVATE_KEY is missing" && exit 1)
+          test -n "$DEPLOY_PATH" || (echo "PROD_PATH/DEPLOY_PATH is missing" && exit 1)
+          test -n "$PROD_URL" || (echo "PROD_URL is missing" && exit 1)
+
+      - name: Prepare SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PROD_SSH_KEY || secrets.SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          key_file="${RUNNER_TEMP}/prod_ssh_key"
+          printf '%s\n' "${SSH_PRIVATE_KEY}" > "${key_file}"
+          chmod 600 "${key_file}"
+          echo "SSH_KEY_FILE=${key_file}" >> "${GITHUB_ENV}"
+
+      - name: Trust server host key
+        env:
+          DEPLOY_HOST: ${{ secrets.PROD_HOST || secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.PORT_PORT || secrets.DEPLOY_PORT }}
+        run: |
+          set -euo pipefail
+          port="${DEPLOY_PORT:-22}"
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${port}" "${DEPLOY_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Roll back to previous server release
+        env:
+          DEPLOY_HOST: ${{ secrets.PROD_HOST || secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.PROD_USER || secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.PORT_PORT || secrets.DEPLOY_PORT }}
+          DEPLOY_PATH: ${{ secrets.PROD_PATH || secrets.DEPLOY_PATH }}
+          PREVIOUS_COMMIT_INPUT: ${{ inputs.previous_commit || github.event.inputs.previous_commit }}
+        run: |
+          set -euo pipefail
+          port="${DEPLOY_PORT:-22}"
+          ssh_opts="-i ${SSH_KEY_FILE} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes"
+          ssh ${ssh_opts} -p "${port}" "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "DEPLOY_PATH='${DEPLOY_PATH}' PREVIOUS_COMMIT_INPUT='${PREVIOUS_COMMIT_INPUT}' bash -s" <<'EOF'
+          set -euo pipefail
+          cd "${DEPLOY_PATH}"
+          target_commit="${PREVIOUS_COMMIT_INPUT:-}"
+          if [ -z "${target_commit}" ]; then
+            target_commit="$(git rev-parse HEAD~1)"
+          fi
+
+          git fetch origin
+          git checkout -f "${target_commit}"
+          npm ci
+          npm run build
+          pm2 reload all
+          echo "Rolled back to ${target_commit}"
+          EOF
+
+      - name: Verify rollback with smoke check
+        env:
+          PROD_URL: ${{ secrets.PROD_URL }}
+        run: |
+          set -euo pipefail
+          test -n "${PROD_URL:-}" || (echo "PROD_URL is required for rollback verification" && exit 1)
+          curl -fsSIL "${PROD_URL}" >/dev/null

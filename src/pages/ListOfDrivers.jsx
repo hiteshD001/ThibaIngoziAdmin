@@ -1065,7 +1065,7 @@ const ListOfDrivers = () => {
                                             onClick={changeSortOrder}
                                             IconComponent={() => <img src={sortBy === 'passport_no' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
-                                            Driver ID
+                                            ID / Passport No.
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: "#F9FAFB", color: "#4B5563" }}>

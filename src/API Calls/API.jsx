@@ -2374,3 +2374,160 @@ export const useSaveTagPurchasedVerification = (onSuccess, onError) => {
     return mutation;
 };
 
+// Capture Report APIs
+export const useGetCaptureReportList = (
+    key,
+    location_id,
+    role,
+    page,
+    limit,
+    filter,
+    startDate,
+    endDate,
+    archived,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/capture-report`, {
+            params: {
+                location_id,
+                role,
+                page,
+                limit,
+                filter,
+                startDate,
+                endDate,
+                archived,
+                sortBy,
+                sortOrder
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            location_id,
+            role,
+            page,
+            limit,
+            filter,
+            startDate,
+            endDate,
+            archived,
+            sortBy,
+            sortOrder
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetCaptureReportListV2 = async (
+    location_id,
+    role,
+    page,
+    limit
+) => {
+    return await apiClient.get(`${import.meta.env.VITE_BASEURL}/capture-report`, {
+        params: {
+            location_id,
+            role,
+            page,
+            limit
+        },
+    });
+};
+
+export const useGetCaptureReportById = (capture_report_id) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/capture-report/${capture_report_id}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["capturereport", capture_report_id],
+        queryFn: queryFn,
+        staleTime: Infinity,
+        enabled: capture_report_id !== undefined,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const usePutCapture = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(`${import.meta.env.VITE_BASEURL}/capture-report/admin_save_capture_report`, data)
+    }
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    })
+    return mutation
+}
+
+export const useDeleteCaptureReport = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/capture-report/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useCaptureIsArchived = (onSucess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/capture-report/isArchived/${id}`,
+            data
+        );
+    };
+
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+
+    return res;
+}
+
+export const useGetCommentsList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/comment`);
+    };
+
+    const res = useQuery({
+        queryKey: ["Comment List"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    return res;
+};

@@ -27,7 +27,7 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
     { label: "Subscription End", value: subscriptionDetails?.subscription_end || "12 Jan 2024" },
     { label: "Physical Panic Button", value: subscriptionDetails?.physicalPanicButton, type: "status-purchased" },
     { label: "Order Date", value: subscriptionDetails?.orderDate },
-    { label: "Order Number", value: subscriptionDetails?.orderNumber, type: "link" },
+    { label: "Order Number/ View Certificate", value: subscriptionDetails?.orderNumber, type: "link" },
     { label: "Approved Driver", value: subscriptionDetails?.approvedDriver === true ? 'Yes' : 'No', type: "dropdown" },
     { label: "Approved By", value: subscriptionDetails?.approvedBy },
     { label: "Date Approved", value: subscriptionDetails?.dateApproved },
@@ -190,7 +190,7 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
     );
   };
 
-  const handleGeneratePdf = () => {
+  const handleGeneratePdfOld = () => {
     setPdfLoader(true)
     const sales_order_obj = subscriptionDetails.sales_order_details || {};
 
@@ -463,6 +463,405 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
           setPdfLoader(false)
         });
       });
+  };
+
+  const handleGeneratePdf = async () => {
+    const sales_order_obj = subscriptionDetails.sales_order_details || {};
+    const previewWindow = window.open('', '_blank');
+    const phoneHtml = (sales_order_obj.contact?.phones || [])
+      .map(d => `
+        <tr>
+          <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+            ${d.number}
+          </td>
+        </tr>
+      `).join('');
+
+    const productRowsHtml = (sales_order_obj.items || [])
+      .map(item => `
+        <tr style="border-bottom:1px solid #e0e0e0;" valign="top">
+          <td width="50px" style="padding:5px 0 5px 20px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+            <a href="${item.product?.url || '#'}" style="-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+              <img src="https://thibaingozi.com/gallery/00/00/00/00000013_small.jpg" border="0" alt="" style="border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;width:50px;height:auto;" />
+            </a>
+          </td>
+          <td style="padding:5px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+            <a href="http://thibaingozi.com/itag-for-thiba-ingozi-app-powered-by-smartops" style="text-decoration: none; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;">Thiba Ingozi Powered By SmartOps&nbsp;&nbsp;SOS ITAG POWERED BY SMARTOPS</a>
+            <div style="padding-top:3px;"></div>
+          </td>
+          <td align="center" style="padding:5px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+            ${item.quantity}
+          </td>
+          <td align="right" style="padding:5px;white-space:nowrap;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+            R ${parseFloat(item.price_incl_tax || 0).toFixed(2)}
+          </td>
+          <td align="right" style="padding:5px 20px 5px 0;white-space:nowrap;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+            R ${parseFloat(item.price_incl_tax || 0).toFixed(2)}
+          </td>
+        </tr>
+      `).join('');
+
+    const subtotal = parseFloat(sales_order_obj.items[0].price_incl_tax || 0).toFixed(2);
+    const shipping = parseFloat(sales_order_obj.shipping?.charge?.amount_incl_tax || 0).toFixed(2);
+    const grandTotal = (parseFloat(subtotal) + parseFloat(shipping)).toFixed(2);
+
+    let logoDataUrl = 'http://thibaingozi.com/gallery/content/logo/thiba.png'
+    const container = `
+          <table border="0" cellpadding="0" cellspacing="5" width="600" id="emailBody"
+            style="border-collapse:separate;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;background-color:#FFFFFF;border:1px solid #DDDDDD;border-radius:4px;margin:0 auto;font-family:Arial,Helvetica,sans-serif;">
+
+            <!-- HEADER: LOGO + ADDRESS -->
+            <tr>
+              <td align="center" valign="top" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                  <tr align="center">
+                    <td valign="top" style="padding:20px 0 10px 0;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-bottom:10px;">
+                      <img src="${logoDataUrl}" alt="Logo" style="max-width:250px;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;height:auto;" /><br/>
+                      <div style="color:#404040;font-size:13px;line-height:150%;text-align:center;padding-bottom:10px;">
+                        Irene Link Precinct, Building E 5 Impala Ave Doringkloof, Centurion Gauteng, 0157<br/>
+                        Phone: +27 12 007 3660 &nbsp;&nbsp;|&nbsp;&nbsp;
+                        <a href="mailto:tiapp@smartops.solutions" style="-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">tiapp@smartops.solutions</a>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- ORDER REFERENCE BAR -->
+            <tr>
+              <td align="center" valign="top" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                <table border="0" cellpadding="0px" cellspacing="0" width="100%" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                  <tr>
+                    <td align="left" valign="top" style="padding:0 20px 0 20px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#E0E0E0"
+                        style="border-radius:4px;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                        <tr>
+                          <td valign="top" width="600" style="padding-top:10px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-right:20px;padding-left:20px;">
+                            <table align="left" border="0" cellpadding="0" cellspacing="0" width="260" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                              <tr>
+                                <td valign="top" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-bottom:10px;color:#404040;font-size:14px;line-height:125%;text-align:left;">
+                                  <strong>Related to Order # ${sales_order_obj.display_id || '-'}</strong>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+                <br/><br/>
+
+                <!-- TITLE -->
+                <table width="600" border="0" align="center" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                  <tr style="margin-bottom:5px;">
+                    <td align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                      <h1 style="margin:0;padding:0;color:#202020;font-size:24px;line-height:150%;">ORDER CONFIRMATION-CERTIFICATE</h1>
+                    </td>
+                  </tr>
+                  <tr height="20px" style="color:#404040;font-size:15px;line-height:150%;text-align:center;padding-bottom:10px;">
+                    <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                      Ref #: ${sales_order_obj.display_id || '-'}
+                    </td>
+                  </tr>
+                  <tr style="color:#404040;font-size:13px;line-height:150%;text-align:center;padding-bottom:10px;">
+                    <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                      ${subscriptionDetails.orderDate || ''}
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- BILLING & CONTACT DETAILS -->
+            <tr>
+              <td align="center" valign="top" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                <br/><br/>
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                  <tr>
+                    <td align="center" valign="top" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-top:0;padding-right:20px;padding-left:20px;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                        <tr>
+                          <td valign="top" width="600" style="padding:0;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+
+                            <!-- BILLING DETAILS -->
+                            <table align="left" border="0" cellpadding="0" cellspacing="0" width="320" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                              <tr>
+                                <td valign="top" style="padding-bottom:20px;line-height:150%;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#404040;font-size:14px;">
+                                  <h5 style="padding-bottom:5px;margin:0;padding:0;color:#202020;font-size:14px;line-height:150%;">BILLING DETAILS</h5>
+                                  <table width="99%" border="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                    <tr>
+                                      <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                        ${sales_order_obj.contact?.first_name || ''} ${sales_order_obj.contact?.last_name || ''}
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                               <tr>
+                                <td valign="top" style="padding-bottom:20px;line-height:150%;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#404040;font-size:14px;">
+                                  <h5 style="padding-bottom:5px;margin:0;padding:0;color:#202020;font-size:14px;line-height:150%;">ID / PASSPORT NUMBER</h5>
+                                  <table width="99%" border="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                    <tr>
+                                      <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                      ${sales_order_obj.custom_fields?.id_number || ''}
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+                            <!-- CONTACT DETAILS -->
+                            <table align="left" border="0" cellpadding="0" cellspacing="0" width="280" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                              <tr>
+                                <td valign="top" style="padding-bottom:20px;line-height:150%;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#404040;font-size:14px;">
+                                  <h5 style="padding-bottom:5px;margin:0;padding:0;color:#202020;font-size:14px;line-height:150%;">CONTACT DETAILS</h5>
+                                  <table width="99%" border="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                    <tr>
+                                      <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                        ${sales_order_obj.contact?.email || ''}
+                                      </td>
+                                    </tr>
+                                    ${phoneHtml}
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- BILLING & SHIPPING ADDRESS -->
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                  <tr>
+                    <td align="center" valign="top" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-top:0;padding-right:20px;padding-left:20px;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                        <tr>
+                          <td valign="top" width="600" style="padding:0;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+
+                            <!-- BILLING ADDRESS -->
+                            <table align="left" border="0" cellpadding="0" cellspacing="0" width="320" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                              <tr>
+                                <td valign="top" style="padding-bottom:20px;line-height:150%;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#404040;font-size:14px;">
+                                  <h5 style="padding-bottom:5px;margin:0;padding:0;color:#202020;font-size:14px;line-height:150%;">BILLING ADDRESS</h5>
+                                  <table width="99%" border="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                    <tr><td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">${sales_order_obj.billing?.address?.line1 || ''}</td></tr>
+                                    <tr><td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">${sales_order_obj.billing?.address?.city || ''}&nbsp; ${sales_order_obj.billing?.address?.code || ''}</td></tr>
+                                    <tr><td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">${sales_order_obj.billing?.address?.state || ''}</td></tr>
+                                    <tr><td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">${sales_order_obj.billing?.address?.country_name || sales_order_obj.billing?.address?.country || ''}</td></tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+
+                            <!-- SHIPPING ADDRESS -->
+                            <table align="left" border="0" cellpadding="0" cellspacing="0" width="280" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                              <tr>
+                                <td valign="top" style="padding-bottom:20px;line-height:150%;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#404040;font-size:14px;">
+                                  <h5 style="padding-bottom:5px;margin:0;padding:0;color:#202020;font-size:14px;line-height:150%;">SHIPPING ADDRESS</h5>
+                                  <table width="99%" border="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                    <tr><td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">${sales_order_obj.shipping?.address?.line1 || ''}</td></tr>
+                                    <tr><td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">${sales_order_obj.shipping?.address?.city || ''}&nbsp; ${sales_order_obj.shipping?.address?.code || ''}</td></tr>
+                                    <tr><td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">${sales_order_obj.shipping?.address?.state || ''}</td></tr>
+                                    <tr><td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">${sales_order_obj.shipping?.address?.country_name || sales_order_obj.shipping?.address?.country || ''}</td></tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- PRODUCTS TABLE -->
+                <table border="0" cellpadding="5px" cellspacing="0" width="100%" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                  <tr>
+                    <td align="center" valign="top" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-top:0;padding-right:20px;padding-left:20px;">
+                      <table border="0" cellpadding="10px" cellspacing="0" width="100%" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                        <tr>
+                          <td align="center" valign="top" width="600" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                              <thead>
+                                <tr align="center" style="border-bottom:1px solid #e0e0e0;">
+                                  <th colspan="2" align="left" style="padding:5px 0 5px 20px;">PRODUCTS</th>
+                                  <th width="50px" align="center" style="padding:5px;">QTY</th>
+                                  <th width="80px" align="right" style="padding:5px;">PRICE</th>
+                                  <th width="80px" align="right" style="padding:5px 20px 5px 0;">TOTAL</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                ${productRowsHtml}
+                              </tbody>
+                              <tfoot>
+                                <tr>
+                                  <td colspan="4" align="right" style="padding:5px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">TOTAL</td>
+                                  <td align="right" style="white-space:nowrap;padding:5px 20px 5px 0;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">R ${subtotal}</td>
+                                </tr>
+                                <tr>
+                                  <td colspan="4" align="right" style="padding:5px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">SHIPPING</td>
+                                  <td align="right" style="white-space:nowrap;padding:5px 20px 5px 0;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">R ${shipping}</td>
+                                </tr>
+                                <tr>
+                                  <td colspan="4" align="right" style="padding:5px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;"><strong>GRAND TOTAL</strong></td>
+                                  <td align="right" style="padding:5px 20px 5px 0;white-space:nowrap;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                    <strong>R ${grandTotal}</strong>
+                                  </td>
+                                </tr>
+                              </tfoot>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- FOOTER BANNER -->
+                <table border="0" cellpadding="0px" cellspacing="0" width="100%" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                  <tr>
+                    <td align="center" valign="top" style="padding:0 20px 0 20px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#E0E0E0"
+                        style="border-radius:4px;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                        <tr>
+                          <td valign="top" width="600" style="padding-top:10px;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-right:20px;padding-left:20px;">
+                            <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                              <tr>
+                                <td valign="top" align="center" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-bottom:10px;color:#404040;font-size:14px;line-height:125%;">
+                                  <strong>Best shopping experience @
+                                    <a href="http://thibaingozi.com" style="-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;text-decoration:underline;">thibaingozi.com</a>
+                                  </strong>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+              </td>
+            </tr>
+
+            <!-- FOOTER CONTACT -->
+            <tr>
+              <td align="center" valign="top" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                  <tr>
+                    <td valign="top" width="600" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-top:0;padding-right:20px;padding-left:20px;">
+                      <hr align="center" width="100%" size="1" color="#CCCCCC" noshade="" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top" width="600" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-top:0;padding-right:20px;padding-left:20px;">
+                      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                        <tr>
+                          <td valign="top" width="600" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-top:0;padding-right:20px;padding-left:20px;">
+
+                            <!-- Logo left -->
+                            <table align="left" border="0" cellpadding="0" cellspacing="0" width="250" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                              <tr>
+                                <td valign="top" style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#404040;font-size:13px;line-height:125%;text-align:left;padding-bottom:10px;">
+                                  <br/>
+                                  <img src="${logoDataUrl}" alt="Logo" style="max-width:200px;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;height:auto;" />
+                                </td>
+                              </tr>
+                            </table>
+
+                            <!-- Contact right -->
+                            <table align="right" border="0" cellpadding="0" cellspacing="0" width="250" style="margin-top:0;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                              <tr>
+                                <td valign="top" style="padding-bottom:0;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#404040;font-size:13px;line-height:125%;text-align:left;">
+                                  <table width="99%" border="0" cellspacing="0" cellpadding="5px" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                    <tr>
+                                      <td align="right" style="mso-table-lspace:0pt;mso-table-rspace:0pt;">email:</td>
+                                      <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">
+                                        <a href="mailto:tiapp@smartops.solutions" style="-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">tiapp@smartops.solutions</a>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td align="right" style="mso-table-lspace:0pt;mso-table-rspace:0pt;">phone:</td>
+                                      <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">+27 12 007 3660</td>
+                                    </tr>
+                                    <tr>
+                                      <td align="right" style="mso-table-lspace:0pt;mso-table-rspace:0pt;">website:</td>
+                                      <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;">
+                                        <a href="http://thibaingozi.com" title="thibaingozi.com" target="_blank" style="-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">thibaingozi.com</a>
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top" width="600" style="mso-table-lspace:0pt;mso-table-rspace:0pt;padding-top:0;padding-right:20px;padding-left:20px;">
+                      <hr align="center" width="100%" size="1" color="#CCCCCC" noshade="" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td valign="top" align="center" width="600" style="padding:20px 0 20px 0;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;padding-right:20px;padding-left:20px;">
+                      <br/>
+                      Powered by Thiba Ingozi.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+          </table>
+        `;
+
+    const htmlContent = `
+    <html>
+      <head>
+        <title>Order Preview</title>
+      </head>
+      <body style="
+    margin:0;
+    padding:20px;
+    font-family:Arial,sans-serif;
+    background:#E0E0E0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  ">
+     <div style="
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%, -50%) rotate(-30deg);
+      font-size:60px;
+      color:#000;
+      opacity:0.05;
+      z-index:0;
+      pointer-events:none;
+      white-space:nowrap;
+      font-weight:bold;
+    ">
+      Digital Certificate
+    </div>
+          ${container}
+       
+      </body>
+    </html>
+  `;
+
+    previewWindow.document.write(htmlContent);
+    previewWindow.document.close();
   };
 
   useEffect(() => {

@@ -157,12 +157,14 @@ const PassangerInformation = () => {
 
     const vehicleInfo = useGetUser(params.id);
     const [physicalPanicButton, setphysicalPanicButton] = useState('')
+    const [passport_no, setpassport_no] = useState('')
     useEffect(() => {
         const data = vehicleInfo.data?.data;
 
         if (data) {
             const user = data?.user;
             setphysicalPanicButton(user.physicalPanicButton)
+            setpassport_no(user.passport_no)
             setdriverformvalues({
                 form: driverform,
                 data: {
@@ -420,20 +422,10 @@ const PassangerInformation = () => {
                                 ) : displayField("Email", driverform.values.email)}
                             </Grid>
                             <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
-                                {editInfo ? (
-                                    // <FormControlLabel
-                                    //     control={
-                                    //         <Checkbox
-                                    //             name="subscription_status"
-                                    //             checked={driverform.values.isEnroll}
-                                    //             onChange={(e) => driverform.setFieldValue("isEnroll", e.target.checked ? 'active' : 'inactive')}
-                                    //             icon={<img src={uncheckedIcon} alt='uncheckedIcon' />}
-                                    //             checkedIcon={<img src={checkedboxIcon} alt='checkIcon' />} />
-                                    //     }
-                                    //     label="Subscription Status"
-                                    // />
-                                    <></>
-                                ) : (displayField("Subscription Status", <Chip
+                               { displayField("Passport Number", passport_no)}
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6, md: editInfo ? 6 : 4 }}>
+                                {(displayField("Subscription Status", <Chip
                                     label={driverform.values.isEnroll ? "Active" : "Inactive"}
                                     sx={{
                                         backgroundColor: driverform.values.isEnroll ? '#DCFCE7' : '#E5565A1A',

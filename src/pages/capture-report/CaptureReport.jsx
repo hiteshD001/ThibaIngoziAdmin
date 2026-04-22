@@ -10,53 +10,28 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import WhiteTick from '../../assets/images/WhiteTick.svg'
 import forward from '../../assets/images/forward.svg'
-import { AiOutlineEye, AiOutlineCheck } from "react-icons/ai";
-import { useGetUserList, useGetCrimeReportById, useUpdateMarkAsReviewed } from "../../API Calls/API";
+import { useGetCaptureReportById } from "../../API Calls/API";
 import CrimeReportMap from "../../common/CrimeReportMap";
 import { toast } from "react-toastify";
 import { toastOption } from "../../common/ToastOptions";
 import { useQueryClient } from "@tanstack/react-query";
 import SingleImagePreview from "../../common/SingleImagePreview";
 
-const CrimeReport = () => {
+const CaptureReport = () => {
     // Mock data – replace with actual props or API data
     const nav = useNavigate()
     const params = useParams();
-    const crimeReportInfoObj = useGetCrimeReportById(params.id);
-    const [crimeReportObj, setCrimeReportObj] = useState({});
+    const infoObj = useGetCaptureReportById(params.id);
+    const [dataObj, setDataObj] = useState({});
     const queryClient = useQueryClient();
-    let infoData = {}
 
     useEffect(() => {
-        if (crimeReportInfoObj.data?.data && !crimeReportObj._id) {
-            setCrimeReportObj(crimeReportInfoObj.data.data);
+        if (infoObj.data?.data && !dataObj._id) {
+            setDataObj(infoObj.data.data);
         }
 
-    }, [crimeReportInfoObj.data]);
+    }, [infoObj.data]);
 
-    const onSuccess = () => {
-        toast.success("Status Updated Successfully.");
-        setCrimeReportObj((prev) => ({
-            ...prev,
-            isMarkAsReviewed: true,   // or false based on response
-        }));
-        queryClient.invalidateQueries(["crime-report", params.id]);
-    };
-    const onError = (error) => {
-        setUpdatingId(""); // Clear loader
-        toast.error(
-            error.response.data.message || "Something went Wrong",
-            toastOption
-        );
-    };
-
-    const { mutate } = useUpdateMarkAsReviewed(onSuccess, onError);
-    const markAsReviewed = (id, report_status) => {
-        mutate({
-            id: id,
-            data: { report_status: report_status },
-        });
-    }
     const [previewImage, setPreviewImage] = useState({
         open: false,
         src: '',
@@ -75,7 +50,7 @@ const CrimeReport = () => {
     const handleClosePreview = () => {
         setPreviewImage(prev => ({ ...prev, open: false }));
     };
-
+    
     return (
         <>
         <SingleImagePreview
@@ -95,35 +70,26 @@ const CrimeReport = () => {
                 {/* Title */}
                 <Box pb={1} borderBottom="1px solid #e0e0e0">
                     <Typography variant='h6' fontWeight={550}>
-                        Crime Report #{crimeReportObj.crime_report_number}
+                        #{dataObj?.location_id?.sosNumber}
                     </Typography>
                 </Box>
 
                 <Grid container spacing={3}>
-                        <Grid size={7}>
+                    <Grid size={7}>
+                        {/* Subtitle */}
                         <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
                             <Typography variant='subtitle1' fontWeight={550}>
-                                Crime Type
-                            </Typography>
-                        </Box>
-                        <Box my={2}>
-                            <Typography variant="body1" mt={1}>
-                                {crimeReportObj?.crime_type_id?.crimeType}
-                            </Typography>
-                        </Box>
-                        <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
-                            <Typography variant='subtitle1' fontWeight={550}>
-                                Sighting Details
+                                Case Report
                             </Typography>
                         </Box>
 
                         {/* Description */}
                         <Box my={2}>
                             <Typography fontSize={'1rem'} fontWeight={500} color="text.secondary">
-                                Description
+                                Other Comments (Optional)
                             </Typography>
                             <Typography variant="body1" mt={1} sx={{ backgroundColor: '#F9FAFB', borderRadius: '6px', p: 1.5 }}>
-                                {crimeReportObj.description}
+                                {dataObj.otherComments}
 
                             </Typography>
                         </Box>
@@ -133,7 +99,7 @@ const CrimeReport = () => {
                                 Time and Date
                             </Typography>
                             <Typography fontSize={'1.05rem'} mt={0.5}>
-                                {crimeReportObj.submittedDate}
+                                {dataObj.submittedDate}
                             </Typography>
                         </Box>
                     </Grid>
@@ -143,14 +109,98 @@ const CrimeReport = () => {
                             <Typography variant='subtitle1' fontWeight={550}>
                                 Incident Location
                             </Typography>
-                            <CrimeReportMap lat={parseFloat(crimeReportObj.lat)} long={parseFloat(crimeReportObj.long)} address={crimeReportObj.address} isMapLoaded={true} />
+                            <CrimeReportMap lat={parseFloat(dataObj.lat)} long={parseFloat(dataObj.long)} address={dataObj.address} isMapLoaded={true} />
                             <Typography fontSize={'1.05rem'} mt={0.5}>
-                                {crimeReportObj.address}
+                                {dataObj.address}
                             </Typography>
                         </Box>
                     </Grid>
                 </Grid>
 
+                 {/* Feild information */}
+                <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
+                    <Typography variant='subtitle1' fontWeight={550}>
+                        Field Observations
+                    </Typography>
+                </Box>
+                    <Box mt={3}>
+                        <Grid container spacing={4}>
+                            <Grid item xs={12} md={6}>
+                                <Box mb={2}>
+                                    <Typography fontSize="1rem" fontWeight={700} color="#4b5563">
+                                        Arrival Comments
+                                    </Typography>
+                                    <Typography fontSize="1.05rem" mt={1}>
+                                        {dataObj.comments?.arrival?.comment || '-'}
+                                    </Typography>
+                                </Box>
+
+                                <Box mb={2}>
+                                    <Typography fontSize="1rem" fontWeight={700} color="#4b5563">
+                                        Contact Attempt Comments
+                                    </Typography>
+                                    <Typography fontSize="1.05rem" mt={1}>
+                                        {dataObj.comments?.contact_attempt?.comment || '-'}
+                                    </Typography>
+                                </Box>
+
+                                <Box>
+                                    <Typography fontSize="1rem" fontWeight={700} color="#4b5563">
+                                        Closure Comments
+                                    </Typography>
+                                    <Typography fontSize="1.05rem" mt={1}>
+                                        {dataObj.comments?.closure?.comment || '-'}
+                                    </Typography>
+                                </Box>
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <Box mb={2}>
+                                    <Typography fontSize="1rem" fontWeight={700} color="#4b5563">
+                                        Assessment Comments
+                                    </Typography>
+                                    <Typography fontSize="1.05rem" mt={1}>
+                                        {dataObj.comments?.assessment?.comment || '-'}
+                                    </Typography>
+                                </Box>
+                                <Box>
+                                    <Typography fontSize="1rem" fontWeight={700} color="#4b5563">
+                                        Resolutions Comments
+                                    </Typography>
+                                    <Typography fontSize="1.05rem" mt={1}>
+                                        {dataObj.comments?.resolution?.comment || '-'}
+                                    </Typography>
+                                </Box>
+                            </Grid>
+
+                        </Grid>
+                    </Box>
+
+                {/* Capture information */}
+                <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
+                    <Typography variant='subtitle1' fontWeight={550}>
+                       Captured By
+                    </Typography>
+                </Box>
+                <Box mt={3} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                    <Box>
+                        <Typography fontSize={'1rem'} fontWeight={500} color="text.secondary">
+                            Name
+                        </Typography>
+                        <Typography fontSize={'1.05rem'} mt={1}>
+                            {dataObj.capture_by_id?.first_name} {dataObj.capture_by_id?.last_name}
+                        </Typography>
+                    </Box>
+
+                    <Box>
+                        <Typography fontSize={'1rem'} fontWeight={500} color="text.secondary">
+                           Contact Information
+                        </Typography>
+                        <Typography fontSize={'1.05rem'} mt={0.5}>
+                            {dataObj.capture_by_id?.mobile_no_country_code}{dataObj.capture_by_id?.mobile_no}
+                        </Typography>
+                    </Box>
+                </Box>
 
                 {/* report information */}
                 <Box mt={4} pb={1} borderBottom="1px solid #e0e0e0">
@@ -164,7 +214,7 @@ const CrimeReport = () => {
                             Reporter Name
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={1}>
-                            {crimeReportObj.user_id?.first_name} {crimeReportObj.user_id?.last_name}
+                            {dataObj.user_id?.first_name} {dataObj.user_id?.last_name}
                         </Typography>
                     </Box>
 
@@ -173,7 +223,7 @@ const CrimeReport = () => {
                             Contact Information
                         </Typography>
                         <Typography fontSize={'1.05rem'} mt={0.5}>
-                            {crimeReportObj.user_id?.mobile_no_country_code}{crimeReportObj.user_id?.mobile_no}
+                            {dataObj.user_id?.mobile_no_country_code}{dataObj.user_id?.mobile_no}
                         </Typography>
                     </Box>
                 </Box>
@@ -182,7 +232,7 @@ const CrimeReport = () => {
                         Report Submitted
                     </Typography>
                     <Typography fontSize={'1.05rem'} mt={0.5}>
-                        {crimeReportObj.submittedDate}
+                        {dataObj.submittedDate}
                     </Typography>
 
                 </Box>
@@ -192,12 +242,12 @@ const CrimeReport = () => {
                         Evidence
                     </Typography>
                     <Grid container spacing={2} mt={2}>
-                        {crimeReportObj.evidence_image?.map((item, index) => (
+                        {dataObj.evidence_image?.map((item, index) => (
                             <Grid size={{ xs: 1, sm:3 }} key={index}>
                                 <Box
                                     component="img"
                                     src={item}
-                                    onClick={() => handleImageClick(item,`evidence-${index+1}`)}
+                                    onClick={() => handleImageClick(item,`Evidence-${index+1}`)}
                                     alt={`Placeholder ${index}`}
                                     sx={{ width: "100%", maxWidth: "241px", height: "160px", objectFit: "cover",border: "1px solid #E5E7EB", borderRadius: "6px",cursor:"pointer" }}
                                 />
@@ -205,32 +255,10 @@ const CrimeReport = () => {
                         ))}
                     </Grid>
                 </Box>
-                <Box sx={{ mt: 4, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', gap: 2 }}>
-                    <Button
-                        variant="contained"
-                        sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, backgroundColor: '#259157' }}
-                        onClick={() => markAsReviewed(crimeReportObj?._id, 'reviewed')}
-                        disabled={crimeReportObj.isMarkAsReviewed}
-                        startIcon={<img src={WhiteTick} alt="white tick" />}
-                    >
-                        {crimeReportObj.isMarkAsReviewed ? "Reviewed" : "Mark as Reviewed"}
-                    </Button>
-                    <Button
-                        variant="contained"
-                        sx={{ height: '48px', width: '240px', borderRadius: '8px', fontWeight: 500, backgroundColor: 'var(--Blue)' }}
-                        onClick={() => nav("/home/crime-reports/forward-to-police",{
-                            state: { details:crimeReportObj}
-                        })}
-                    startIcon={<img src={forward} alt="forward" />}
-
-                    >
-                    Forward to Police Unit
-                </Button>
-        </Box>
             </Paper >
         </Box >
         </>
     );
 };
 
-export default CrimeReport;
+export default CaptureReport;

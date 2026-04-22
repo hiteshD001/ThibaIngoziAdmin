@@ -8,6 +8,7 @@ import WhiteTick from '../../assets/images/WhiteTick.svg'
 import { useParams } from 'react-router-dom';
 import { useDeleteMissingVehicaleById, usePutMissingVehicale } from '../../API Calls/API';
 import moment from 'moment';
+import Loader from "../../common/Loader";
 
 const StolenCarDetails = () => {
     // Mock data – replace with actual props or API data
@@ -59,7 +60,7 @@ const StolenCarDetails = () => {
                         Stolen Car Sighting Details
                     </Typography>
                 </Box>
-
+ 
                 {/* Suspect Info */}
                 <Box mt={2}>
                     <Typography variant="h5" fontWeight={600}>
