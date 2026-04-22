@@ -17,6 +17,9 @@ const theme = createTheme({
                 root: {
                     fontWeight: 500,
                     fontFamily: '"Montserrat", "sans-serif"',
+                    '&.Mui-focused': {
+                        color: '#000000', // black color on focus
+                    },
                 },
             },
         },
@@ -47,15 +50,6 @@ const theme = createTheme({
                 select: {
                     '&:focus': {
                         backgroundColor: 'transparent',
-                    },
-                },
-            },
-        },
-        MuiInputLabel: {
-            styleOverrides: {
-                root: {
-                    '&.Mui-focused': {
-                        color: '#000000', // black color on focus
                     },
                 },
             },
