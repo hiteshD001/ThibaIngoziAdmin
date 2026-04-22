@@ -259,6 +259,7 @@ const VehicleInformation = () => {
                         vehicleData.image_right_side,
                         vehicleData.image_car_number_plate,
                         vehicleData.image_driver_license,
+                        vehicleData.image_vehicle_live
                     ].filter(Boolean),
                 });
             }
@@ -298,6 +299,7 @@ const VehicleInformation = () => {
                     vehicleData.image_right_side,
                     vehicleData.image_car_number_plate,
                     vehicleData.image_driver_license,
+                    vehicleData.image_vehicle_live
                 ].filter(Boolean),
             });
         }
@@ -1490,6 +1492,7 @@ const VehicleInformation = () => {
                                             { label: "Right Side", img: vehicleIcon4 },
                                             { label: "Car Number Plate", img: vehicleIcon5 },
                                             { label: "License DISC Image", img: vehicleIcon6 },
+                                            { label: "Live Image", img: vehicleIcon2 },
                                         ].map((item, index) => (
                                             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2 }} key={index}>
                                                 <Typography
