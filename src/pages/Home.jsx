@@ -790,8 +790,12 @@ const Home = () => {
                                         ))}
                                     </Select>
                                 </FormControl>
-
-
+                                 <Button
+                                    sx={{ height: '40px',width:'187px', borderRadius: '8px',border:"1px solid #367BE0" }}
+                                    onClick={() => nav(`/home/capture-reports`)}
+                                >
+                                    View Incident Reports 
+                                </Button>       
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
@@ -1694,6 +1698,12 @@ const Home = () => {
                                         ))}
                                     </Select>
                                 </FormControl>
+                                <Button
+                                    sx={{ height: '40px',width:'187px', borderRadius: '8px',border:"1px solid #367BE0" }}
+                                    onClick={() => nav(`/home/capture-reports`)}
+                                >
+                                    View Incident Reports 
+                                </Button> 
                                 <Button
                                     sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
                                     onClick={() => {
