@@ -4,7 +4,7 @@ import {
     useGetRecentSOS,
     useGetUser,
     useGetActiveSosData,
-    useUpdateLocationStatus, useGetNotificationType,useGetCaptureReportListV2
+    useUpdateLocationStatus, useGetNotificationType,useGetCaptureReportListV2,useGetCrimeReportList
 } from "../API Calls/API";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, FormControl, InputLabel,
@@ -615,6 +615,94 @@ const Home = () => {
         setCaptureReportAnchorEl(null);
     };
 
+    // Active Crime Report 
+    const [searchParamsCrimeReportActive, setSearchParamsCrimeReportActive] = useSearchParams();
+    const startDateParamCrimeActive = searchParamsCrimeReportActive.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParamCrimeActive = searchParamsCrimeReportActive.get("endDate") || new Date().toISOString();
+    const [rangeCrimeActive, setRangeCrimeActive] = useState([{
+        startDate: new Date(startDateParamCrimeActive),
+        endDate: new Date(endDateParamCrimeActive),
+        key: 'selection'
+    }]);
+    const currentPageCrimeActive = Number(searchParamsCrimeReportActive.get("currentPageCrimeActive")) || 1;
+    const filterCrimeActive = searchParamsCrimeReportActive.get("filterCrimeActive") || "";
+    const rowsPerPageCrimeActive = Number(searchParamsCrimeReportActive.get("rowsPerPageCrimeActive")) || 5;
+
+    // Sort
+    const [sortByCrimeActive, setSortByCrimeActive] = useState("createdAt");
+    const [sortOrderCrimeActive, setSortOrderCrimeActive] = useState("desc");
+
+    const changeSortOrderCrimeActive = (e) => {
+        const field = e.target.id;
+
+        if (field !== sortByCrimeActive) {
+            setSortByCrimeActive(field);
+            setSortOrderCrimeActive("asc");
+        } else {
+            setSortOrderCrimeActive(p => p === 'asc' ? 'desc' : 'asc')
+        }
+    }
+    const startDateCrimeActive = rangeCrimeActive[0].startDate.toISOString();
+    const endDateCrimeActive = rangeCrimeActive[0].endDate.toISOString();
+    const shortText = (text, limit = 30) =>
+        text.length > limit ? text.substring(0, limit) + '...' : text;
+    const updateParamsCrimeActive = (newParams) => {
+        setSearchParamsCrimeReportActive({
+            currentPageCrimeActive,
+            rowsPerPageCrimeActive,
+            startDateCrimeActive: startDateParamCrimeActive,
+            startDateCrimeActive: endDateParamCrimeActive,
+            filter,
+            ...newParams,
+        });
+    };
+    const crimeActiveList = useGetCrimeReportList("crime report list", role, currentPageCrimeActive, rowsPerPageCrimeActive, filterCrimeActive,'', startDateCrimeActive, endDateCrimeActive, false,sortByCrimeActive, sortOrderCrimeActive);
+    const totalCrimeReportActiveData = crimeActiveList.data?.data?.totalCrimeReportData || 0;
+    const totalPagesCrimeActive = Math.ceil(totalCrimeReportActiveData / rowsPerPageCrimeActive);
+
+    // Recent Crime Report 
+    const [searchParamsCrimeReportRecent, setSearchParamsCrimeReportRecent] = useSearchParams();
+    const startDateParamCrimeRecent = searchParamsCrimeReportRecent.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParamCrimeRecent = searchParamsCrimeReportRecent.get("endDate") || new Date().toISOString();
+    const [rangeCrimeRecent, setRangeCrimeRecent] = useState([{
+        startDate: new Date(startDateParamCrimeRecent),
+        endDate: new Date(endDateParamCrimeRecent),
+        key: 'selection'
+    }]);
+    const currentPageCrimeRecent = Number(searchParamsCrimeReportRecent.get("currentPageCrimeRecent")) || 1;
+    const filterCrimeRecent = searchParamsCrimeReportRecent.get("filterCrimeRecent") || "";
+    const rowsPerPageCrimeRecent = Number(searchParamsCrimeReportRecent.get("rowsPerPageCrimeRecent")) || 10;
+
+    // Sort
+    const [sortByCrimeRecent, setSortByCrimeRecent] = useState("createdAt");
+    const [sortOrderCrimeRecent, setSortOrderCrimeRecent] = useState("desc");
+
+    const changeSortOrderCrimeRecent = (e) => {
+        const field = e.target.id;
+
+        if (field !== sortByCrimeRecent) {
+            setSortByCrimeRecent(field);
+            setSortOrderCrimeRecent("asc");
+        } else {
+            setSortOrderCrimeRecent(p => p === 'asc' ? 'desc' : 'asc')
+        }
+    }
+    const startDateCrimeRecent = rangeCrimeRecent[0].startDate.toISOString();
+    const endDateCrimeRecent = rangeCrimeRecent[0].endDate.toISOString();
+    const updateParamsCrimeRecent = (newParams) => {
+        setSearchParamsCrimeReportRecent({
+            currentPageCrimeRecent,
+            rowsPerPageCrimeRecent,
+            startDateCrimeRecent: startDateParamCrimeRecent,
+            startDateCrimeRecent: endDateParamCrimeRecent,
+            filter,
+            ...newParams,
+        });
+    };
+    const crimeRecentList = useGetCrimeReportList("crime report list", role, currentPageCrimeRecent, rowsPerPageCrimeRecent, filterCrimeRecent,'', startDateCrimeRecent, endDateCrimeRecent, false,sortByCrimeRecent, sortOrderCrimeRecent);
+    const totalCrimeReportRecentData = crimeRecentList.data?.data?.totalCrimeReportData || 0;
+    const totalPagesCrimeRecent = Math.ceil(totalCrimeReportRecentData / rowsPerPageCrimeRecent);
+
     return (
         <Box>
             <Analytics
@@ -1183,7 +1271,362 @@ const Home = () => {
                         </Grid>}
                     </Box>
                 </Paper>
+                
+                {/* Active Crime Report */}
+                <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
+                    <Grid container justifyContent="space-between" alignItems="center" mb={2}>
+                        <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 }, alignItems: 'center' }}>
+                            <Typography variant="h6" fontWeight={590}>Active Crime Report</Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
+                            <TextField
+                                variant="outlined"
+                                placeholder="Search"
+                                value={filter}
+                                onChange={(e) => updateParamsCrimeActive({ filterCrimeActive: e.target.value })}
+                                fullWidth
+                                sx={{
+                                    width: '100%',
+                                    height: '40px',
+                                    borderRadius: '8px',
+                                    '& .MuiInputBase-root': {
+                                        height: '40px',
+                                        fontSize: '14px',
+                                    },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '10px 14px',
+                                    },
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <img src={search} alt="search icon" />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+                                <CustomDateRangePicker
+                                    value={rangeCrimeActive}
+                                    onChange={(nextRange) => {
+                                        setRangeCrimeActive(nextRange);
+                                        updateParamsCrimeActive({
+                                            startDateCrimeActive: nextRange[0].startDate.toISOString(),
+                                            endDateCrimeActive: nextRange[0].endDate.toISOString(),
+                                            currentPageCrimeActive: 1,
+                                        });
+                                    }}
+                                    icon={calender}
+                                />
+                            </Box>
 
+                        </Grid>
+                    </Grid>
+
+                    {/* {activeUserList?.length > 0 ? ( */}
+                    <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                        <TableContainer >
+                            <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
+
+                                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                    <TableRow >
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                            <TableSortLabel
+                                                id="crime_report_number"
+                                                active={sortByCrimeActive === 'crime_report_number'}
+                                                direction={sortOrderCrimeActive}
+                                                onClick={changeSortOrderCrimeActive}
+                                                IconComponent={() => <img src={sortByCrimeActive === 'crime_report_number' ? sortOrderCrimeActive === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Crime ID</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="address"
+                                                active={sortByCrimeActive === 'address'}
+                                                direction={sortOrderCrimeActive}
+                                                onClick={changeSortOrderCrimeActive}
+                                                IconComponent={() => <img src={sortByCrimeActive === 'address' ? sortOrderCrimeActive === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Location</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="description"
+                                                active={sortByCrimeActive === 'description'}
+                                                direction={sortOrderCrimeActive}
+                                                onClick={changeSortOrderCrimeActive}
+                                                IconComponent={() => <img src={sortByCrimeActive === 'description' ? sortOrderCrimeActive === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Short Description</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="first_name"
+                                                active={sortByCrimeActive === 'first_name'}
+                                                direction={sortOrderCrimeActive}
+                                                onClick={changeSortOrderCrimeActive}
+                                                IconComponent={() => <img src={sortByCrimeActive === 'first_name' ? sortOrderCrimeActive === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Reporter</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="requestReached"
+                                                active={sortByCrimeActive === 'requestReached'}
+                                                direction={sortOrderCrimeActive}
+                                                onClick={changeSortOrderCrimeActive}
+                                                IconComponent={() => <img src={sortByCrimeActive === 'requestReached' ? sortOrderCrimeActive === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Request Reached</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="requestAccepted"
+                                                active={sortByCrimeActive === 'requestAccepted'}
+                                                direction={sortOrderCrimeActive}
+                                                onClick={changeSortOrderCrimeActive}
+                                                IconComponent={() => <img src={sortByCrimeActive === 'requestAccepted' ? sortOrderCrimeActive === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Request Accepted</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            Images
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="createdAt"
+                                                active={sortBy === 'createdAt'}
+                                                direction={sortOrderCrimeActive}
+                                                onClick={changeSortOrderCrimeActive}
+                                                IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrderCrimeActive === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Date Reported</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="report_status"
+                                                active={sortByCrimeActive === 'report_status'}
+                                                direction={sortOrderCrimeActive}
+                                                onClick={changeSortOrderCrimeActive}
+                                                IconComponent={() => <img src={sortByCrimeActive === 'report_status' ? sortOrderCrimeActive === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Status</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            Sighting Reported
+                                        </TableCell>
+                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                                    </TableRow>
+                                </TableHead>
+
+                                <TableBody>
+                                    {crimeActiveList.isFetching ?
+                                        (<TableRow>
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={10} align="center">
+                                                <Loader />
+                                            </TableCell>
+                                        </TableRow>)
+                                        : (crimeActiveList.data?.data.crimeReportData?.length > 0 ?
+                                            crimeActiveList.data?.data.crimeReportData.map((report) => (
+
+                                                <TableRow key={report._id}>
+                                                    <TableCell sx={{ color: 'var(--Blue)' }}>
+                                                        {report.crime_report_number}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+
+                                                        {report.address || "-"}
+
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: 'black' }}>
+
+                                                        {shortText(report.description)}
+
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        <Link to={report.user?.role === "driver" ? `/home/total-drivers/driver-information/${report.user_id}` : `/home/total-users/user-information/${report.user_id}`} className="link2">
+                                                            <Stack direction="row" alignItems="center" gap={1}>
+                                                                <Avatar
+                                                                    src={getImageLink(report.user?.selfieImage)}
+                                                                    sx={{ '&:hover': { textDecoration: 'none' } }}
+                                                                    alt="User"
+                                                                />
+                                                                {report.user?.first_name + ' ' + report.user?.last_name || "-"}
+                                                            </Stack>
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#F97316', textAlign: 'center' }}>
+                                                        <Link style={{
+                                                            textDecoration: 'none',
+                                                            color: 'var(--orange)',
+                                                            cursor: 'pointer',
+                                                        }} to={`/home/crime-reports/request-reached-users/${report?._id}`}>{report?.requestReached || "0"}
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
+                                                        <Link style={{
+                                                            textDecoration: 'none',
+                                                            color: '#01C971',
+                                                            cursor: 'pointer',
+                                                        }} to={`/home/crime-reports/request-reached-users/${report?._id}`} state={{ isAccepted: true }}
+                                                        >
+                                                            {report?.requestAccepted || "0"}
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                                            {report.evidence_image.slice(0, 2).map((item, index) => (
+                                                                <Box
+                                                                    key={index}
+                                                                    component="img"
+                                                                    src={item}
+                                                                    onClick={() => handleImageClick(item, `evidence-${index + 1}`)}
+                                                                    alt={`evidence-${index}`}
+                                                                    sx={{
+                                                                        width: "32px",
+                                                                        height: "32px",
+                                                                        objectFit: 'cover',
+                                                                        borderRadius: '6px',
+                                                                        cursor: 'pointer',
+                                                                        border: '1px solid #E5E7EB'
+                                                                    }}
+                                                                />
+                                                            ))}
+                                                            {report.evidence_image.length > 2 && (
+                                                                <Box
+                                                                    sx={{
+                                                                        width: 32,
+                                                                        height: 32,
+                                                                        backgroundColor: '#D1D5DB',
+                                                                        borderRadius: '6px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        fontSize: '14px',
+                                                                        color: '#374151',
+                                                                        cursor: 'pointer',
+                                                                        fontWeight: 500
+                                                                    }}
+                                                                    onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}
+                                                                >
+                                                                    +{report.evidence_image.length - 2}
+                                                                </Box>
+                                                            )}
+                                                        </Stack>
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {moment(report.createdAt).isSame(moment(), "day")
+                                                            ? `Today, ${moment(report.createdAt).format("hh:mm A")}`
+                                                            : moment(report.createdAt).format("HH:mm:ss - DD/MM/YYYY")}
+                                                    </TableCell>
+
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        <Chip
+                                                            label={report.report_status}
+                                                            sx={{
+                                                                backgroundColor:
+                                                                    report.report_status === 'With SAPS' ? '#DCFCE7' :
+                                                                        report.report_status === 'reviewing' ? '#FEF9C3' :
+                                                                            report.report_status == 'reviewed' ? '#DBEAFE' :
+                                                                                report.report_status == 'pending' ? '#F3F4F6' :
+                                                                                    '#FEF9C3',
+                                                                '& .MuiChip-label': {
+                                                                    textTransform: 'capitalize',
+                                                                    color: report.report_status === 'With SAPS' ? 'green' :
+                                                                        report.report_status === 'reviewing' ? '#854D0E' :
+                                                                            report.report_status == 'reviewed' ? '#1E40AF' :
+                                                                                report.report_status == 'pending' ? '#1F2937' :
+
+                                                                                    'black',
+                                                                }
+                                                            }}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
+                                                        0
+                                                    </TableCell>
+                                                    <TableCell >
+                                                        <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                            <Tooltip title="View" arrow placement="top">
+                                                                <IconButton onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}>
+                                                                    <img src={ViewBtn} alt="flagged button" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+
+
+                                                    </TableCell>
+                                                </TableRow>
+                                            )) : (
+                                                <TableRow>
+                                                    <TableCell colSpan={10} align="center">
+                                                        <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                            No data found
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                    }
+                                </TableBody>
+                            </Table>
+
+                        </TableContainer>
+
+                        {!crimeActiveList.isFetching && crimeActiveList.data?.data.crimeReportData.length > 0 &&
+                        <Grid container sx={{ px: { xs: 0, sm: 3 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                            <Grid>
+                                <Typography variant="body2">
+                                    Rows per page:&nbsp;
+                                    <Select
+                                        size="small"
+                                        sx={{
+                                            border: 'none',
+                                            boxShadow: 'none',
+                                            outline: 'none',
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '& .MuiOutlinedInput-root': {
+                                                boxShadow: 'none',
+                                                outline: 'none',
+                                            },
+                                            '& .MuiSelect-select': {
+                                                outline: 'none',
+                                            },
+                                        }}
+                                        value={rowsPerPageCrimeActive}
+                                        onChange={(e) => {
+                                            updateParamsCrimeActive({rowsPerPageCrimeActive:Number(e.target.value),currentPage:1});
+                                        }}
+                                    >
+                                        {[5, 10, 15, 20, 50, 100].map((num) => (
+                                            <MenuItem key={num} value={num}>
+                                                {num}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Typography>
+                            </Grid>
+                            <Grid>
+                                <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                    <Typography variant="body2">
+                                        {currentPageCrimeActive} / {totalPagesCrimeActive}
+                                    </Typography>
+                                    <IconButton
+                                        disabled={currentPageCrimeActive === 1}
+                                        onClick={() => updateParamsCrimeActive({currentPageCrimeActive:currentPageCrimeActive - 1})}
+                                    >
+                                        <NavigateBeforeIcon fontSize="small" sx={{
+                                            color: currentPageCrimeActive === 1 ? '#BDBDBD' : '#1976d2'
+                                        }} />
+                                    </IconButton>
+                                    <IconButton
+                                        disabled={currentPageCrimeActive === totalPagesCrimeActive}
+                                        onClick={() => updateParamsCrimeActive({currentPageCrimeActive:currentPageCrimeActive + 1})}
+                                    >
+                                        <NavigateNextIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+                        </Grid>}
+                    </Box>
+                </Paper>
 
                 <HotspotSection />
 
@@ -1649,6 +2092,362 @@ const Home = () => {
                         </Grid>}
                     </Box>
                 </Paper>
+
+                {/* Recently Crime Report */}
+                 <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
+                    <Grid container justifyContent="space-between" alignItems="center" mb={2}>
+                        <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 }, alignItems: 'center' }}>
+                            <Typography variant="h6" fontWeight={590}>Recently Closed Crime Report</Typography>
+                        </Grid>
+                        <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
+                            <TextField
+                                variant="outlined"
+                                placeholder="Search"
+                                value={filter}
+                                onChange={(e) => updateParamsCrimeRecent({ filterCrimeRecent: e.target.value })}
+                                fullWidth
+                                sx={{
+                                    width: '100%',
+                                    height: '40px',
+                                    borderRadius: '8px',
+                                    '& .MuiInputBase-root': {
+                                        height: '40px',
+                                        fontSize: '14px',
+                                    },
+                                    '& .MuiOutlinedInput-input': {
+                                        padding: '10px 14px',
+                                    },
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <img src={search} alt="search icon" />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                            <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
+                                <CustomDateRangePicker
+                                    value={rangeCrimeRecent}
+                                    onChange={(nextRange) => {
+                                        setRangeCrimeRecent(nextRange);
+                                        updateParamsCrimeRecent({
+                                            startDateCrimeRecent: nextRange[0].startDate.toISOString(),
+                                            endDateCrimeRecent: nextRange[0].endDate.toISOString(),
+                                            currentPageCrimeRecent: 1,
+                                        });
+                                    }}
+                                    icon={calender}
+                                />
+                            </Box>
+
+                        </Grid>
+                    </Grid>
+
+                    <Box sx={{ px: { xs: 0, md: 2 }, pt: { xs: 0, md: 3 }, backgroundColor: '#FFFFFF', borderRadius: '10px' }}>
+                        <TableContainer >
+                            <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
+
+                                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                                    <TableRow >
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                            <TableSortLabel
+                                                id="crime_report_number"
+                                                active={sortByCrimeRecent === 'crime_report_number'}
+                                                direction={sortOrderCrimeRecent}
+                                                onClick={changeSortOrderCrimeRecent}
+                                                IconComponent={() => <img src={sortByCrimeRecent === 'crime_report_number' ? sortOrderCrimeRecent === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Crime ID</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="address"
+                                                active={sortByCrimeRecent === 'address'}
+                                                direction={sortOrderCrimeRecent}
+                                                onClick={changeSortOrderCrimeRecent}
+                                                IconComponent={() => <img src={sortByCrimeRecent === 'address' ? sortOrderCrimeRecent === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Location</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="description"
+                                                active={sortByCrimeRecent === 'description'}
+                                                direction={sortOrderCrimeRecent}
+                                                onClick={changeSortOrderCrimeRecent}
+                                                IconComponent={() => <img src={sortByCrimeRecent === 'description' ? sortOrderCrimeRecent === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Short Description</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="first_name"
+                                                active={sortByCrimeRecent === 'first_name'}
+                                                direction={sortOrderCrimeRecent}
+                                                onClick={changeSortOrderCrimeRecent}
+                                                IconComponent={() => <img src={sortByCrimeRecent === 'first_name' ? sortOrderCrimeRecent === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Reporter</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="requestReached"
+                                                active={sortByCrimeRecent === 'requestReached'}
+                                                direction={sortOrderCrimeRecent}
+                                                onClick={changeSortOrderCrimeRecent}
+                                                IconComponent={() => <img src={sortByCrimeRecent === 'requestReached' ? sortOrderCrimeRecent === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Request Reached</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="requestAccepted"
+                                                active={sortByCrimeRecent === 'requestAccepted'}
+                                                direction={sortOrderCrimeRecent}
+                                                onClick={changeSortOrderCrimeRecent}
+                                                IconComponent={() => <img src={sortByCrimeRecent === 'requestAccepted' ? sortOrderCrimeRecent === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Request Accepted</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            Images
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="createdAt"
+                                                active={sortByCrimeRecent === 'createdAt'}
+                                                direction={sortOrderCrimeRecent}
+                                                onClick={changeSortOrderCrimeRecent}
+                                                IconComponent={() => <img src={sortByCrimeRecent === 'createdAt' ? sortOrderCrimeRecent === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Date Reported</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="report_status"
+                                                active={sortByCrimeRecent === 'report_status'}
+                                                direction={sortOrderCrimeRecent}
+                                                onClick={changeSortOrderCrimeRecent}
+                                                IconComponent={() => <img src={sortByCrimeRecent === 'report_status' ? sortOrderCrimeRecent === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Status</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            Sighting Reported
+                                        </TableCell>
+                                        <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
+                                    </TableRow>
+                                </TableHead>
+
+                                <TableBody>
+                                    {crimeRecentList.isFetching ?
+                                        (<TableRow>
+                                            <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={10} align="center">
+                                                <Loader />
+                                            </TableCell>
+                                        </TableRow>)
+                                        : (crimeRecentList.data?.data.crimeReportData?.length > 0 ?
+                                            crimeRecentList.data?.data.crimeReportData.map((report) => (
+
+                                                <TableRow key={report._id}>
+                                                    <TableCell sx={{ color: 'var(--Blue)' }}>
+                                                        {report.crime_report_number}
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+
+                                                        {report.address || "-"}
+
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: 'black' }}>
+
+                                                        {shortText(report.description)}
+
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        <Link to={report.user?.role === "driver" ? `/home/total-drivers/driver-information/${report.user_id}` : `/home/total-users/user-information/${report.user_id}`} className="link2">
+                                                            <Stack direction="row" alignItems="center" gap={1}>
+                                                                <Avatar
+                                                                    src={getImageLink(report.user?.selfieImage)}
+                                                                    sx={{ '&:hover': { textDecoration: 'none' } }}
+                                                                    alt="User"
+                                                                />
+                                                                {report.user?.first_name + ' ' + report.user?.last_name || "-"}
+                                                            </Stack>
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#F97316', textAlign: 'center' }}>
+                                                        <Link style={{
+                                                            textDecoration: 'none',
+                                                            color: 'var(--orange)',
+                                                            cursor: 'pointer',
+                                                        }} to={`/home/crime-reports/request-reached-users/${report?._id}`}>{report?.requestReached || "0"}
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
+                                                        <Link style={{
+                                                            textDecoration: 'none',
+                                                            color: '#01C971',
+                                                            cursor: 'pointer',
+                                                        }} to={`/home/crime-reports/request-reached-users/${report?._id}`} state={{ isAccepted: true }}
+                                                        >
+                                                            {report?.requestAccepted || "0"}
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                                            {report.evidence_image.slice(0, 2).map((item, index) => (
+                                                                <Box
+                                                                    key={index}
+                                                                    component="img"
+                                                                    src={item}
+                                                                    onClick={() => handleImageClick(item, `evidence-${index + 1}`)}
+                                                                    alt={`evidence-${index}`}
+                                                                    sx={{
+                                                                        width: "32px",
+                                                                        height: "32px",
+                                                                        objectFit: 'cover',
+                                                                        borderRadius: '6px',
+                                                                        cursor: 'pointer',
+                                                                        border: '1px solid #E5E7EB'
+                                                                    }}
+                                                                />
+                                                            ))}
+                                                            {report.evidence_image.length > 2 && (
+                                                                <Box
+                                                                    sx={{
+                                                                        width: 32,
+                                                                        height: 32,
+                                                                        backgroundColor: '#D1D5DB',
+                                                                        borderRadius: '6px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        fontSize: '14px',
+                                                                        color: '#374151',
+                                                                        cursor: 'pointer',
+                                                                        fontWeight: 500
+                                                                    }}
+                                                                    onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}
+                                                                >
+                                                                    +{report.evidence_image.length - 2}
+                                                                </Box>
+                                                            )}
+                                                        </Stack>
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        {moment(report.createdAt).isSame(moment(), "day")
+                                                            ? `Today, ${moment(report.createdAt).format("hh:mm A")}`
+                                                            : moment(report.createdAt).format("HH:mm:ss - DD/MM/YYYY")}
+                                                    </TableCell>
+
+                                                    <TableCell sx={{ color: '#4B5563' }}>
+                                                        <Chip
+                                                            label={report.report_status}
+                                                            sx={{
+                                                                backgroundColor:
+                                                                    report.report_status === 'With SAPS' ? '#DCFCE7' :
+                                                                        report.report_status === 'reviewing' ? '#FEF9C3' :
+                                                                            report.report_status == 'reviewed' ? '#DBEAFE' :
+                                                                                report.report_status == 'pending' ? '#F3F4F6' :
+                                                                                    '#FEF9C3',
+                                                                '& .MuiChip-label': {
+                                                                    textTransform: 'capitalize',
+                                                                    color: report.report_status === 'With SAPS' ? 'green' :
+                                                                        report.report_status === 'reviewing' ? '#854D0E' :
+                                                                            report.report_status == 'reviewed' ? '#1E40AF' :
+                                                                                report.report_status == 'pending' ? '#1F2937' :
+
+                                                                                    'black',
+                                                                }
+                                                            }}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
+                                                        0
+                                                    </TableCell>
+                                                    <TableCell >
+                                                        <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                            <Tooltip title="View" arrow placement="top">
+                                                                <IconButton onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}>
+                                                                    <img src={ViewBtn} alt="flagged button" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+
+
+                                                    </TableCell>
+                                                </TableRow>
+                                            )) : (
+                                                <TableRow>
+                                                    <TableCell colSpan={10} align="center">
+                                                        <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                                                            No data found
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                    }
+                                </TableBody>
+                            </Table>
+
+                        </TableContainer>
+
+                        {!crimeRecentList.isFetching && crimeRecentList.data?.data.crimeReportData.length > 0 &&
+                        <Grid container sx={{ px: { xs: 0, sm: 3 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                            <Grid>
+                                <Typography variant="body2">
+                                    Rows per page:&nbsp;
+                                    <Select
+                                        size="small"
+                                        sx={{
+                                            border: 'none',
+                                            boxShadow: 'none',
+                                            outline: 'none',
+                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                border: 'none',
+                                            },
+                                            '& .MuiOutlinedInput-root': {
+                                                boxShadow: 'none',
+                                                outline: 'none',
+                                            },
+                                            '& .MuiSelect-select': {
+                                                outline: 'none',
+                                            },
+                                        }}
+                                        value={rowsPerPageCrimeRecent}
+                                        onChange={(e) => {
+                                            updateParamsCrimeRecent({rowsPerPageCrimeRecent:Number(e.target.value),currentPage:1});
+                                        }}
+                                    >
+                                        {[5, 10, 15, 20, 50, 100].map((num) => (
+                                            <MenuItem key={num} value={num}>
+                                                {num}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </Typography>
+                            </Grid>
+                            <Grid>
+                                <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 2 }}>
+                                    <Typography variant="body2">
+                                        {currentPageCrimeRecent} / {totalPagesCrimeRecent}
+                                    </Typography>
+                                    <IconButton
+                                        disabled={currentPageCrimeRecent === 1}
+                                        onClick={() => updateParamsCrimeRecent({currentPageCrimeRecent:currentPageCrimeRecent - 1})}
+                                    >
+                                        <NavigateBeforeIcon fontSize="small" sx={{
+                                            color: currentPageCrimeRecent === 1 ? '#BDBDBD' : '#1976d2'
+                                        }} />
+                                    </IconButton>
+                                    <IconButton
+                                        disabled={currentPageCrimeRecent === totalPagesCrimeRecent}
+                                        onClick={() => updateParamsCrimeRecent({currentPageCrimeRecent:currentPageCrimeRecent + 1})}
+                                    >
+                                        <NavigateNextIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                            </Grid>
+                        </Grid>}
+                    </Box>
+                </Paper>                       
+               
             </Box >
             {statusUpdate && (
                 <SOSStatusUpdate
