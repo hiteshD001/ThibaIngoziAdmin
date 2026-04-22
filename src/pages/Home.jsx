@@ -738,6 +738,17 @@ const Home = () => {
                                     <TableRow >
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
                                             <TableSortLabel
+                                                id="sosNumber"
+                                                active={sortBy2 === 'sosNumber'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'sosNumber' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
+                                            >
+                                                SOS ID
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563'}}>
+                                            <TableSortLabel
                                                 id="username"
                                                 active={sortBy2 === 'username'}
                                                 direction={sortOrder2}
@@ -829,6 +840,9 @@ const Home = () => {
                                         : (paginatedActiveUserList?.length > 0 ?
                                             paginatedActiveUserList?.map((user) => (
                                                 <TableRow key={user._id}>
+                                                    <TableCell sx={{ color: 'var(--Blue)' }}>
+                                                        {user?.sosNumber}
+                                                    </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
                                                             user?.sosType === 'ARMED_SOS' ? (
@@ -1269,6 +1283,17 @@ const Home = () => {
                                     <TableRow >
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
                                             <TableSortLabel
+                                                id="sosNumber"
+                                                active={sortBy2 === 'sosNumber'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'sosNumber' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
+                                            >
+                                                SOS ID
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563'}}>
+                                            <TableSortLabel
                                                 id="username"
                                                 active={sortBy === 'username'}
                                                 direction={sortOrder}
@@ -1374,6 +1399,9 @@ const Home = () => {
                                         : (recentSosItems?.length > 0 ?
                                             recentSosItems?.map((row) => (
                                                 <TableRow key={row?._id}>
+                                                    <TableCell sx={{ color: 'var(--Blue)' }}>
+                                                        {row?.sosNumber}
+                                                    </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
                                                             row.user?.role === "driver" ? (

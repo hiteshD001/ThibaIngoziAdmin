@@ -72,6 +72,9 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
 
     return (
         <TableRow>
+            <TableCell sx={{ color: 'var(--Blue)' }}>
+                {user?.sosNumber}
+            </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
                 {user?.sosType === 'ARMED_SOS' ? (
                     <Stack direction="row" alignItems="center" gap={1}>
@@ -304,6 +307,9 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
 
     return (
         <TableRow key={row?._id}>
+            <TableCell sx={{ color: 'var(--Blue)' }}>
+                {row?.sosNumber}
+            </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
                 {row.user?.role === "driver" ? (
                     <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link"
@@ -1049,6 +1055,17 @@ const EHialingView = () => {
                                     <TableRow >
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
                                             <TableSortLabel
+                                                id="sosNumber"
+                                                active={sortBy2 === 'sosNumber'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'sosNumber' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
+                                            >
+                                                SOS ID
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563'}}>
+                                            <TableSortLabel
                                                 id="first_name"
                                                 active={sortBy2 === 'first_name'}
                                                 direction={sortOrder2}
@@ -1275,6 +1292,17 @@ const EHialingView = () => {
                                 <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                                     <TableRow >
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                            <TableSortLabel
+                                                id="sosNumber"
+                                                active={sortBy2 === 'sosNumber'}
+                                                direction={sortOrder2}
+                                                onClick={changeSortOrder2}
+                                                IconComponent={() => <img src={sortBy2 === 'sosNumber' ? sortOrder2 === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} alt="" />}
+                                            >
+                                                SOS ID
+                                            </TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             <TableSortLabel
                                                 id="username"
                                                 active={sortBy === 'username'}
