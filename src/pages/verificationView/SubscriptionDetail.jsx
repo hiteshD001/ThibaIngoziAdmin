@@ -601,7 +601,7 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
                               </tr>
                                <tr>
                                 <td valign="top" style="padding-bottom:20px;line-height:150%;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#404040;font-size:14px;">
-                                  <h5 style="padding-bottom:5px;margin:0;padding:0;color:#202020;font-size:14px;line-height:150%;">PASSPORT NUMBER</h5>
+                                  <h5 style="padding-bottom:5px;margin:0;padding:0;color:#202020;font-size:14px;line-height:150%;">ID / PASSPORT NUMBER</h5>
                                   <table width="99%" border="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
                                     <tr>
                                       <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
