@@ -775,9 +775,8 @@ const Home = () => {
         nav(url)
     };
 
-    useEffect(() => {
-        
-        if (paginatedActiveUserList.length && recentSos?.data?.items.length) {
+    useEffect(() => {  
+        if (paginatedActiveUserList.length && recentSos?.data?.items.length && (!activeSos.isFetching && !crimeActiveList.isFetching && !isFetching && !crimeRecentList.isFetching)) {
             restoreScrollPosition("homePageScroll");
             if ((paginatedActiveUserList.length > 0) && (activemodal === true || activemodal === "true")) {
                 setOtherUsersModalOpen(true);
@@ -812,6 +811,25 @@ const Home = () => {
     }, [paginatedActiveUserList, recentSos]);
 
     return (
+        <>
+            {(activeSos.isFetching || crimeActiveList.isFetching || isFetching || crimeRecentList.isFetching) && (
+                <Box
+                    sx={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(0, 0, 0, 0.34)",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        zIndex: 9999
+                    }}
+                >
+                    <Loader color="white" />
+                </Box>
+            )}
         <Box>
             <Analytics
                 id={role !== "super_admin" ? userId : null}
@@ -3039,6 +3057,7 @@ const Home = () => {
                 </Box>
             </Popover>
         </Box >
+        </>
     );
 };
 
