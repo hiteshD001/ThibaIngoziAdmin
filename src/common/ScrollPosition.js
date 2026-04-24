@@ -1,21 +1,38 @@
 export const saveScrollPosition = (key) => {
     const content = document.querySelector(".content");
-    const scrollValue = content?.scrollTop || 0;
-    // console.log(key, "save scroll", scrollValue);
-    sessionStorage.setItem(key, scrollValue);
+    const elements = document.querySelectorAll(".MuiTableContainer-root");
+    const data = {
+        scrollY: content?.scrollTop || 0,
+        scrollX: []
+    };
+
+    elements.forEach((el) => {
+        data.scrollX.push(el.scrollLeft);
+    });
+
+    sessionStorage.setItem(key, JSON.stringify(data));
 };
 
 export const restoreScrollPosition = (key) => {
-    const savedScroll = sessionStorage.getItem(key);
+    const saved = sessionStorage.getItem(key);
+
+    if (!saved) return;
+
+    const { scrollY, scrollX } = JSON.parse(saved);
+
     const content = document.querySelector(".content");
+    const elements = document.querySelectorAll(".MuiTableContainer-root");
 
-    if (savedScroll && content) {
-        setTimeout(() => {
-            content.scrollTop = Number(savedScroll);
-            
-            // restore pachi clear
-            sessionStorage.removeItem(key);
+    setTimeout(() => {
+        if (content) {
+            content.scrollTop = Number(scrollY);
+        }
+        elements.forEach((el, index) => {
+            if (scrollX[index] !== undefined) {
+                el.scrollLeft = Number(scrollX[index]);
+            }
+        });
 
-        }, 500);
-    }
+        sessionStorage.removeItem(key);
+    }, 300);
 };

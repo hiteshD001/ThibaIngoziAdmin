@@ -616,21 +616,57 @@ const Home = () => {
     const [captureReportModalOpen, setCaptureReportModalOpen] = useState(false);
     const [captureReportModalItems, setCaptureReportModalItems] = useState([]);
     const [locationId, setLocationId] = useState(null);
+    const [sosNumberPath, setSosNumberPath] = useState('');
     const [captureReportAnchorEl, setCaptureReportAnchorEl] = useState(null);
 
-    const openCaptureReportModal = async (location_id,event) => {
-        setCaptureReportAnchorEl(event.currentTarget); 
+    const openCaptureReportModal = async (location_id,event,type,sosNumPath='') => {
+        
+        const el = document.querySelector(`[data-id="${location_id}"]`);
+    
+        setCaptureReportAnchorEl(el);
         setLocationId(location_id)
+        setSosNumberPath(sosNumPath)
         let captureList = await  useGetCaptureReportListV2(location_id, role, 1, 3);
         let items = captureList.data?.data || [] 
         
         setCaptureReportModalItems(items);
         setCaptureReportModalOpen(true);
+        
+        if (type == 'ACTIVE') {
+            updateParams({
+                capturemodal: true,
+                capturetype: type,
+                capturemodalData: encodeURIComponent(JSON.stringify(items)),
+                AnchorEl: location_id
+            });
+        }
+        
+        if (type == 'RECENT') {
+            updateRecentParams({
+                capturemodal: true,
+                capturetype: type,
+                capturemodalData: encodeURIComponent(JSON.stringify(items)),
+                AnchorEl: location_id
+            });
+        }
+
     };
     const closeCaptureReportModal = () => {
         setCaptureReportModalOpen(false);
         setCaptureReportModalItems([]);
         setCaptureReportAnchorEl(null);
+            updateParams({
+                capturemodal: false,
+                capturetype: '',
+                capturemodalData: '',
+                AnchorEl: ''
+            });
+            updateRecentParams({
+                capturemodal: false,
+                capturetype: type,
+                capturemodalData:'',
+                AnchorEl:''
+            });
     };
 
     // Active Crime Report 
@@ -725,6 +761,14 @@ const Home = () => {
     const recentmodal = recentSearchParams.get("modal");
     const modalData = searchParams.get("modalData") || "";
     const modalrecentData = recentSearchParams.get("modalData") || '';
+    // Capture Model Open 
+    const activecapturemodal = searchParams.get("capturemodal");
+    const recentcapturemodal = recentSearchParams.get("capturemodal");
+    const captureAnchorIndex  =  searchParams.get("AnchorEl") || null;
+    const capturemodalData = searchParams.get("capturemodalData") || "";
+    const capturemodalrecentData = recentSearchParams.get("capturemodalData") || '';
+    const captureRecentAnchorIndex  =  recentSearchParams.get("AnchorEl")|| null;
+
     // Handle Scroll Event store 
     const handleView = (url) => {
         saveScrollPosition('homePageScroll');
@@ -732,6 +776,7 @@ const Home = () => {
     };
 
     useEffect(() => {
+        
         if (paginatedActiveUserList.length && recentSos?.data?.items.length) {
             restoreScrollPosition("homePageScroll");
             if ((paginatedActiveUserList.length > 0) && (activemodal === true || activemodal === "true")) {
@@ -744,6 +789,25 @@ const Home = () => {
                 const parsedData = JSON.parse(decodeURIComponent(modalrecentData)) || [];
                 setOtherUsersModalItems(parsedData);
             }
+            // Capture Model
+             if ((paginatedActiveUserList.length > 0) && (activecapturemodal === true || activecapturemodal === "true")) {
+                 const parsedData = JSON.parse(decodeURIComponent(capturemodalData)) || [];
+                 setCaptureReportModalItems(parsedData);
+                 setTimeout(() => {
+                    const el = document.querySelector(`[data-id="${captureAnchorIndex}"]`);
+                     setCaptureReportAnchorEl(el || null);
+                     setCaptureReportModalOpen(true);
+                 }, 300);
+            }
+            if ((recentSos?.data?.items.length > 0) && (recentcapturemodal === true || recentcapturemodal === "true")) {
+                const parsedData = JSON.parse(decodeURIComponent(capturemodalrecentData)) || [];
+                setCaptureReportModalItems(parsedData);
+                setTimeout(() => {
+                    const el = document.querySelector(`[data-id="${captureRecentAnchorIndex}"]`);
+                    setCaptureReportAnchorEl(el || null);
+                    setCaptureReportModalOpen(true);
+                }, 300);
+            }          
         }
     }, [paginatedActiveUserList, recentSos]);
 
@@ -1202,7 +1266,7 @@ const Home = () => {
                                                                 </Tooltip>
                                                             )}
                                                             <Tooltip title="View Report" arrow placement="top">
-                                                                <IconButton onClick={(e) => openCaptureReportModal(user?._id, e)}>
+                                                                <IconButton data-id={user?._id} onClick={(e) => openCaptureReportModal(user?._id, e,'ACTIVE',user?.sosNumber)}>
                                                                     <img src={fileBtn} alt="button" />
                                                                 </IconButton>
                                                             </Tooltip>
@@ -2033,7 +2097,7 @@ const Home = () => {
                                                             </Tooltip>
                                                             <Tooltip title="View Report" arrow placement="top">
                                                                 {/* <IconButton onClick={() => nav(`/home/capture-reports?location_id=${row?._id}`)}> */}
-                                                                <IconButton onClick={(e) => openCaptureReportModal(row?._id, e)}>
+                                                                <IconButton data-id={row?._id} onClick={(e) => openCaptureReportModal(row?._id, e,"RECENT",row?.sosNumber)}>
                                                                     <img src={fileBtn} alt="button" />
                                                                 </IconButton>
                                                             </Tooltip>
@@ -2909,7 +2973,7 @@ const Home = () => {
                                 color: 'white',
                             }
                         }}
-                        onClick={() => handleView(`/home/capture-reports?location_id=${locationId}`)}
+                        onClick={() => handleView(`/home/capture-reports?location_id=${locationId}&sosId=${sosNumberPath}`)}
                     />
                 </Box>
 
