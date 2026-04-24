@@ -501,60 +501,66 @@ const ListOfArcheivedcaptureReports = () => {
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    <Chip
-                                                        label={report?.capture_report?.report_status || 'No Report'}
-                                                        sx={{
-                                                            backgroundColor:
-                                                                report?.capture_report?.report_status === 'No Report' ? '#4B55631A' :
-                                                                    report?.capture_report?.report_status === 'View Report' ? '#367BE01A' :
-                                                                                '#4B55631A',
-                                                            '& .MuiChip-label': {
-                                                                textTransform: 'capitalize',
-                                                                color: report?.capture_report?.report_status === 'No Report' ? '#4B5563' :
-                                                                    report?.capture_report?.report_status === 'View Report' ? '#367BE0' :
-                                                                                'black',
-                                                            }
-                                                        }}
-                                                    />
+                                                    <Tooltip title="View Responder Report" arrow placement="top">
+                                                        <Chip
+                                                            label={report?.capture_report?.report_status || 'No Report'}
+                                                            sx={{
+                                                                backgroundColor:
+                                                                    report?.capture_report?.report_status === 'No Report' ? '#4B55631A' :
+                                                                        report?.capture_report?.report_status === 'View Report' ? '#367BE01A' :
+                                                                            '#4B55631A',
+                                                                '& .MuiChip-label': {
+                                                                    textTransform: 'capitalize',
+                                                                    color: report?.capture_report?.report_status === 'No Report' ? '#4B5563' :
+                                                                        report?.capture_report?.report_status === 'View Report' ? '#367BE0' :
+                                                                            'black',
+                                                                }
+                                                            }}
+                                                        />
+                                                    </Tooltip>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Stack direction="row" alignItems="center" spacing={1}>
                                                         {report?.capture_report?.evidence_image.slice(0, 2).map((item, index) => (
-                                                            <Box
-                                                                key={index}
-                                                                component="img"
-                                                                src={getImageLink(item)}
-                                                                onClick={() => handleImageClick(getImageLink(item), `Evidence-${index + 1}`)}
-                                                                alt={`evidence-${index}`}
-                                                                sx={{
-                                                                    width: "32px",
-                                                                    height: "32px",
-                                                                    objectFit: 'cover',
-                                                                    borderRadius: '6px',
-                                                                    cursor: 'pointer',
-                                                                    border: '1px solid #E5E7EB'
-                                                                }}
-                                                            />
+                                                            <Tooltip title="View Responder Report" arrow placement="top">
+                                                                <Box
+                                                                    key={index}
+                                                                    component="img"
+                                                                    src={getImageLink(item)}
+                                                                    onClick={() => handleImageClick(getImageLink(item), `Evidence-${index + 1}`)}
+                                                                    alt={`evidence-${index}`}
+                                                                    sx={{
+                                                                        width: "32px",
+                                                                        height: "32px",
+                                                                        objectFit: 'cover',
+                                                                        borderRadius: '6px',
+                                                                        cursor: 'pointer',
+                                                                        border: '1px solid #E5E7EB'
+                                                                    }}
+                                                                />
+                                                            </Tooltip>
                                                         ))}
                                                         {report?.capture_report?.evidence_image.length > 2 && (
-                                                            <Box
-                                                                sx={{
-                                                                    width: 32,
-                                                                    height: 32,
-                                                                    backgroundColor: '#D1D5DB',
-                                                                    borderRadius: '6px',
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    justifyContent: 'center',
-                                                                    fontSize: '14px',
-                                                                    color: '#374151',
-                                                                    cursor: 'pointer',
-                                                                    fontWeight: 500
-                                                                }}
-                                                                onClick={() => nav(`/home/capture-reports/${report._id}`)}
-                                                            >
-                                                                +{report.evidence_image.length - 2}
-                                                            </Box>
+                                                            <Tooltip title="View Responder Report" arrow placement="top">
+                                                                <Box
+                                                                    sx={{
+                                                                        width: 32,
+                                                                        height: 32,
+                                                                        backgroundColor: '#D1D5DB',
+                                                                        borderRadius: '6px',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        justifyContent: 'center',
+                                                                        fontSize: '14px',
+                                                                        color: '#374151',
+                                                                        cursor: 'pointer',
+                                                                        fontWeight: 500
+                                                                    }}
+                                                                    onClick={() => nav(`/home/capture-reports/${report?.capture_report?._id}`)}
+                                                                >
+                                                                    +{report?.capture_report?.evidence_image.length - 2}
+                                                                </Box>
+                                                            </Tooltip>
                                                         )}
                                                     </Stack>
                                                 </TableCell>
@@ -581,7 +587,7 @@ const ListOfArcheivedcaptureReports = () => {
                                                                 <img src={Listtrip} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        <Tooltip title="Capture Report" arrow placement="top">
+                                                        <Tooltip title="View Report" arrow placement="top">
                                                             <IconButton onClick={()=>{openSummaryReportModel(report)}}>
                                                                 <img src={fileBtn} alt=" button" />
                                                             </IconButton>

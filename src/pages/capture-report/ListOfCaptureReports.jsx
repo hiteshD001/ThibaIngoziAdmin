@@ -493,12 +493,13 @@ const ListOfCaptureReports = () => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {report.arrival || "-"}
+                                                    {report?.arrival?.includes('-') ? report.arrival.replace(/-/g, ":") : report.arrival || "-"}
+                                                    {/* {formatDateTime(report.arrival,"HH:mm:ss") || "-"} */}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {calculteTime(report.createdAt,report.arrival) || "-"}
+                                                    {calculteTime(report?.arrival?.includes('-') ? report.arrival.replace(/-/g, ":") : report.arrival,formatDateTime(report.createdAt,"HH:mm:ss")) || "-"}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
@@ -507,6 +508,7 @@ const ListOfCaptureReports = () => {
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
+                                                    <Tooltip title="View Responder Report" arrow placement="top">
                                                     <Chip
                                                         label={report?.capture_report?.report_status || 'No Report'}
                                                         sx={{
@@ -522,27 +524,31 @@ const ListOfCaptureReports = () => {
                                                             }
                                                         }}
                                                     />
+                                                    </Tooltip>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Stack direction="row" alignItems="center" spacing={1}>
                                                         {report?.capture_report?.evidence_image.slice(0, 2).map((item, index) => (
-                                                            <Box
-                                                                key={index}
-                                                                component="img"
-                                                                src={getImageLink(item)}
-                                                                onClick={() => handleImageClick(getImageLink(item), `Evidence-${index + 1}`)}
-                                                                alt={`evidence-${index}`}
-                                                                sx={{
-                                                                    width: "32px",
-                                                                    height: "32px",
-                                                                    objectFit: 'cover',
-                                                                    borderRadius: '6px',
-                                                                    cursor: 'pointer',
-                                                                    border: '1px solid #E5E7EB'
-                                                                }}
-                                                            />
+                                                            <Tooltip title="View Responder Report" arrow placement="top">
+                                                                <Box
+                                                                    key={index}
+                                                                    component="img"
+                                                                    src={getImageLink(item)}
+                                                                    onClick={() => handleImageClick(getImageLink(item), `Evidence-${index + 1}`)}
+                                                                    alt={`evidence-${index}`}
+                                                                    sx={{
+                                                                        width: "32px",
+                                                                        height: "32px",
+                                                                        objectFit: 'cover',
+                                                                        borderRadius: '6px',
+                                                                        cursor: 'pointer',
+                                                                        border: '1px solid #E5E7EB'
+                                                                    }}
+                                                                />
+                                                            </Tooltip>
                                                         ))}
                                                         {report?.capture_report?.evidence_image.length > 2 && (
+                                                            <Tooltip title="View Responder Report" arrow placement="top">
                                                             <Box
                                                                 sx={{
                                                                     width: 32,
@@ -557,10 +563,11 @@ const ListOfCaptureReports = () => {
                                                                     cursor: 'pointer',
                                                                     fontWeight: 500
                                                                 }}
-                                                                onClick={() => nav(`/home/capture-reports/${report._id}`)}
+                                                                onClick={() => nav(`/home/capture-reports/${report?.capture_report?._id}`)}
                                                             >
-                                                                +{report.evidence_image.length - 2}
+                                                                +{report?.capture_report?.evidence_image.length - 2}
                                                             </Box>
+                                                            </Tooltip>
                                                         )}
                                                     </Stack>
                                                 </TableCell>
@@ -587,7 +594,7 @@ const ListOfCaptureReports = () => {
                                                                 <img src={Listtrip} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        <Tooltip title="Capture Report" arrow placement="top">
+                                                        <Tooltip title="View Report" arrow placement="top">
                                                             <IconButton onClick={()=>{openSummaryReportModel(report)}}>
                                                                 <img src={fileBtn} alt=" button" />
                                                             </IconButton>

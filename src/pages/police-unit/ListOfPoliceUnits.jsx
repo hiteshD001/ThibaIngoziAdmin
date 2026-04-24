@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Avatar, Stack, Select, MenuItem, Chip,
@@ -25,6 +25,7 @@ import apiClient from '../../API Calls/APIClient'
 import { startOfYear } from "date-fns";
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import nouser from "../../assets/images/NoUser.png";
+import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 
 const ListOfPoliceUnits = () => {
     const [popup, setpopup] = useState(false);
@@ -175,6 +176,16 @@ const ListOfPoliceUnits = () => {
         });
     };
 
+    // Handle Scroll Event store 
+    const handleView = (report) => {
+        saveScrollPosition("policeUnitListScroll");
+        nav(`/home/police-unit/police-unit-information/${report._id}`)
+    };
+    useEffect(() => {
+        if (UserList.data?.data.policeUnitData.length) {
+            restoreScrollPosition("policeUnitListScroll");
+        }
+    }, [UserList.data?.data.policeUnitData]);
 
     return (
         <Box p={2}>
@@ -306,7 +317,7 @@ const ListOfPoliceUnits = () => {
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`/home/police-unit/police-unit-information/${report._id}`)}>
+                                                            <IconButton onClick={() => handleView(report)}>
                                                                 <img src={ViewBtn} alt="flagged button" />
                                                             </IconButton>
                                                         </Tooltip>

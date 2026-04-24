@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useDebounce from "../hooks/useDebounce";
 import {
   Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, MenuItem, Chip,
@@ -28,6 +28,7 @@ import apiClient from "../API Calls/APIClient";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
+import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 
 const ListOfViewArcheived = () => {
   const nav = useNavigate();
@@ -218,6 +219,20 @@ const ListOfViewArcheived = () => {
     };
 
   };
+
+  const handleView = (data) => {
+    saveScrollPosition("tripArchiveListScroll");
+    const [startlat, startlong] = data?.trip_start?.split(",") || [];
+    const [endlat, endlong] = data?.trip_end?.split(",") || [];
+    nav(`/home/total-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
+  };
+  // Handle Scroll Event store 
+  useEffect(() => {
+    if (trip?.data?.data?.tripData) {
+      restoreScrollPosition("tripArchiveListScroll");
+    }
+  }, [trip?.data?.data?.tripData]);
+
   return (
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "#fdfdfd", padding: 2, borderRadius: "10px" }}>
@@ -389,9 +404,6 @@ const ListOfViewArcheived = () => {
                   </TableRow>
                   : (tripList.length > 0 ?
                     tripList.map((data) => {
-                      const [startlat, startlong] = data?.trip_start?.split(",") || [];
-                      const [endlat, endlong] = data?.trip_end?.split(",") || [];
-
                       return (
                         <TableRow key={data._id}>
                           <TableCell>
@@ -445,7 +457,7 @@ const ListOfViewArcheived = () => {
                               flexDirection: 'row',
                             }}>
                               <Tooltip title="View" arrow placement="top">
-                                <IconButton onClick={() => nav(`/home/total-trips/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)}>
+                                <IconButton onClick={() => handleView(data)}>
                                   <img src={ViewBtn} alt="View" />
                                 </IconButton>
                               </Tooltip>

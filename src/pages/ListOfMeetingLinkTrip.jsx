@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import useDebounce from "../hooks/useDebounce";
 import {
   Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, InputAdornment, Grid, Select, Chip, MenuItem,
@@ -29,6 +29,8 @@ import apiClient from "../API Calls/APIClient";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
+import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
+import { loadListPageState, saveListPageState } from "../common/ListPageState";
 
 const ListOfMeetingLinkTrips = () => {
   const nav = useNavigate();
@@ -46,10 +48,11 @@ const ListOfMeetingLinkTrips = () => {
   const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
   const [isArchived, setIsArchived] = useState(false);
   const debouncedFilter = useDebounce(filter, 500); // 500ms delay for search
+  const hasRestoredScroll = useRef(false);
 
   // Sort 1
-  const [sortBy, setSortBy] = useState("first_name");
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortBy, setSortBy] = useState(() => loadListPageState("total-meeting-links", {})?.sortBy || "first_name");
+  const [sortOrder, setSortOrder] = useState(() => loadListPageState("total-meeting-links", {})?.sortOrder || "asc");
   const role = localStorage.getItem("role");
   const companyId = role === 'company' ? localStorage.getItem("userID") : null;
 
@@ -74,6 +77,11 @@ const ListOfMeetingLinkTrips = () => {
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalMeetingLinkTripData || 0;
   const totalPages = Math.ceil(totalTrips / rowsPerPage);
+
+  useEffect(() => {
+    saveListPageState("total-meeting-links", { sortBy, sortOrder });
+  }, [sortBy, sortOrder]);
+
   const updateParams = (newParams) => {
     setSearchParams({
       page,
@@ -204,6 +212,20 @@ const ListOfMeetingLinkTrips = () => {
       toast.error("Export failed.");
     }
   };
+
+  const handleView = (user) => {
+    const [startlat, startlong] = user?.trip_start?.split(",") || [];
+    const [endlat, endlong] = user?.trip_end?.split(",") || [];
+    saveScrollPosition("meetingListScroll");
+    nav(`/home/total-meeting-links/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
+  };
+  // Handle Scroll Event store
+  useEffect(() => {
+    if (!hasRestoredScroll.current && trip.data?.data?.tripData?.length) {
+      restoreScrollPosition("meetingListScroll");
+      hasRestoredScroll.current = true;
+    }
+  }, [trip.data?.data?.tripData?.length]);
 
   return (
     <Box p={2}>
@@ -365,9 +387,6 @@ const ListOfMeetingLinkTrips = () => {
                   </TableRow>
                   : (tripList.length > 0 ?
                     tripList.map((data) => {
-                      const [startlat, startlong] = data?.trip_start?.split(",") || [];
-                      const [endlat, endlong] = data?.trip_end?.split(",") || [];
-
                       return (
                         <TableRow key={data._id}>
                           <TableCell>
@@ -443,7 +462,7 @@ const ListOfMeetingLinkTrips = () => {
                               <Tooltip title="View" arrow placement="top">
                                 <IconButton
                                   onClick={() =>
-                                    nav(`/home/total-meeting-links/location?lat=${startlat}&long=${startlong}&end_lat=${endlat}&end_long=${endlong}`)
+                                    handleView(data)
                                   }
                                 >
                                   <img src={ViewBtn} alt="view button" />

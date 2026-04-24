@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useDebounce from "../hooks/useDebounce";
 import {
@@ -38,7 +38,7 @@ import CustomDateRangePicker from "../common/Custom/CustomDateRangePicker";
 import apiClient from '../API Calls/APIClient'
 import calender from '../assets/images/calender.svg';
 import { startOfYear } from "date-fns";
-
+import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 
 const ListOfCompanies = () => {
   const nav = useNavigate();
@@ -199,6 +199,18 @@ const ListOfCompanies = () => {
       toast.error("Export failed.");
     }
   };
+
+  // Handle Scroll Event store 
+  const handleView = (user) => {
+    saveScrollPosition("companyListScroll");
+    nav(`/home/total-companies/company-information/${user?._id}`)
+  };
+  useEffect(() => {
+    if (companyList.data?.data?.users?.length) {
+      restoreScrollPosition("companyListScroll");
+    }
+  }, [companyList.data?.data?.users]);
+
   return (
     <Box p={2}>
       <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
@@ -408,7 +420,7 @@ const ListOfCompanies = () => {
                           }}>
                             <Tooltip title="View" arrow placement="top">
                               <IconButton onClick={() =>
-                                nav(`/home/total-companies/company-information/${user?._id}`)
+                                handleView(user)
                               }>
                                 <img src={ViewBtn} alt="view button" />
                               </IconButton>

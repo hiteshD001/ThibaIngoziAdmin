@@ -4,7 +4,7 @@ import {
 } from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useDebounce from "../hooks/useDebounce";
 import plus from '../assets/images/plus.svg'
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -15,6 +15,7 @@ import whiteplus from '../assets/images/whiteplus.svg'
 import { useGetSoSAmountList } from "../API Calls/API";
 import { DeleteSosAmount } from "../common/ConfirmationPOPup";
 import Loader from "../common/Loader";
+import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 
 const ListOfSosAmount = () => {
     const nav = useNavigate();
@@ -39,6 +40,16 @@ const ListOfSosAmount = () => {
 			...newParams,
 		});
 	};
+    // Handle Scroll Event store 
+    const handleView = (data) => {
+        saveScrollPosition("sosListScroll");
+        nav(`/home/total-sos-amount/sos-amount/${data._id}`)
+    };
+    useEffect(() => {
+        if (sosList.data?.data?.data?.length) {
+            restoreScrollPosition("sosListScroll");
+        }
+    }, [sosList.data?.data?.data]);
 
     return (
         <Box p={2}>
@@ -114,7 +125,7 @@ const ListOfSosAmount = () => {
                                             <TableCell sx={{ color: data?.notificationTypeId?.bgColor }}>{data.notificationTypeId?.display_title || "-"}</TableCell>
                                             <TableCell align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                 <Tooltip title="View" arrow placement="top">
-                                                    <IconButton onClick={() => nav(`/home/total-sos-amount/sos-amount/${data._id}`)}>
+                                                    <IconButton onClick={() => handleView(data)}>
                                                         <img src={ViewBtn} alt="view button" />
                                                     </IconButton>
                                                 </Tooltip>
