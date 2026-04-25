@@ -1,5 +1,4 @@
 import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "./APIClient";
 
@@ -224,6 +223,7 @@ export const useGetArmedSosDetails = (id) => {
 };
 
 export const useGetArmedSoSByCompanyId = (companyId) => {
+    const nav = useNavigate();
     const queryFn = async () => {
         return await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/armed-sos/company/${companyId}`
@@ -310,6 +310,7 @@ export const useUpdateVehicle = (onSucess, onError) => {
 }
 // vehicle type
 export const useGetVehicleTypeList = () => {
+    const nav = useNavigate();
     const queryFn = async () => {
         return await apiClient.get(
             `${import.meta.env.VITE_BASEURL}/vehicleType`
@@ -776,7 +777,6 @@ export const usePutMissingVehicale = (onSuccess, onError) => {
 
 // get all sales agent
 export const useGetSalesAgent = (page = 1, limit = 10, filter, startDate, endDate, sortBy, sortOrder) => {
-    const navigate = useNavigate();
     const res = useQuery({
         queryKey: ['salesAgent', page, limit, filter, startDate, endDate, sortBy, sortOrder],
         queryFn: async () =>
@@ -1468,6 +1468,7 @@ export const useUpdateLocationStatus = (onSuccess, onError) => {
     return mutation;
 };
 export const useGetLocationId = (locationId, page = 1, limit = 10, search = "") => {
+    const nav = useNavigate();
     const queryFn = async () => {
         const queryParams = new URLSearchParams({
             page: page.toString(),
@@ -2159,6 +2160,7 @@ export const useUpdateMarkAsReviewed = (onSucess, onError) => {
 }
 
 export const useGetCrimeReportRequestUsers = (crimeReportId, page = 1, limit = 10,requestAccepted = false ,search = "") => {
+    const nav = useNavigate();
     const queryFn = async () => {
         const queryParams = new URLSearchParams({
             page: page.toString(),
