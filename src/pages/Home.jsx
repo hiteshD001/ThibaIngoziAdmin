@@ -637,7 +637,9 @@ const Home = () => {
                 capturemodal: true,
                 capturetype: type,
                 capturemodalData: encodeURIComponent(JSON.stringify(items)),
-                AnchorEl: location_id
+                AnchorEl: location_id,
+                location_id:location_id,
+                sosNumPath:sosNumPath
             });
         }
         
@@ -646,7 +648,9 @@ const Home = () => {
                 capturemodal: true,
                 capturetype: type,
                 capturemodalData: encodeURIComponent(JSON.stringify(items)),
-                AnchorEl: location_id
+                AnchorEl: location_id,
+                location_id:location_id,
+                sosNumPath:sosNumPath
             });
         }
 
@@ -659,13 +663,17 @@ const Home = () => {
                 capturemodal: false,
                 capturetype: '',
                 capturemodalData: '',
-                AnchorEl: ''
+                AnchorEl: '',
+                location_id:'',
+                sosNumPath:''
             });
             updateRecentParams({
                 capturemodal: false,
                 capturetype: type,
                 capturemodalData:'',
-                AnchorEl:''
+                AnchorEl:'',
+                location_id:'',
+                sosNumPath:''
             });
     };
 
@@ -710,7 +718,7 @@ const Home = () => {
             ...newParams,
         });
     };
-    const crimeActiveList = useGetCrimeReportList("crime report list", role, currentPageCrimeActive, rowsPerPageCrimeActive, filterCrimeActive,'', startDateFilterCrimeActive, endDateFilterCrimeActive, false,sortByCrimeActive, sortOrderCrimeActive);
+    const crimeActiveList = useGetCrimeReportList("crime report list", role, currentPageCrimeActive, rowsPerPageCrimeActive, filterCrimeActive,'', startDateFilterCrimeActive, endDateFilterCrimeActive, false,sortByCrimeActive, sortOrderCrimeActive,'pending');
     const totalCrimeReportActiveData = crimeActiveList.data?.data?.totalCrimeReportData || 0;
     const totalPagesCrimeActive = Math.ceil(totalCrimeReportActiveData / rowsPerPageCrimeActive);
 
@@ -753,7 +761,7 @@ const Home = () => {
             ...newParams,
         });
     };
-    const crimeRecentList = useGetCrimeReportList("crime report list", role, currentPageCrimeRecent, rowsPerPageCrimeRecent, filterCrimeRecent,'', startDateFilterCrimeRecent, endDateFilterCrimeRecent, false,sortByCrimeRecent, sortOrderCrimeRecent);
+    const crimeRecentList = useGetCrimeReportList("crime report list", role, currentPageCrimeRecent, rowsPerPageCrimeRecent, filterCrimeRecent,'', startDateFilterCrimeRecent, endDateFilterCrimeRecent, false,sortByCrimeRecent, sortOrderCrimeRecent,'reviewed,reviewing,With SAPS');
     const totalCrimeReportRecentData = crimeRecentList.data?.data?.totalCrimeReportData || 0;
     const totalPagesCrimeRecent = Math.ceil(totalCrimeReportRecentData / rowsPerPageCrimeRecent);
 
@@ -776,8 +784,10 @@ const Home = () => {
     };
 
     useEffect(() => {  
-        if (paginatedActiveUserList.length && recentSos?.data?.items.length && (!activeSos.isFetching && !crimeActiveList.isFetching && !isFetching && !crimeRecentList.isFetching)) {
+        if (paginatedActiveUserList.length && recentSos?.data?.items.length) {
             restoreScrollPosition("homePageScroll");
+            setLocationId(recentSearchParams.get("location_id")|| null)
+            setSosNumberPath( recentSearchParams.get("sosNumPath") || null) 
             if ((paginatedActiveUserList.length > 0) && (activemodal === true || activemodal === "true")) {
                 setOtherUsersModalOpen(true);
                 const parsedData = JSON.parse(decodeURIComponent(modalData)) || [];
@@ -789,8 +799,8 @@ const Home = () => {
                 setOtherUsersModalItems(parsedData);
             }
             // Capture Model
-             if ((paginatedActiveUserList.length > 0) && (activecapturemodal === true || activecapturemodal === "true")) {
-                 const parsedData = JSON.parse(decodeURIComponent(capturemodalData)) || [];
+            if ((paginatedActiveUserList.length > 0) && (!activeSos.isFetching) && (activecapturemodal === true || activecapturemodal === "true")) {
+                const parsedData = JSON.parse(decodeURIComponent(capturemodalData)) || [];
                  setCaptureReportModalItems(parsedData);
                  setTimeout(() => {
                     const el = document.querySelector(`[data-id="${captureAnchorIndex}"]`);
@@ -798,7 +808,7 @@ const Home = () => {
                      setCaptureReportModalOpen(true);
                  }, 300);
             }
-            if ((recentSos?.data?.items.length > 0) && (recentcapturemodal === true || recentcapturemodal === "true")) {
+            if ((recentSos?.data?.items.length > 0) && (!isFetching) && (recentcapturemodal === true || recentcapturemodal === "true")) {
                 const parsedData = JSON.parse(decodeURIComponent(capturemodalrecentData)) || [];
                 setCaptureReportModalItems(parsedData);
                 setTimeout(() => {
