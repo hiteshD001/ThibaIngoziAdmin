@@ -2040,7 +2040,8 @@ export const useGetCrimeReportList = (
     endDate,
     archived,
     sortBy,
-    sortOrder
+    sortOrder,
+    report_status,
 ) => {
     const nav = useNavigate();
 
@@ -2056,7 +2057,8 @@ export const useGetCrimeReportList = (
                 endDate,
                 archived,
                 sortBy,
-                sortOrder
+                sortOrder,
+                report_status
             },
         });
     };
@@ -2073,7 +2075,8 @@ export const useGetCrimeReportList = (
             endDate,
             archived,
             sortBy,
-            sortOrder
+            sortOrder,
+            report_status
         ],
         queryFn: queryFn,
         ...LIST_CACHE_OPTIONS,
