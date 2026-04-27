@@ -45,6 +45,7 @@ import CustomExportMenu from "../../common/Custom/CustomExport";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 
 const ListOfSalesAgent = () => {
     const buttonRefs = useRef({});
@@ -382,6 +383,17 @@ const ListOfSalesAgent = () => {
 			...newParams,
 		});
 	};
+
+    // Handle Scroll Event store 
+    const handleView = (data) => {
+        saveScrollPosition("sosListScroll");
+        nav(`/home/total-sales-agent/agent-information/${data._id}`)
+    };
+    useEffect(() => {
+        if (UserList?.data?.data?.data?.influencersData.length) {
+            restoreScrollPosition("sosListScroll");
+        }
+    }, [UserList?.data?.data?.data?.influencersData]);
 
     return (
         <Box p={2}>
@@ -858,7 +870,7 @@ const ListOfSalesAgent = () => {
                                                         >
                                                             <MenuItem
                                                                 onClick={() => {
-                                                                    nav(`/home/total-sales-agent/agent-information/${selectedUser._id}`)
+                                                                    handleView(selectedUser)
                                                                     handleCloseMenu();
                                                                 }}
                                                             >

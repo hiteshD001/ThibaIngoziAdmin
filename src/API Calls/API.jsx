@@ -3,6 +3,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import apiClient from "./APIClient";
 
+const LIST_CACHE_OPTIONS = {
+    // Keep list data "fresh" for session navigation to prevent back-button refetch.
+    staleTime: Infinity,
+    gcTime: 30 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+};
+
 // --------------------------------------------------- CUSTOM HOOKS ---------------------------------------------------
 
 // get list of user
@@ -54,9 +63,7 @@ export const useGetUserList = (
             sortOrder
         ],
         queryFn: queryFn,
-        staleTime: 0,
-        gcTime: 0,
-        refetchOnWindowFocus: false,
+        ...LIST_CACHE_OPTIONS,
         retry: false,
     });
 
@@ -449,10 +456,7 @@ export const useGetTripList = (key, page = 1, limit = 10, filter, startDate, end
     const res = useQuery({
         queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder, companyId],
         queryFn: queryFn,
-        // Do not cache trip table data (always refetch on param changes)
-        staleTime: 0,
-        gcTime: 0,
-        refetchOnWindowFocus: false,
+        ...LIST_CACHE_OPTIONS,
         retry: false,
     });
 
@@ -504,6 +508,7 @@ export const useGetMeetingLinkTripList = (key, page = 1, limit = 10, filter, sta
     const res = useQuery({
         queryKey: [key, page, limit, filter, startDate, endDate, archived, sortBy, sortOrder, companyId],
         queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
         retry: false,
     });
 
@@ -1000,8 +1005,10 @@ export const useGetRecentSOS = ({ page = 1, limit = 20, startDate, endDate, sear
         queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id],
         queryFn: queryFn,
         placeholderData: keepPreviousData,
-        staleTime: 0, // always refetch when sort/page change so second click triggers API
-        refetchOnWindowFocus: false,
+        ...LIST_CACHE_OPTIONS,
+        retry: false,
+        // staleTime: 0, // always refetch when sort/page change so second click triggers API
+        // refetchOnWindowFocus: false,
     });
 
     return res;
@@ -2032,7 +2039,8 @@ export const useGetCrimeReportList = (
     endDate,
     archived,
     sortBy,
-    sortOrder
+    sortOrder,
+    report_status,
 ) => {
     const nav = useNavigate();
 
@@ -2048,7 +2056,8 @@ export const useGetCrimeReportList = (
                 endDate,
                 archived,
                 sortBy,
-                sortOrder
+                sortOrder,
+                report_status
             },
         });
     };
@@ -2065,9 +2074,11 @@ export const useGetCrimeReportList = (
             endDate,
             archived,
             sortBy,
-            sortOrder
+            sortOrder,
+            report_status
         ],
         queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
         placeholderData: keepPreviousData,
         retry: false,
     });

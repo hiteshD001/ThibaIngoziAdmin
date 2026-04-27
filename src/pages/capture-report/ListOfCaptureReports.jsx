@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams, Link} from "react-router-dom";
+import { useLocation, useNavigate, useParams, Link, useSearchParams} from "react-router-dom";
 import {
     Box, Typography, TextField, Avatar, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem, Chip,
     Tooltip,Dialog,
@@ -34,19 +34,28 @@ import fileBtn from '../../assets/images/fileBtn.svg'
 import arrowup from '../../assets/images/arrowup.svg';
 import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
+import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 
 const ListOfCaptureReports = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
-    const params = useParams();
-    const [page, setpage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [filter, setfilter] = useState("");
+    const params = useParams(); 
+    const [searchParams, setSearchParams] = useSearchParams();
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+    const [range, setRange] = useState([{
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
+        key: 'selection'
+    }]);
+    const currentPage = Number(searchParams.get("currentPage")) || 1;
+    const filter = searchParams.get("filter") || "";
+    const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
+    const locationFilter = searchParams.get("locationFilter") || "";
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
-    const [locationFilter, setlocationFilter] = useState("");
+    // const [locationFilter, setlocationFilter] = useState("");
     const location = useLocation();
     const getQueryParams = new URLSearchParams(location.search);
     const [archived, setArchived] = useState(false)
@@ -69,13 +78,6 @@ const ListOfCaptureReports = () => {
     }
 
     let companyId = localStorage.getItem("userID");
-    const [range, setRange] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
     
@@ -203,6 +205,27 @@ const ListOfCaptureReports = () => {
         setOpenSummaryModel(false);
         setSummaryReportData([]);
     };
+    const updateParams = (newParams) => {
+        setSearchParams({
+            currentPage,
+            rowsPerPage: rowsPerPage,
+            startDate: startDateParam,
+            endDate: endDateParam,
+            filter,
+            locationFilter,
+            ...newParams,
+        });
+    };
+    // Handle Scroll Event store 
+    const handleView = (url) => {        
+        saveScrollPosition("CaptureReportListScroll");
+        nav(url);
+    };
+    useEffect(() => {
+        if (UserList.data?.data?.totalData) {
+            restoreScrollPosition("CaptureReportListScroll");
+        }
+    }, [UserList.data?.data?.totalData]);
 
     return (
         <>
@@ -226,7 +249,7 @@ const ListOfCaptureReports = () => {
                             variant="outlined"
                             placeholder="Search"
                             value={filter}
-                            onChange={(e) => setfilter(e.target.value)}
+                            onChange={(e) => updateParams({filter:e.target.value})}
                             fullWidth
                             sx={{
                                 width: '100%',
@@ -264,7 +287,13 @@ const ListOfCaptureReports = () => {
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
-                                onChange={setRange}
+                                onChange={(nextRange) => {
+									setRange(nextRange);
+									updateParams({
+										startDate: new Date(nextRange[0].startDate).toISOString(),
+										endDate: new Date(nextRange[0].endDate).toISOString(),
+									});
+								}}
                                 icon={calender}
                             />
 
@@ -415,7 +444,7 @@ const ListOfCaptureReports = () => {
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {
                                                         report?.user?.role === "driver" ? (
-                                                            <Link to={`/home/total-drivers/driver-information/${report?.user?._id}`} className="link">
+                                                            <Link onClick={() => handleView(`/home/total-drivers/driver-information/${report?.user?._id}`)} className="link">
                                                                 <Stack direction="row" alignItems="center" gap={1}>
                                                                     <Avatar
                                                                         src={getImageLink(report?.user?.selfieImage)}
@@ -426,7 +455,7 @@ const ListOfCaptureReports = () => {
                                                                     {report?.user?.first_name} {report?.user?.last_name}
                                                                 </Stack>
                                                             </Link>) : (
-                                                            <Link to={`/home/total-users/user-information/${report?.user?._id || report?._id}`} className="link">
+                                                            <Link onClick={() => handleView(`/home/total-users/user-information/${report?.user?._id || report?._id}`)} className="link">
                                                                 <Stack direction="row" alignItems="center" gap={1}>
                                                                     <Avatar
                                                                         src={getImageLink(report?.user?.selfieImage)}
@@ -442,7 +471,7 @@ const ListOfCaptureReports = () => {
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {report?.capture_by ?
                                                         (report?.capture_by?.role === "driver" ? (
-                                                            <Link to={`/home/total-drivers/driver-information/${report?.capture_by?._id}`} className="link">
+                                                            <Link onClick={() => handleView(`/home/total-drivers/driver-information/${report?.capture_by?._id}`)} className="link">
                                                                 <Stack direction="row" alignItems="center" gap={1}>
                                                                     <Avatar
                                                                         src={getImageLink(report?.capture_by?.selfieImage)}
@@ -453,7 +482,7 @@ const ListOfCaptureReports = () => {
                                                                     {report?.capture_by?.first_name} {report?.capture_by?.last_name}
                                                                 </Stack>
                                                             </Link>) : (
-                                                            <Link to={`/home/total-users/user-information/${report?.capture_by?._id || report?._id}`} className="link">
+                                                            <Link onClick={() => handleView(`/home/total-users/user-information/${report?.capture_by?._id || report?._id}`)} className="link">
                                                                 <Stack direction="row" alignItems="center" gap={1}>
                                                                     <Avatar
                                                                         src={getImageLink(report?.capture_by?.selfieImage)}
@@ -493,12 +522,13 @@ const ListOfCaptureReports = () => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {report.arrival || "-"}
+                                                    {report?.arrival?.includes('-') ? report.arrival.replace(/-/g, ":") : report.arrival || "-"}
+                                                    {/* {formatDateTime(report.arrival,"HH:mm:ss") || "-"} */}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {calculteTime(report.createdAt,report.arrival) || "-"}
+                                                    {calculteTime(report?.arrival?.includes('-') ? report.arrival.replace(/-/g, ":") : report.arrival,formatDateTime(report.createdAt,"HH:mm:ss")) || "-"}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
@@ -507,6 +537,7 @@ const ListOfCaptureReports = () => {
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
+                                                    <Tooltip title="View Responder Report" arrow placement="top">
                                                     <Chip
                                                         label={report?.capture_report?.report_status || 'No Report'}
                                                         sx={{
@@ -522,27 +553,31 @@ const ListOfCaptureReports = () => {
                                                             }
                                                         }}
                                                     />
+                                                    </Tooltip>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Stack direction="row" alignItems="center" spacing={1}>
                                                         {report?.capture_report?.evidence_image.slice(0, 2).map((item, index) => (
-                                                            <Box
-                                                                key={index}
-                                                                component="img"
-                                                                src={getImageLink(item)}
-                                                                onClick={() => handleImageClick(getImageLink(item), `Evidence-${index + 1}`)}
-                                                                alt={`evidence-${index}`}
-                                                                sx={{
-                                                                    width: "32px",
-                                                                    height: "32px",
-                                                                    objectFit: 'cover',
-                                                                    borderRadius: '6px',
-                                                                    cursor: 'pointer',
-                                                                    border: '1px solid #E5E7EB'
-                                                                }}
-                                                            />
+                                                            <Tooltip title="View Responder Report" arrow placement="top">
+                                                                <Box
+                                                                    key={index}
+                                                                    component="img"
+                                                                    src={getImageLink(item)}
+                                                                    onClick={() => handleImageClick(getImageLink(item), `Evidence-${index + 1}`)}
+                                                                    alt={`evidence-${index}`}
+                                                                    sx={{
+                                                                        width: "32px",
+                                                                        height: "32px",
+                                                                        objectFit: 'cover',
+                                                                        borderRadius: '6px',
+                                                                        cursor: 'pointer',
+                                                                        border: '1px solid #E5E7EB'
+                                                                    }}
+                                                                />
+                                                            </Tooltip>
                                                         ))}
                                                         {report?.capture_report?.evidence_image.length > 2 && (
+                                                            <Tooltip title="View Responder Report" arrow placement="top">
                                                             <Box
                                                                 sx={{
                                                                     width: 32,
@@ -557,10 +592,11 @@ const ListOfCaptureReports = () => {
                                                                     cursor: 'pointer',
                                                                     fontWeight: 500
                                                                 }}
-                                                                onClick={() => nav(`/home/capture-reports/${report?.capture_report?._id}`)}
+                                                                onClick={() => handleView(`/home/capture-reports/${report?.capture_report?._id}`)}
                                                             >
                                                                 +{report?.capture_report?.evidence_image.length - 2}
                                                             </Box>
+                                                            </Tooltip>
                                                         )}
                                                     </Stack>
                                                 </TableCell>
@@ -568,7 +604,7 @@ const ListOfCaptureReports = () => {
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                         {report?.capture_report?._id && <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`/home/capture-reports/${report?.capture_report?._id}`)}>
+                                                            <IconButton onClick={() => handleView(`/home/capture-reports/${report?.capture_report?._id}`)}>
                                                                 <img src={ViewBtn} alt="flagged button" />
                                                             </IconButton>
                                                         </Tooltip>}
@@ -587,7 +623,7 @@ const ListOfCaptureReports = () => {
                                                                 <img src={Listtrip} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        <Tooltip title="Capture Report" arrow placement="top">
+                                                        <Tooltip title="View Report" arrow placement="top">
                                                             <IconButton onClick={()=>{openSummaryReportModel(report)}}>
                                                                 <img src={fileBtn} alt=" button" />
                                                             </IconButton>
@@ -641,8 +677,7 @@ const ListOfCaptureReports = () => {
                                         }}
                                         value={rowsPerPage}
                                         onChange={(e) => {
-                                            setRowsPerPage(Number(e.target.value));
-                                            setCurrentPage(1);
+                                            updateParams({rowsPerPage:Number(e.target.value),currentPage:1})
                                         }}
                                     >
                                         {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -660,7 +695,7 @@ const ListOfCaptureReports = () => {
                                     </Typography>
                                     <IconButton
                                         disabled={currentPage === 1}
-                                        onClick={() => setCurrentPage((prev) => prev - 1)}
+                                        onClick={() => updateParams({currentPage:currentPage - 1})}
                                     >
                                         <NavigateBeforeIcon fontSize="small" sx={{
                                             color: currentPage === 1 ? '#BDBDBD' : '#1976d2'
@@ -668,7 +703,7 @@ const ListOfCaptureReports = () => {
                                     </IconButton>
                                     <IconButton
                                         disabled={currentPage === totalPages}
-                                        onClick={() => setCurrentPage((prev) => prev + 1)}
+                                        onClick={() => updateParams({currentPage:currentPage + 1})}
                                     >
                                         <NavigateNextIcon fontSize="small" />
                                     </IconButton>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import {
     Box, Typography, Avatar, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Stack, Select, MenuItem, Chip,
@@ -29,6 +29,7 @@ import moment from "moment";
 import arrowup from '../../assets/images/arrowup.svg';
 import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
+import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 
 const ListOfArcheivedCrimeReports = () => {
     const [popup, setpopup] = useState(false);
@@ -205,6 +206,17 @@ const ListOfArcheivedCrimeReports = () => {
     const handleClosePreview = () => {
         setPreviewImage(prev => ({ ...prev, open: false }));
     };
+
+    // Handle Scroll Event store 
+    const handleView = (url) => {
+        saveScrollPosition("crimeListScroll");
+        nav(url);
+    };
+    useEffect(() => {
+        if (UserList.data?.data?.totalCrimeReportData) {
+            restoreScrollPosition("crimeListScroll");
+        }
+    }, [UserList.data?.data?.totalCrimeReportData]);
 
     return (
         <>
@@ -402,7 +414,7 @@ const ListOfArcheivedCrimeReports = () => {
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    <Link to={report.user?.role === "driver" ? `/home/total-drivers/driver-information/${report.user_id}` : `/home/total-users/user-information/${report.user_id}`} className="link2">
+                                                    <Link onClick={()=> handleView(report.user?.role === "driver" ? `/home/total-drivers/driver-information/${report.user_id}` : `/home/total-users/user-information/${report.user_id}`)} className="link2">
                                                         <Stack direction="row" alignItems="center" gap={1}>
                                                             <Avatar
                                                                 src={getImageLink(report.user?.selfieImage)}
@@ -418,7 +430,7 @@ const ListOfArcheivedCrimeReports = () => {
                                                         textDecoration: 'none',
                                                         color: 'var(--orange)',
                                                         cursor: 'pointer',
-                                                    }} to={`/home/crime-reports/request-reached-users/${report?._id}`}>{report?.requestReached || "0"}
+                                                    }} onClick={()=> handleView(`/home/crime-reports/request-reached-users/${report?._id}`)}>{report?.requestReached || "0"}
                                                     </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
@@ -426,7 +438,7 @@ const ListOfArcheivedCrimeReports = () => {
                                                         textDecoration: 'none',
                                                         color: '#01C971',
                                                         cursor: 'pointer',
-                                                    }} to={`/home/crime-reports/request-reached-users/${report?._id}`} state={{ isAccepted: true }}
+                                                    }} onClick={()=> handleView(`/home/crime-reports/request-reached-users/${report?._id}`)} state={{ isAccepted: true }}
                                                     >
                                                         {report?.requestAccepted || "0"}
                                                     </Link>
@@ -465,7 +477,7 @@ const ListOfArcheivedCrimeReports = () => {
                                                                     cursor: 'pointer',
                                                                     fontWeight: 500
                                                                 }}
-                                                                onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}
+                                                                onClick={() => handleView(`/home/crime-reports/crime-report/${report._id}`)}
                                                             >
                                                                 +{report.evidence_image.length - 2}
                                                             </Box>
@@ -505,7 +517,7 @@ const ListOfArcheivedCrimeReports = () => {
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`/home/crime-reports/crime-report/${report._id}`)}>
+                                                            <IconButton onClick={() => handleView(`/home/crime-reports/crime-report/${report._id}`)}>
                                                                 <img src={ViewBtn} alt="flagged button" />
                                                             </IconButton>
                                                         </Tooltip>

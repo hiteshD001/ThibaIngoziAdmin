@@ -25,6 +25,7 @@ const Navbar = ({ setActive, isActive }) => {
     const [userId, setUserID] = useState("");
 
     const location = useLocation()
+    const getQueryParams = new URLSearchParams(location.search);
     const nav = useNavigate();
 
     const { data: permissionsData } = useGetPermissionsByRoleId(roleId);
@@ -58,7 +59,10 @@ const Navbar = ({ setActive, isActive }) => {
             const currentMenu = menulist.find(menu => menu.id === menuId);
 
             setPageTitle(currentMenu ? currentMenu.name : "Dashboard");
-
+            if(menuId === 'capture-reports'){
+              setPageTitle(`SOS Reports${(getQueryParams.get("sosId") ? '-'+getQueryParams.get("sosId") : '')}`) 
+              setIsSubMenu(true);
+            }
             if (menuId === "settings") {
                 setPageTitle("Settings & Configurations")
                 setIsSubMenu(true);

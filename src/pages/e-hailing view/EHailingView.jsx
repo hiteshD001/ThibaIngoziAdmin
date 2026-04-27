@@ -30,6 +30,7 @@ import { useMaps } from '../../contexts/MapsContext';
 import { SOSStatusUpdate } from '../../common/ConfirmationPOPup';
 import CustomDateRangePicker from '../../common/Custom/CustomDateRangePicker';
 import TimeFilter from '../../common/Custom/TimeFilter';
+import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -44,7 +45,7 @@ const getImageLink = (name) => {
 }
 
 // Memoized Active SOS Table Row Component
-const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTextToCopy, updatingId, selectedId, status, setStatus, setStatusUpdate, setSelectedId, copyButtonStyles, isNavigatingBack, realtimeUpdates, onOpenOtherUsers }) => {
+const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTextToCopy, updatingId, selectedId, status, setStatus, setStatusUpdate, setSelectedId, copyButtonStyles, isNavigatingBack, realtimeUpdates, onOpenOtherUsers,updateParams,searchParams }) => {
     const handleStatusChange = useCallback((e) => {
         setStatus(e.target.value);
         setStatusUpdate(true);
@@ -61,6 +62,12 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
     }, [nav, user]);
 
     const handleOtherUserClick = useCallback(() => {
+        updateParams({
+            modal: true,
+            type: 'ACTIVE',
+            selectedUser: '',
+            modalData: encodeURIComponent(JSON.stringify(user?.otherUser)),
+        });
         onOpenOtherUsers?.(user?.otherUser);
     }, [onOpenOtherUsers, user]);
 
@@ -69,6 +76,24 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
         if (Array.isArray(user.otherUser)) return user.otherUser.filter(Boolean).length > 0;
         return !!user.otherUser?._id;
     }, [user?.otherUser]);
+
+    const activemodal = searchParams.get("modal");
+    const modalData = searchParams.get("modalData") || "";
+    // Handle Scroll Event store 
+    const handleView = (url) => {
+        saveScrollPosition('EhailingPageScroll');
+        nav(url)
+    };
+    
+    useEffect(() => {
+        if (user) {
+            restoreScrollPosition("EhailingPageScroll");
+            if ((user) && (activemodal === true || activemodal === "true")) {
+                const parsedData = JSON.parse(decodeURIComponent(modalData)) || [];
+                onOpenOtherUsers?.(parsedData);
+            }
+        }
+    }, [user]);
 
     return (
         <TableRow>
@@ -83,9 +108,9 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                     </Stack>
                 ) : (
                     user?.role === "driver" ? (
-                        <Link to={`/home/total-drivers/driver-information/${user?.user_id}`} className="link"
-                            onClick={() => isNavigatingBack.current = true}>
-                            <Stack direction="row" alignItems="center" gap={1}>
+                        // <Link to={`/home/total-drivers/driver-information/${user?.user_id}`} className="link"
+                        //     onClick={() => isNavigatingBack.current = true}>
+                            <Stack direction="row" sx={{cursor:'pointer'}} alignItems="center" gap={1} onClick={() => handleView(`/home/total-drivers/driver-information/${user?.user_id}`)}>
                                 <Avatar
                                     src={getImageLink(user?.user?.selfieImage)}
                                     sx={{ '&:hover': { textDecoration: 'none' } }}
@@ -93,14 +118,15 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                                 />
                                 {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                             </Stack>
-                        </Link>) : (
-                        <Link to={`/home/total-users/user-information/${user?.user_id}`} className="link"
-                            onClick={() => isNavigatingBack.current = true}>
-                            <Stack direction="row" alignItems="center" gap={1}>
+                        // </Link>
+                    ) : (
+                        // <Link to={`/home/total-users/user-information/${user?.user_id}`} className="link"
+                        //     onClick={() => isNavigatingBack.current = true}>
+                            <Stack direction="row" sx={{cursor:'pointer'}} alignItems="center" gap={1} onClick={() => handleView(`/home/total-users/user-information/${user?.user_id}`)}>
                                 <Avatar src={getImageLink(user?.user?.selfieImage)} alt="User" />
                                 {user?.user?.first_name || user?.user_id?.first_name} {user?.user?.last_name || user?.user_id?.last_name}
                             </Stack>
-                        </Link>
+                        // </Link>
                     )
                 )}
             </TableCell>
@@ -289,14 +315,14 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
 ActiveSOSTableRow.displayName = 'ActiveSOSTableRow';
 
 // Memoized Recent SOS Table Row Component
-const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, userinfo, isNavigatingBack, onOpenOtherUsers }) => {
+const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, userinfo, isNavigatingBack, onOpenOtherUsers,updateRecentParams,recentSearchParams }) => {
     const handleCopyAddress = useCallback((address) => {
         setTextToCopy(address);
         handleCopy(address);
     }, [setTextToCopy, handleCopy]);
 
     const handleViewLocation = useCallback(() => {
-        nav(`/home/hotspot/location?locationId=${row._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`);
+        handleView(`/home/hotspot/location?locationId=${row._id}&lat=${row?.lat}&long=${row?.long}&end_lat=${userinfo?.data?.data?.user?.current_lat}&end_long=${userinfo?.data?.data?.user?.current_long}&req_reach=${row?.req_reach}&req_accept=${row?.req_accept}`)
     }, [nav, row, userinfo]);
 
     const hasOtherUsers = useMemo(() => {
@@ -305,6 +331,24 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
         return !!row.otherUser?._id;
     }, [row?.otherUser]);
 
+    const recentmodal = recentSearchParams.get("modal");
+    const modalData = recentSearchParams.get("modalData") || "";
+    // Handle Scroll Event store 
+    const handleView = (url) => {
+        saveScrollPosition('EhailingPageScroll');
+        nav(url)
+    };
+
+    useEffect(() => {
+        if (row) {
+            restoreScrollPosition("EhailingPageScroll");
+            if ((row) && (recentmodal === true || recentmodal === "true")) {
+                const parsedData = JSON.parse(decodeURIComponent(modalData)) || [];
+                onOpenOtherUsers?.(parsedData);
+            }
+        }
+    }, [row]);
+
     return (
         <TableRow key={row?._id}>
             <TableCell sx={{ color: 'var(--Blue)' }}>
@@ -312,21 +356,21 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
             </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
                 {row.user?.role === "driver" ? (
-                    <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link"
-                        onClick={() => isNavigatingBack.current = true}>
-                        <Stack direction="row" alignItems="center" gap={1}>
+                    // <Link to={`/home/total-drivers/driver-information/${row.user._id}`} className="link"
+                    //     onClick={() => isNavigatingBack.current = true}>
+                        <Stack direction="row" sx={{cursor:'pointer'}} alignItems="center" gap={1} onClick={()=>handleView(`/home/total-drivers/driver-information/${row.user._id}`)}> 
                             <Avatar src={getImageLink(row?.user?.selfieImage)} alt="User" />
                             {row?.user?.first_name || ''} {row?.user?.last_name || ''}
                         </Stack>
-                    </Link>
+                    // </Link>
                 ) : (
-                    <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link"
-                        onClick={() => isNavigatingBack.current = true}>
-                        <Stack direction="row" alignItems="center" gap={1}>
+                    // <Link to={`/home/total-users/user-information/${row?.user?._id}`} className="link"
+                    //     onClick={() => isNavigatingBack.current = true}>
+                        <Stack direction="row" sx={{cursor:'pointer'}} alignItems="center" gap={1} onClick={()=>handleView(`/home/total-users/user-information/${row?.user?._id}`)}>
                             <Avatar src={getImageLink(row?.user?.selfieImage)} alt="User" />
                             {row?.user?.first_name || ''} {row?.user?.last_name || ''}
                         </Stack>
-                    </Link>
+                    // </Link>
                 )}
             </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
@@ -437,7 +481,15 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                                         minWidth: "auto",
                                         "&:hover": { backgroundColor: "#1864c7" },
                                     }}
-                                    onClick={() => onOpenOtherUsers?.(row?.otherUser)}
+                                    onClick={() => {
+                                        onOpenOtherUsers?.(row?.otherUser),
+                                        updateRecentParams({
+                                            modal: true,
+                                            type: 'RECENT',
+                                            selectedUser: '',
+                                            modalData: encodeURIComponent(JSON.stringify(row?.otherUser)),
+                                        });
+                                    }}
                                 >
                                     Other Users
                                 </Button>
@@ -532,11 +584,28 @@ const EHialingView = () => {
             : `/home/total-users/user-information/${id}`;
     }, [getOtherUserId, getOtherUserRole]);
 
-    const openOtherUsersModal = useCallback((otherUser) => {
+    const openOtherUsersModal = useCallback((otherUser,type,selectedId) => {
       
         const items = normalizeOtherUsers(otherUser);
         setOtherUsersModalItems(items);
         setOtherUsersModalOpen(true);
+        if (type == 'ACTIVE') {
+            updateParams({
+                modal: true,
+                type: type,
+                selectedUser:selectedId,
+                modalData: encodeURIComponent(JSON.stringify(items)),
+            });
+        }
+        if (type == 'RECENT') {
+            updateRecentParams({
+                modal: true,
+                type: type,
+                selectedUser:selectedId,
+                modalData: encodeURIComponent(JSON.stringify(items)),
+            });
+        }
+        
     }, [normalizeOtherUsers]);
     const closeOtherUsersModal = useCallback(() => {
         setOtherUsersModalOpen(false);
@@ -940,7 +1009,7 @@ const EHialingView = () => {
     }, [range])
 
     // Update Active Sos Params
-    const updateParams = (newParams) => {
+    const updateParams = (newParams) => { 
         setSearchParams({
             activePage,
             activeLimit,
@@ -959,6 +1028,11 @@ const EHialingView = () => {
             endDate: endDateRecentParam,
             ...newParams,
         });
+    };
+
+    const handleView = (url) => {
+        saveScrollPosition('EhailingPageScroll');
+        nav(url)
     };
 
     return (
@@ -1180,6 +1254,8 @@ const EHialingView = () => {
                                                     isNavigatingBack={isNavigatingBack}
                                                     realtimeUpdates={realtimeUpdates}
                                                     onOpenOtherUsers={openOtherUsersModal}
+                                                    updateParams={updateParams}
+                                                    searchParams={searchParams}
                                                 />
                                             ))
                                             :
@@ -1418,6 +1494,8 @@ const EHialingView = () => {
                                                     userinfo={userinfo}
                                                     isNavigatingBack={isNavigatingBack}
                                                     onOpenOtherUsers={openOtherUsersModal}
+                                                    updateRecentParams={updateRecentParams}
+                                                    recentSearchParams={recentSearchParams}
                                                 />
                                             ))
                                             :
@@ -1553,7 +1631,8 @@ const EHialingView = () => {
                                                         onClick={() => {
                                                             if (!route) return;
                                                             closeOtherUsersModal();
-                                                            nav(route);
+                                                            // nav(route);
+                                                            handleView(route)
                                                         }}
                                                         sx={{
                                                             borderRadius: 2,
@@ -1586,7 +1665,8 @@ const EHialingView = () => {
                                                             onClick={() => {
                                                                 if (!route) return;
                                                                 closeOtherUsersModal();
-                                                                nav(route);
+                                                                // nav(route);
+                                                                handleView(route)
                                                             }}
                                                             sx={{
                                                                 backgroundColor: '#1E73E8',
@@ -1653,7 +1733,8 @@ const EHialingView = () => {
                                                             onClick={() => {
                                                                 if (!route) return;
                                                                 closeOtherUsersModal();
-                                                                nav(route);
+                                                                // nav(route);
+                                                                handleView(route)
                                                             }}
                                                             sx={{
                                                                 borderRadius: 2,
@@ -1686,7 +1767,8 @@ const EHialingView = () => {
                                                                 onClick={() => {
                                                                     if (!route) return;
                                                                     closeOtherUsersModal();
-                                                                    nav(route);
+                                                                    // nav(route);
+                                                                    handleView(route)
                                                                 }}
                                                                 sx={{
                                                                     backgroundColor: '#1E73E8',
@@ -1713,7 +1795,7 @@ const EHialingView = () => {
                     )}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={closeOtherUsersModal}>Close</Button>
+                    <Button onClick={()=>{closeOtherUsersModal(),updateRecentParams({modal: false,modalData: null}),updateParams({modal: false,modalData: null})}}>Close</Button>
                 </DialogActions>
             </Dialog>
         </Box >
