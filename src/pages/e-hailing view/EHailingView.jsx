@@ -210,7 +210,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
             <TableCell sx={{ color: 'var(--orange)' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Link
-                        to={`/home/request-reached-users/${user?._id}`}
+                        onClick={() =>  handleView(`/home/request-reached-users/${user?._id}`)}
                         style={{
                             textDecoration: 'none',
                             color: 'var(--orange)',
@@ -227,7 +227,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
             <TableCell sx={{ color: '#01C971' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Link
-                        to={`/home/request-accepted-users/${user?._id}`}
+                        onClick={() =>  handleView(`/home/request-accepted-users/${user?._id}`)}
                         style={{
                             textDecoration: 'none',
                             color: '#01C971',
@@ -413,7 +413,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
             </TableCell>
             <TableCell sx={{ color: 'var(--orange)' }}>
                 <Link
-                    to={`/home/request-reached-users/${row?._id}`}
+                    onClick={() =>  handleView(`/home/request-reached-users/${row?._id}`)}
                     style={{
                         textDecoration: 'none',
                         color: 'var(--orange)',
@@ -425,7 +425,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
             </TableCell>
             <TableCell sx={{ color: '#01C971' }}>
                 <Link
-                    to={`/home/request-accepted-users/${row?._id}`}
+                    onClick={() =>  handleView(`/home/request-accepted-users/${row?._id}`)}
                     style={{
                         textDecoration: 'none',
                         color: '#01C971',

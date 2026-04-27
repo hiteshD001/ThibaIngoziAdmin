@@ -1203,7 +1203,7 @@ const Home = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
                                                         <Link
-                                                            to={`/home/request-reached-users/${user?._id}`}
+                                                            onClick={() =>  handleView(`/home/request-reached-users/${user?._id}`)}
                                                             style={{
                                                                 textDecoration: 'none',
                                                                 color: 'var(--orange)',
@@ -1215,7 +1215,7 @@ const Home = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#01C971' }}>
                                                         <Link
-                                                            to={`/home/request-accepted-users/${user?._id}`}
+                                                            onClick={() =>  handleView(`/home/request-accepted-users/${user?._id}`)}
                                                             style={{
                                                                 textDecoration: 'none',
                                                                 color: '#01C971',
@@ -2079,7 +2079,7 @@ const Home = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>
                                                         <Link
-                                                            to={`/home/request-reached-users/${row?._id}`}
+                                                            onClick={() =>  handleView(`/home/request-reached-users/${row?._id}`)}
                                                             style={{
                                                                 textDecoration: 'none',
                                                                 color: 'var(--orange)',
@@ -2091,7 +2091,7 @@ const Home = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#01C971' }}>
                                                         <Link
-                                                            to={`/home/request-accepted-users/${row?._id}`}
+                                                            onClick={() =>  handleView(`/home/request-accepted-users/${row?._id}`)}
                                                             style={{
                                                                 textDecoration: 'none',
                                                                 color: '#01C971',
