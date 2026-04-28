@@ -2538,3 +2538,188 @@ export const useGetCommentsList = () => {
 
     return res;
 };
+
+// Suspect Sightings APIs
+export const useGetSuspectSightingsList = (
+    key,
+    role,
+    page,
+    limit,
+    filter,
+    locationFilter,
+    startDate,
+    endDate,
+    archived,
+    sortBy,
+    sortOrder,
+    linked_case_type,
+    linked_case_type_id
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/suspect-sighting`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                locationFilter,
+                startDate,
+                endDate,
+                archived,
+                sortBy,
+                sortOrder,
+                linked_case_type,
+                linked_case_type_id
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            locationFilter,
+            startDate,
+            endDate,
+            archived,
+            sortBy,
+            sortOrder,
+            linked_case_type,
+            linked_case_type_id
+        ],
+        queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetSuspectSightingById = (suspect_sighting_id) => {
+    const nav = useNavigate();
+
+   const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/suspect-sighting/${suspect_sighting_id}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["crimereport", suspect_sighting_id],
+        queryFn: queryFn,
+        staleTime: Infinity,
+        enabled: suspect_sighting_id !== undefined,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useDeleteSuspectSighting = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/suspect-sighting/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useSuspectSightPutIsArchived = (onSucess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/suspect-sighting/isArchived/${id}`,
+            data
+        );
+    };
+
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+
+    return res;
+}
+
+export const useUpdateSuspectMarkAsReviewed = (onSucess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/suspect-sighting/markasreviewed/${id}`,
+            data
+        );
+    };
+
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+
+    return res;
+}
+
+export const useGetSuspectSightingsReportedUsers = (linked_case_type_id, page = 1, limit = 10,search = "") => {
+    const nav = useNavigate();
+    const queryFn = async () => {
+        const queryParams = new URLSearchParams({
+            page: page.toString(),
+            limit: limit.toString(),
+            isWeb: true,
+            ...(search && search.trim() ? { search: search.trim() } : {})
+        }).toString();
+
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/suspect-sighting/suspect-sightings-reported-users/${linked_case_type_id}?${queryParams}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: [linked_case_type_id, page, limit, search],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetSuspectSightingsListV2 = async (
+    linked_case_type_id,
+    linked_case_type,
+    role,
+    page,
+    limit
+) => {
+    return await apiClient.get(`${import.meta.env.VITE_BASEURL}/suspect-sighting`, {
+        params: {
+            linked_case_type_id,
+            linked_case_type,
+            role,
+            page,
+            limit
+        },
+    });
+};

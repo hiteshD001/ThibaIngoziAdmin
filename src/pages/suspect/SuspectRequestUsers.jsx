@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
     Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, Chip,
-    Tooltip,TableSortLabel,Popover,Divider,Button,List 
+    Tooltip, TableSortLabel,
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -28,11 +28,12 @@ import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 import { useGetSuspectSightingsList, useSuspectSightPutIsArchived, useGetSuspectSightingsListV2 } from "../../API Calls/API";
-import {getImageLink,formatDateTime } from '../../common/commonFn';
+import { getImageLink, formatDateTime } from '../../common/commonFn';
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import { toast } from "react-toastify";
 
-const ListOfSuspect = () => {
+const SuspectRequestUsers = () => {
+
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
@@ -47,7 +48,6 @@ const ListOfSuspect = () => {
     }]);
     const currentPage = Number(searchParams.get("currentPage")) || 1;
     const filter = searchParams.get("filter") || "";
-    const locationFilter = searchParams.get("locationFilter") || "";
     const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
     const totalUsers = 10;
     const [sortBy, setSortBy] = useState("createdAt");
@@ -55,10 +55,7 @@ const ListOfSuspect = () => {
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
     const [archived, setArchived] = useState(false)
-    const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
-    const location = useLocation();
-    const getQueryParams = new URLSearchParams(location.search);
     const changeSortOrder = (e) => {
         const field = e.target.id;
 
@@ -69,10 +66,10 @@ const ListOfSuspect = () => {
             setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
         }
     }
-    const responseData = useGetSuspectSightingsList("suspect sightings list", role, currentPage, rowsPerPage, filter, locationFilter, startDate, endDate, archived, sortBy, sortOrder,getQueryParams.get("linked_case_type"),getQueryParams.get("linked_case_type_id"));
+    const responseData = useGetSuspectSightingsList("suspect sightings list", role, currentPage, rowsPerPage, filter, '', startDate, endDate, archived, sortBy, sortOrder,'', params.id);
     const totalData = responseData.data?.data?.totaldata || 0;
     const totalPages = Math.ceil(totalData / rowsPerPage);
-    
+
     const updateTripMutation = useSuspectSightPutIsArchived(
         (id, data) => {
             toast.success("Suspect Sighting Report Archived Successfully")
@@ -83,157 +80,27 @@ const ListOfSuspect = () => {
             console.error('Error updating trip:', error);
         }
     );
-    const handleExport = async ({ startDate, endDate, exportFormat }) => {
-        try {
-
-            const data = responseData.data?.data
-
-            const allUsers = data?.data || [];
-            if (!allUsers.length) {
-                toast.warning("No Suspect Sightings Report data found for this period.");
-                return;
-            }
-
-            const exportData = allUsers.map(user => ({
-                "Suspect Name": `${user.suspect_id?.first_name || ''} ${user.suspect_id?.last_name || ''}` ?? '',
-                "Reporter": `${user.reporter_id?.first_name || ''} ${user.reporter_id?.last_name || ''}` ?? '',
-                "Location": `${user.address || ''}`,
-                "Description": user.description || '',
-                "Date Reported": user.createdAt || '',
-                "Status": user.report_status || ''
-            }));
-
-            if (exportFormat === "xlsx") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
-                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
-                }));
-                worksheet['!cols'] = columnWidths;
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
-                XLSX.writeFile(workbook, "Suspect_Sightings_Report.xlsx");
-            }
-            else if (exportFormat === "csv") {
-
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const csv = XLSX.utils.sheet_to_csv(worksheet);
-                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'Suspect_Sightings_Report.csv';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-            else if (exportFormat === "pdf") {
-                const doc = new jsPDF();
-                doc.text('Suspect Sightings Report List', 14, 16);
-                autoTable(doc, {
-                    head: [['Suspect Name', 'Reporter', 'Location.', 'Description', 'Date Reported', 'Status']],
-                    body: allUsers.map(user => [
-                        `${user.suspect_id?.first_name || ''} ${user.suspect_id?.last_name || ''}` ?? 'NA',
-                        `${user.reporter_id?.first_name || ''} ${user.reporter_id?.last_name || ''}` ?? 'NA',
-                        `${user.address || ''}` ?? 'NA',
-                        user.description ?? 'NA',
-                        user.createdAt ?? 'NA',
-                        user.report_status ?? 'NA'
-                    ]),
-                    startY: 20,
-                    theme: 'striped',
-                    headStyles: { fillColor: '#367BE0' },
-                    margin: { top: 20 },
-                    styles: { fontSize: 10 },
-                });
-                doc.save("Suspect_Sightings_Report.pdf");
-            }
-
-        } catch (err) {
-            console.error("Error exporting data:", err);
-            toast.error("Export failed.");
-        }
-    };
-    const handleFilterData = (data) => {
-
-        const params = Object.fromEntries(
-            Object.entries(data).filter(
-                ([_, value]) => value !== "" && value !== undefined && value !== null
-            )
-        );
-
-        const filterText = new URLSearchParams(params).toString();
-        updateParams({ locationFilter: filterText })
-    };
-
-    // Model Open
-    const [suspectSightingModalOpen, setSuspectSightingModalOpen] = useState(false);
-    const [suspectSightingModalItems, setSuspectSightingModalItems] = useState([]);
-    const [linkedCaseId, setLinkedCaseId] = useState(null);
-    const [linkedCaseType, setLinkedCaseType] = useState(null);
-    const [anchorEl, setAnchorEl] = useState(null);
-
-    const openModal = async (linked_case_type_id,linked_case_type, event) => { 
-        const el = document.querySelector(`[data-id="${linked_case_type_id}"]`);
-
-        setAnchorEl(el);
-        setLinkedCaseId(linked_case_type_id)
-        setLinkedCaseType(linked_case_type)
-        let suspectList = await useGetSuspectSightingsListV2(linked_case_type_id,linked_case_type, role, 1, 3);
-        let items = suspectList.data?.data || []
-
-        setSuspectSightingModalItems(items);
-        setSuspectSightingModalOpen(true);
-        updateParams({
-            model: true,
-            modelData: encodeURIComponent(JSON.stringify(items)),
-            AnchorEl: linked_case_type_id,
-        });
-    };
-    const closeModal = () => {
-        setSuspectSightingModalOpen(false);
-        setSuspectSightingModalItems([]);
-        setAnchorEl(null);
-        updateParams({
-            model: false,
-            modelData: '',
-            AnchorEl: '',
-        });
-    };
 
     const updateParams = (newParams) => {
-        setSearchParams((prev) => {
-            const prevParams = Object.fromEntries(prev.entries());
-
-            return {
-                ...prevParams,
-                ...newParams,
-            };
+        setSearchParams({
+            currentPage,
+            rowsPerPage: rowsPerPage,
+            startDate: startDateParam,
+            endDate: endDateParam,
+            filter,
+            ...newParams,
         });
     };
-    
+
     // Hanlde Scroll
     const handleView = (url) => {
-        saveScrollPosition("suspectListScroll");
+        saveScrollPosition("suspectSightingReportUsersListScroll");
         nav(url);
     };
-    const model = searchParams.get("model");
-    const AnchorEl  =  searchParams.get("AnchorEl") || null;
-    const modelData = searchParams.get("modelData") || "";
 
     useEffect(() => {
-        if (responseData.data?.data.data?.length > 0) {
-            restoreScrollPosition("suspectListScroll");
-            
-            // Model Open
-            if ((!responseData.isFetching) && (model === true || model === "true")) {
-                const parsedData = JSON.parse(decodeURIComponent(modelData)) || [];
-                setSuspectSightingModalItems(parsedData);
-                setTimeout(() => {
-                    const el = document.querySelector(`[data-id="${AnchorEl}"]`);
-                    setAnchorEl(el || null);
-                    setSuspectSightingModalOpen(true);
-                }, 300);
-            }
-
+        if (responseData.data?.data?.totaldata) {
+            restoreScrollPosition("suspectSightingReportUsersListScroll");
         }
     }, [responseData.data?.data?.totaldata]);
 
@@ -243,7 +110,7 @@ const ListOfSuspect = () => {
                 <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                         <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                            <Typography variant="h6" fontWeight={590}>All Suspect Sightings</Typography>
+                            <Typography variant="h6" fontWeight={590}>Suspect Sightings Report</Typography>
                         </Grid>
                         <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
 
@@ -285,7 +152,6 @@ const ListOfSuspect = () => {
                                 }}
                             />
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
-                                <CustomFilter />
                                 <CustomDateRangePicker
                                     borderColor={'var(--light-gray)'}
                                     value={range}
@@ -298,7 +164,6 @@ const ListOfSuspect = () => {
                                     }}
                                     icon={calender}
                                 />
-                                <CustomExportMenu onExport={handleExport} />
                             </Box>
 
                         </Grid>
@@ -309,23 +174,14 @@ const ListOfSuspect = () => {
                             <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px', minWidth: 150 } }}>
                                 <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                                     <TableRow >
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center',borderTopLeftRadius: '10px' }}>
                                             <TableSortLabel
-                                                id="suspect_first_name"
-                                                active={sortBy === 'suspect_first_name'}
+                                                id="case_number"
+                                                active={sortBy === 'case_number'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'suspect_first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-                                            >Suspect Name</TableSortLabel>
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
-                                            <TableSortLabel
-                                                id="address"
-                                                active={sortBy === 'address'}
-                                                direction={sortOrder}
-                                                onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'address' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-                                            >Location Reported</TableSortLabel>
+                                                IconComponent={() => <img src={sortBy === 'case_number' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Linked Case ID</TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             <TableSortLabel
@@ -338,30 +194,21 @@ const ListOfSuspect = () => {
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             <TableSortLabel
+                                                id="address"
+                                                active={sortBy === 'address'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'address' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Location Reported</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
                                                 id="createdAt"
                                                 active={sortBy === 'createdAt'}
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
                                                 IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                             >Date&Time</TableSortLabel>
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>
-                                            <TableSortLabel
-                                                id="case_number"
-                                                active={sortBy === 'case_number'}
-                                                direction={sortOrder}
-                                                onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'case_number' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-                                            >Linked Case ID</TableSortLabel>
-                                        </TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>
-                                            <TableSortLabel
-                                                id="reported_users"
-                                                active={sortBy === 'reported_users'}
-                                                direction={sortOrder}
-                                                onClick={changeSortOrder}
-                                                IconComponent={() => <img src={sortBy === 'reported_users' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-                                            >Sightings Reported</TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>
                                             <TableSortLabel
@@ -386,22 +233,11 @@ const ListOfSuspect = () => {
                                     }
                                     {responseData.data?.data.data?.length > 0 ? responseData.data?.data.data.map((obj) => (
                                         <TableRow key={obj._id}>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                <Link onClick={() => handleView(obj?.suspect_id.role === "driver" ? `/home/total-drivers/driver-information/${obj?.suspect_id._id}` : `/home/total-users/user-information/${obj?.suspect_id._id}`)} className="link2">
-                                                    <Stack direction="row" alignItems="center" gap={1}>
-                                                        <Avatar
-                                                            src={getImageLink(obj?.suspect_id?.selfieImage) || nouser}
-                                                            sx={{ '&:hover': { textDecoration: 'none' } }}
-                                                            alt="User"
-                                                        />
-                                                        {obj?.suspect_id?.first_name + ' ' + obj?.suspect_id?.last_name || "-"}
-                                                    </Stack>
+                                            
+                                            <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
+                                                <Link onClick={() => handleView(obj?.linked_case_type === 'crimereports' ? `/home/crime-reports/crime-report/${obj?.linked_case_data?._id}` : `/home/capture-reports?location_id=${obj?.linked_case_data?._id}&sosId=${obj?.linked_case_data?.sosNumber}`)} className="link2">
+                                                    {obj?.linked_case_type === 'crimereports' ? obj?.linked_case_data?.crime_report_number : obj?.linked_case_data?.sosNumber || "-"}
                                                 </Link>
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-
-                                                {obj.address || "-"}
-
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>
                                                 <Link onClick={() => handleView(obj?.reporter_id.role === "driver" ? `/home/total-drivers/driver-information/${obj?.reporter_id._id}` : `/home/total-users/user-information/${obj?.reporter_id._id}`)} className="link2">
@@ -415,20 +251,13 @@ const ListOfSuspect = () => {
                                                     </Stack>
                                                 </Link>
                                             </TableCell>
+                                            <TableCell sx={{ color: '#4B5563' }}>
+                                                {obj.address || "-"}
+                                            </TableCell>
                                             <TableCell sx={{ color: '#4B5563', textAlign: 'center' }}>
                                                 {moment(obj.createdAt).isSame(moment(), "day")
                                                     ? `Today, ${moment(obj.createdAt).format("hh:mm A")}`
-                                                    : formatDateTime(obj.createdAt,"HH:mm:ss - DD/MM/YYYY")}
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
-                                                <Link onClick={() => handleView(obj?.linked_case_type === 'crimereports' ? `/home/crime-reports/crime-report/${obj?.linked_case_data?._id}` : `/home/capture-reports?location_id=${obj?.linked_case_data?._id}&sosId=${obj?.linked_case_data?.sosNumber}`)} className="link2">
-                                                    {obj?.linked_case_type === 'crimereports' ?  obj?.linked_case_data?.crime_report_number : obj?.linked_case_data?.sosNumber || "-"}
-                                                </Link>
-                                            </TableCell>
-                                            <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
-                                                <Link onClick={() => handleView(`/home/total-suspect/suspect-sightings-reported-users/${obj?.linked_case_data?._id}`)} className="link2">
-                                                    {obj?.reported_users}
-                                                </Link>
+                                                    : formatDateTime(obj.createdAt, "HH:mm:ss - DD/MM/YYYY")}
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563', textAlign: 'center' }}>
 
@@ -459,27 +288,12 @@ const ListOfSuspect = () => {
                                                             <img src={ViewBtn} alt="flagged button" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                    <Tooltip title=" Suspect Sightings Report" arrow placement="top">
-                                                        <IconButton data-id={obj?.linked_case_data?._id} onClick={(e) => openModal(obj?.linked_case_data?._id,obj?.linked_case_type, e)}>
-                                                            <img src={fileBtn} alt="button" />
-                                                        </IconButton>
-                                                    </Tooltip>
+                                                   
                                                     <Tooltip title="Delete" arrow placement="top">
                                                         <IconButton onClick={() => setconfirmation(obj?._id)}>
                                                             <img src={delBtn} alt="delete button" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                    <Tooltip title="Archive" arrow placement="top">
-                                                        <IconButton onClick={() => {
-                                                            updateTripMutation.mutate({
-                                                                id: obj?._id,
-                                                                data: { isArchived: true }
-                                                            });
-                                                        }}>
-                                                            <img src={Listtrip} alt="view button" />
-                                                        </IconButton>
-                                                    </Tooltip>
-
                                                     {confirmation === obj?._id && (
                                                         <DeleteConfirm id={obj?._id} trip={"suspectSighting"} setconfirmation={setconfirmation} />
                                                     )}
@@ -564,120 +378,9 @@ const ListOfSuspect = () => {
                 </Paper>
                 {popup && <ImportSheet setpopup={setpopup} type="user" />}
             </Box>
-
-            {/* Model Open */}
-            <Popover
-                open={suspectSightingModalOpen}
-                anchorEl={anchorEl}
-                onClose={closeModal}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'left',
-                }}
-                PaperProps={{
-                    sx: {
-                        borderRadius: 3,
-                        width: 499,
-                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                    }
-                }}
-            >
-                {/* DialogTitle */}
-                <Box sx={{ px: 3, pt: 2, pb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <Typography fontWeight={600} fontSize={16}>
-                        Sightings Reports
-                    </Typography>
-                    <Chip
-                        label={'View All'}
-                        sx={{
-                            backgroundColor: '#367BE0',
-                            color: 'white',
-
-                            '& .MuiChip-label': {
-                                color: 'white', // force label text color
-                            },
-
-                            '&.MuiChip-clickable:hover': {
-                                backgroundColor: '#367BE0', // prevent bg change
-                                color: 'white',
-                            }
-                        }}
-                        onClick={() => handleView(`/home/total-suspect/suspect-sightings-reported-users/${linkedCaseId}`)}
-                    />
-                </Box>
-
-                <Divider />
-
-                {/* Content */}
-                <Box sx={{ px: 2, py: 1, maxHeight: 360, overflowY: 'auto' }}>
-                    {suspectSightingModalItems.length === 0 ? (
-                        <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
-                            No other users found.
-                        </Typography>
-                    ) : (
-                        <List disablePadding>
-                            {suspectSightingModalItems.map((u, idx) => {
-                                let fullName = u?.reporter_id?.first_name + u?.reporter_id?.last_name || "-"
-                                return (
-                                    <Box
-                                        key={u?.reporter_id?._id || idx}
-                                        sx={{
-                                            border: '1px solid #E5E7EB',
-                                            borderRadius: '16px',
-                                            p: 2,
-                                            mb: 1.5,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                            boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-                                            backgroundColor: '#fff',
-                                        }}
-                                    >
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Avatar
-                                                src={getImageLink(u?.reporter_id.selfieImage) || nouser}
-                                                alt="User"
-                                                sx={{ width: 48, height: 48 }}
-                                            />
-                                            <Typography fontWeight={600} fontSize={15} color="#111827">
-                                                {fullName || '-'}
-                                            </Typography>
-                                        </Box>
-                                        <Chip
-                                            label={u?.report_status || 'No Report'}
-                                            sx={{
-                                                backgroundColor:
-                                                    u.report_status === 'reviewed' ? '#DCFCE7' :
-                                                        u.report_status === 'new' ? '#FEF9C3' :
-                                                            u.report_status === 'found' ? '#DBEAFE' :
-                                                                '#FEF9C3',
-                                                '& .MuiChip-label': {
-                                                    textTransform: 'capitalize',
-                                                    color: u.report_status === 'reviewed' ? 'green' :
-                                                        u.report_status === 'new' ? '#854D0E' :
-                                                            u.report_status === 'found' ? '#1E40AF' :
-                                                                'black',
-                                                }
-                                            }}
-                                        />
-                                    </Box>
-                                );
-                            })}
-                        </List>
-                    )}
-                </Box>
-
-                <Divider />
-                <Box sx={{ px: 2, py: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button onClick={closeModal} size="small">Close</Button>
-                </Box>
-            </Popover>
         </>
     );
+
 };
 
-export default ListOfSuspect;
+export default SuspectRequestUsers;

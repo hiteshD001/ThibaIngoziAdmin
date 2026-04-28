@@ -512,7 +512,13 @@ const ListOfArcheivedCrimeReports = () => {
                                                     />
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
-                                                    0
+                                                    <Link style={{
+                                                        textDecoration: 'none',
+                                                        color: '#01C971',
+                                                        cursor: 'pointer',
+                                                    }} onClick={() => handleView(`/home/total-suspect?linked_case_type=crimereports&linked_case_type_id=${report?._id}`)} state={{ isAccepted: true }}>
+                                                        {report.suspect_reported_users}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>

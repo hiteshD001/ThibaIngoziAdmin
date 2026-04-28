@@ -43,6 +43,7 @@ const Notfication = lazy(() => import("./pages/Notification"));
 const ListOfStolenCars = lazy(() => import("./pages/StolenCars/ListOfStolenCars"));
 const StolenCarDetails = lazy(() => import("./pages/StolenCars/StolenCarDetails"));
 const SuspectDetail = lazy(() => import("./pages/suspect/SuspectDetail"));
+const SuspectRequestUsers = lazy(() => import("./pages/suspect/SuspectRequestUsers"));
 const ListOfSuspect = lazy(() => import("./pages/suspect/ListOfSuspect"));
 const ListOfSapsWanted = lazy(() => import("./pages/Saps/ListOfSapsWanted"));
 const GoogleMaps = lazy(() => import("./common/GoogleMaps"));
@@ -357,13 +358,16 @@ function App() {
                             children: [
                                 {
                                     path: "",
-                                    // element: <ListOfSuspect />
-                                    element: <WorkInProgress />
+                                    element: <ListOfSuspect />
 
                                 },
                                 {
                                     path: 'suspect-information/:id',
                                     element: <SuspectDetail />
+                                },
+                                {
+                                    path: 'suspect-sightings-reported-users/:id',
+                                    element: <SuspectRequestUsers />
                                 },
                             ]
                         },
