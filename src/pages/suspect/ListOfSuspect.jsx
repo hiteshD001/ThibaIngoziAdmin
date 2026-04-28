@@ -171,9 +171,8 @@ const ListOfSuspect = () => {
     const [linkedCaseType, setLinkedCaseType] = useState(null);
     const [anchorEl, setAnchorEl] = useState(null);
 
-    const openModal = async (linked_case_type_id,linked_case_type, event) => { 
-        const el = document.querySelector(`[data-id="${linked_case_type_id}"]`);
-
+    const openModal = async (_id,linked_case_type_id,linked_case_type, event) => { 
+        const el = document.querySelector(`[data-id="${_id}"]`);        
         setAnchorEl(el);
         setLinkedCaseId(linked_case_type_id)
         setLinkedCaseType(linked_case_type)
@@ -185,7 +184,7 @@ const ListOfSuspect = () => {
         updateParams({
             model: true,
             modelData: encodeURIComponent(JSON.stringify(items)),
-            AnchorEl: linked_case_type_id,
+            AnchorEl: _id,
         });
     };
     const closeModal = () => {
@@ -460,7 +459,7 @@ const ListOfSuspect = () => {
                                                         </IconButton>
                                                     </Tooltip>
                                                     <Tooltip title=" Suspect Sightings Report" arrow placement="top">
-                                                        <IconButton data-id={obj?.linked_case_data?._id} onClick={(e) => openModal(obj?.linked_case_data?._id,obj?.linked_case_type, e)}>
+                                                        <IconButton data-id={obj?._id} onClick={(e) => openModal(obj?._id,obj?.linked_case_data?._id,obj?.linked_case_type, e)}>
                                                             <img src={fileBtn} alt="button" />
                                                         </IconButton>
                                                     </Tooltip>
