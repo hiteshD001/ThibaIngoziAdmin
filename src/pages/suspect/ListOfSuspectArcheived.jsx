@@ -32,7 +32,7 @@ import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import { toast } from "react-toastify";
 
-const ListOfSuspect = () => {
+const ListOfSuspectArcheived = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
@@ -54,7 +54,7 @@ const ListOfSuspect = () => {
     const [sortOrder, setSortOrder] = useState("desc");
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
-    const [archived, setArchived] = useState(false)
+    const [archived, setArchived] = useState(true)
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     const location = useLocation();
@@ -242,7 +242,7 @@ const ListOfSuspect = () => {
                 <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                         <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                            <Typography variant="h6" fontWeight={590}>All Suspect Sightings</Typography>
+                            <Typography variant="h6" fontWeight={590}>Archeived Suspect Sightings</Typography>
                         </Grid>
                         <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
 
@@ -298,13 +298,6 @@ const ListOfSuspect = () => {
                                     icon={calender}
                                 />
                                 <CustomExportMenu onExport={handleExport} />
-                                <Button
-                                    onClick={() => nav('/home/total-suspect/view-archeived-suspect-sightings')}
-                                    variant="contained"
-                                    sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
-                                    startIcon={<img src={ViewBtn} alt="View" />}>
-                                    View Archeived
-                                </Button>
                             </Box>
 
                         </Grid>
@@ -479,7 +472,7 @@ const ListOfSuspect = () => {
                                                         <IconButton onClick={() => {
                                                             updateTripMutation.mutate({
                                                                 id: obj?._id,
-                                                                data: { isArchived: true }
+                                                                data: { isArchived: false }
                                                             });
                                                         }}>
                                                             <img src={Listtrip} alt="view button" />
@@ -686,4 +679,4 @@ const ListOfSuspect = () => {
     );
 };
 
-export default ListOfSuspect;
+export default ListOfSuspectArcheived;

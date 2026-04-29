@@ -45,6 +45,7 @@ const StolenCarDetails = lazy(() => import("./pages/StolenCars/StolenCarDetails"
 const SuspectDetail = lazy(() => import("./pages/suspect/SuspectDetail"));
 const SuspectRequestUsers = lazy(() => import("./pages/suspect/SuspectRequestUsers"));
 const ListOfSuspect = lazy(() => import("./pages/suspect/ListOfSuspect"));
+const ListOfSuspectArcheived = lazy(() => import("./pages/suspect/ListOfSuspectArcheived"));
 const ListOfSapsWanted = lazy(() => import("./pages/Saps/ListOfSapsWanted"));
 const GoogleMaps = lazy(() => import("./common/GoogleMaps"));
 const WantedInformation = lazy(() => import("./pages/Saps/WantedInformation"));
@@ -359,6 +360,11 @@ function App() {
                                 {
                                     path: "",
                                     element: <ListOfSuspect />
+
+                                },
+                                {
+                                    path: "view-archeived-suspect-sightings",
+                                    element: <ListOfSuspectArcheived />
 
                                 },
                                 {
