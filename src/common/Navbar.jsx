@@ -25,7 +25,6 @@ const Navbar = ({ setActive, isActive }) => {
     const [userId, setUserID] = useState("");
 
     const location = useLocation()
-    const getQueryParams = new URLSearchParams(location.search);
     const nav = useNavigate();
 
     const { data: permissionsData } = useGetPermissionsByRoleId(roleId);
@@ -35,6 +34,7 @@ const Navbar = ({ setActive, isActive }) => {
     }, [role, permissionsData]);
 
     useEffect(() => {
+        const getQueryParams = new URLSearchParams(location.search);
         const pathParts = location.pathname.split("/").filter(part => part);
         if (pathParts.length > 2) {
             setIsSubMenu(true);
@@ -70,7 +70,7 @@ const Navbar = ({ setActive, isActive }) => {
 
         }
 
-    }, [location, menulist]);
+    }, [location, menulist,location.search]);
 
     useEffect(() => {
         const storedId = localStorage.getItem('userID');

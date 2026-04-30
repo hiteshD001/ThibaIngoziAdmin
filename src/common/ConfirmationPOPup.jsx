@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
-import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent, useDeleteCrimeReport,useRemovePoliceUnit, useDeleteCaptureReport } from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent, useDeleteCrimeReport,useRemovePoliceUnit, useDeleteCaptureReport, useDeleteSuspectSighting } from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useState } from "react";
@@ -56,6 +56,12 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
     setconfirmation("");
   }
 
+  const onSuccessSuspectSighting = () => {
+    toast.success("Suspect Sighting Report deleted successfully");
+    client.invalidateQueries("Suspect Sighting report list");
+    setconfirmation("");
+  }
+
   const deleteDriver = useDeleteUser(onSuccess, onError)
   const deleteTrip = useDeleteUserTrip(onSuccessTrip, onError)
   const deleteMeetingLinkTrip = useDeleteUserMeetingTripTrip(onSuccessMeetingTrip, onError)
@@ -64,6 +70,7 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
   const deleteCrimeReport = useDeleteCrimeReport(onSuccessCrimeReport, onError)
   const deleteusePoliceUnit = useRemovePoliceUnit(onSuccessCrimeReport, onError)
   const deleteuseIncidentReport = useDeleteCaptureReport(onSuccessCaptureReport, onError)
+  const deleteuseSuspectReport = useDeleteSuspectSighting(onSuccessSuspectSighting, onError)
 
   const handleConfirm = () => {
     if (trip === "trip") {
@@ -80,8 +87,9 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
       deleteusePoliceUnit.mutate(id);
     } else if (trip === "captureReport"){
       deleteuseIncidentReport.mutate(id);
-    }
-    else {
+    } else if (trip === "suspectSighting"){
+      deleteuseSuspectReport.mutate(id);
+    }else {
       deleteDriver.mutate(id);
     }
   };
