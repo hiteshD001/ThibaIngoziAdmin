@@ -38,9 +38,9 @@ const SuspectDetail = () => {
         toast.success("Status Updated Successfully.");
         setSuspectObj((prev) => ({
             ...prev,
-            isMarkAsReviewed: true,   // or false based on response
+            report_status:'reviewed',   
         }));
-        queryClient.invalidateQueries(["crime-report", params.id]);
+        queryClient.invalidateQueries(["suspect-sighting", params.id]);
     };
     const onError = (error) => {
         setUpdatingId(""); // Clear loader
@@ -222,7 +222,7 @@ const SuspectDetail = () => {
                             startIcon={<img src={WhiteTick} alt="white tick" />}
 
                         >
-                            Mark as Reviewed
+                           {suspectObj.report_status === 'reviewed' ? 'Reviewed' :' Mark as Reviewed'}
                         </Button>
                     </Box>
                 </Paper>
