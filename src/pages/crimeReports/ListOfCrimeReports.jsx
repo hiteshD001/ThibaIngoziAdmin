@@ -378,7 +378,13 @@ const ListOfCrimeReports = () => {
                                             >Status</TableSortLabel>
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
-                                       Sighting Reported
+                                       <TableSortLabel
+                                                id="sighting_reported"
+                                                active={sortBy === 'sighting_reported'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'sighting_reported' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Sighting Reported</TableSortLabel>
                                     </TableCell>
                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                 </TableRow>
@@ -507,7 +513,13 @@ const ListOfCrimeReports = () => {
                                                     />
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
-                                                    0
+                                                    <Link style={{
+                                                        textDecoration: 'none',
+                                                        color: '#01C971',
+                                                        cursor: 'pointer',
+                                                    }} onClick={()=> handleView(`/home/total-suspect?linked_case_type=crimereports&linked_case_type_id=${report?._id}`)} state={{ isAccepted: true }}>
+                                                    {report.suspect_reported_users}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
