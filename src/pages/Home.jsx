@@ -933,7 +933,7 @@ const Home = () => {
                                     View Incident Reports 
                                 </Button>       
                                 <Button
-                                    sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
+                                    sx={{ height: '40px', width: '100px', borderRadius: '8px',border:"1px solid #367BE0" }}
                                     onClick={() => {
                                         updateParams({ filter: "", activeLimit: 20, activePage: 1, selectedNotification: "all" });
                                         setRangeSos([
@@ -1848,7 +1848,7 @@ const Home = () => {
                                     View Incident Reports 
                                 </Button> 
                                 <Button
-                                    sx={{ height: '40px', width: '100px', borderRadius: '8px' }}
+                                    sx={{ height: '40px', width: '100px', borderRadius: '8px',border:"1px solid #367BE0" }}
                                     onClick={() => {
                                         updateRecentParams({ recentFilter: "", recentLimit: 20, recentPage: 1, recentNotification: 'all' });
                                         setRange([
