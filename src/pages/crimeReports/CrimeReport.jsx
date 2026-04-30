@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import { toastOption } from "../../common/ToastOptions";
 import { useQueryClient } from "@tanstack/react-query";
 import SingleImagePreview from "../../common/SingleImagePreview";
+import printBtn from '../../assets/images/PrintIcn.svg'
 
 const CrimeReport = () => {
     // Mock data – replace with actual props or API data
@@ -76,6 +77,15 @@ const CrimeReport = () => {
         setPreviewImage(prev => ({ ...prev, open: false }));
     };
 
+    const handlePrint = () => {
+        const printContent = document.getElementById("print-section").innerHTML;
+        const originalContent = document.body.innerHTML;
+
+        document.body.innerHTML = printContent; // replace whole body with selected part
+        window.print();
+        document.body.innerHTML = originalContent; // restore after print
+        window.location.reload(); // optional (safe reset)
+    };
     return (
         <>
         <SingleImagePreview
@@ -83,7 +93,7 @@ const CrimeReport = () => {
             onClose={handleClosePreview}
             image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
         />
-        <Box px={2} sx={{ display: 'flex', gap: 3, flexDirection: 'column' }}>
+        <Box px={2} sx={{ display: 'flex', gap: 3, flexDirection: 'column' }} id="print-section">
             <Paper
                 elevation={0}
                 sx={{
@@ -94,9 +104,23 @@ const CrimeReport = () => {
             >
                 {/* Title */}
                 <Box pb={1} borderBottom="1px solid #e0e0e0">
-                    <Typography variant='h6' fontWeight={550}>
-                        Crime Report #{crimeReportObj.crime_report_number}
-                    </Typography>
+                        <Grid container spacing={3}>
+                            <Grid size={10}>
+                                <Typography variant='h6' fontWeight={550}>
+                                    Crime Report #{crimeReportObj.crime_report_number}
+                                </Typography>
+                            </Grid>
+                            <Grid size={1}>
+                                <Button
+                                    onClick={() => handlePrint()}
+                                    variant="contained"
+                                    sx={{ height: '38px',width:"90.734375px", fontSize: '0.8rem', color:"black", backgroundColor: 'white', borderRadius: '8px',marginRight:"10px"}}
+                                    startIcon={<img src={printBtn} alt="Print" />}
+                                    >
+                                    Print
+                                </Button>
+                            </Grid>
+                        </Grid>
                 </Box>
 
                 <Grid container spacing={3}>

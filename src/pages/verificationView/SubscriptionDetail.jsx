@@ -605,7 +605,7 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
                                   <table width="99%" border="0" cellspacing="0" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
                                     <tr>
                                       <td style="mso-table-lspace:0pt;mso-table-rspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
-                                      ${sales_order_obj.custom_fields?.id_number || ''}
+                                      ${sales_order_obj.custom_fields?.id_number || sales_order_obj.custom_fields?.Id_number || ''}
                                       </td>
                                     </tr>
                                   </table>
