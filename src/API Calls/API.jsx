@@ -2042,6 +2042,7 @@ export const useGetCrimeReportList = (
     sortBy,
     sortOrder,
     report_status,
+    crimeTypeFilter,
 ) => {
     const nav = useNavigate();
 
@@ -2058,7 +2059,8 @@ export const useGetCrimeReportList = (
                 archived,
                 sortBy,
                 sortOrder,
-                report_status
+                report_status,
+                crimeTypeFilter
             },
         });
     };
@@ -2076,7 +2078,8 @@ export const useGetCrimeReportList = (
             archived,
             sortBy,
             sortOrder,
-            report_status
+            report_status,
+            crimeTypeFilter
         ],
         queryFn: queryFn,
         ...LIST_CACHE_OPTIONS,
@@ -2185,6 +2188,21 @@ export const useGetCrimeReportRequestUsers = (crimeReportId, page = 1, limit = 1
         localStorage.clear();
         nav("/");
     }
+    return res;
+};
+
+export const useGetCrimeTypesList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/crime-type`
+        );
+    };
+    const res = useQuery({
+        queryKey: ["crimetypes"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+    });
+
     return res;
 };
 
@@ -2722,4 +2740,35 @@ export const useGetSuspectSightingsListV2 = async (
             limit
         },
     });
+};
+
+// Fetch filtered Recent SOS data
+export const useGetCrimeReportListv2 = async ({
+    startDate,
+    endDate,
+    page = 1,
+    limit = 100000,
+    report_status,
+    crimeType
+}) => {
+    try {
+        const response = await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/crime-report`,
+            {
+                params: {
+                    startDate,
+                    endDate,
+                    page,
+                    limit,
+                    report_status,
+                    crimeType
+                }
+            }
+        );
+        
+        return response?.data?.crimeReportData || [];
+    } catch (error) {
+        console.error("Error fetching Crime Report data:", error);
+        return [];
+    }
 };

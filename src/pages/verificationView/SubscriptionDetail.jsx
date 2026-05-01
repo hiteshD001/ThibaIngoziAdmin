@@ -830,6 +830,14 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
       <head>
         <title>Order Preview</title>
       </head>
+      <script>
+    
+  function downloadPdf() {
+    const pdfUrl = "${subscriptionDetails?.pdfUrl || ''}";
+
+    window.open(pdfUrl, '_blank');
+  }
+</script>
       <body style="
     margin:0;
     padding:20px;
@@ -854,6 +862,13 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
     ">
       Digital Certificate
     </div>
+    <div style="width:600px; display:flex; justify-content:center; gap:10px; margin-bottom:10px;">
+  <button onclick="downloadPdf()" 
+    style="padding:10px 15px; background:#1976d2; color:#fff; border:none; border-radius:4px; cursor:pointer;">
+    Download PDF
+  </button>
+
+</div>
           ${container}
        
       </body>

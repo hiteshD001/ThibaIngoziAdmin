@@ -517,18 +517,17 @@ const ListOfCaptureReports = () => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {formatDateTime(report.createdAt,"HH:mm:ss") || "-"}
+                                                    {formatDateTime(report.createdAt,"DD/MM/YYYY HH:mm:ss") || "-"}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {report?.arrival?.includes('-') ? report.arrival.replace(/-/g, ":") : report.arrival || "-"}
-                                                    {/* {formatDateTime(report.arrival,"HH:mm:ss") || "-"} */}
+                                                    {formatDateTime(report.arrival,"DD/MM/YYYY HH:mm:ss") || "-"}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {calculteTime(report?.arrival?.includes('-') ? report.arrival.replace(/-/g, ":") : report.arrival,formatDateTime(report.createdAt,"HH:mm:ss")) || "-"}
+                                                    {calculteTime(report.createdAt,report.arrival) || "-"}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>

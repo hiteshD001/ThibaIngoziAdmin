@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-    useGetNotificationType, fetchProvince
+    useGetNotificationType, fetchProvince,useGetCrimeTypesList
 } from "../../API Calls/API";
 import {
     Box,
@@ -39,6 +39,7 @@ const CustomExportMenu = ({ role, onExport, loading }) => {
     ]);
     const [province, setProvince] = useState('all');
     const [category, setCategory] = useState('all');
+    const [crimeType, setCrimeType] = useState('all');
     const [exportFormat, setFormat] = useState('pdf');
 
     const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -47,11 +48,12 @@ const CustomExportMenu = ({ role, onExport, loading }) => {
     const handleExport = () => {
         const startDate = range[0].startDate.toISOString();
         const endDate = range[0].endDate.toISOString();
-        onExport({ startDate, endDate, exportFormat, province, category });
+        onExport({ startDate, endDate, exportFormat, province, category,crimeType });
         setAnchorEl(null);
     };
 
     const notificationTypes = useGetNotificationType();
+    const crimeTypesList = useGetCrimeTypesList();
     const provincelist = fetchProvince();
     return (
         <>
@@ -161,6 +163,29 @@ const CustomExportMenu = ({ role, onExport, loading }) => {
                                     </Select>
                                 </FormControl>
                             )}
+                        {
+                            role === 'dashboard' && category === '68a302167f6e35d921217ca5' && (
+                                <FormControl fullWidth size="small">
+                                    <label style={{ marginBottom: 5 }}>Crime Types</label>
+                                    <Select
+                                        value={crimeType}
+                                        onChange={(e) => setCrimeType(e.target.value)}
+                                        sx={{
+                                            '& fieldset': {
+                                                border: '1px solid var(--light-gray)',
+                                            },
+                                        }}
+                                    >
+                                        <MenuItem value="all">All Crime Types</MenuItem>
+                                        {crimeTypesList.data?.data?.map((type) => (
+                                            <MenuItem key={type._id} value={type._id}>
+                                                {type.crimeType}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            )
+                        }
 
 
                         <FormControl fullWidth size="small">
