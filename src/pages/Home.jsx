@@ -4,7 +4,7 @@ import {
     useGetRecentSOS,
     useGetUser,
     useGetActiveSosData,
-    useUpdateLocationStatus, useGetNotificationType,useGetCaptureReportListV2,useGetCrimeReportList
+    useUpdateLocationStatus, useGetNotificationType,useGetCaptureReportListV2,useGetCrimeReportList,useGetCrimeTypesList
 } from "../API Calls/API";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem, FormControl, InputLabel,
@@ -689,6 +689,7 @@ const Home = () => {
     const currentPageCrimeActive = Number(searchParamsCrimeReportActive.get("currentPageCrimeActive")) || 1;
     const filterCrimeActive = searchParamsCrimeReportActive.get("filterCrimeActive") || "";
     const rowsPerPageCrimeActive = Number(searchParamsCrimeReportActive.get("rowsPerPageCrimeActive")) || 5;
+    const activeCrimeTypeFilter = searchParams.get("activeCrimeTypeFilter") || "all"
 
     // Sort
     const [sortByCrimeActive, setSortByCrimeActive] = useState("createdAt");
@@ -718,7 +719,14 @@ const Home = () => {
             ...newParams,
         });
     };
-    const crimeActiveList = useGetCrimeReportList("crime report list", role, currentPageCrimeActive, rowsPerPageCrimeActive, filterCrimeActive,'', startDateFilterCrimeActive, endDateFilterCrimeActive, false,sortByCrimeActive, sortOrderCrimeActive,'pending');
+    
+    // Active Crime Types
+    const activeCrimeTypesList = useGetCrimeTypesList();
+    const handleCrimeTypeActiveChange = (e) => {
+        updateParamsCrimeActive({ activeCrimeTypeFilter: e.target.value })
+    };
+
+    const crimeActiveList = useGetCrimeReportList("crime report list", role, currentPageCrimeActive, rowsPerPageCrimeActive, filterCrimeActive,'', startDateFilterCrimeActive, endDateFilterCrimeActive, false,sortByCrimeActive, sortOrderCrimeActive,'pending',activeCrimeTypeFilter);
     const totalCrimeReportActiveData = crimeActiveList.data?.data?.totalCrimeReportData || 0;
     const totalPagesCrimeActive = Math.ceil(totalCrimeReportActiveData / rowsPerPageCrimeActive);
 
@@ -734,7 +742,7 @@ const Home = () => {
     const currentPageCrimeRecent = Number(searchParamsCrimeReportRecent.get("currentPageCrimeRecent")) || 1;
     const filterCrimeRecent = searchParamsCrimeReportRecent.get("filterCrimeRecent") || "";
     const rowsPerPageCrimeRecent = Number(searchParamsCrimeReportRecent.get("rowsPerPageCrimeRecent")) || 10;
-
+    const recentCrimeTypeFilter = searchParams.get("recentCrimeTypeFilter") || "all"
     // Sort
     const [sortByCrimeRecent, setSortByCrimeRecent] = useState("createdAt");
     const [sortOrderCrimeRecent, setSortOrderCrimeRecent] = useState("desc");
@@ -761,7 +769,12 @@ const Home = () => {
             ...newParams,
         });
     };
-    const crimeRecentList = useGetCrimeReportList("crime report list", role, currentPageCrimeRecent, rowsPerPageCrimeRecent, filterCrimeRecent,'', startDateFilterCrimeRecent, endDateFilterCrimeRecent, false,sortByCrimeRecent, sortOrderCrimeRecent,'reviewed,reviewing,With SAPS');
+    // Active Crime Types
+    const recentCrimeTypesList = useGetCrimeTypesList();
+    const handleCrimeTypeRecentChange = (e) => {
+        updateParamsCrimeRecent({ recentCrimeTypeFilter: e.target.value })
+    };
+    const crimeRecentList = useGetCrimeReportList("crime report list", role, currentPageCrimeRecent, rowsPerPageCrimeRecent, filterCrimeRecent,'', startDateFilterCrimeRecent, endDateFilterCrimeRecent, false,sortByCrimeRecent, sortOrderCrimeRecent,'reviewed,reviewing,With SAPS',recentCrimeTypeFilter);
     const totalCrimeReportRecentData = crimeRecentList.data?.data?.totalCrimeReportData || 0;
     const totalPagesCrimeRecent = Math.ceil(totalCrimeReportRecentData / rowsPerPageCrimeRecent);
 
@@ -1459,6 +1472,27 @@ const Home = () => {
                                     }}
                                     icon={calender}
                                 />
+                                <FormControl size="small" sx={{ maxWidth: 200 }}>
+                                    <InputLabel>Crime Types</InputLabel>
+                                    <Select
+                                        value={activeCrimeTypeFilter}
+                                        onChange={handleCrimeTypeActiveChange}
+                                        label="Crime Types"
+                                    >
+                                        <MenuItem value="all">All Crime Types</MenuItem>
+                                        {activeCrimeTypesList.data?.data?.map((type) => (
+                                            <MenuItem key={type._id} value={type._id}>
+                                                {type.crimeType}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <Button
+                                    sx={{ height: '40px',width:'187px', borderRadius: '8px',border:"1px solid #367BE0" }}
+                                    onClick={() => handleView(`/home/total-suspect`)}
+                                >
+                                    View Suspect Sightings
+                                </Button>   
                             </Box>
 
                         </Grid>
@@ -2293,6 +2327,27 @@ const Home = () => {
                                     }}
                                     icon={calender}
                                 />
+                                <FormControl size="small" sx={{ maxWidth: 200 }}>
+                                    <InputLabel>Crime Types</InputLabel>
+                                    <Select
+                                        value={recentCrimeTypeFilter}
+                                        onChange={handleCrimeTypeRecentChange}
+                                        label="Crime Types"
+                                    >
+                                        <MenuItem value="all">All Crime Types</MenuItem>
+                                        {recentCrimeTypesList.data?.data?.map((type) => (
+                                            <MenuItem key={type._id} value={type._id}>
+                                                {type.crimeType}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                <Button
+                                    sx={{ height: '40px', width: '187px', borderRadius: '8px', border: "1px solid #367BE0" }}
+                                    onClick={() => handleView(`/home/total-suspect`)}
+                                >
+                                    View Suspect Sightings
+                                </Button> 
                             </Box>
 
                         </Grid>
