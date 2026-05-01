@@ -5,7 +5,7 @@ import {
     useGetHotspot,
     useGetUserList,
     useGetNotificationType,
-    fetchActiveSosData, fetchRecentSosData, fetchHotspot
+    fetchActiveSosData, fetchRecentSosData, fetchHotspot,useGetCrimeReportListv2
 } from "../API Calls/API";
 import {
     Grid,
@@ -70,7 +70,7 @@ const Analytics = ({ id, activePage,
     const driverList = useGetUserList("driver list", "driver", id);
     const companyList = useGetUserList("company list", "company");
     const [selected, setSelected] = useState('today');
-
+    const loginUserRole = localStorage.getItem("role");
     // const [startDate, setStartDate] = useState("");
     // const [endDate, setEndDate] = useState("");
 
@@ -177,7 +177,7 @@ const Analytics = ({ id, activePage,
     }, [driverList?.data, time]);
 
     const [isLoading, setIsLoading] = useState(false);
-    const handleExport = async ({ startDate, endDate, exportFormat, province, category }) => {
+    const handleExport = async ({ startDate, endDate, exportFormat, province, category,crimeType }) => {
         try {
             setIsLoading(true);
             const searchKey = "";
@@ -206,9 +206,9 @@ const Analytics = ({ id, activePage,
             const hotspot = await fetchHotspot({ startDate, endDate, type: selectedCategoryData._id ? selectedCategoryData._id : category, province });
             const activeSosData = await fetchActiveSosData({ startDate, endDate, searchKey, type: selectedCategoryData._id ? selectedCategoryData._id : category, page: 1, limit: 100000 });
             const recentSosResponse = await fetchRecentSosData({ startDate, endDate, searchKey, type: selectedCategoryData._id ? selectedCategoryData._id : category, page: 1, limit: 100000 });
+            const crimeActiveList = category === '68a302167f6e35d921217ca5' ? await useGetCrimeReportListv2({ startDate, endDate, searchKey, page: 1, limit: 100000, report_status:'pending', crimeType }) : [];
+            const crimeRecentList = category === '68a302167f6e35d921217ca5' ? await useGetCrimeReportListv2({startDate, endDate, searchKey, page: 1, limit: 100000, report_status:'reviewed,reviewing,With SAPS', crimeType}) : [];
             const recentSos = recentSosResponse?.items || [];
-
-
 
             const TotalData = [
                 { Type: "Total Companies", Count: (companyList.data?.data.totalUsers || 0), Percentage: (companyList?.data?.data?.companiesPercentageFromLastMonth?.percentage || 0).toFixed(2) },
@@ -265,6 +265,30 @@ const Analytics = ({ id, activePage,
                 })
             });
 
+            const activeCrimeReportData = [];
+            crimeActiveList?.map((user) => {
+                activeCrimeReportData.push({
+                    "Crime ID": user.crime_report_number ?? 'NA',
+                    "Reporter": `${user.user?.first_name || ''} ${user.user?.last_name || ''}` ?? 'NA',
+                    "Location": `${user.address || ''}` ?? 'NA',
+                    "Description": user.description ?? 'NA',
+                    "Date Reported": user.createdAt || 'NA',
+                    "Status": user.report_status || 'NA'
+                })
+            });
+            
+            const recentCloseCrimeReportData = [];
+            crimeRecentList?.map((user) => {
+                recentCloseCrimeReportData.push({
+                    "Crime ID": user.crime_report_number ?? 'NA',
+                    "Reporter": `${user.user?.first_name || ''} ${user.user?.last_name || ''}` ?? 'NA',
+                    "Location": `${user.address || ''}` ?? 'NA',
+                    "Description": user.description ?? 'NA',
+                    "Date Reported": user.createdAt || 'NA',
+                    "Status": user.report_status || 'NA'
+                })
+            });
+
             const autoFitColumns = (data) => {
                 return Object.keys(data[0] || {}).map((key) => ({
                     wch: Math.max(key.length, ...data.map((row) => String(row[key] ?? "NA").length)) + 2,
@@ -301,6 +325,8 @@ const Analytics = ({ id, activePage,
                 addSheetWithHeader(sosAlertData, "Active SOS Alerts");
                 addSheetWithHeader(sosLocationsData, "Top SOS Locations");
                 addSheetWithHeader(sosClosedData, "Recently Closed SOS Alerts");
+                addSheetWithHeader(activeCrimeReportData,"Active Crime Reports");
+                addSheetWithHeader(recentCloseCrimeReportData,"Recently Closed Crime Reports");
 
                 XLSX.writeFile(workbook, "Dashboard.xlsx");
             }
@@ -323,6 +349,8 @@ const Analytics = ({ id, activePage,
                     { title: "Active SOS Alerts", data: sosAlertData },
                     { title: "Top SOS Locations", data: sosLocationsData },
                     { title: "Recently Closed SOS Alerts", data: sosClosedData },
+                    { title: "Active Crime Reports", data: activeCrimeReportData},
+                    { title: "Recently Closed Crime Reports", data: recentCloseCrimeReportData}
                 ];
 
                 let finalCSV = "";
@@ -400,6 +428,8 @@ const Analytics = ({ id, activePage,
                 addSection("Active SOS Alerts", sosAlertData);
                 addSection("Top SOS Locations", sosLocationsData);
                 addSection("Recently Closed SOS Alerts", sosClosedData);
+                addSection("Active Crime Reports", activeCrimeReportData);
+                addSection("Recently Closed Crime Reports", recentCloseCrimeReportData);
 
                 doc.save("Dashboard.pdf");
             }

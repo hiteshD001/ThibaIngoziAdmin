@@ -315,7 +315,7 @@ const ListOfSuspectArcheived = () => {
                                                 direction={sortOrder}
                                                 onClick={changeSortOrder}
                                                 IconComponent={() => <img src={sortBy === 'suspect_first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-                                            >Suspect Name</TableSortLabel>
+                                            >SOS Initiator</TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             <TableSortLabel
