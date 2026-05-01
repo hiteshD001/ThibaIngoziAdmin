@@ -829,6 +829,7 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
     <html>
       <head>
         <title>Order Preview</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       </head>
       <script>
     
@@ -862,10 +863,10 @@ export default function SubscriptionDetails({ subscriptionDetailsProps}) {
     ">
       Digital Certificate
     </div>
-    <div style="width:600px; display:flex; justify-content:center; gap:10px; margin-bottom:10px;">
+    <div style="width:690px; display:flex; justify-content:flex-end; gap:10px; margin-bottom:10px;">
   <button onclick="downloadPdf()" 
-    style="padding:10px 15px; background:#1976d2; color:#fff; border:none; border-radius:4px; cursor:pointer;">
-    Download PDF
+    style="padding:10px 15px; background:white; color:black; border:none; border-radius:4px; cursor:pointer;">
+   <i class="fa fa-download"></i> Download PDF
   </button>
 
 </div>
