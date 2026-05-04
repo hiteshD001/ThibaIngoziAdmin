@@ -378,6 +378,15 @@ const ListOfCrimeReports = () => {
                                             >Status</TableSortLabel>
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="crimeType"
+                                                active={sortBy === 'crimeType'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'crimeType' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Crime Type</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                        <TableSortLabel
                                                 id="sighting_reported"
                                                 active={sortBy === 'sighting_reported'}
@@ -511,6 +520,11 @@ const ListOfCrimeReports = () => {
                                                             }
                                                         }}
                                                     />
+                                                </TableCell>
+                                                <TableCell sx={{ color: report.crime_type?.bgColor ? report.crime_type?.bgColor : 'black' }}>
+
+                                                    {(report.crime_type?.crimeType) || '-'}
+
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
                                                     <Link style={{

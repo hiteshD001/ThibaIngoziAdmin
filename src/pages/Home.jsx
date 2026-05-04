@@ -1581,6 +1581,15 @@ const Home = () => {
                                             >Status</TableSortLabel>
                                         </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="crimeType"
+                                                active={sortByCrimeActive === 'crimeType'}
+                                                direction={sortOrderCrimeActive}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortByCrimeActive === 'crimeType' ? sortOrderCrimeActive === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Crime Type</TableSortLabel>
+                                        </TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             Sighting Reported
                                         </TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
@@ -1709,6 +1718,11 @@ const Home = () => {
                                                                 }
                                                             }}
                                                         />
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: report.crime_type?.bgColor ? report.crime_type?.bgColor : 'black' }}>
+
+                                                        {(report.crime_type?.crimeType) || '-'}
+
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
                                                         <Link style={{
@@ -2434,6 +2448,15 @@ const Home = () => {
                                                 IconComponent={() => <img src={sortByCrimeRecent === 'report_status' ? sortOrderCrimeRecent === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                             >Status</TableSortLabel>
                                         </TableCell>
+                                            <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                                <TableSortLabel
+                                                    id="crimeType"
+                                                    active={sortByCrimeRecent === 'crimeType'}
+                                                    direction={sortOrderCrimeRecent}
+                                                    onClick={changeSortOrder}
+                                                    IconComponent={() => <img src={sortByCrimeRecent === 'crimeType' ? sortOrderCrimeRecent === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                >Crime Type</TableSortLabel>
+                                            </TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                             Sighting Reported
                                         </TableCell>
@@ -2563,6 +2586,11 @@ const Home = () => {
                                                                 }
                                                             }}
                                                         />
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: report.crime_type?.bgColor ? report.crime_type?.bgColor : 'black' }}>
+
+                                                        {(report.crime_type?.crimeType) || '-'}
+
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
                                                         <Link style={{
@@ -3120,6 +3148,7 @@ const Home = () => {
                                                         ? '#367BE0' : '#4B5563',
                                                 }
                                             }}
+                                            onClick={()=> u?.capture_report?.report_status === 'View Report' ? handleView(`/home/capture-reports/${u?.capture_report?._id}`) : ''}
                                         />
                                     </Box>
                                 );

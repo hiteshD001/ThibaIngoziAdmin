@@ -516,6 +516,7 @@ const ListOfArcheivedcaptureReports = () => {
                                                                             'black',
                                                                 }
                                                             }}
+                                                            onClick={()=> report?.capture_report?.report_status === 'View Report' ? handleView(`/home/capture-reports/${report?.capture_report?._id}`) : ''}
                                                         />
                                                     </Tooltip>
                                                 </TableCell>
