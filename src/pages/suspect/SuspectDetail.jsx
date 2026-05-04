@@ -107,7 +107,7 @@ const SuspectDetail = () => {
                         <Grid container spacing={3}>
                             <Grid size={10}>
                                 <Typography variant='h6' fontWeight={550}>
-                                    Suspect Sighting Details
+                                    Initiator Information
                                 </Typography>
                             </Grid>
                             <Grid size={1}>
