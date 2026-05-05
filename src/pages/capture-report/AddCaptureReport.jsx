@@ -25,6 +25,10 @@ import unChecked from "../../assets/images/UnChecked.svg";
 import search from "../../assets/images/search.png";
 import checked from "../../assets/images/checkboxIcon.svg";
 import Loader from "../../common/Loader";
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
 const AddCaptureReport = () => {
     const client = useQueryClient();
@@ -50,6 +54,7 @@ const AddCaptureReport = () => {
             closure_comment_id: "",
             evidence_images: [],
             otherComments: "",
+            arrival:""
         },
         validationSchema: captureValidation,
         onSubmit: (values) => {
@@ -63,6 +68,7 @@ const AddCaptureReport = () => {
             formData.append("closure_comment_id", values.closure_comment_id);
             formData.append("otherComments", values.otherComments);
             formData.append("location_id", values.location_id);
+            formData.append("arrival", values.arrival?.toISOString());
 
             // ✅ Append each image under the same key (backend receives array)
             if (values.evidence_images?.length > 0) {
@@ -278,6 +284,44 @@ const AddCaptureReport = () => {
                                 error={driverForm.errors.closure_comment_id && driverForm.touched.closure_comment_id}
                                 helperText={driverForm.touched.closure_comment_id ? driverForm.errors.closure_comment_id : ''}
                             />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <label style={{ marginBottom: "10px", fontWeight: 500, fontSize: "16px", lineHeight: 1 }}>Arrival Date & Time</label>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DateTimePicker
+                                    label="Arrival Date & Time"
+                                    value={driverForm.values.arrival || null}
+                                    onChange={(newValue) => {
+                                        driverForm.setFieldValue("arrival", newValue);
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            size: "small",
+                                            sx: {
+                                                "& .MuiOutlinedInput-root": {
+                                                    height: "50",
+                                                    borderRadius: "6px",
+                                                    backgroundColor: "#fff",
+                                                },
+                                                "& .MuiInputBase-input": {
+                                                    padding: "10px 12px",
+                                                    fontSize: "14px",
+                                                },
+                                                "& .MuiInputLabel-root": {
+                                                    fontSize: "13px",
+                                                }
+                                            },
+                                            error:
+                                                driverForm.touched.arrival &&
+                                                Boolean(driverForm.errors.arrival),
+                                            helperText:
+                                                driverForm.touched.arrival &&
+                                                driverForm.errors.arrival,
+                                        },
+                                    }}
+                                />
+                            </LocalizationProvider>
                         </Grid>
 
                         <Grid size={12}>
