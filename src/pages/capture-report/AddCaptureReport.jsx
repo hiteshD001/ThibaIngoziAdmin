@@ -294,6 +294,7 @@ const AddCaptureReport = () => {
                                     onChange={(newValue) => {
                                         driverForm.setFieldValue("arrival", newValue);
                                     }}
+                                    disableFuture
                                     slotProps={{
                                         textField: {
                                             fullWidth: true,
