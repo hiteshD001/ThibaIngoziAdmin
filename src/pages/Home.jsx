@@ -835,7 +835,7 @@ const Home = () => {
 
     return (
         <>
-            {(activeSos.isFetching || crimeActiveList.isFetching || isFetching || crimeRecentList.isFetching) && (
+            {/* {(activeSos.isFetching || crimeActiveList.isFetching || isFetching || crimeRecentList.isFetching) && (
                 <Box
                     sx={{
                         position: "fixed",
@@ -852,7 +852,7 @@ const Home = () => {
                 >
                     <Loader color="white" />
                 </Box>
-            )}
+            )} */}
         <Box>
             <Analytics
                 id={role !== "super_admin" ? userId : null}
@@ -1436,7 +1436,7 @@ const Home = () => {
                             <TextField
                                 variant="outlined"
                                 placeholder="Search"
-                                value={filter}
+                                value={filterCrimeActive}
                                 onChange={(e) => updateParamsCrimeActive({ filterCrimeActive: e.target.value })}
                                 fullWidth
                                 sx={{
@@ -2305,7 +2305,7 @@ const Home = () => {
                             <TextField
                                 variant="outlined"
                                 placeholder="Search"
-                                value={filter}
+                                value={filterCrimeRecent}
                                 onChange={(e) => updateParamsCrimeRecent({ filterCrimeRecent: e.target.value })}
                                 fullWidth
                                 sx={{

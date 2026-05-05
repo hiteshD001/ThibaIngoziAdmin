@@ -1005,10 +1005,10 @@ export const useGetRecentSOS = ({ page = 1, limit = 20, startDate, endDate, sear
         queryKey: ["recentSOS", page, limit, startDate, endDate, searchKey, type, sortBy, sortOrder, company_id],
         queryFn: queryFn,
         placeholderData: keepPreviousData,
-        ...LIST_CACHE_OPTIONS,
+        staleTime: 1000 * 60 * 1,      // 2 minute cache — back button pe re-fetch nahi
+        refetchOnMount: false,           // mount pe fresh call nahi, cache use karo
+        refetchOnWindowFocus: false,
         retry: false,
-        // staleTime: 0, // always refetch when sort/page change so second click triggers API
-        // refetchOnWindowFocus: false,
     });
 
     return res;
@@ -2082,7 +2082,11 @@ export const useGetCrimeReportList = (
             crimeTypeFilter
         ],
         queryFn: queryFn,
-        ...LIST_CACHE_OPTIONS,
+        // ...LIST_CACHE_OPTIONS,
+        staleTime: 1000 * 60 * 1,      // 2 minute cache — back button pe re-fetch nahi
+        refetchOnMount: false,           // mount pe fresh call nahi, cache use karo
+        refetchOnWindowFocus: false,
+        retry: false,
         placeholderData: keepPreviousData,
         retry: false,
     });
