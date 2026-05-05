@@ -25,6 +25,10 @@ import unChecked from "../../assets/images/UnChecked.svg";
 import search from "../../assets/images/search.png";
 import checked from "../../assets/images/checkboxIcon.svg";
 import Loader from "../../common/Loader";
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 
 const AddCaptureReport = () => {
     const client = useQueryClient();
@@ -50,6 +54,7 @@ const AddCaptureReport = () => {
             closure_comment_id: "",
             evidence_images: [],
             otherComments: "",
+            arrival:""
         },
         validationSchema: captureValidation,
         onSubmit: (values) => {
@@ -63,6 +68,7 @@ const AddCaptureReport = () => {
             formData.append("closure_comment_id", values.closure_comment_id);
             formData.append("otherComments", values.otherComments);
             formData.append("location_id", values.location_id);
+            formData.append("arrival", values.arrival?.toISOString());
 
             // ✅ Append each image under the same key (backend receives array)
             if (values.evidence_images?.length > 0) {
@@ -278,6 +284,66 @@ const AddCaptureReport = () => {
                                 error={driverForm.errors.closure_comment_id && driverForm.touched.closure_comment_id}
                                 helperText={driverForm.touched.closure_comment_id ? driverForm.errors.closure_comment_id : ''}
                             />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <label style={{ marginBottom: "10px", fontWeight: 500, fontSize: "16px", lineHeight: 1 }}>Arrival Date & Time</label>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DateTimePicker
+                                    label="Arrival Date & Time"
+                                    value={driverForm.values.arrival || null}
+                                    onChange={(newValue) => {
+                                        driverForm.setFieldValue("arrival", newValue);
+                                    }}
+                                    slotProps={{
+                                        textField: {
+                                            fullWidth: true,
+                                            size: "small",
+                                            sx: {
+                                                height: 44,
+                                                mt: "3px",
+
+                                                "& .MuiInputBase-root": {
+                                                    height: 44, // ✅ main container height
+                                                },
+
+                                                "& .MuiInputBase-input": {
+                                                    height: "44px !important",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    padding: "0 14px",
+                                                    boxSizing: "border-box",
+                                                },
+
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "#E0E3E7 !important",
+                                                },
+
+                                                "&:hover .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "#E0E3E7 !important",
+                                                },
+
+                                                "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "#E0E3E7 !important",
+                                                },
+
+                                                "& .MuiOutlinedInput-root": {
+                                                    boxShadow: "none",
+                                                },
+
+                                                "& .MuiSvgIcon-root": {
+                                                    fontSize: "18px", // calendar icon size
+                                                },
+                                            },
+                                            error:
+                                                driverForm.touched.arrival &&
+                                                Boolean(driverForm.errors.arrival),
+                                            helperText:
+                                                driverForm.touched.arrival &&
+                                                driverForm.errors.arrival,
+                                        },
+                                    }}
+                                />
+                            </LocalizationProvider>
                         </Grid>
 
                         <Grid size={12}>

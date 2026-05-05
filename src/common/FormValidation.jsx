@@ -214,4 +214,5 @@ export const captureValidation = yup.object({
     resolution_comment_id:String,
     closure_comment_id:String,
     location_id:String,
+    arrival:String,
 })
