@@ -294,7 +294,7 @@ const AddCaptureReport = () => {
                                     onChange={(newValue) => {
                                         driverForm.setFieldValue("arrival", newValue);
                                     }}
-                                    disableFuture
+                                    maxDateTime={dayjs()}
                                     slotProps={{
                                         textField: {
                                             fullWidth: true,
