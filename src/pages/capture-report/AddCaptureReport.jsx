@@ -299,18 +299,40 @@ const AddCaptureReport = () => {
                                             fullWidth: true,
                                             size: "small",
                                             sx: {
-                                                "& .MuiOutlinedInput-root": {
-                                                    height: "50",
-                                                    borderRadius: "6px",
-                                                    backgroundColor: "#fff",
+                                                height: 44,
+                                                mt: "3px",
+
+                                                "& .MuiInputBase-root": {
+                                                    height: 44, // ✅ main container height
                                                 },
+
                                                 "& .MuiInputBase-input": {
-                                                    padding: "10px 12px",
-                                                    fontSize: "14px",
+                                                    height: "44px !important",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    padding: "0 14px",
+                                                    boxSizing: "border-box",
                                                 },
-                                                "& .MuiInputLabel-root": {
-                                                    fontSize: "13px",
-                                                }
+
+                                                "& .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "#E0E3E7 !important",
+                                                },
+
+                                                "&:hover .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "#E0E3E7 !important",
+                                                },
+
+                                                "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                    borderColor: "#E0E3E7 !important",
+                                                },
+
+                                                "& .MuiOutlinedInput-root": {
+                                                    boxShadow: "none",
+                                                },
+
+                                                "& .MuiSvgIcon-root": {
+                                                    fontSize: "18px", // calendar icon size
+                                                },
                                             },
                                             error:
                                                 driverForm.touched.arrival &&
