@@ -562,6 +562,10 @@ export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, start
     const res = useQuery({
         queryKey: [key, page, limit, filter, startDate, endDate, archived, locationFilter, sortBy, sortOrder],
         queryFn: queryFn,
+        staleTime: 1000 * 60 * 2, 
+        refetchOnMount: false, 
+        refetchOnWindowFocus: false,
+        placeholderData: keepPreviousData,
         retry: false,
     });
 
