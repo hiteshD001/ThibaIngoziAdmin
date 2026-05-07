@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, Link, useSearchParams, useParams } from "react-router-dom";
 import {
     Box, Typography, TextField, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Avatar, Grid, InputAdornment, Stack, Select, MenuItem,
     Button,
     Tooltip,
+    Chip,
     TableSortLabel,
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -32,81 +33,31 @@ import { format } from "date-fns";
 import jsPDF from 'jspdf';
 import { autoTable } from 'jspdf-autotable'
 import * as XLSX from 'xlsx';
-// const MissingPersons = [
-//     {
-//         "_id": 1,
-//         "name": 'Mohammad Salem',
-//         "location": 'Sandton, Johannesburg Gauteng,2196',
-//         "date": '02/05/25',
-//         "req_accept": '20',
-//         "req_reached": '30',
-//         'reportedBy': 'Jane Cooper'
-//     },
-//     {
-//         "_id": 2,
-//         "name": 'Mohammad Salem',
-//         "location": 'Sandton, Johannesburg Gauteng,2196',
-//         "date": '02/05/25',
-//         "req_accept": '20',
-//         "req_reached": '30',
-//         'reportedBy': 'Jane Cooper'
-//     },
-//     {
-//         "_id": 3,
-//         "name": 'Mohammad Salem',
-//         "location": 'Sandton, Johannesburg Gauteng,2196',
-//         "date": '02/05/25',
-//         "req_accept": '20',
-//         "req_reached": '30',
-//         'reportedBy': 'Jane Cooper'
-//     },
-//     {
-//         "_id": 4,
-//         "name": 'Mohammad Salem',
-//         "location": 'Sandton, Johannesburg Gauteng,2196',
-//         "date": '02/05/25',
-//         "req_accept": '20',
-//         "req_reached": '30',
-//         'reportedBy': 'Jane Cooper'
-//     },
-//     {
-//         "_id": 5,
-//         "name": 'Mohammad Salem',
-//         "location": 'Sandton, Johannesburg Gauteng,2196',
-//         "date": '02/05/25',
-//         "req_accept": '20',
-//         "req_reached": '30',
-//         'reportedBy': 'Jane Cooper'
-//     },
-// ]
+import {getImageLink,formatDateTime } from '../../common/commonFn';
+import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
+import SingleImagePreview from "../../common/SingleImagePreview";
 
 const ListofMissingPerson = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
-    const [range, setRange] = useState([
-        {
-            startDate: startOfYear(new Date()),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
-
-    const [locationFilters, setLocationFilters] = useState({
-        country: "",
-        province: "",
-        city: "",
-        suburb: "",
-    });
-
-
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [filter, setfilter] = useState("");
+    const params = useParams();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+    const [range, setRange] = useState([{
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
+        key: 'selection'
+    }]);
+    const currentPage = Number(searchParams.get("currentPage")) || 1;
+    const filter = searchParams.get("filter") || "";
+    const locationFilter = searchParams.get("locationFilter") || "";
+    const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
     const [confirmation, setconfirmation] = useState("");
 
     // Sort 1
     const [sortBy, setSortBy] = useState("lastSeenLocation");
-    const [sortOrder, setSortOrder] = useState("asc");
+    const [sortOrder, setSortOrder] = useState("desc");
 
     const changeSortOrder = (e) => {
         const field = e.target.id;
@@ -118,6 +69,17 @@ const ListofMissingPerson = () => {
         }
     }
 
+    const handleFilterData = (data) => {
+
+        const params = Object.fromEntries(
+            Object.entries(data).filter(
+                ([_, value]) => value !== "" && value !== undefined && value !== null
+            )
+        );
+
+        const filterText = new URLSearchParams(params).toString();
+        updateParams({ locationFilter: filterText })
+    };
 
     const MissingPersons = useGetMissingPersonList(
         "MissingPersonList",
@@ -127,20 +89,17 @@ const ListofMissingPerson = () => {
         range[0].startDate,
         range[0].endDate,
         false,
-        locationFilters.country,
-        locationFilters.province,
-        locationFilters.city,
-        locationFilters.suburb,
+        locationFilter,
         sortBy,
         sortOrder
     );
 
-    const totalUsers = MissingPersons?.data?.data?.total;
+    const totalUsers = MissingPersons?.data?.data?.totaldata;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
-
+    
     const achiveMissingPerson = usePatchArchivedMissingPerson(
         () => {
-            toast.success("Person archived successfully!")
+            toast.success("Missing Person archived successfully!")
             MissingPersons.refetch()
         },
         () => toast.error("Failed to archive person.")
@@ -148,17 +107,10 @@ const ListofMissingPerson = () => {
 
     let loginUser = useGetUser(localStorage.getItem("userID"));
     loginUser = loginUser?.data?.data?.user;
+
     const handleExport = async ({ startDate, endDate, exportFormat: fileFormat }) => {
         try {
-            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson`, {
-                params: {
-                    page: 1,
-                    limit: 10000,
-                    filter: "",
-                    startDate,
-                    endDate,
-                },
-            });
+            const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson`, {params: {}});
 
             const allUsers = data?.data || [];
             if (!allUsers.length) {
@@ -167,13 +119,14 @@ const ListofMissingPerson = () => {
             }
 
             const exportData = allUsers.map(user => ({
-                "Name": user.name || '',
-                "Last Seen Location": user.lastSeenLocation || '',
-                "Date": format(user.date, "HH:mm:ss - dd/MM/yyyy") || '',
-                "Request Reached": user.requestReached || '',
-                "Request Accepted": user.requestAccepted || '',
-                "Status": user.status || '',
-                "Reported By": user.reportedBy || '',
+                "SOS Id": (user?.sosNumber || ''),
+                "Name": (user?.notification_details?.notification_data?.lostPerson?.first_name || "")+" "+(user?.notification_details?.notification_data?.lostPerson?.last_name || ''),
+                "Last Seen Location": user.address || '',
+                "Date": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
+                "Request Reached": user.req_reach || '',
+                "Request Accepted": user.req_accept || '',
+                "Status": user.help_received === "help_received" ? 'Found' : 'Not Found',
+                "Reported By": (user?.user_id?.first_name || '') + " "+ (user?.user_id?.last_name || ''),
             }));
             const exportedByValue = loginUser.role === 'company' ? loginUser.company_name : 'Super Admin';
             if (fileFormat === "xlsx") {
@@ -232,15 +185,16 @@ const ListofMissingPerson = () => {
                 // Table
                 autoTable(doc, {
                     startY: 30,
-                    head: [["Name", "Last Seen Location", "Date", "Request Reached", "Request Accepted", "Status", "Reported By"]],
+                    head: [["SOS Id", "Name", "Last Seen Location", "Date", "Request Reached", "Request Accepted", "Status", "Reported By"]],
                     body: allUsers.map(user => [
-                        user.name || '',
-                        user.lastSeenLocation || '',
-                        format(user.date, "HH:mm:ss - dd/MM/yyyy") || '',
-                        user.requestReached || '',
-                        user.requestAccepted || '',
-                        user.status || '',
-                        user.reportedBy || '',
+                        (user?.sosNumber || ''),
+                        (user?.notification_details?.notification_data?.lostPerson?.first_name || "")+" "+(user?.notification_details?.notification_data?.lostPerson?.last_name || ''),
+                        user.address || '',
+                        format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
+                        user.req_reach || '',
+                        user.req_accept || '',
+                        user.help_received === "help_received" ? 'Found' : 'Not Found',
+                        (user?.user_id?.first_name || '') + " "+ (user?.user_id?.last_name || ''),
                     ]),
                     theme: 'striped',
                     headStyles: { fillColor: [54, 123, 224], textColor: 255 },
@@ -257,7 +211,52 @@ const ListofMissingPerson = () => {
         }
     };
 
+    const updateParams = (newParams) => {
+        setSearchParams((prev) => {
+            const prevParams = Object.fromEntries(prev.entries());
+
+            return {
+                ...prevParams,
+                ...newParams,
+            };
+        });
+    };
+
+    const [previewImage, setPreviewImage] = useState({
+        open: false,
+        src: '',
+        label: ''
+    });
+    const handleImageClick = (src, label) => {
+        if (src) {
+            setPreviewImage({
+                open: true,
+                src: src instanceof File ? URL.createObjectURL(src) : src,
+                label: label
+            });
+        }
+    };
+    const handleClosePreview = () => {
+        setPreviewImage(prev => ({ ...prev, open: false }));
+    };
+
+    const handleView = (url) => {
+        saveScrollPosition("missingPersonListScroll");
+        nav(url);
+    };
+    useEffect(() => {
+        if (MissingPersons.data?.data?.totalUsers) {
+            restoreScrollPosition("missingPersonListScroll");
+        }
+    }, [MissingPersons.data?.data?.totalUsers]);
+
     return (
+        <>
+            <SingleImagePreview
+                show={previewImage.open}
+                onClose={handleClosePreview}
+                image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
+            />
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
@@ -270,7 +269,7 @@ const ListofMissingPerson = () => {
                             variant="outlined"
                             placeholder="Search"
                             value={filter}
-                            onChange={(e) => setfilter(e.target.value)}
+                            onChange={(e) => updateParams({filter:e.target.value})}
                             fullWidth
                             sx={{
                                 width: '100%',
@@ -304,11 +303,17 @@ const ListofMissingPerson = () => {
                             }}
                         />
                         <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={2}>
-                            <CustomFilter onApply={(filters) => setLocationFilters(filters)} />
+                            <CustomFilter onApply={handleFilterData} isSuburbVisible ={false} />
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
-                                onChange={setRange}
+                                onChange={(nextRange) => {
+                                    setRange(nextRange);
+                                    updateParams({
+                                        startDate: new Date(nextRange[0].startDate).toISOString(),
+                                        endDate: new Date(nextRange[0].endDate).toISOString(),
+                                    });
+                                }}
                                 icon={calender}
                             />
                             <CustomExportMenu onExport={handleExport} />
@@ -332,22 +337,33 @@ const ListofMissingPerson = () => {
                                 <TableRow >
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
                                         <TableSortLabel
-                                            id="name"
-                                            active={sortBy === 'name'}
+                                            id="sosNumber"
+                                            active={sortBy === 'sosNumber'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'sosNumber' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >
+                                            SOS Id
+                                        </TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="reporter_user"
+                                            active={sortBy === 'reporter_user'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'reporter_user' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Name
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="lastSeenLocation"
-                                            active={sortBy === 'lastSeenLocation'}
+                                            id="address"
+                                            active={sortBy === 'address'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'lastSeenLocation' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'address' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Last Seen Location
                                         </TableSortLabel>
@@ -365,44 +381,53 @@ const ListofMissingPerson = () => {
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>
                                         <TableSortLabel
-                                            id="requestReached"
-                                            active={sortBy === 'requestReached'}
+                                            id="req_reach"
+                                            active={sortBy === 'req_reach'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'requestReached' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'req_reach' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Request Reached
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>
                                         <TableSortLabel
-                                            id="requestAccepted"
-                                            active={sortBy === 'requestAccepted'}
+                                            id="req_accept"
+                                            active={sortBy === 'req_accept'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'requestAccepted' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'req_accept' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Request Accepted
                                         </TableSortLabel>
                                     </TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>
                                         <TableSortLabel
-                                            id="status"
-                                            active={sortBy === 'status'}
+                                            id="suspect_reported_users"
+                                            active={sortBy === 'suspect_reported_users'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'suspect_reported_users' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >Sightings Reported</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                            id="help_received"
+                                            active={sortBy === 'help_received'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'help_received' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Status
                                         </TableSortLabel>
                                     </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
-                                            id="reportedBy"
-                                            active={sortBy === 'reportedBy'}
+                                            id="first_name"
+                                            active={sortBy === 'first_name'}
                                             direction={sortOrder}
                                             onClick={changeSortOrder}
-                                            IconComponent={() => <img src={sortBy === 'reportedBy' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >
                                             Reported by
                                         </TableSortLabel>
@@ -419,62 +444,105 @@ const ListofMissingPerson = () => {
                                         </TableCell>
                                     </TableRow>
                                     : (MissingPersons?.data?.data?.data?.length > 0 ?
-                                        MissingPersons?.data?.data?.data?.map((user) => (
-                                            <TableRow key={user?._id}>
+                                        MissingPersons?.data?.data?.data?.map((obj) => (
+                                            <TableRow key={obj?._id}>
+                                                <TableCell sx={{ color: '#367BE0', textAlign: 'center'  }}>
+                                                    <Link onClick={() => handleView(`/home/capture-reports?location_id=${obj?._id}&sosId=${obj?.sosNumber}`)} className="link2">
+                                                        {obj?.sosNumber || "-"}
+                                                    </Link>
+                                                </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Stack direction="row" alignItems="center" gap={1}>
                                                         <Avatar
-                                                            src={user.profileImage || nouser}
+                                                            src={obj?.notification_details?.notification_data?.lostPerson?.selfieImage || nouser}
+                                                            onClick={() => handleImageClick(obj?.notification_details?.notification_data?.lostPerson?.selfieImage,'Image')}
+                                                            sx={{cursor:'pointer', '&:hover': { textDecoration: 'none' } }}
                                                             alt="User"
                                                         />
-
-                                                        {/* {user.first_name} {user.last_name} */}
-                                                        {user?.name}
+                                                        {(obj?.notification_details?.notification_data?.lostPerson?.first_name || '') + ' ' + (obj?.notification_details?.notification_data?.lostPerson?.last_name || '') || "-"}
                                                     </Stack>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
 
-                                                    {user?.lastSeenLocation || "-"}
+                                                    {obj?.address || "-"}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-
-                                                    {moment(user?.createdAt).format("DD/MM/YYYY")}
-
-                                                </TableCell>
-                                                <TableCell sx={{ color: 'var(--orange)', textAlign: 'center' }}>
-
-                                                    {user?.requestReached || "-"}
+                                                    {moment(obj.createdAt).isSame(moment(), "day")
+                                                        ? `Today, ${moment(obj.createdAt).format("hh:mm A")}`
+                                                        : formatDateTime(obj.createdAt, "HH:mm:ss - DD/MM/YYYY")}
 
                                                 </TableCell>
-
-                                                <TableCell sx={{ color: '#01C971', textAlign: 'center' }}>
-
-                                                    {user?.requestAccepted || "-"}
-
+                                                <TableCell sx={{ color: 'var(--orange)' }}>
+                                                    <Link
+                                                        onClick={() => handleView(`/home/request-reached-users/${obj?._id}`)}
+                                                        style={{
+                                                            textDecoration: 'none',
+                                                            color: 'var(--orange)',
+                                                            cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        {obj?.req_reach || "0"}
+                                                    </Link>
                                                 </TableCell>
-                                                <TableCell sx={{ color: 'var(--orange)', textAlign: 'start' }}>
-
-                                                    {user?.status || "-"}
-
+                                                <TableCell sx={{ color: '#01C971' }}>
+                                                    <Link
+                                                        onClick={() => handleView(`/home/request-accepted-users/${obj?._id}`)}
+                                                        style={{
+                                                            textDecoration: 'none',
+                                                            color: '#01C971',
+                                                            cursor: 'pointer',
+                                                        }}
+                                                    >
+                                                        {obj?.req_accept || "0"}
+                                                    </Link>
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
+                                                    <Link onClick={() => handleView(`/home/total-suspect/suspect-sightings-reported-users/${obj?._id}`)} className="link2">
+                                                        {obj?.suspect_reported_users}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-
-                                                    {user?.reportedBy || "-"}
-
+                                                    <Chip
+                                                        label={obj?.help_received === 'help_received' ? 'Found' : 'Not Found' || 'Not Found'}
+                                                        sx={{
+                                                            backgroundColor:
+                                                                obj?.help_received !== 'help_received' ? '#FEE2E2' :
+                                                                    obj?.help_received === 'help_received' ? '#DCFCE7' :
+                                                                                '#4B55631A',
+                                                            '& .MuiChip-label': {
+                                                                textTransform: 'capitalize',
+                                                                color: obj?.help_received !== 'help_received' ? '#DC2626' :
+                                                                    obj?.help_received === 'help_received' ? '#166534' :
+                                                                                'black',
+                                                            }
+                                                        }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563' }}>
+                                                    <Link onClick={() => handleView(obj?.user_id.role === "driver" ? `/home/total-drivers/driver-information/${obj?.user_id._id}` : `/home/total-users/user-information/${obj?.user_id._id}`)} className="link2">
+                                                        <Stack direction="row" alignItems="center" gap={1}>
+                                                            <Avatar
+                                                                src={obj?.user_id?.selfieImage || nouser}
+                                                                sx={{ '&:hover': { textDecoration: 'none' } }}
+                                                                alt="User"
+                                                            />
+                                                            {obj?.user_id?.first_name + ' ' + obj?.user_id?.last_name || "-"}
+                                                        </Stack>
+                                                    </Link>
                                                 </TableCell>
 
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => nav(`/home/total-missing-person/person-information/${user._id}`)}>
+                                                            <IconButton onClick={() => nav(`/home/total-missing-person/person-information/${obj._id}`)}>
                                                                 <img src={ViewBtn} alt="view button" />
                                                             </IconButton>
                                                         </Tooltip>
                                                         <Tooltip title="Archive" arrow placement="top">
                                                             <IconButton onClick={() => {
                                                                 achiveMissingPerson.mutate({
-                                                                    id: user?._id,
+                                                                    id: obj?._id,
                                                                     data: { isArchived: true }
                                                                 });
                                                             }}>
@@ -482,14 +550,14 @@ const ListofMissingPerson = () => {
                                                             </IconButton>
                                                         </Tooltip>
                                                         <Tooltip title="Delete" arrow placement="top">
-                                                            <IconButton onClick={() => setconfirmation(user?._id)}>
+                                                            <IconButton onClick={() => setconfirmation(obj?._id)}>
                                                                 <img src={delBtn} alt="Delete" />
                                                             </IconButton>
                                                         </Tooltip>
 
-                                                        {confirmation === user?._id && (
+                                                        {confirmation === obj?._id && (
                                                             <DeleteConfirm
-                                                                id={user?._id}
+                                                                id={obj?._id}
                                                                 setconfirmation={setconfirmation}
                                                                 trip="missingPerson"
                                                             />
@@ -511,8 +579,7 @@ const ListofMissingPerson = () => {
                         </Table>
 
                     </TableContainer>
-
-                    {MissingPersons?.data?.data?.data?.length > 0 && MissingPersons.isFetching && <Grid container sx={{ px: { xs: 0, sm: 3 } }} justifyContent="space-between" alignItems="center" mt={2}>
+                    {MissingPersons?.data?.data?.data?.length > 0 && <Grid container sx={{ px: { xs: 0, sm: 3 } }} justifyContent="space-between" alignItems="center" mt={2}>
                         <Grid>
                             <Typography variant="body2">
                                 Rows per page:&nbsp;
@@ -538,8 +605,7 @@ const ListofMissingPerson = () => {
                                     }}
                                     value={rowsPerPage}
                                     onChange={(e) => {
-                                        setRowsPerPage(Number(e.target.value));
-                                        setCurrentPage(1);
+                                        updateParams({rowsPerPage:Number(e.target.value),currentPage:1});
                                     }}
                                 >
                                     {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -557,7 +623,7 @@ const ListofMissingPerson = () => {
                                 </Typography>
                                 <IconButton
                                     disabled={currentPage === 1}
-                                    onClick={() => setCurrentPage((prev) => prev - 1)}
+                                    onClick={() => updateParams({currentPage:currentPage - 1})}
                                 >
                                     <NavigateBeforeIcon fontSize="small" sx={{
                                         color: currentPage === 1 ? '#BDBDBD' : '#1976d2'
@@ -565,7 +631,7 @@ const ListofMissingPerson = () => {
                                 </IconButton>
                                 <IconButton
                                     disabled={currentPage === totalPages}
-                                    onClick={() => setCurrentPage((prev) => prev + 1)}
+                                    onClick={() => updateParams({currentPage:currentPage + 1})}
                                 >
                                     <NavigateNextIcon fontSize="small" />
                                 </IconButton>
@@ -577,6 +643,7 @@ const ListofMissingPerson = () => {
             </Paper>
             {popup && <ImportSheet setpopup={setpopup} type="user" />}
         </Box>
+        </>
     );
 };
 

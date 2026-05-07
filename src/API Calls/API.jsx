@@ -550,17 +550,17 @@ export const useDeleteUserMeetingTripTrip = (onSuccess, onError) => {
 
 // missing person
 
-export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder) => {
+export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, locationFilter, sortBy, sortOrder) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson`, {
-            params: { page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder },
+            params: { page, limit, filter, startDate, endDate, archived, locationFilter, sortBy, sortOrder },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder],
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, locationFilter, sortBy, sortOrder],
         queryFn: queryFn,
         retry: false,
     });
@@ -612,7 +612,7 @@ export const useDeleteMissingPerson = (onSuccess, onError) => {
 export const usePatchArchivedMissingPerson = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
         return await apiClient.patch(
-            `${import.meta.env.VITE_BASEURL}/missingPerson/archive/${id}`,
+            `${import.meta.env.VITE_BASEURL}/missingPerson/isArchived/${id}`,
             data
         );
     };
@@ -643,10 +643,10 @@ export const usePatchUnArchivedMissingPerson = (onSuccess, onError) => {
     return mutation;
 }
 
-export const usePutMissingPerson = (onSuccess, onError) => {
+export const usePutMissingPersonStatus = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
         return await apiClient.put(
-            `${import.meta.env.VITE_BASEURL}/missingPerson/${id}`,
+            `${import.meta.env.VITE_BASEURL}/missingPerson/markasreviewed/${id}`,
             data
         );
     };
@@ -2086,7 +2086,6 @@ export const useGetCrimeReportList = (
         staleTime: 1000 * 60 * 1,      // 2 minute cache — back button pe re-fetch nahi
         refetchOnMount: false,           // mount pe fresh call nahi, cache use karo
         refetchOnWindowFocus: false,
-        retry: false,
         placeholderData: keepPreviousData,
         retry: false,
     });
