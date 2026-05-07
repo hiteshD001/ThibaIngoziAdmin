@@ -2086,7 +2086,6 @@ export const useGetCrimeReportList = (
         staleTime: 1000 * 60 * 1,      // 2 minute cache — back button pe re-fetch nahi
         refetchOnMount: false,           // mount pe fresh call nahi, cache use karo
         refetchOnWindowFocus: false,
-        retry: false,
         placeholderData: keepPreviousData,
         retry: false,
     });
