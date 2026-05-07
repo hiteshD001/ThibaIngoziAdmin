@@ -245,10 +245,10 @@ const ListOfViewArcheivedMissingPerson = () => {
         nav(url);
     };
     useEffect(() => {
-        if (MissingPersons.data?.data?.totalUsers) {
+        if (MissingPersons.data?.data?.totaldata) {
             restoreScrollPosition("missingPersonListScroll");
         }
-    }, [MissingPersons.data?.data?.totalUsers]);
+    }, [MissingPersons.data?.data?.totaldata]);
 
     return (
         <>
@@ -528,7 +528,7 @@ const ListOfViewArcheivedMissingPerson = () => {
                                                     <TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
-                                                                <IconButton onClick={() => nav(`/home/total-missing-person/person-information/${obj._id}`)}>
+                                                                <IconButton onClick={() => handleView(`/home/total-missing-person/person-information/${obj._id}`)}>
                                                                     <img src={ViewBtn} alt="view button" />
                                                                 </IconButton>
                                                             </Tooltip>
