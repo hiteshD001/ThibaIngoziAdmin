@@ -60,7 +60,7 @@ const Confirmation = lazy(() => import("./pages/crimeReports/Confirmation"));
 const ListOfViewArcheived = lazy(() => import("./pages/ListOfViewArcheived"));
 const ListOfViewArcheivedMeeting = lazy(() => import("./pages/ListOfViewArcheivedMeeting"));
 const ListOfViewArcheivedMissingPerson = lazy(() => import("./pages/MissingPerson/ListOfViewArcheivedMissingPerson"));
-const ListOfViewArcheivedMissingVehicale = lazy(() => import("./pages/ListOfViewArcheivedMissingVehicale"));
+const ListOfViewArcheivedMissingVehicale = lazy(() => import("./pages/StolenCars/ListOfViewArcheivedMissingVehicale"));
 const ListOfSalesAgent = lazy(() => import("./pages/SalesAgent/ListOfSalesAgent"));
 const AddAgent = lazy(() => import("./pages/SalesAgent/AddAgent"));
 const AgentInformation = lazy(() => import("./pages/SalesAgent/AgentInformation"));

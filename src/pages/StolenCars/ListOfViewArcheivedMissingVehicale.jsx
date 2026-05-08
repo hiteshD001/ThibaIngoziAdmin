@@ -37,7 +37,7 @@ import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 import SingleImagePreview from "../../common/SingleImagePreview";
 
-const ListOfStolenCars = () => {
+const ListOfViewArcheivedMissingVehicale = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const params = useParams();
@@ -88,7 +88,7 @@ const ListOfStolenCars = () => {
         filter,
         range[0].startDate,
         range[0].endDate,
-        false,
+        true,
         locationFilter,
         sortBy,
         sortOrder
@@ -315,13 +315,6 @@ const ListOfStolenCars = () => {
                                 icon={calender}
                             />
                             <CustomExportMenu onExport={handleExport} />
-                            <Button
-                                onClick={() => nav('/home/total-stolen-cars/view-archeived-vehicale')}
-                                variant="contained"
-                                sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
-                                startIcon={<img src={ViewBtn} alt="View" />}>
-                                View Archeived
-                            </Button>
                         </Box>
 
                     </Grid>
@@ -568,7 +561,7 @@ const ListOfStolenCars = () => {
                                                             <IconButton onClick={() => {
                                                                 achiveMissingPerson.mutate({
                                                                     id: obj?._id,
-                                                                    data: { isArchived: true }
+                                                                    data: { isArchived: false }
                                                                 });
                                                             }}>
                                                                 <img src={Listtrip} alt="view button" />
@@ -672,4 +665,4 @@ const ListOfStolenCars = () => {
     );
 };
 
-export default ListOfStolenCars;
+export default ListOfViewArcheivedMissingVehicale;

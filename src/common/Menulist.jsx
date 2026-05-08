@@ -106,10 +106,10 @@ export const allMenuItems = [
     },
     {
         id: "total-stolen-cars",
-        name: "Stolen Cars",
+        name: "Stolen Vehicle Broadcast",
         path: "/home/total-stolen-cars",
         image: StolenCarIcon,
-        company: "Stolen Car Sighting Details",
+        company: "Stolen Vehicle Broadcast Sighting Details",
         permission: "Stolen Cars"
     },
     {
