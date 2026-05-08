@@ -562,6 +562,10 @@ export const useGetMissingPersonList = (key, page = 1, limit = 10, filter, start
     const res = useQuery({
         queryKey: [key, page, limit, filter, startDate, endDate, archived, locationFilter, sortBy, sortOrder],
         queryFn: queryFn,
+        staleTime: 1000 * 60 * 2, 
+        refetchOnMount: false, 
+        refetchOnWindowFocus: false,
+        placeholderData: keepPreviousData,
         retry: false,
     });
 
@@ -662,18 +666,22 @@ export const usePutMissingPersonStatus = (onSuccess, onError) => {
 
 // missing vehicale
 
-export const useGetMissingVehicaleList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder) => {
+export const useGetMissingVehicaleList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, locationFilter, sortBy, sortOrder) => {
     const nav = useNavigate();
 
     const queryFn = async () => {
         return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingVehicle`, {
-            params: { page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder },
+            params: { page, limit, filter, startDate, endDate, archived, locationFilter, sortBy, sortOrder },
         });
     };
 
     const res = useQuery({
-        queryKey: [key, page, limit, filter, startDate, endDate, archived, country, province, city, suburb, sortBy, sortOrder],
+        queryKey: [key, page, limit, filter, startDate, endDate, archived, locationFilter, sortBy, sortOrder],
         queryFn: queryFn,
+        staleTime: 1000 * 60 * 2, 
+        refetchOnMount: false, 
+        refetchOnWindowFocus: false,
+        placeholderData: keepPreviousData,
         retry: false,
     });
 
@@ -687,7 +695,7 @@ export const useGetMissingVehicaleList = (key, page = 1, limit = 10, filter, sta
 export const usePatchArchivedMissingVehicale = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
         return await apiClient.patch(
-            `${import.meta.env.VITE_BASEURL}/missingVehicle/archive/${id}`,
+            `${import.meta.env.VITE_BASEURL}/missingVehicle/isArchived/${id}`,
             data
         );
     };
@@ -755,10 +763,10 @@ export const useDeleteMissingVehicaleById = (key, id) => {
     return res;
 };
 
-export const usePutMissingVehicale = (onSuccess, onError) => {
+export const usePutMissingVehicleStatus = (onSuccess, onError) => {
     const mutationFn = async ({ id, data }) => {
         return await apiClient.put(
-            `${import.meta.env.VITE_BASEURL}/missingVehicle/${id}`,
+            `${import.meta.env.VITE_BASEURL}/missingVehicle/markasreviewed/${id}`,
             data
         );
     };
