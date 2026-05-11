@@ -101,7 +101,7 @@ export const allMenuItems = [
         name: "Missing Persons",
         path: "/home/total-missing-person",
         image: MissingPersonIcon,
-        company: "Missing Person Sighting Details",
+        company: "Missing Person SOS Details",
         permission: "Missing Persons"
     },
     {
@@ -109,7 +109,7 @@ export const allMenuItems = [
         name: "Stolen Vehicle Broadcast",
         path: "/home/total-stolen-cars",
         image: StolenCarIcon,
-        company: "Stolen Vehicle Broadcast Sighting Details",
+        company: "Stolen Vehicle Broadcast SOS Details",
         permission: "Stolen Cars"
     },
     {
