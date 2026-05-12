@@ -82,6 +82,7 @@ const Navbar = ({ setActive, isActive }) => {
         nav('/home/profile');
     };
     return (
+        <>
         <header className="navbar shadow-sm px-3 py-2 d-flex justify-content-between align-items-center">
 
             {/* --- DYNAMIC BREADCRUMB / TITLE --- */}
@@ -154,6 +155,7 @@ const Navbar = ({ setActive, isActive }) => {
 
 
         </header>
+        </>
     )
 }
 

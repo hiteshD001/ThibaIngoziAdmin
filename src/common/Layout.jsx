@@ -9,6 +9,7 @@ import { IoIosMenu } from "react-icons/io";
 function Layout() {
     const [isActive, setActive] = useState(false);
     const sidebarRef = useRef();
+    const [isCollapsed, setIsCollapsed] = useState(false);
     // Close sidebar when clicking outside (on small screens)
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -22,8 +23,8 @@ function Layout() {
     return (
         <div className={`dashboard ${isActive ? "active" : ""}`}>
             <div className="main-app">
-                <SideBar setActive={setActive} isActive={isActive} sidebarRef={sidebarRef} />
-                <div className="content">
+                <SideBar setActive={setActive} isActive={isActive} sidebarRef={sidebarRef}  isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed}/>
+                <div className={`content ${isCollapsed ? "collapsed" : ""}`}>
                     <Navbar setActive={setActive} isActive={isActive} />
                     <div className="outlet">
                         <Suspense fallback={<Loader />}>
