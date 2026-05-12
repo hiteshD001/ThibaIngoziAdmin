@@ -27,18 +27,20 @@
     color:white ;
     z-index: 999999;
     padding: 3px 10px;
-    transition: all 0.3s ease;
+    /* transition: all 0.3s ease; */
 }
 
 .burger-menu-v{
     position: relative;
     margin-top: 50%;
+    /* margin-left: 50%; */
     border-radius: 8px;
     background-color: #1E2937;       /* Deep dark */
     border: 2px solid white;
     color:white ;
     z-index: 999999;
     padding: 3px 10px;
+    transition:all 0.3s ease;
 }
 
 .content{
@@ -53,7 +55,7 @@
 .sidebar.collapsed .burger-menu{
     margin-top: 25%;
     margin-left: 8%;
-    /* transition: 0.3s ease; */
+    transition: 0.3s ease;
 }
 
 .sidebar.collapsed .logo img {
