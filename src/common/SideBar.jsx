@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { getFilteredMenulist } from "./Menulist";
 import { LogoutConfirm } from "./ConfirmationPOPup";
-import { useGetPermissionsByRoleId } from "../API Calls/API";
+import { useGetPermissionsByRoleId,useGetUser} from "../API Calls/API";
 import { useMemo } from "react";
 import "./../css/SidebarCollaosed.css";
 
@@ -14,10 +14,11 @@ const SideBar = ({ setActive, isActive, sidebarRef, isCollapsed,
     const [confirm, setconfirm] = useState(false)
     const role = localStorage.getItem('role')
     const roleId = localStorage.getItem('roleId')
+    const adminId = localStorage.getItem('userID') || null
 
     // Fetch permissions for company role
     const { data: permissionsData } = useGetPermissionsByRoleId(roleId);
-
+     
     const nav = useNavigate()
     const location = useLocation();
 
@@ -34,6 +35,13 @@ const SideBar = ({ setActive, isActive, sidebarRef, isCollapsed,
     const [currentMenu, setcurrentMenu] = useState(
         role === "sales_agent" ? "sales-home" : "home"
     );
+    
+    if(adminId){
+        const adminData = useGetUser(adminId);
+        if (adminData?.error?.response?.status === 400 && adminData?.error?.response?.data === 'Account is already logged in on another device.') {
+            handleLogout()
+        }  
+    }
 
     useEffect(() => {
         const currentPath = location.pathname.split("/")
