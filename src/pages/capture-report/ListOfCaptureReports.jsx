@@ -439,7 +439,9 @@ const ListOfCaptureReports = () => {
                                             
                                             <TableRow key={report._id}>
                                                 <TableCell sx={{ color: 'var(--Blue)' }}>
-                                                    {report?.location?.sosNumber || '-'}
+                                                    <Link onClick={() => handleView(report?.location?.location_type?.type === 'Missing Person Broadcast' ? `/home/total-missing-person/person-information/${report?.location?._id}` : (report?.location?.location_type?.type === 'Lost Vehicle Broadcast' ? `/home/total-stolen-cars/stolen-car/${report?.location?._id}` : `/home/capture-reports/sos-detail/${report?.location?._id}`))} sx={{ color: 'var(--Blue)' }}>
+                                                        {report?.location?.sosNumber || '-'}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {
