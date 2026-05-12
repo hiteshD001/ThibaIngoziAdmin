@@ -2511,6 +2511,29 @@ export const useGetCaptureReportById = (capture_report_id) => {
     return res;
 };
 
+export const useGetSOSDetailById = (location_id) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/capture-report/sos-detail/${location_id}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["sos-detail", location_id],
+        queryFn: queryFn,
+        staleTime: Infinity,
+        enabled: location_id !== undefined,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
 export const usePutCapture = (onSuccess, onError) => {
     const mutationFn = async (data) => {
         return await apiClient.post(`${import.meta.env.VITE_BASEURL}/capture-report/admin_save_capture_report`, data)

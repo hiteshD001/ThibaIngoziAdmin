@@ -78,6 +78,7 @@ const ListOfcaptureReports = lazy(() => import("./pages/capture-report/ListOfCap
 const ListOfArcheivedcaptureReports = lazy(() => import("./pages/capture-report/ListOfArcheivedcaptureReports"));
 const CaptureReport = lazy(() => import("./pages/capture-report/CaptureReport"));
 const AddCaptureReport = lazy(() => import("./pages/capture-report/AddCaptureReport"));
+const SOSDetail = lazy(() => import("./pages/capture-report/SOSDetail"));
 
 function App() {
     const router = useMemo(
@@ -438,7 +439,11 @@ function App() {
                                 {
                                     path: "view-archeived-capture-report",
                                     element: <ListOfArcheivedcaptureReports />
-                                }
+                                },
+                                {
+                                    path: "sos-detail/:id",
+                                    element: <SOSDetail />
+                                },
                             ]
                         },
                         {

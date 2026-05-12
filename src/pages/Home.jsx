@@ -1082,7 +1082,9 @@ const Home = () => {
                                             paginatedActiveUserList?.map((user) => (
                                                 <TableRow key={user._id}>
                                                     <TableCell sx={{ color: 'var(--Blue)' }}>
-                                                        {user?.sosNumber}
+                                                        <Link onClick={() => handleView(user.type.type === 'Missing Person Broadcast' ? `/home/total-missing-person/person-information/${user?._id}` : (user.type.type === 'Lost Vehicle Broadcast' ? `/home/total-stolen-cars/stolen-car/${user?._id}` : `/home/capture-reports/sos-detail/${user?._id}`))} sx={{ color: 'var(--Blue)' }}>
+                                                            {user?.sosNumber}
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
@@ -2044,7 +2046,9 @@ const Home = () => {
                                             recentSosItems?.map((row) => (
                                                 <TableRow key={row?._id}>
                                                     <TableCell sx={{ color: 'var(--Blue)' }}>
-                                                        {row?.sosNumber}
+                                                        <Link onClick={() => handleView(row.type.type === 'Missing Person Broadcast' ? `/home/total-missing-person/person-information/${row?._id}` : (row.type.type === 'Lost Vehicle Broadcast' ? `/home/total-stolen-cars/stolen-car/${row?._id}` : `/home/capture-reports/sos-detail/${row?._id}`))} sx={{ color: 'var(--Blue)' }}>
+                                                            {row?.sosNumber}
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {
