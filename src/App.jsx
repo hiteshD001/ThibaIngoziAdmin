@@ -79,6 +79,8 @@ const ListOfArcheivedcaptureReports = lazy(() => import("./pages/capture-report/
 const CaptureReport = lazy(() => import("./pages/capture-report/CaptureReport"));
 const AddCaptureReport = lazy(() => import("./pages/capture-report/AddCaptureReport"));
 const SOSDetail = lazy(() => import("./pages/capture-report/SOSDetail"));
+const SAPSMemberDetail = lazy(() => import("./pages/Saps/SAPSMemberDetail"));
+const SAPSWantedRequestUsers = lazy(() => import("./pages/Saps/SAPSRequestUsers"));
 
 function App() {
     const router = useMemo(
@@ -318,8 +320,8 @@ function App() {
                             children: [
                                 {
                                     path: "",
-                                    // element: <ListOfSapsWanted />
-                                    element: <WorkInProgress />
+                                    element: <ListOfSapsWanted />
+                                    // element: <WorkInProgress />
 
                                 },
                                 {
@@ -333,7 +335,15 @@ function App() {
                                 {
                                     path: 'add-saps-member',
                                     element: <AddSapsMember />
-                                }
+                                },
+                                {
+                                    path: 'saps-member-inforamtion/:id',
+                                    element: <SAPSMemberDetail />
+                                },
+                                {
+                                    path: "request-reached-users/:id",
+                                    element: <SAPSWantedRequestUsers />
+                                },
                             ]
                         },
                         {

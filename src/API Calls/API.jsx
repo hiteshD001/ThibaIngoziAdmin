@@ -2809,3 +2809,344 @@ export const useGetCrimeReportListv2 = async ({
         return [];
     }
 };
+
+// SAPS Wanted
+export const useGetSAPSWantedList = (
+    key,
+    role,
+    page,
+    limit,
+    filter,
+    locationFilter,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/saps-wanted`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                locationFilter,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder,
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            locationFilter,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder,
+        ],
+        queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetSAPSMemberList = (
+    key,
+    role,
+    page,
+    limit,
+    filter,
+    locationFilter,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/saps-member`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                locationFilter,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder,
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            locationFilter,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder,
+        ],
+        queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetSAPSWantedById = (saps_wanted_id) => {
+    const nav = useNavigate();
+
+   const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/saps-wanted/${saps_wanted_id}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["sapswanted", saps_wanted_id],
+        queryFn: queryFn,
+        staleTime: Infinity,
+        enabled: saps_wanted_id !== undefined,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useDeleteSAPSWanted = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/saps-wanted/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useDeleteSAPSMember = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/saps-member/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useAddWantedSAPS = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/saps-wanted/create`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useAddSAPSMember = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/saps-member/create`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useSAPSMemberEdit = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/saps-member/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useGetSAPSMemberById = (saps_member_id) => {
+    const nav = useNavigate();
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/saps-member/${saps_member_id}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["sapsmember", saps_member_id],
+        queryFn: queryFn,
+        staleTime: Infinity,
+        enabled: saps_member_id !== undefined,
+    });
+    
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetSAPSMemberByPoliceUnitId = (id) => {
+    const queryFn = async (queryId) => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/saps-member/member-by-police-unit?police_unit_id=${queryId}`
+        );
+    };
+    
+    const res = useQuery({
+        queryKey: ["saps member list", id],
+        queryFn: () => queryFn(id),
+        staleTime: 15 * 60 * 1000,
+        enabled: Boolean(id),
+        retry: false,
+    });
+
+    return res;
+};
+
+export const useGetSAPSWantedRequestUsers = (SAPSWantedId, page = 1, limit = 10,requestAccepted = false ,search = "") => {
+    const nav = useNavigate();
+    const queryFn = async () => {
+        const queryParams = new URLSearchParams({
+            page: page.toString(),
+            limit: limit.toString(),
+            requestAccepted: requestAccepted,
+            isWeb: true,
+            ...(search && search.trim() ? { search: search.trim() } : {})
+        }).toString();
+
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/saps-wanted/request-users/${SAPSWantedId}?${queryParams}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: [SAPSWantedId, page, limit, requestAccepted, search],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useSAPSWantedEdit = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/saps-wanted/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useGetSAPSWantedPageData = (
+    locationFilter,
+    startDate,
+    endDate,
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/saps-wanted/saps-wanted-page-data`, {
+            params: {
+                locationFilter,
+                startDate,
+                endDate,
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            locationFilter,
+            startDate,
+            endDate,
+        ],
+        queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
