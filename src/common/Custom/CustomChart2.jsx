@@ -15,7 +15,7 @@ export default function CustomChart({ wantedData, capturedData }) {
                 {
                     id: "captured",
                     label: "Captured",
-                    data: wantedData,
+                    data: capturedData,
                     color: "#10B981",
                     area: true,
                     point: { color: "#10B981" }
@@ -23,7 +23,7 @@ export default function CustomChart({ wantedData, capturedData }) {
                 {
                     id: "wanted",
                     label: "Wanted",
-                    data: capturedData,
+                    data: wantedData,
                     color: "#E5565A",
                     area: true,
                     point: { color: "red", backgroundColor: 'red' }

@@ -234,7 +234,7 @@ const SuspectDetail = () => {
                         <Button
                             variant="outlined"
                             sx={{ height: '48px', width: '210px', borderRadius: '8px', fontWeight: 500, color: 'black', border: '1px solid var(--light-gray)' }}
-                            onClick={() => nav(suspectObj?.linked_case_type === 'crimereports' ? `/home/crime-reports/crime-report/${suspectObj?.linked_case_type_id?._id}` : `/home/capture-reports?location_id=${suspectObj?.linked_case_type_id?._id}&sosId=${suspectObj?.linked_case_type_id?.sosNumber}`)}
+                            onClick={() => nav(suspectObj?.linked_case_type === 'crimereports' ? `/home/crime-reports/crime-report/${suspectObj?.linked_case_type_id?._id}` : suspectObj?.linked_case_type === 'sapswanted' ? `/home/total-saps-wanted/wanted-inforamtion/${suspectObj?.linked_case_type_id._id}` : `/home/capture-reports?location_id=${suspectObj?.linked_case_type_id?._id}&sosId=${suspectObj?.linked_case_type_id?.sosNumber}`)}
                             startIcon={<AiOutlineEye />}
                         >
                             Go to Case Details

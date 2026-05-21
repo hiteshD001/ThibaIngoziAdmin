@@ -235,8 +235,8 @@ const SuspectRequestUsers = () => {
                                         <TableRow key={obj._id}>
                                             
                                             <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
-                                                <Link onClick={() => handleView(obj?.linked_case_type === 'crimereports' ? `/home/crime-reports/crime-report/${obj?.linked_case_data?._id}` : `/home/capture-reports?location_id=${obj?.linked_case_data?._id}&sosId=${obj?.linked_case_data?.sosNumber}`)} className="link2">
-                                                    {obj?.linked_case_type === 'crimereports' ? obj?.linked_case_data?.crime_report_number : obj?.linked_case_data?.sosNumber || "-"}
+                                                <Link onClick={() => handleView(obj?.linked_case_type === 'crimereports' ? `/home/crime-reports/crime-report/${obj?.linked_case_data?._id}` : obj?.linked_case_type === 'sapswanted' ? `/home/total-saps-wanted/wanted-inforamtion/${obj?.linked_case_type_id}` : `/home/capture-reports?location_id=${obj?.linked_case_data?._id}&sosId=${obj?.linked_case_data?.sosNumber}`)} className="link2">
+                                                    {(obj?.caseNumberId) || (obj?.linked_case_type === 'crimereports' ?  obj?.linked_case_data?.crime_report_number : obj?.linked_case_data?.sosNumber)}
                                                 </Link>
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563' }}>
