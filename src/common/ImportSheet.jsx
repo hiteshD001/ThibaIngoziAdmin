@@ -14,7 +14,7 @@ import { MdCloudUpload, MdFileDownload, MdClose } from "react-icons/md";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
-import { useFileUpload, useUserFileUpload, useBulkUploadSalesAgent } from "../API Calls/API";
+import { useFileUpload, useUserFileUpload, useBulkUploadSalesAgent, useSAPSMemberFileUpload} from "../API Calls/API";
 import Loader from "./Loader";
 import { toastOption } from "./ToastOptions";
 import Downloads from '../assets/images/Downloads.svg'
@@ -79,7 +79,7 @@ const ImportSheet = ({ setpopup, type = "driver" }) => {
                 ? "Sales Agent"
                 : type === "driver"
                     ? "Driver"
-                    : "User"
+                    : type === 'saps-member' ? "SAPS Member" : "User"
             } uploaded successfully`
         );
 
@@ -90,13 +90,14 @@ const ImportSheet = ({ setpopup, type = "driver" }) => {
     const driverUpload = useFileUpload(onSuccess, onError);
     const userUpload = useUserFileUpload(onSuccess, onError);
     const salesAgentUpload = useBulkUploadSalesAgent(onSuccess, onError);
+    const sapsMemberUpload = useSAPSMemberFileUpload(onSuccess, onError);
 
     const isPending =
         type === "driver"
             ? driverUpload.isPending
             : type === "sales-agent"
                 ? salesAgentUpload.isPending
-                : userUpload.isPending;
+                : type === 'saps-member' ? sapsMemberUpload.isPending : userUpload.isPending;
 
     const handleFileUpload = () => {
         if (!file) {
@@ -113,6 +114,10 @@ const ImportSheet = ({ setpopup, type = "driver" }) => {
         } else if (type === "sales-agent") {
             formData.append("file", file);
             salesAgentUpload.mutate(formData);
+        
+        } else if (type === "saps-member") {
+            formData.append("file", file);
+            sapsMemberUpload.mutate(formData);
 
         } else {
             formData.append("usersSheet", file);
@@ -125,14 +130,14 @@ const ImportSheet = ({ setpopup, type = "driver" }) => {
             ? "Sample_Driver.xlsx"
             : type === "sales-agent"
                 ? "Sample_Sales_Agent.xlsx"
-                : "Sample_User.xlsx";
+                : type === 'saps-member' ? "SAPS_Member.xlsx" : "Sample_User.xlsx";
 
     const downloadPath =
         type === "driver"
             ? "/assests/Driver.xlsx"
             : type === "sales-agent"
                 ? "/assests/Sample_Sales_Agent.xlsx"
-                : "/assests/Users.xlsx";
+                : type === 'saps-member' ? "/assests/SAPS_Member.xlsx" : "/assests/Users.xlsx";
     // const sampleFileName = type === "driver" ? "Sample_Driver.xlsx" : "Sample_User.xlsx";
     // const downloadPath = type === "driver" ? "/assests/Driver.xlsx" : "/assests/Users.xlsx";
 
