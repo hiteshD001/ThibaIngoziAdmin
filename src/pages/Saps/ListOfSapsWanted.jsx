@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useGetSAPSWantedList,useGetSAPSMemberList,useGetProvinceList,useGetSAPSWantedPageData} from "../../API Calls/API";
+import { useGetSAPSWantedList,useGetSAPSMemberList,useGetProvinceList,useGetSAPSWantedPageData,useGetSAPSWantedPageListv2,useGetSAPSWantedListv2,useGetSAPSMemberListv2,useGetSAPSWantedByCity} from "../../API Calls/API";
 import {
     Grid, Typography, Select, Box, TextField, InputAdornment, MenuItem, FormControl, InputLabel, IconButton, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Stack, Avatar, Chip, Paper, Button, Menu,
     Tooltip,TableSortLabel,Skeleton
@@ -147,6 +147,8 @@ const ListOfSapsWanted = () => {
     const capturedData = chartData.map((obj) => obj.captured);
     const sightingData = chartData.map((obj) => obj.sightings);
 
+    const SAPS_Wanted_By_City = useGetSAPSWantedByCity(selectedProvince)
+
     const SAPS_Wanted_Responce = useGetSAPSWantedList("saps wanted list", "", currentPage, rowsPerPage, filter, locationFilter, startDate, endDate, sortBy, sortOrder);
     const totalData = SAPS_Wanted_Responce.data?.data?.totaldata || 0;
     const totalPages = Math.ceil(totalData / rowsPerPage);
@@ -177,7 +179,7 @@ const ListOfSapsWanted = () => {
         });
     };
 
-    const handleExport = async ({ startDate, endDate, exportFormat: fileFormat }) => {
+    const handleExport = async ({ startDate, endDate, exportFormat }) => {
         try {
             const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/saps-wanted`, { params: {} });
 
@@ -324,7 +326,7 @@ const ListOfSapsWanted = () => {
         }
     };
 
-    const handleExportMember = async ({ startDate, endDate, exportFormat: fileFormat }) => {
+    const handleExportMember = async ({ startDate, endDate, exportFormat }) => {
         try {
             const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/saps-member`, { params: {} });
 
@@ -420,6 +422,255 @@ const ListOfSapsWanted = () => {
             toast.error("Export failed.");
         }
     };
+    const [isLoading, setIsLoading] = useState(false);
+    
+    const handleExportSAPSWantedPage = async ({ startDate, endDate, exportFormat , locationWiseFilter }) => {
+        try {
+            setIsLoading(true);
+            let totalCountsOfPage = await useGetSAPSWantedPageListv2(locationWiseFilter,startDate,endDate);
+            let SAPS_Member_Export_API = await useGetSAPSMemberListv2(locationWiseFilter,startDate,endDate);
+            let SAPS_Wanted_Export_API = await useGetSAPSWantedListv2(locationWiseFilter,startDate,endDate); 
+
+            const TotalData = [
+                { Type: "Users Reached", Count:totalCountsOfPage.usersReached, Percentage: (0).toFixed(2) },
+                { Type: "Social Shares", Count: totalCountsOfPage.socialShares, Percentage: (0).toFixed(2) },
+                { Type: "Sighting Submissions", Count: totalCountsOfPage.sightingSubmissions, Percentage: (0).toFixed(2) },
+                { Type: "Avg Alert Open Rate", Count: totalCountsOfPage.avgAlertOpenRate, Percentage: (0).toFixed(2) },
+                { Type: "Wanted People", Count: totalCountsOfPage.wantedPeople, Percentage: (0).toFixed(2) },
+                { Type: "Captured People", Count: totalCountsOfPage.capturedPeople, Percentage: (0).toFixed(2) },
+            ];
+
+            const sosData = [];
+            for (let index = 0; index< 12; index++) {
+                sosData.push({
+                    ["Month"]:moment().month(index).format("MMMM") ,
+                    ["Criminal Captured"]: capturedData[index],
+                    Wanted: wantedData[index],
+                    Sightings: sightingData[index],
+                });
+            }
+
+            const SAPS_Member_Export_Data = [];
+            SAPS_Member_Export_API?.map((user) => {
+                SAPS_Member_Export_Data.push({
+                    "Name": (user?.first_name || "") + " " + (user?.last_name || ''),
+                    "Police Station Name": user?.police_unit_id.police_unit_name || '',
+                    "Contact No.": user.mobile_no_country_code + '-' + user.mobile_no || '',
+                    "Email": user.email || "",
+                    "Date": formatDateTime(user.createdAt, "HH:mm:ss - DD/MM/yyyy") || '',
+                })
+            });
+
+
+            const SAPS_Wanted_Export_Data = [];
+            SAPS_Wanted_Export_API?.map((user) => {
+                SAPS_Wanted_Export_Data.push({
+                    "Suspect Name": (user?.full_name || ''),
+                    "Aliases": (user?.aliases || ''),
+                    "Case Number": user?.case_number || '',
+                    "Investigation Officer": user?.investigating_officer || '',
+                    "Police Station": user?.police_unit_id?.police_unit_name || '',
+                    "Date Of Crime": formatDateTime(user?.crime_date, "HH:mm:ss - DD/MM/yyyy") || '',
+                    "Captured Date": formatDateTime(user?.captured_date, "HH:mm:ss - DD/MM/yyyy") || '',
+                    "Request Reached": user?.requestReached || '',
+                    "Request Accepted": user?.requestAccepted || '',
+                    "Status": user?.current_status || '',
+                    "Last Known Location": (user?.last_know_location || ''),
+                    "Contact Info": (user?.contact_number || ''),
+                    "Date Reported": formatDateTime(user?.createdAt, "HH:mm:ss - DD/MM/yyyy") || '',
+                })
+            });
+
+            const autoFitColumns = (data) => {
+                return Object.keys(data[0] || {}).map((key) => ({
+                    wch: Math.max(key.length, ...data.map((row) => String(row[key] ?? "NA").length)) + 2,
+                }));
+            };
+
+            const exportedByValue = 'Thiba Ingozi';
+            if (exportFormat === 'xlsx') {
+                const workbook = XLSX.utils.book_new();
+                // Determine user name
+                const exportedByLabel = "Exported By";
+                function addSheetWithHeader(sheetName,data) {
+                    // Convert data to sheet first
+                    const sheet = XLSX.utils.json_to_sheet(data, { origin: "A3" });
+                    // This starts your data table at row 3
+
+                    // Add the "Exported By" label and name in first row
+                    XLSX.utils.sheet_add_aoa(sheet, [[exportedByLabel, exportedByValue]], { origin: "A1" });
+
+                    // Adjust column widths
+                    sheet["!cols"] = autoFitColumns(data);
+
+                    // Optionally freeze top 2 rows (so header stays visible)
+                    sheet["!freeze"] = { xSplit: 0, ySplit: 2 };
+
+                    XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
+                }
+
+                addSheetWithHeader("Totals", TotalData);
+                addSheetWithHeader("CapturedWantedSightings", sosData);
+                addSheetWithHeader("List of SAPS Wanted", SAPS_Wanted_Export_Data);
+                addSheetWithHeader("SAPS Members", SAPS_Member_Export_Data);
+
+                XLSX.writeFile(workbook, "SAPS_Wanted_Page.xlsx");
+            }
+            if (exportFormat === 'csv') {
+                // Convert JSON to CSV
+                const convertToCSV = (data) => {
+                    if (!data || !data.length) return "";
+                    const headers = Object.keys(data[0]);
+                    const rows = data.map(obj =>
+                        headers.map(h => JSON.stringify(obj[h] ?? "")).join(",")
+                    );
+                    return [headers.join(","), ...rows].join("\n");
+                };
+
+                const csvSections = [
+                    { title:"Totals", data:TotalData},
+                    { title:"Criminal Captured Vs Wanted Vs Sightings", data:sosData},
+                    { title:"List of SAPS Wanted", data:SAPS_Wanted_Export_Data},
+                    { title:"SAPS Members", data:SAPS_Member_Export_Data},
+                ];
+
+                let finalCSV = "";
+
+                csvSections.forEach((section, i) => {
+                    // Section header
+                    finalCSV += `\n\n# ${section.title}\n`;
+
+                    // "Exported By" row + blank line
+                    finalCSV += `Exported By,${exportedByValue}\n\n`;
+
+                    // Add actual table
+                    finalCSV += convertToCSV(section.data);
+                });
+
+                // Download CSV file
+                const blob = new Blob([finalCSV], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "SAPS_Wanted_Page.csv";
+                link.click();
+            }
+            if (exportFormat === 'pdf') {
+
+                const doc = new jsPDF("p", "mm", "a4");
+                let currentY = 16;
+
+                const addSection = (title, data) => {
+
+                    if (!data?.length) return;
+
+                    // ONLY for SAPS Wanted section
+                    if (title === "List of SAPS Wanted") {
+                        doc.addPage("a4", "landscape");
+                        currentY = 20;
+                    }
+
+                    // Add section title
+                    doc.setFontSize(14);
+                    doc.setTextColor(40);
+                    doc.text(title, 14, currentY);
+                    currentY += 8;
+
+                    // Exported By
+                    doc.setFontSize(10);
+                    doc.setTextColor(80);
+                    doc.text(`Exported By: ${exportedByValue}`, 80, currentY);
+
+                    currentY += 6;
+
+                    // Columns
+                    const columns = Object.keys(data[0] || {}).map((key) => ({
+                        header: key.replace(/_/g, " ").toUpperCase(),
+                        dataKey: key,
+                    }));
+
+                    // Table
+                    autoTable(doc, {
+                        startY: currentY,
+                        head: [columns.map((c) => c.header)],
+                        body: data.map((row) =>
+                            columns.map((c) => String(row[c.dataKey] ?? "NA"))
+                        ),
+
+                        theme: "striped",
+
+                        headStyles: {
+                            fillColor: [54, 123, 224],
+                            textColor: 255,
+                            fontSize: title === "List of SAPS Wanted" ? 6 : 7,
+                            halign: "center",
+                            valign: "middle",
+                        },
+
+                        styles: {
+                            fontSize: title === "List of SAPS Wanted" ? 6 : 9,
+                            overflow: "linebreak",
+                            cellPadding: 2,
+                        },
+
+                        tableWidth: "auto",
+
+                        columnStyles:
+                            title === "List of SAPS Wanted"
+                                ? {
+                                    0: { cellWidth: 22 },
+                                    1: { cellWidth: 25 },
+                                    2: { cellWidth: 24 },
+                                    3: { cellWidth: 28 },
+                                }
+                                : {},
+
+                        margin: { top: 10 },
+
+                        didDrawPage: (data) => {
+                            currentY = data.cursor.y + 10;
+                        },
+                    });
+
+                    // After SAPS Wanted -> back to portrait
+                    if (title === "List of SAPS Wanted") {
+                        doc.addPage("a4", "portrait");
+                        currentY = 20;
+                    }
+
+                    // Normal spacing
+                    if (currentY > 250) {
+                        doc.addPage();
+                        currentY = 20;
+                    } else {
+                        currentY += 10;
+                    }
+                };
+
+                addSection("Totals", TotalData);
+
+                addSection(
+                    "Criminal Captured Vs Wanted Vs Sightings",
+                    sosData
+                );
+
+                addSection(
+                    "List of SAPS Wanted",
+                    SAPS_Wanted_Export_Data
+                );
+
+                addSection(
+                    "SAPS Members",
+                    SAPS_Member_Export_Data
+                );
+
+                doc.save("SAPS_Wanted_Page.pdf");
+            }
+        } catch (error) {
+            console.error("Export failed:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleView = (url) => {
         saveScrollPosition("SAPSWantedListScroll");
@@ -446,7 +697,7 @@ const ListOfSapsWanted = () => {
                     <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
                         <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
                             <CustomFilter onApply={handleFilterApply} isSuburbVisible ={false} />
-                            <CustomExportMenu />
+                            <CustomExportMenu role={'saps-wanted'}  onExport={handleExportSAPSWantedPage} loading={isLoading}/>
                         </Box>
                     </Box>
                 </Grid>
@@ -463,7 +714,18 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.usersReached}</Typography>
                                     )
                                 }
-                                <Typography variant="body2" fontWeight={400} sx={{fontSize:"14px",color:'#22C55E'}}>+12.5% from last month</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.usersReached > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.usersReached === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
+
+                                )
+                                }
                             </Box>
                             <Box>
                                 <img src={SapsIcon1} alt="ReportIcon" />
@@ -480,7 +742,18 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.socialShares}</Typography>
                                     )
                                 }
-                                <Typography variant="body2" fontWeight={400} sx={{fontSize:"14px",color:'#22C55E'}}>+12.5% from last month</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.socialShares > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.socialShares}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.socialShares === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.socialShares}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.socialShares}% from last month</Typography>
+
+                                )
+                                }
                             </Box>
                             <Box>
                                 <img src={SapsIcon2} alt="ReportIcon" />
@@ -497,7 +770,18 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.sightingSubmissions}</Typography>
                                     )
                                 }
-                                <Typography variant="body2" fontWeight={400} sx={{fontSize:"14px",color:'#22C55E'}}>+12.5% from last month</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.sightingSubmissions > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.sightingSubmissions === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+
+                                )
+                                }
                             </Box>
                             <Box>
                                 <img src={SapsIcon3} alt="ReportIcon" />
@@ -514,7 +798,17 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.avgAlertOpenRate}</Typography>
                                     )
                                 }
-                                <Typography variant="body2" fontWeight={400} sx={{fontSize:"14px",color:'#22C55E'}}>+12.5% from last month</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate}% from last month</Typography>
+                                )
+                                }
                             </Box>
                             <Box>
                                 <img src={SapsIcon4} alt="LocationIcon" />
@@ -531,7 +825,17 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.wantedPeople}</Typography>
                                     )
                                 }
-                                <Typography variant="body2" fontWeight={400} sx={{fontSize:"14px",color:'#22C55E'}}>+12.5% from last month</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.wantedPeople > 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.wantedPeople}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.wantedPeople === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '' }}>{SAPS_Page_ObjData?.percentageObjData.wantedPeople}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.wantedPeople}% from last month</Typography>
+
+                                )
+                                }
                             </Box>
                             <Box>
                                 <img src={SapsIcon5} alt="DangerIcon" />
@@ -547,8 +851,18 @@ const ListOfSapsWanted = () => {
                                 ) : (
                                     <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.capturedPeople}</Typography>
                                 )
-                            }
-                                <Typography variant="body2" fontWeight={400} sx={{fontSize:"14px",color:'#22C55E'}}>+12.5% from last month</Typography>
+                                }
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.capturedPeople > 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.capturedPeople}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.capturedPeople === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.capturedPeople}% from last month</Typography>
+                                    ) : (<Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.capturedPeople}% from last month</Typography>)
+
+                                )
+                                }
                             </Box>
                             <Box>
                                 <img src={SapsIcon6} alt="DangerIcon" />
@@ -617,7 +931,7 @@ const ListOfSapsWanted = () => {
                                     </FormControl>
                                 </Grid>
                             </Grid>
-                            <CustomPie />
+                            <CustomPie data={SAPS_Wanted_By_City?.data?.data || []} />
                         </Paper>
                     </Grid>
                 </Grid>

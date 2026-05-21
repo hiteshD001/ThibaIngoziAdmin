@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo } from "react";
+import { lazy, Suspense, useEffect, useMemo } from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Layout from "./common/Layout";
 import Loader from "./common/Loader";
@@ -7,6 +7,8 @@ import "./App.css";
 import { AuthGuard, LogGuard, RouteGuard, SalesGuard } from "./common/Guard";
 import { MapsProvider } from "./contexts/MapsContext";
 import { WebSocketProvider } from "./API Calls/WebSocketContext";
+import { onMessageListener } from "./firebase/FirbaseFcmTokenSave";
+import { toast } from "react-toastify";
 
 const Report = lazy(() => import("./pages/Report"));
 const Login = lazy(() => import("./pages/Login").then((m) => ({ default: m.Login })));
@@ -83,6 +85,17 @@ const SAPSMemberDetail = lazy(() => import("./pages/Saps/SAPSMemberDetail"));
 const SAPSWantedRequestUsers = lazy(() => import("./pages/Saps/SAPSRequestUsers"));
 
 function App() {
+
+    // Get Push Notification
+    useEffect(() => {
+        onMessageListener()
+            .then((payload) => {
+                console.log("Notification Received:", payload);
+                toast.success(payload?.notification?.body);
+            })
+            .catch((err) => console.log(err));
+    }, []);
+
     const router = useMemo(
         () =>
             createBrowserRouter([
@@ -134,7 +147,8 @@ function App() {
                         },
                         {
                             path: 'notification',
-                            element: <WorkInProgress />
+                            element: <Notfication />
+                            // element: <WorkInProgress />
                         },
                         {
                             path: 'notification/:id',

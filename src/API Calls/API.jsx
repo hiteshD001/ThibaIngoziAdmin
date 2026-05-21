@@ -3150,3 +3150,166 @@ export const useGetSAPSWantedPageData = (
     }
     return res;
 };
+
+export const useGetSAPSMemberListv2 = async ({
+    locationFilter,
+    startDate,
+    endDate,
+}) => {
+    try {
+        const response = await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/saps-member`,
+            {
+                params: {
+                    locationFilter,
+                    startDate,
+                    endDate,
+                }
+            }
+        );
+
+        return response?.data?.data || [];
+    } catch (error) {
+        console.error("Error fetching :", error);
+        return [];
+    }
+};
+
+export const useGetSAPSWantedListv2 = async ({
+    locationFilter,
+    startDate,
+    endDate,
+}) => {
+    try {
+        const response = await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/saps-wanted`,
+            {
+                params: {
+                    locationFilter,
+                    startDate,
+                    endDate,
+                }
+            }
+        );
+        
+        return response?.data?.data || [];
+    } catch (error) {
+        console.error("Error fetching:", error);
+        return [];
+    }
+};
+
+export const useGetSAPSWantedPageListv2 = async ({
+    locationFilter,
+    startDate,
+    endDate,
+}) => {
+    try {
+        const response = await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/saps-wanted/saps-wanted-page-data`,
+            {
+                params: {
+                    locationFilter,
+                    startDate,
+                    endDate,
+                }
+            }
+        );
+        return response?.data || {};
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        return [];
+    }
+};
+
+export const useGetNotificationList = (
+    key,
+    role,
+    page,
+    limit,
+    filter,
+    locationFilter,
+    statusFilter,
+    startDate,
+    endDate,
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/notification/get-admin-notifications`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                locationFilter,
+                statusFilter,
+                startDate,
+                endDate,
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            locationFilter,
+            statusFilter,
+            startDate,
+            endDate,
+        ],
+        queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useSeenNotification = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/notification/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useGetSAPSWantedByCity = (province_id) => {
+    const nav = useNavigate();
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/saps-wanted/saps-wanted-by-city-counts/${province_id}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["", province_id],
+        queryFn: queryFn,
+        staleTime: Infinity,
+        enabled: province_id !== undefined,
+    });
+    
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};

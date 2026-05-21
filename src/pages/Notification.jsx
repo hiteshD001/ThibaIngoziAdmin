@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-    useGetNotificationType,
-} from "../API Calls/API";
+import {useGetNotificationList,useSeenNotification} from "../API Calls/API";
 import {
     Grid, Typography, Button, Box, Paper, Chip, TextField, InputAdornment,
 } from "@mui/material";
@@ -17,82 +15,38 @@ import exportdiv from '../assets/images/exportdiv.svg';
 import Loader from "../common/Loader";
 import CustomFilter from "../common/Custom/CustomFilter";
 import CustomExportMenu from "../common/Custom/CustomExport";
-import { useNavigate } from "react-router-dom";
-
-
-
-
-
-const notificationsObj = {
-    "reporting_agency": "Task Force 5",
-    "incidents": [
-        {
-            "id": 1,
-            "user_name": "AlertCitizenSA",
-            "tag": "wanted",
-            "suspect_name": "Thabo Nxumalo",
-            "description": "Sighting of Thabo Nxumalo, identified from recent news reports, near the V&A Waterfront. He was seen entering a red Ford Fiesta with tinted windows. Last seen heading towards Green Point.",
-            "timestamp": "2025-08-04T11:09:01Z",
-            "seen": false,
-            "report_time_relative": "15 minutes ago",
-            "case_number": "Case #SAPS-2023-0458",
-            "location": "Cape Town",
-        },
-        {
-            "id": 2,
-            "user_name": "SecureCape",
-            "tag": "captured",
-            "suspect_name": "Ahmed Rashid",
-            "description": "Suspect Ahmed Rashid successfully apprehended by Task Force 5 in a joint operation near Bellville. He was found attempting to flee in a cargo truck. ",
-            "timestamp": "2025-08-04T11:09:50Z",
-            "seen": false,
-            "report_time_relative": "15 minutes ago",
-            "case_number": "Case #SAPS-2023-0458",
-            "location": "Cape Town",
-        },
-        {
-            "id": 3,
-            "user_name": "CCTWatchdog",
-            "tag": "wanted",
-            "suspect_name": "Lindiwe Mkhize",
-            "description": "Possible sighting of Lindiwe Mkhize in the Bo-Kaap area, specifically on Wale Street. She was with another individual, male, unidentifiable.",
-            "timestamp": "2025-08-04T11:09:35Z",
-            "report_time_relative": "15 minutes ago",
-            "seen": true,
-            "case_number": "Case #SAPS-2023-0458",
-            "location": "Cape Town",
-        },
-
-        {
-            "id": 4,
-            "user_name": "CityGuardian",
-            "tag": "captured",
-            "suspect_name": "Sipho Dlamini",
-            "description": "Sipho Dlamini was captured by Task Force 5 in a pre-dawn raid on a property in Khayelitsha. He resisted arrest but was quickly subdued.",
-            "timestamp": "2025-08-04T11:10:10Z",
-            "report_time_relative": "15 minutes ago",
-            "seen": true,
-            "case_number": "Case #SAPS-2023-0458",
-            "location": "Cape Town",
-        }
-    ]
-}
+import moment from "moment";
+import jsPDF from 'jspdf';
+import { autoTable } from 'jspdf-autotable'
+import * as XLSX from 'xlsx';
+import { startOfYear } from "date-fns";
+import { useNavigate, useParams, useSearchParams,Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
+import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 
 const Notification = () => {
-    const [filterType, setFilterType] = useState('all');
-    const [filter, setfilter] = useState("");
-    const filteredIncidents = notificationsObj?.incidents.filter((incident) => {
-        if (filterType === 'all') return true;
-        return incident.tag === filterType;
-    });
+
+    const params = useParams();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
+    const endDateParam = searchParams.get("endDate") || new Date().toISOString();
+    const [range, setRange] = useState([{
+        startDate: new Date(startDateParam),
+        endDate: new Date(endDateParam),
+        key: 'selection'
+    }]);
+    const currentPage = Number(searchParams.get("currentPage")) || 1;
+    const filter = searchParams.get("filter") || "";
+    const filterType = searchParams.get("filterType") || "all";
+    const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
+    const locationFilter = searchParams.get("locationFilter") || "";
+     const shortText = (text, limit = 50) =>
+        text.length > limit ? text.substring(0, limit) + ' ....' : text;
     const navigate = useNavigate();
-    const [range, setRange] = useState([
-        {
-            startDate: new Date(),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
+    const queryClient = useQueryClient();
+    const [role] = useState(localStorage.getItem("role"));
+    
     const handleFilterApply = (filters) => {
     };
     const IconDisplay = ({ tag, seen }) => {
@@ -112,6 +66,130 @@ const Notification = () => {
             </>
         );
     };
+
+    // API call
+    const Notification_API_Data = useGetNotificationList('notification list',role,currentPage,rowsPerPage,filter,locationFilter,filterType,range[0].startDate.toISOString(), range[0].endDate.toISOString())
+    const Notification_List = Notification_API_Data?.data?.data || {}
+
+    const onSuccess = (variables) => {
+
+        Notification_List?.data?.forEach((item) => {
+            if (item._id === variables.data._id) {
+                item.seen = true;
+            }
+        });
+        queryClient.invalidateQueries(["notification list"]);
+        handleView(`/home/total-suspect/suspect-information/${variables.data.notification_data.suspect_sighting_id}`)
+        // toast.success("Notification Seen Successfully.");
+    };
+
+    const onError = (error) => {
+        toast.error(
+            error.response.data.message || "Something went Wrong",
+            toastOption
+        );
+    };
+    const { mutate } = useSeenNotification(onSuccess, onError);
+
+    const handleSeenNotification = (dataObj) => {
+        
+        if(!dataObj.seen){
+            mutate({ id:dataObj._id, data: {seen:true} });
+        }else{
+            handleView(`/home/total-suspect/suspect-information/${dataObj.notification_data.suspect_sighting_id}`)
+        }
+    };
+
+    const updateParams = (newParams) => {
+        setSearchParams((prev) => {
+            const prevParams = Object.fromEntries(prev.entries());
+
+            return {
+                ...prevParams,
+                ...newParams,
+            };
+        });
+    };
+
+    const handleExport = async ({ startDate, endDate, exportFormat }) => {
+        try {
+
+            const data = Notification_API_Data?.data?.data
+
+            const allUsers = data?.data || [];
+            if (!allUsers.length) {
+                toast.warning("No Notification data found for this period.");
+                return;
+            }
+
+            const exportData = allUsers.map(user => ({
+                "Case ID": `${user?.notification_data?.suspect_sighting?.caseNumberId || ''}` || '',
+                "Reporter": user?.notification_data?.user?.first_name +' '+ user?.notification_data?.user?.last_name || '',
+                "Description": user?.notification_data?.suspect_sighting?.description || '',
+                "Date Reported": user?.createdAt || '',
+                "Status": user?.linked_case_data?.current_status || ''
+            }));
+
+            if (exportFormat === "xlsx") {
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+                }));
+                worksheet['!cols'] = columnWidths;
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+                XLSX.writeFile(workbook, "Notification_List.xlsx");
+            }
+            else if (exportFormat === "csv") {
+
+                const worksheet = XLSX.utils.json_to_sheet(exportData);
+                const csv = XLSX.utils.sheet_to_csv(worksheet);
+                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'Notification_List.csv';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            else if (exportFormat === "pdf") {
+                const doc = new jsPDF();
+                doc.text('Notification List', 14, 16);
+                autoTable(doc, {
+                    head: [['Case ID', 'Reporter', 'Description', 'Date Reported', 'Status']],
+                    body: allUsers.map(user => [
+                        `${user?.notification_data?.suspect_sighting?.caseNumberId || ''}` || '',
+                        user?.notification_data?.user?.first_name +' '+ user?.notification_data?.user?.last_name || '',
+                        user?.notification_data?.suspect_sighting?.description || '',
+                        user?.createdAt || '',
+                        user?.linked_case_data?.current_status || ''
+                    ]),
+                    startY: 20,
+                    theme: 'striped',
+                    headStyles: { fillColor: '#367BE0' },
+                    margin: { top: 20 },
+                    styles: { fontSize: 10 },
+                });
+                doc.save("Notification_List.pdf");
+            }
+
+        } catch (err) {
+            console.error("Error exporting data:", err);
+            toast.error("Export failed.");
+        }
+    };
+
+    const handleView = (url) => {
+        saveScrollPosition("notificationListScroll");
+        navigate(url);
+    };
+    useEffect(() => {
+        if (Notification_List.data?.data?.totaldata) {
+            restoreScrollPosition("notificationListScroll");
+        }
+    }, [Notification_List.data?.data?.totaldata]);
+
+
     return (
         <Box>
             <Grid sx={{ backgroundColor: 'white', p: 3, mt: '-25px' }} container justifyContent="space-between" alignItems="center" spacing={2} mb={1}>
@@ -120,7 +198,7 @@ const Notification = () => {
                         variant="outlined"
                         placeholder="Search"
                         value={filter}
-                        onChange={(e) => setfilter(e.target.value)}
+                        onChange={(e) => updateParams({filter:e.target.value})}
                         fullWidth
                         sx={{
                             width: '100%',
@@ -158,15 +236,21 @@ const Notification = () => {
                     <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
                         <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
 
-                            <CustomFilter onApply={handleFilterApply} />
+                            {/* <CustomFilter onApply={handleFilterApply} /> */}
                             <CustomDateRangePicker
                                 borderColor={'var(--light-gray)'}
                                 value={range}
-                                onChange={setRange}
+                                onChange={(nextRange) => {
+                                    setRange(nextRange);
+                                    updateParams({
+                                        startDate: new Date(nextRange[0].startDate).toISOString(),
+                                        endDate: new Date(nextRange[0].endDate).toISOString(),
+                                    });
+                                }}
                                 icon={calender}
                             />
 
-                            <CustomExportMenu />
+                            <CustomExportMenu  onExport={handleExport}/>
                         </Box>
                     </Box>
                 </Grid>
@@ -183,7 +267,7 @@ const Notification = () => {
                                 color: filterType === 'all' ? 'white' : 'black',
                                 borderColor: 'var(--light-gray)'
                             }}
-                            onClick={() => setFilterType('all')}
+                            onClick={() => updateParams({filterType:'all'})}
                         >
                             All
                         </Button>
@@ -196,7 +280,7 @@ const Notification = () => {
                                 color: filterType === 'captured' ? 'white' : 'black',
                                 borderColor: 'var(--light-gray)'
                             }}
-                            onClick={() => setFilterType('captured')}
+                            onClick={() => updateParams({filterType:'captured'})}
                         >
                             Captured
                         </Button>
@@ -209,27 +293,31 @@ const Notification = () => {
                                 color: filterType === 'wanted' ? 'white' : 'black',
                                 borderColor: 'var(--light-gray)'
                             }}
-                            onClick={() => setFilterType('wanted')}
+                            onClick={() => updateParams({filterType:'wanted'})}
                         >
                             Wanted
                         </Button>
                     </Grid>
                 </Paper>
                 {
-                    filteredIncidents?.map((incident) => (
-                        <Paper key={incident.id} elevation={0} sx={{ backgroundColor: "white", padding: 2, borderRadius: '10px' }}>
+                    Notification_API_Data.isFetching ? (<Loader />):
+                    Notification_List?.data?.length > 0 ? 
+                    Notification_List?.data?.map((incident) => (
+                        <Paper key={incident._id} elevation={0} sx={{ backgroundColor: "white", padding: 2, borderRadius: '10px' }}>
                             <Grid container spacing={2} sx={{ display: 'flex', alignItems: 'center' }}>
                                 {/* Left section */}
                                 <Grid size={{ md: 8, xs: 12 }}>
                                     <Grid container spacing={1} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
                                         <Grid size={1}>
-                                            <IconDisplay tag={incident.tag} seen={incident.seen} />
+                                            <IconDisplay tag={incident?.linked_case_data?.current_status} seen={incident?.seen} />
                                         </Grid>
                                         <Grid size={11}>
-                                            <Typography fontWeight={600}>{incident.suspect_name}</Typography>
-                                            <Typography variant="body1" color="text.secondary">{incident.description}</Typography>
+                                            <Link onClick={()=> handleView(incident?.notification_data?.user?.role === "driver" ? `/home/total-drivers/driver-information/${incident?.notification_data?.user?._id}` : `/home/total-users/user-information/${incident?.notification_data?.user?._id}`)} className="link2">
+                                                <Typography fontWeight={600}>{incident?.notification_data?.user?.first_name +' '+ incident?.notification_data?.user?.last_name || ""}</Typography>
+                                            </Link>
+                                            <Typography variant="body1" color="text.secondary">{shortText(incident?.notification_data?.suspect_sighting?.description) || ''}</Typography>
                                             <Box mt={1} sx={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
-                                                <Chip label={incident.tag.toUpperCase()} sx={{
+                                                <Chip label={incident?.linked_case_data?.current_status.toUpperCase()} sx={{
                                                     backgroundColor: 'var(--light-gray)',
                                                     color: '#9CA3AF',
                                                     fontWeight: 500,
@@ -239,7 +327,7 @@ const Notification = () => {
                                                     }
                                                 }} size="small" />
                                                 <Typography variant="body2" color="#6B7280" fontWeight={450}>
-                                                    • {incident.case_number}
+                                                    • Case - {incident?.notification_data?.suspect_sighting?.caseNumberId}
                                                 </Typography>
                                             </Box>
                                         </Grid>
@@ -254,7 +342,7 @@ const Notification = () => {
                                 }}>
                                     <Box sx={{ textAlign: 'right' }}>
                                         <Typography variant="body2" color="text.secondary">
-                                            {incident.report_time_relative} &nbsp;
+                                            {moment(incident?.createdAt).fromNow() || ''} &nbsp;
 
                                             {incident.seen ?
                                                 <Chip
@@ -287,7 +375,7 @@ const Notification = () => {
                                             variant="outlined"
                                             size="small"
                                             sx={{ mt: 2, borderRadius: '6px', border: 'none' }}
-                                            onClick={() => navigate(`/home/notification/${incident.id}`)}
+                                            onClick={() => handleSeenNotification(incident)}
                                         >
                                             View
                                         </Button>
@@ -295,7 +383,11 @@ const Notification = () => {
                                 </Grid>
                             </Grid>
                         </Paper>
-                    ))
+                    )): (
+                        <Typography align="center" color="text.secondary" sx={{ mt: 2 }}>
+                            No data found
+                        </Typography>
+                    )
                 }
 
             </Box>
