@@ -47,6 +47,7 @@ import apiClient from "../../API Calls/APIClient";
 import moment from "moment";
 import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { toast } from "react-toastify";
+import ImportSheet from "../../common/ImportSheet";
 
 const ListOfSapsWanted = () => {
 
@@ -125,6 +126,7 @@ const ListOfSapsWanted = () => {
     const endDateMember = rangeMember[0].endDate.toISOString();
     const [sortByMember, setSortByMember] = useState("createdAt");
     const [sortOrderMember, setSortOrderMember] = useState("desc");
+    const [popup, setpopup] = useState(false);
     const changeSortOrderMember = (e) => {
         const field = e.target.id;
 
@@ -152,7 +154,7 @@ const ListOfSapsWanted = () => {
     const SAPS_Wanted_Responce = useGetSAPSWantedList("saps wanted list", "", currentPage, rowsPerPage, filter, locationFilter, startDate, endDate, sortBy, sortOrder);
     const totalData = SAPS_Wanted_Responce.data?.data?.totaldata || 0;
     const totalPages = Math.ceil(totalData / rowsPerPage);
-
+    
     const SAPS_Members_Responce = useGetSAPSMemberList("saps member list", "", currentPageMember, rowsPerPageMember, filterMember, locationFilterMember, startDateMember, endDateMember, sortByMember, sortOrderMember);
     const totalMemberData = SAPS_Members_Responce.data?.data?.totaldata || 0;
     const totalMemberPages = Math.ceil(totalMemberData / rowsPerPage);
@@ -1502,7 +1504,7 @@ const ListOfSapsWanted = () => {
                                     <Button
                                         startIcon={<img src={plus} alt="plus icon" />}
                                         variant="outlined" size="small" sx={{ height: '40px', width: '150px', borderRadius: '8px' }}
-                                    // onClick={() => setpopup(true)}
+                                        onClick={() => setpopup(true)}
 
                                     >
                                         Import Sheet
@@ -1688,6 +1690,7 @@ const ListOfSapsWanted = () => {
 
                     </Paper>
                 </Box>
+                {popup && <ImportSheet setpopup={setpopup} type="saps-member" />}
             </Box>
         </Box>
     )

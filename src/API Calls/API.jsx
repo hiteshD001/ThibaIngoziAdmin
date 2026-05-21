@@ -3313,3 +3313,15 @@ export const useGetSAPSWantedByCity = (province_id) => {
     }
     return res;
 };
+
+export const useSAPSMemberFileUpload = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(`${import.meta.env.VITE_BASEURL}/saps-member/bulk-register-saps-member`, data);
+    }
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError
+    })
+    return mutation;
+}
