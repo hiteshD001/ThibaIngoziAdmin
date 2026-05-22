@@ -10,8 +10,9 @@ import {
     MenuItem,
 } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
+import Loader from '../Loader';
 
-const CustomPie = (data) => {
+const CustomPie = (data,isLoading) => {
    const chartData = data?.data?.map((item, index) => ({
         id: item.city_name,
         name: item.city_name,
@@ -31,19 +32,22 @@ const CustomPie = (data) => {
 
             {/* Middle Section: Pie Chart */}
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300, mb: 3 }}>
-                <PieChart
-                    series={[
-                        {
-                            data: chartData.map(({ name, value, color }) => ({
-                                id: name,
-                                value,
-                                color,
-                            })),
-                        },
-                    ]}
-                    width={300}
-                    height={300}
-                />
+                {!chartData.length ?
+                    (<Loader />): 
+                    <PieChart
+                        series={[
+                            {
+                                data: chartData.map(({ name, value, color }) => ({
+                                    id: name,
+                                    value,
+                                    color,
+                                })),
+                            },
+                        ]}
+                        width={300}
+                        height={300}
+                    />
+                }
             </Box>
 
 

@@ -933,7 +933,7 @@ const ListOfSapsWanted = () => {
                                     </FormControl>
                                 </Grid>
                             </Grid>
-                            <CustomPie data={SAPS_Wanted_By_City?.data?.data || []} />
+                            <CustomPie data={SAPS_Wanted_By_City?.data?.data || []} isLoading={SAPS_Wanted_By_City.isFetching} />
                         </Paper>
                     </Grid>
                 </Grid>
