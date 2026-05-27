@@ -3,14 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { toast } from "react-toastify";
 import { toastOption } from "../../common/ToastOptions";
-import { driverValidation } from "../../common/FormValidation";
+import { SAPSMemberValidation } from "../../common/FormValidation";
 import { useFormik } from "formik";
 import {
     useGetCountryList,
     useGetProvinceList,
-    useGetUserList,
-    useRegister,
-    useGetCityList
+    useAddSAPSMember,
+    useGetCityList,useGetPoliceUnitsByCity
 } from "../../API Calls/API";
 import { useQueryClient } from "@tanstack/react-query";
 import Loader from "../../common/Loader";
@@ -30,21 +29,35 @@ const AddSapsMember = () => {
     const companyId = localStorage.getItem("userID");
 
     const onSuccess = () => {
-        toast.success("User added successfully.");
+        toast.success("SAPS Member added successfully.");
         UserForm.resetForm();
-        client.invalidateQueries("user list");
-        nav("/home/total-users");
+        client.invalidateQueries("saps member list");
+        nav("/home/total-saps-wanted");
     };
 
     const onError = (error) => {
         toast.error(error.response?.data?.message || "Something went wrong", toastOption);
     };
     const UserForm = useFormik({
-        initialValues:
-            role === "super_admin"
-                ? formValues1
-                : { ...formValues2, company_id: companyId },
-        validationSchema: driverValidation,
+        initialValues: {
+            first_name: "",
+            last_name: "",
+            email: "",
+            password: "",
+            mobile_no: "",
+            mobile_no_country_code: "",
+            street: "",
+            province: "",
+            city: "",
+            police_unit_id: "",
+            suburb: "",
+            postal_code: "",
+            country: "",
+            passport_no: "",
+            selfieImage: "",
+            fullImage: "",
+        },
+        validationSchema: SAPSMemberValidation,
         onSubmit: (values) => {
             const formData = new FormData();
             Object.keys(values).forEach((key) => {
@@ -58,36 +71,20 @@ const AddSapsMember = () => {
             if (values.fullImage) {
                 formData.append("fullImage", values.fullImage);
             }
+            
             newUser.mutate(formData);
         },
     });
-    const newUser = useRegister(onSuccess, onError);
-    const companyList = useGetUserList("company list", "company");
+    const newUser = useAddSAPSMember(onSuccess, onError);
+
     const countrylist = useGetCountryList();
     const provincelist = useGetProvinceList(UserForm?.values?.country);
     const cityList = useGetCityList(UserForm?.values?.province)
+    const policeStationList = useGetPoliceUnitsByCity(UserForm?.values?.city)
 
-    const handleCompanyChange = (e) => {
-        const { name, value } = e.target;
-        const companyname = companyList.data?.data.users.find(
-            (user) => user._id === value
-        )?.company_name;
-        UserForm.setFieldValue(name, value);
-        UserForm.setFieldValue("company_name", companyname);
-    };
     const handleCancel = () => {
-        nav("/home/total-users");
+        nav("/home/total-saps-wanted");
     };
-    useEffect(() => {
-        if (role !== "super_admin" && companyList.data?.data?.users?.length) {
-            const matchedCompany = companyList.data.data.users.find(
-                (user) => user._id === companyId
-            );
-            if (matchedCompany) {
-                UserForm.setFieldValue("company_name", matchedCompany.company_name);
-            }
-        }
-    }, [companyList.data, companyId, role]);
 
     return (
         <Box p={2}>
@@ -97,7 +94,7 @@ const AddSapsMember = () => {
                     <Grid container spacing={3}>
                         <Grid size={12}>
                             <Typography variant="h6" gutterBottom fontWeight={600}>
-                                User Information
+                                SAPS Member Information
                             </Typography>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
@@ -129,22 +126,6 @@ const AddSapsMember = () => {
                                 />
                                 {UserForm.touched.last_name && <div style={{ color: 'red', fontSize: 12 }}>{UserForm.errors.last_name}</div>}
                             </FormControl>
-                        </Grid>
-                        <Grid size={{ xs: 12, sm: 6 }}>
-                            {role === "super_admin" && (
-                                <CustomSelect
-                                    label="Police Station Name"
-                                    name="company_id"
-                                    value={UserForm.values.company_id}
-                                    onChange={handleCompanyChange}
-                                    options={companyList.data?.data.users.map(user => ({
-                                        value: user._id,
-                                        label: user.company_name
-                                    })) || []}
-                                    error={UserForm.errors.company_id}
-                                    helperText={UserForm.errors.company_id}
-                                />
-                            )}
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <FormControl variant="standard" fullWidth>
@@ -239,17 +220,17 @@ const AddSapsMember = () => {
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <FormControl variant="standard" fullWidth >
-                                <InputLabel shrink htmlFor="id_no" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
+                                <InputLabel shrink htmlFor="passport_no" sx={{ fontSize: '1.3rem', color: 'rgba(0, 0, 0, 0.8)', '&.Mui-focused': { color: 'black' } }}>
                                     ID/Passport Number
                                 </InputLabel>
                                 <BootstrapInput
-                                    id="id_no"
-                                    name="id_no"
+                                    id="passport_no"
+                                    name="passport_no"
                                     placeholder="Enter ID/Passport Number."
-                                    value={UserForm.values.id_no}
+                                    value={UserForm.values.passport_no}
                                     onChange={UserForm.handleChange}
                                 />
-                                {UserForm.touched.id_no && <div style={{ color: 'red', fontSize: 12 }}>{UserForm.errors.id_no}</div>}
+                                {UserForm.touched.passport_no && <div style={{ color: 'red', fontSize: 12 }}>{UserForm.errors.passport_no}</div>}
                             </FormControl>
                         </Grid>
                         <Grid size={12}>
@@ -278,12 +259,20 @@ const AddSapsMember = () => {
                                             name="selfieImage"
                                             onChange={e => UserForm.setFieldValue('selfieImage', e.currentTarget.files[0])}
                                         />
-                                        <img src={GrayPlus} alt="gray plus" />
-                                        <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography>
-                                        {UserForm.values.selfieImage && (
-                                            <Typography sx={{ color: '#4B5563', mt: 1, fontSize: 12 }}>
-                                                {UserForm.values.selfieImage.name}
-                                            </Typography>
+                                        {UserForm.values.selfieImage instanceof File ? (
+                                            <img
+                                                src={URL.createObjectURL(UserForm.values.selfieImage)}
+                                                alt="Selfie Preview"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                            />
+                                        ) : UserForm.values.selfieImage ? (
+                                            <img
+                                                src={UserForm.values.selfieImage}
+                                                alt="Selfie"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                            />
+                                        ) : (<><img src={GrayPlus} alt="gray plus" />
+                                            <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
                                         )}
                                     </Box>
                                     {UserForm.touched.selfieImage && UserForm.errors.selfieImage && (
@@ -314,12 +303,20 @@ const AddSapsMember = () => {
                                             name="fullImage"
                                             onChange={e => UserForm.setFieldValue('fullImage', e.currentTarget.files[0])}
                                         />
-                                        <img src={GrayPlus} alt="gray plus" />
-                                        <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography>
-                                        {UserForm.values.fullImage && (
-                                            <Typography sx={{ color: '#4B5563', mt: 1, fontSize: 12 }}>
-                                                {UserForm.values.fullImage.name}
-                                            </Typography>
+                                        {UserForm.values.fullImage instanceof File ? (
+                                            <img
+                                                src={URL.createObjectURL(UserForm.values.fullImage)}
+                                                alt="Selfie Preview"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                            />
+                                        ) : UserForm.values.fullImage ? (
+                                            <img
+                                                src={UserForm.values.fullImage}
+                                                alt="Selfie"
+                                                style={{ height: 200, width: '100%', objectFit: 'contain', marginBottom: 8 }}
+                                            />
+                                        ) : (<><img src={GrayPlus} alt="gray plus" />
+                                            <Typography sx={{ color: '#B0B0B0', fontWeight: 550, mt: 1 }}>Upload</Typography></>
                                         )}
                                     </Box>
                                     {UserForm.touched.fullImage && UserForm.errors.fullImage && (
@@ -383,6 +380,21 @@ const AddSapsMember = () => {
                                 error={UserForm.errors.city && UserForm.touched.city}
                                 helperText={UserForm.touched.city ? UserForm.errors.city : ''}
                                 disabled={!UserForm.values.country || !UserForm.values.province}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6 }}>
+                            <CustomSelect
+                                label="Police Station Name"
+                                name="police_unit_id"
+                                value={UserForm.values.police_unit_id}
+                                onChange={UserForm.handleChange}
+                                options={policeStationList.data?.data.map(police => ({
+                                    value: police._id,
+                                    label: police.police_unit_name
+                                })) || []}
+                                error={UserForm.errors.police_unit_id}
+                                helperText={UserForm.errors.police_unit_id}
+                                 disabled={!UserForm.values.city}
                             />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>
@@ -456,47 +468,3 @@ const AddSapsMember = () => {
 };
 
 export default AddSapsMember;
-
-const formValues1 = {
-    company_id: "",
-    company_name: "",
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    mobile_no: "",
-    mobile_no_country_code: "",
-    street: "",
-    province: "",
-    city: "",
-    suburb: "",
-    postal_code: "",
-    country: "",
-    id_no: "",
-    role: "passanger",
-    type: "email_pass",
-    fcm_token: "fcm_token",
-    selfieImage: "",
-    fullImage: "",
-};
-
-const formValues2 = {
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    mobile_no: "",
-    mobile_no_country_code: "",
-    street: "",
-    province: "",
-    city: "",
-    suburb: "",
-    postal_code: "",
-    country: "",
-    id_no: "",
-    role: "passanger",
-    type: "email_pass",
-    fcm_token: "fcm_token",
-    selfieImage: "",
-    fullImage: "",
-};

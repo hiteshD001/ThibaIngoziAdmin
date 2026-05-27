@@ -10,50 +10,44 @@ import {
     MenuItem,
 } from '@mui/material';
 import { PieChart } from '@mui/x-charts/PieChart';
+import Loader from '../Loader';
 
-
-
-
-
-
-const dummyChartData = [
-    { name: 'CapeTown', value: 400, color: '#3B82F6' },   // Red-pink
-    { name: 'MidTown', value: 300, color: '#6366F1' },    // Blue
-    { name: 'Durban', value: 300, color: '#8B5CF6' },    // Yellow
-    { name: 'Johannesburg', value: 200, color: '#A855F7' },     // Teal
-    { name: 'Santurn', value: 100, color: '#0EA5E9' },   // Purple
-    { name: 'Other', value: 100, color: '#D1D5DB' },
-];
-
-
-const legendItems = [
-    { label: 'CapeTown', color: '#3B82F6' },
-    { label: 'MidTown', color: '#6366F1' },
-    { label: 'Durban', color: '#8B5CF6' },
-    { label: 'Johannesburg', color: '#A855F7' },
-    { label: 'Santurn', color: '#0EA5E9' },
-    { label: 'Other', color: '#D1D5DB' },
-];
-
-const CustomPie = (selectedProvince) => {
+const CustomPie = (data,isLoading) => {
+   const chartData = data?.data?.map((item, index) => ({
+        id: item.city_name,
+        name: item.city_name,
+        value: item.wanted_count,
+        color: [
+            '#3B82F6',
+            '#6366F1',
+            '#8B5CF6',
+            '#A855F7',
+            '#0EA5E9',
+            '#D1D5DB',
+        ][index % 6],
+    }));
+    
     return (
         <Box>
 
             {/* Middle Section: Pie Chart */}
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 300, mb: 3 }}>
-                <PieChart
-                    series={[
-                        {
-                            data: dummyChartData.map(({ name, value, color }) => ({
-                                id: name,
-                                value,
-                                color,
-                            })),
-                        },
-                    ]}
-                    width={300}
-                    height={300}
-                />
+                {!chartData.length ?
+                    (<Loader />): 
+                    <PieChart
+                        series={[
+                            {
+                                data: chartData.map(({ name, value, color }) => ({
+                                    id: name,
+                                    value,
+                                    color,
+                                })),
+                            },
+                        ]}
+                        width={300}
+                        height={300}
+                    />
+                }
             </Box>
 
 
@@ -65,10 +59,10 @@ const CustomPie = (selectedProvince) => {
                 gap: 2,
                 pt: 2,
             }}>
-                {legendItems.map((item, index) => (
+                {chartData.map((item, index) => (
                     <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <Box sx={{ width: 16, height: 16, borderRadius: '4px', backgroundColor: item.color }} />
-                        <Typography variant="body2">{item.label}</Typography>
+                        <Typography variant="body2">{item.name}</Typography>
                     </Box>
                 ))}
             </Box>

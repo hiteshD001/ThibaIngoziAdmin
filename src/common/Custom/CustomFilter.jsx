@@ -46,6 +46,17 @@ const CustomFilter = ({ onApply,isSuburbVisible = true}) => {
     const provinceList = useGetProvinceList(filters.country);
     const cityList = useGetCityList(filters.province)
 
+    const handleReset = () => {
+        setFilters({
+            country: '',
+            province: '',
+            city: '',
+            suburb: '',
+            // policeStation: '',
+        })
+        handleClose();
+    };
+
     return (
         <>
             <Button
@@ -144,11 +155,14 @@ const CustomFilter = ({ onApply,isSuburbVisible = true}) => {
                             <MenuItem value="Option2">Option 2</MenuItem>
                         </Select>
                     </FormControl> */}
-
-                    {/* Apply Button */}
-                    <Button variant="contained" onClick={handleApply}>
-                        Apply
-                    </Button>
+                    <Box sx={{display: "flex", alignItems: "center",justifyContent: "center", gap: 2,flexWrap: "wrap",}}>
+                        <Button variant="contained" onClick={handleApply}>
+                            Apply
+                        </Button>
+                        <Button variant="contained" onClick={handleReset}>
+                            Reset
+                        </Button>
+                    </Box>
                 </Box>
             </Menu>
         </>

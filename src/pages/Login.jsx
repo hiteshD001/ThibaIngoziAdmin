@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 import TwoFactorAuth from "../components/TwoFactorAuth";
 import ForgotPassword from "../components/ForgotPassword";
 import { getFilteredMenulist } from "../common/Menulist";
+import {requestForToken} from "../firebase/FirbaseFcmTokenSave";
 
 export const Login = () => {
     const nav = useNavigate();
@@ -50,11 +51,11 @@ export const Login = () => {
         initialValues: {
             email: "",
             password: "",
-            isWeb: true
-
+            isWeb: true,
         },
         validationSchema: loginValidation_salesAgent,
-        onSubmit: (values) => {
+        onSubmit: async (values) => {
+            values.fcm_token = await requestForToken()
             loginfn.mutate(values);
         },
     });

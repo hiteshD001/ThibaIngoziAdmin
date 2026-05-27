@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-    useGetNotificationType, fetchProvince,useGetCrimeTypesList
+    useGetNotificationType, fetchProvince,useGetCrimeTypesList,useGetCityList,useGetPoliceUnitsByCity
 } from "../../API Calls/API";
 import {
     Box,
@@ -37,24 +37,37 @@ const CustomExportMenu = ({ role, onExport, loading }) => {
             key: 'selection'
         }
     ]);
+    const [city, setCity] = useState('');
+    const [policeUnit, setPoliceUnit] = useState('');
     const [province, setProvince] = useState('all');
     const [category, setCategory] = useState('all');
     const [crimeType, setCrimeType] = useState('all');
     const [exportFormat, setFormat] = useState('pdf');
+    const [locationWiseFilter, setLocationWiseFilter] = useState('');
 
     const handleClick = (event) => setAnchorEl(event.currentTarget);
     const handleClose = () => setAnchorEl(null);
-
+    const handleLocationFilterData = (data) => {
+        const params = Object.fromEntries(
+            Object.entries(data).filter(
+                ([_, value]) => value !== "" && value !== undefined && value !== null
+            )
+        );
+        const filterText = new URLSearchParams(params).toString();
+        setLocationWiseFilter(filterText)
+    };
     const handleExport = () => {
         const startDate = range[0].startDate.toISOString();
         const endDate = range[0].endDate.toISOString();
-        onExport({ startDate, endDate, exportFormat, province, category,crimeType });
+        onExport({ startDate, endDate, exportFormat, province, category,crimeType, locationWiseFilter});
         setAnchorEl(null);
     };
 
     const notificationTypes = useGetNotificationType();
     const crimeTypesList = useGetCrimeTypesList();
     const provincelist = fetchProvince();
+    const cityList = useGetCityList(province && province != 'all' ? province : '')
+    const policeUnitList = useGetPoliceUnitsByCity(city)
     return (
         <>
             <Button
@@ -185,6 +198,69 @@ const CustomExportMenu = ({ role, onExport, loading }) => {
                                     </Select>
                                 </FormControl>
                             )
+                        }
+
+                        {role === 'saps-wanted' && (
+                            <>
+                                <FormControl fullWidth size="small" >
+                                    <label style={{ marginBottom: 5 }}>Select Location Filters</label>
+                                    <Select
+                                        value={province}
+                                        onChange={(e) => {setProvince(e.target.value),handleLocationFilterData({province:e.target.value})}}
+                                        sx={{
+                                            '& fieldset': {
+                                                border: '1px solid var(--light-gray)',
+                                            },
+                                        }}
+                                    >
+                                        <MenuItem value="all">All Location</MenuItem>
+                                        {provincelist?.data?.data?.map((type) => (
+                                            <MenuItem key={type._id} value={type._id}>
+                                                {type.province_name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                                {(province && province != 'all') && (<FormControl fullWidth size="small" >
+                                    <label style={{ marginBottom: 5 }}>Select City</label>
+                                    <Select
+                                        value={city}
+                                        onChange={(e) => {setCity(e.target.value),handleLocationFilterData({province:province,city:e.target.value})}}
+                                        sx={{
+                                            '& fieldset': {
+                                                border: '1px solid var(--light-gray)',
+                                            },
+                                        }}
+                                    >
+                                        <MenuItem value="">Select City</MenuItem>
+                                        {cityList.data?.data.data?.map((type) => (
+                                            <MenuItem key={type._id} value={type._id}>
+                                                {type.city_name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>)}
+                                {city && (<FormControl fullWidth size="small" >
+                                    <label style={{ marginBottom: 5 }}>Select Police Station</label>
+                                    <Select
+                                        value={policeUnit}
+                                        onChange={(e) => {setPoliceUnit(e.target.value),handleLocationFilterData({province:province,city:city,police_unit_id:e.target.value})}}
+                                        sx={{
+                                            '& fieldset': {
+                                                border: '1px solid var(--light-gray)',
+                                            },
+                                        }}
+                                    >
+                                        <MenuItem value="">Select Police Unit</MenuItem>
+                                        {policeUnitList.data?.data.map((type) => (
+                                            <MenuItem key={type._id} value={type._id}>
+                                                {type.police_unit_name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>)}
+                            </>
+                        )
                         }
 
 

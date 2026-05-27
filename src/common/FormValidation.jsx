@@ -216,3 +216,53 @@ export const captureValidation = yup.object({
     location_id:String,
     arrival:String,
 })
+
+export const SAPSMemberValidation = yup.object({
+    first_name: Username,
+    last_name: Username,
+    email: Email,
+    password: Password,
+    mobile_no: MobileNumber,
+    street: String,
+    province: String,
+    city: String,
+    suburb: String,
+    postal_code: Number,
+    country: String,
+    police_unit_id: String,
+    passport_no: ID,
+
+})
+
+export const SAPSMemberEditValidation = yup.object({
+    first_name: Username,
+    last_name: Username,
+    email: Email,
+    mobile_no: MobileNumber,
+    street: String,
+    province: String,
+    city: String,
+    suburb: String,
+    postal_code: Number,
+    country: String,
+    police_unit_id: String,
+    passport_no: ID,
+
+})
+
+export const SAPSWantedEditValidation = yup.object({
+    full_name: String,
+    aliases: String,
+    case_number: String,
+    crime_date: String,
+    last_know_location: String,
+    known_offenses: String,
+    province: String,
+    city: String,
+    suburb: String,
+    police_unit_id: String,
+    investigating_officer: String,
+    contact_number: String,
+    crime_information_description: String,
+    current_status: String,
+})
