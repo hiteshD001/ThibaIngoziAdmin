@@ -17,8 +17,6 @@ export const requestForToken = async () => {
     });
 
     if (currentToken) {
-      console.log("FCM TOKEN:", currentToken);
-
       return currentToken;
     } else {
       return "";
