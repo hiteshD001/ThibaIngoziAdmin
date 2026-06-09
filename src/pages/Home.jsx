@@ -726,7 +726,7 @@ const Home = () => {
         updateParamsCrimeActive({ activeCrimeTypeFilter: e.target.value })
     };
 
-    const crimeActiveList = useGetCrimeReportList("crime report list", role, currentPageCrimeActive, rowsPerPageCrimeActive, filterCrimeActive,'', startDateFilterCrimeActive, endDateFilterCrimeActive, false,sortByCrimeActive, sortOrderCrimeActive,'pending',activeCrimeTypeFilter);
+    const crimeActiveList = role === "super_admin" ? useGetCrimeReportList("crime report list", role, currentPageCrimeActive, rowsPerPageCrimeActive, filterCrimeActive,'', startDateFilterCrimeActive, endDateFilterCrimeActive, false,sortByCrimeActive, sortOrderCrimeActive,'pending',activeCrimeTypeFilter) : { data: null } ;
     const totalCrimeReportActiveData = crimeActiveList.data?.data?.totalCrimeReportData || 0;
     const totalPagesCrimeActive = Math.ceil(totalCrimeReportActiveData / rowsPerPageCrimeActive);
 
@@ -774,7 +774,7 @@ const Home = () => {
     const handleCrimeTypeRecentChange = (e) => {
         updateParamsCrimeRecent({ recentCrimeTypeFilter: e.target.value })
     };
-    const crimeRecentList = useGetCrimeReportList("crime report list", role, currentPageCrimeRecent, rowsPerPageCrimeRecent, filterCrimeRecent,'', startDateFilterCrimeRecent, endDateFilterCrimeRecent, false,sortByCrimeRecent, sortOrderCrimeRecent,'reviewed,reviewing,With SAPS',recentCrimeTypeFilter);
+    const crimeRecentList = role === "super_admin" ? useGetCrimeReportList("crime report list", role, currentPageCrimeRecent, rowsPerPageCrimeRecent, filterCrimeRecent,'', startDateFilterCrimeRecent, endDateFilterCrimeRecent, false,sortByCrimeRecent, sortOrderCrimeRecent,'reviewed,reviewing,With SAPS',recentCrimeTypeFilter) : { data: null };
     const totalCrimeReportRecentData = crimeRecentList.data?.data?.totalCrimeReportData || 0;
     const totalPagesCrimeRecent = Math.ceil(totalCrimeReportRecentData / rowsPerPageCrimeRecent);
 
@@ -1429,7 +1429,7 @@ const Home = () => {
                 </Paper>
                 
                 {/* Active Crime Report */}
-                <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
+                {role === 'super_admin' && <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                         <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 }, alignItems: 'center' }}>
                             <Typography variant="h6" fontWeight={590}>Active Crime Report</Typography>
@@ -1823,7 +1823,7 @@ const Home = () => {
                             </Grid>
                         </Grid>}
                     </Box>
-                </Paper>
+                </Paper>}
 
                 <HotspotSection />
 
@@ -2300,7 +2300,7 @@ const Home = () => {
                 </Paper>
 
                 {/* Recently Crime Report */}
-                 <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
+                {role === 'super_admin' && <Paper elevation={1} sx={{ backgroundColor: "rgb(253, 253, 253)", mb: 4, padding: 2, borderRadius: '10px' }}>
                     <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                         <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 }, alignItems: 'center' }}>
                             <Typography variant="h6" fontWeight={590}>Recently Closed Crime Report</Typography>
@@ -2693,7 +2693,7 @@ const Home = () => {
                             </Grid>
                         </Grid>}
                     </Box>
-                </Paper>                       
+                </Paper>  }                     
                
             </Box >
             {statusUpdate && (
