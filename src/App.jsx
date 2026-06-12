@@ -175,15 +175,18 @@ function App() {
                             children: [
                                 {
                                     path: "",
-                                    element: <RouteGuard><ListOfCompanies /></RouteGuard>
+                                    // element: <RouteGuard><ListOfCompanies /></RouteGuard>
+                                    element: <ListOfCompanies />
                                 },
                                 {
                                     path: "add-company",
-                                    element: <RouteGuard><AddCompany /></RouteGuard>
+                                    // element: <RouteGuard><AddCompany /></RouteGuard>
+                                    element: <AddCompany />
                                 },
                                 {
                                     path: "company-information/:id",
-                                    element: <RouteGuard><CompanyInformation /></RouteGuard>
+                                    // element: <RouteGuard><CompanyInformation /></RouteGuard>
+                                    element: <CompanyInformation />
                                 }
                             ]
                         },
