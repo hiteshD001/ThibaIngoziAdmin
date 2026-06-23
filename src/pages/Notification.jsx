@@ -20,14 +20,12 @@ import jsPDF from 'jspdf';
 import { autoTable } from 'jspdf-autotable'
 import * as XLSX from 'xlsx';
 import { startOfYear } from "date-fns";
-import { useNavigate, useParams, useSearchParams,Link } from "react-router-dom";
+import { useNavigate, useSearchParams,Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 
 const Notification = () => {
-
-    const params = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
     const startDateParam = searchParams.get("startDate") || startOfYear(new Date()).toISOString();
     const endDateParam = searchParams.get("endDate") || new Date().toISOString();
@@ -46,8 +44,6 @@ const Notification = () => {
     const queryClient = useQueryClient();
     const [role] = useState(localStorage.getItem("role"));
     
-    const handleFilterApply = (filters) => {
-    };
     const IconDisplay = ({ tag, seen }) => {
         let iconToDisplay;
 
@@ -78,7 +74,18 @@ const Notification = () => {
             }
         });
         queryClient.invalidateQueries(["notification list"]);
-        handleView(`/home/total-suspect/suspect-information/${variables.data.notification_data.suspect_sighting_id}`)
+        let sub_type = variables.data.notification_data.suspect_sighting_id
+        if (sub_type == 'Wanted By Police') {
+            // Wanted By Police
+            handleView(`/home/total-saps-wanted/wanted-inforamtion/${variables.data.notification_data.SAPS_wanted_id}`)
+        } else if (sub_type == 'Missing Person Broadcast') {
+            handleView(`/home/total-missing-person/person-information/${variables.data.notification_data.location._id}`)
+        } else if (sub_type == 'sos') {
+            handleView(`/home/capture-reports/sos-detail/${variables.data.notification_data.location._id}`)
+        } else {
+            handleView(`/home/total-suspect/suspect-information/${variables.data.notification_data.suspect_sighting_id}`)
+        }
+        // handleView(`/home/total-suspect/suspect-information/${variables.data.notification_data.suspect_sighting_id}`)
         // toast.success("Notification Seen Successfully.");
     };
 
@@ -95,7 +102,17 @@ const Notification = () => {
         if(!dataObj.seen){
             mutate({ id:dataObj._id, data: {seen:true} });
         }else{
-            handleView(`/home/total-suspect/suspect-information/${dataObj.notification_data.suspect_sighting_id}`)
+            let sub_type = dataObj.notification_data.sub_type
+            if(sub_type == 'Wanted By Police'){
+                // Wanted By Police
+                handleView(`/home/total-saps-wanted/wanted-inforamtion/${dataObj.notification_data.SAPS_wanted_id}`)
+            }else if(sub_type == 'Missing Person Broadcast'){
+                handleView(`/home/total-missing-person/person-information/${dataObj.notification_data.location._id}`)
+            }else if(sub_type == 'sos'){
+                handleView(`/home/capture-reports/sos-detail/${dataObj.notification_data.location._id}`)
+            }else{
+                handleView(`/home/total-suspect/suspect-information/${dataObj.notification_data.suspect_sighting_id}`)
+            }
         }
     };
 
