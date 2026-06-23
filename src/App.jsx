@@ -511,11 +511,11 @@ function App() {
                                 },
                                 {
                                     path: "add-police-unit",
-                                    element: <RouteGuard><AddPoliceUnit /></RouteGuard>
+                                    element: <AddPoliceUnit />
                                 },
                                 {
                                     path: "police-unit-information/:id",
-                                    element: <RouteGuard><PoliceUnitInformation /></RouteGuard>
+                                    element: <PoliceUnitInformation />
                                 }
                             ]
                         },
