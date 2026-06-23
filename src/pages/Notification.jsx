@@ -41,8 +41,7 @@ const Notification = () => {
     const filterType = searchParams.get("filterType") || "all";
     const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
     const locationFilter = searchParams.get("locationFilter") || "";
-     const shortText = (text, limit = 50) =>
-        text.length > limit ? text.substring(0, limit) + ' ....' : text;
+     const shortText = (text, limit = 50) => text && text.length > limit ? text.substring(0, limit) + ' ....' : text;
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [role] = useState(localStorage.getItem("role"));
@@ -315,8 +314,8 @@ const Notification = () => {
                                             <Link onClick={()=> handleView(incident?.notification_data?.user?.role === "driver" ? `/home/total-drivers/driver-information/${incident?.notification_data?.user?._id}` : `/home/total-users/user-information/${incident?.notification_data?.user?._id}`)} className="link2">
                                                 <Typography fontWeight={600}>{incident?.notification_data?.user?.first_name +' '+ incident?.notification_data?.user?.last_name || ""}</Typography>
                                             </Link>
-                                            <Typography variant="body1" color="text.secondary">{shortText(incident?.notification_data?.suspect_sighting?.description) || ''}</Typography>
-                                            <Box mt={1} sx={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+                                            <Typography variant="body1" color="text.secondary">{shortText(incident?.notification_data?.suspect_sighting?.description) || incident?.notification_data?.body}</Typography>
+                                            {incident?.notification_data?.suspect_sighting?.caseNumberId && <Box mt={1} sx={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
                                                 <Chip label={incident?.linked_case_data?.current_status.toUpperCase()} sx={{
                                                     backgroundColor: 'var(--light-gray)',
                                                     color: '#9CA3AF',
@@ -329,7 +328,7 @@ const Notification = () => {
                                                 <Typography variant="body2" color="#6B7280" fontWeight={450}>
                                                     • Case - {incident?.notification_data?.suspect_sighting?.caseNumberId}
                                                 </Typography>
-                                            </Box>
+                                            </Box>}
                                         </Grid>
                                     </Grid>
                                 </Grid>
