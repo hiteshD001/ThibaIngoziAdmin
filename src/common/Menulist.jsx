@@ -173,11 +173,11 @@ export const allMenuItems = [
         permission: "Verification View"
     },
     {
-        id: "SAPS-Wanted",
-        name: "SAPS-Wanted",
+        id: "total-saps-wanted",
+        name: "SAPS Wanted",
         path: "/home/total-saps-wanted",
         image: policestation,
-        permission: null
+        permission: "SAPS Wanted"
     },
     {
         id: "logout",

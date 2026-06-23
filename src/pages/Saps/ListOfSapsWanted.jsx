@@ -181,7 +181,7 @@ const ListOfSapsWanted = () => {
         });
     };
 
-    const handleExport = async ({ startDate, endDate, exportFormat }) => {
+    const handleExport = async ({ startDate, endDate, exportFormat:fileFormat }) => {
         try {
             const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/saps-wanted`, { params: {} });
 
@@ -328,7 +328,7 @@ const ListOfSapsWanted = () => {
         }
     };
 
-    const handleExportMember = async ({ startDate, endDate, exportFormat }) => {
+    const handleExportMember = async ({ startDate, endDate, exportFormat:fileFormat }) => {
         try {
             const { data } = await apiClient.get(`${import.meta.env.VITE_BASEURL}/saps-member`, { params: {} });
 
@@ -340,7 +340,7 @@ const ListOfSapsWanted = () => {
 
             const exportData = allUsers.map(user => ({
                 "Name": (user?.first_name || "") + " " + (user?.last_name || ''),
-                "Police Station Name": user?.police_unit_id.police_unit_name || '',
+                "Police Station Name": user?.police_unit_id?.police_unit_name || '',
                 "Contact No.": user.mobile_no_country_code+'-' + user.mobile_no || '',
                 "Email": user.email || "",
                 "Date": formatDateTime(user.createdAt, "HH:mm:ss - DD/MM/yyyy") || '',
@@ -1184,6 +1184,15 @@ const ListOfSapsWanted = () => {
                                                     </TableSortLabel></TableCell>
                                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
                                                     <TableSortLabel
+                                                        id="face_matched"
+                                                        active={sortBy === 'face_matched'}
+                                                        direction={sortOrder}
+                                                        onClick={changeSortOrder}
+                                                        IconComponent={() => <img src={sortBy === 'face_matched' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    >Face Matched
+                                                    </TableSortLabel></TableCell>
+                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
+                                                    <TableSortLabel
                                                         id="last_know_location"
                                                         active={sortBy === 'last_know_location'}
                                                         direction={sortOrder}
@@ -1291,6 +1300,15 @@ const ListOfSapsWanted = () => {
                                                             cursor: 'pointer',
                                                         }} onClick={() => handleView(`/home/total-suspect?linked_case_type=sapswanted&linked_case_type_id=${user?._id}`)} state={{ isAccepted: true }}>
                                                             {user?.suspect_reported_users}
+                                                        </Link>
+                                                    </TableCell>
+                                                    <TableCell sx={{ color: '#367BE0' }}>
+                                                        <Link style={{
+                                                            textDecoration: 'none',
+                                                            color: '#367BE0',
+                                                            cursor: 'pointer',
+                                                        }} onClick={() => handleView(`/home/total-saps-wanted/face-scan-users/${user?._id}`)} state={{ type: "SAPSWanted" }}>
+                                                            {user?.face_matched_users?.length || 0}
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>

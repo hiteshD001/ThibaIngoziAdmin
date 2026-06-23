@@ -5,7 +5,7 @@ import {
     Button,
     Tooltip,
     Chip,
-    TableSortLabel,
+    TableSortLabel,Skeleton 
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -20,7 +20,7 @@ import ImportSheet from "../../common/ImportSheet";
 import nouser from "../../assets/images/NoUser.png";
 import { startOfYear } from "date-fns";
 import moment from "moment";
-import { useGetUser, useDeleteMissingPerson, useGetMissingPersonList, usePatchArchivedMissingPerson } from "../../API Calls/API";
+import { useGetUser, useDeleteMissingPerson,useGetMissingPageData ,useGetMissingPersonList, usePatchArchivedMissingPerson } from "../../API Calls/API";
 import Listtrip from '../../assets/images/Listtrip.svg'
 import delBtn from '../../assets/images/delBtn.svg'
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
@@ -36,6 +36,10 @@ import * as XLSX from 'xlsx';
 import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 import SingleImagePreview from "../../common/SingleImagePreview";
+import SapsIcon1 from '../../assets/images/SapsIcon1.svg'
+import SapsIcon3 from '../../assets/images/SapsIcon3.svg'
+import SapsIcon5 from '../../assets/images/SapsIcon5.svg'
+import SapsIcon6 from '../../assets/images/SapsIcon6.svg'
 
 const ListofMissingPerson = () => {
     const [popup, setpopup] = useState(false);
@@ -96,6 +100,9 @@ const ListofMissingPerson = () => {
 
     const totalUsers = MissingPersons?.data?.data?.totaldata;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
+
+    const SAPS_Page_API_Data = useGetMissingPageData()
+    const SAPS_Page_ObjData = SAPS_Page_API_Data.data?.data || {}
     
     const achiveMissingPerson = usePatchArchivedMissingPerson(
         () => {
@@ -258,6 +265,120 @@ const ListofMissingPerson = () => {
                 image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
             />
         <Box p={2}>
+            <Grid container spacing={3} mb={5}>
+                <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#367BE01A', borderRadius: '16px', px: 3, py: 5 }}>
+                        <Box>
+                            <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Missing persons</Typography>
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.missingPersons}</Typography>
+                            )
+                            }
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                SAPS_Page_ObjData?.percentageObjData.missingPersons > 0 ? (
+
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.missingPersons}% from last month</Typography>
+                                ) : SAPS_Page_ObjData?.percentageObjData.missingPersons === 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.missingPersons}% from last month</Typography>
+                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.missingPersons}% from last month</Typography>
+
+                            )
+                            }
+                        </Box>
+                        <Box>
+                            <img src={SapsIcon1} alt="ReportIcon" />
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4, lg: 3 }} >
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#F973161A', borderRadius: '16px', px: 2, py: 5 }}>
+                        <Box>
+                            <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Sighting Submissions</Typography>
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.sightingSubmissions}</Typography>
+                            )
+                            }
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                SAPS_Page_ObjData?.percentageObjData.sightingSubmissions > 0 ? (
+
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+                                ) : SAPS_Page_ObjData?.percentageObjData.sightingSubmissions === 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+
+                            )
+                            }
+                        </Box>
+                        <Box>
+                            <img src={SapsIcon3} alt="ReportIcon" />
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4, lg: 3 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#F973161A', borderRadius: '16px', px: 3, py: 5 }}>
+                        <Box>
+                            <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Face Matched</Typography>
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.faceMatched}</Typography>
+                            )
+                            }
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                SAPS_Page_ObjData?.percentageObjData.faceMatched > 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.faceMatched}% from last month</Typography>
+                                ) : SAPS_Page_ObjData?.percentageObjData.faceMatched === 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '' }}>{SAPS_Page_ObjData?.percentageObjData.faceMatched}% from last month</Typography>
+                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.faceMatched}% from last month</Typography>
+
+                            )
+                            }
+                        </Box>
+                        <Box>
+                            <img src={SapsIcon5} alt="DangerIcon" />
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#0D94881A', borderRadius: '16px', px: 3, py: 5 }}>
+                        <Box>
+                            <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Found People</Typography>
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.foundPeople}</Typography>
+                            )
+                            }
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                SAPS_Page_ObjData?.percentageObjData.foundPeople > 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.foundPeople}% from last month</Typography>
+                                ) : SAPS_Page_ObjData?.percentageObjData.foundPeople === 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.foundPeople}% from last month</Typography>
+                                ) : (<Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.foundPeople}% from last month</Typography>)
+
+                            )
+                            }
+                        </Box>
+                        <Box>
+                            <img src={SapsIcon6} alt="DangerIcon" />
+                        </Box>
+                    </Box>
+                </Grid>
+            </Grid>
+        </Box>
+        <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                     <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
@@ -410,6 +531,15 @@ const ListofMissingPerson = () => {
                                             IconComponent={() => <img src={sortBy === 'suspect_reported_users' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                         >Sightings Reported</TableSortLabel>
                                     </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', textAlign: 'center' }}>
+                                        <TableSortLabel
+                                            id="face_matched"
+                                            active={sortBy === 'face_matched'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'face_matched' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >Face Matched</TableSortLabel>
+                                    </TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                         <TableSortLabel
                                             id="help_received"
@@ -500,6 +630,11 @@ const ListofMissingPerson = () => {
                                                 <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
                                                     <Link onClick={() => handleView(`/home/total-suspect/suspect-sightings-reported-users/${obj?._id}`)} className="link2">
                                                         {obj?.suspect_reported_users}
+                                                    </Link>
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
+                                                    <Link onClick={() => handleView(`/home/total-missing-person/face-scan-users/${obj?._id}`)} state={{ type: "Location" }} className="link2">
+                                                        {obj?.face_matched_users?.length || 0}
                                                     </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>

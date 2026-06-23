@@ -83,6 +83,7 @@ const AddCaptureReport = lazy(() => import("./pages/capture-report/AddCaptureRep
 const SOSDetail = lazy(() => import("./pages/capture-report/SOSDetail"));
 const SAPSMemberDetail = lazy(() => import("./pages/Saps/SAPSMemberDetail"));
 const SAPSWantedRequestUsers = lazy(() => import("./pages/Saps/SAPSRequestUsers"));
+const FaceScanUsers = lazy(() => import("./pages/Saps/FaceScanUsersList"));
 
 function App() {
 
@@ -175,15 +176,18 @@ function App() {
                             children: [
                                 {
                                     path: "",
-                                    element: <RouteGuard><ListOfCompanies /></RouteGuard>
+                                    // element: <RouteGuard><ListOfCompanies /></RouteGuard>
+                                    element: <ListOfCompanies />
                                 },
                                 {
                                     path: "add-company",
-                                    element: <RouteGuard><AddCompany /></RouteGuard>
+                                    // element: <RouteGuard><AddCompany /></RouteGuard>
+                                    element: <AddCompany />
                                 },
                                 {
                                     path: "company-information/:id",
-                                    element: <RouteGuard><CompanyInformation /></RouteGuard>
+                                    // element: <RouteGuard><CompanyInformation /></RouteGuard>
+                                    element: <CompanyInformation />
                                 }
                             ]
                         },
@@ -309,6 +313,10 @@ function App() {
                                     path: "view-archeived-person",
                                     element: <ListOfViewArcheivedMissingPerson />
                                 },
+                                {
+                                    path: "face-scan-users/:id",
+                                    element: <FaceScanUsers />
+                                },
 
                             ]
                         },
@@ -357,6 +365,10 @@ function App() {
                                 {
                                     path: "request-reached-users/:id",
                                     element: <SAPSWantedRequestUsers />
+                                },
+                                {
+                                    path: "face-scan-users/:id",
+                                    element: <FaceScanUsers />
                                 },
                             ]
                         },
