@@ -664,6 +664,42 @@ export const usePutMissingPersonStatus = (onSuccess, onError) => {
     return mutation;
 }
 
+export const useGetMissingPageData = (
+    locationFilter,
+    startDate,
+    endDate,
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingPerson/page-data`, {
+            params: {
+                locationFilter,
+                startDate,
+                endDate,
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            locationFilter,
+            startDate,
+            endDate,
+        ],
+        queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
 // missing vehicale
 
 export const useGetMissingVehicaleList = (key, page = 1, limit = 10, filter, startDate, endDate, archived, locationFilter, sortBy, sortOrder) => {
@@ -3325,3 +3361,33 @@ export const useSAPSMemberFileUpload = (onSuccess, onError) => {
     })
     return mutation;
 }
+
+// face Scan Users
+export const useGetFaceScanUsers = (typeId, page = 1, limit = 10,type = "Location" ,search = "") => {
+    const nav = useNavigate();
+    const queryFn = async () => {
+        const queryParams = new URLSearchParams({
+            page: page.toString(),
+            limit: limit.toString(),
+            type:type,
+            isWeb: true,
+            ...(search && search.trim() ? { search: search.trim() } : {})
+        }).toString();
+
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/saps-wanted/face-scan/${typeId}?${queryParams}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: [typeId, page, limit, type, search],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
