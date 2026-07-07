@@ -816,6 +816,42 @@ export const usePutMissingVehicleStatus = (onSuccess, onError) => {
     return mutation;
 }
 
+export const useGetMissingVehiclePageData = (
+    locationFilter,
+    startDate,
+    endDate,
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/missingVehicle/page-data`, {
+            params: {
+                locationFilter,
+                startDate,
+                endDate,
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            locationFilter,
+            startDate,
+            endDate,
+        ],
+        queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+}
+
 
 // Sales Agent
 

@@ -284,7 +284,7 @@ const ListofMissingPerson = () => {
                                     <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.missingPersons}% from last month</Typography>
                                 ) : SAPS_Page_ObjData?.percentageObjData.missingPersons === 0 ? (
                                     <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.missingPersons}% from last month</Typography>
-                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.missingPersons}% from last month</Typography>
+                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.missingPersons}% from last month</Typography>
 
                             )
                             }
@@ -312,7 +312,7 @@ const ListofMissingPerson = () => {
                                     <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
                                 ) : SAPS_Page_ObjData?.percentageObjData.sightingSubmissions === 0 ? (
                                     <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
-                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
 
                             )
                             }
@@ -339,7 +339,7 @@ const ListofMissingPerson = () => {
                                     <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.faceMatched}% from last month</Typography>
                                 ) : SAPS_Page_ObjData?.percentageObjData.faceMatched === 0 ? (
                                     <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '' }}>{SAPS_Page_ObjData?.percentageObjData.faceMatched}% from last month</Typography>
-                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.faceMatched}% from last month</Typography>
+                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.faceMatched}% from last month</Typography>
 
                             )
                             }
@@ -366,7 +366,7 @@ const ListofMissingPerson = () => {
                                     <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.foundPeople}% from last month</Typography>
                                 ) : SAPS_Page_ObjData?.percentageObjData.foundPeople === 0 ? (
                                     <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.foundPeople}% from last month</Typography>
-                                ) : (<Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.foundPeople}% from last month</Typography>)
+                                ) : (<Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.foundPeople}% from last month</Typography>)
 
                             )
                             }

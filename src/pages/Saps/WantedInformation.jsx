@@ -118,7 +118,7 @@ const WantedInformation = () => {
                 full_name: data.full_name || "",
                 case_number: data.case_number || "",
                 passport_no: data.passport_no || "",
-                police_unit_id: data.police_unit_id._id || "",
+                police_unit_id: data?.police_unit_id?._id || "",
                 known_offenses: data.known_offenses || "",
                 contact_number: data.contact_number || "",
                 suburb: data.suburb || "",
