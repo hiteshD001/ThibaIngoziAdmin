@@ -683,6 +683,7 @@ export const useGetMissingPageData = (
 
     const res = useQuery({
         queryKey: [
+            "missing-person-page-data",
             locationFilter,
             startDate,
             endDate,
@@ -835,6 +836,7 @@ export const useGetMissingVehiclePageData = (
 
     const res = useQuery({
         queryKey: [
+            "missing-vehicle-page-data",
             locationFilter,
             startDate,
             endDate,
