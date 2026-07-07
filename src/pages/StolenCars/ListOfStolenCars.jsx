@@ -268,7 +268,7 @@ const ListOfStolenCars = () => {
                 <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
                     <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#367BE01A', borderRadius: '16px', px: 3, py: 5 }}>
                         <Box>
-                            <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total Vehicles Broadcast</Typography>
+                            <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total Broadcast</Typography>
                             {SAPS_Page_API_Data.isFetching ? (
                                 <Skeleton variant="text" width={60} height={40} />
                             ) : (
