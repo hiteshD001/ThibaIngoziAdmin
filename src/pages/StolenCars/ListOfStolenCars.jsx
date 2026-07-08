@@ -5,7 +5,7 @@ import {
     Button,
     Tooltip,
     Chip,
-    TableSortLabel,
+    TableSortLabel,Skeleton 
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -20,7 +20,7 @@ import ImportSheet from "../../common/ImportSheet";
 import nouser from "../../assets/images/NoUser.png";
 import { startOfYear } from "date-fns";
 import moment from "moment";
-import { useGetUser, useGetMissingVehicaleList, usePatchArchivedMissingVehicale } from "../../API Calls/API";
+import { useGetUser, useGetMissingVehicaleList, usePatchArchivedMissingVehicale,useGetMissingVehiclePageData } from "../../API Calls/API";
 import Listtrip from '../../assets/images/Listtrip.svg'
 import delBtn from '../../assets/images/delBtn.svg'
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
@@ -36,6 +36,11 @@ import * as XLSX from 'xlsx';
 import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 import SingleImagePreview from "../../common/SingleImagePreview";
+import SapsIcon1 from '../../assets/images/SapsIcon1.svg'
+import SapsIcon3 from '../../assets/images/SapsIcon3.svg'
+import SapsIcon5 from '../../assets/images/SapsIcon5.svg'
+import SapsIcon6 from '../../assets/images/SapsIcon6.svg'
+
 
 const ListOfStolenCars = () => {
     const [popup, setpopup] = useState(false);
@@ -80,6 +85,9 @@ const ListOfStolenCars = () => {
         const filterText = new URLSearchParams(params).toString();
         updateParams({ locationFilter: filterText })
     };
+
+    const SAPS_Page_API_Data = useGetMissingVehiclePageData()
+    const SAPS_Page_ObjData = SAPS_Page_API_Data.data?.data || {}
 
     const MissingPersons = useGetMissingVehicaleList(
         "missingVehicle",
@@ -256,11 +264,126 @@ const ListOfStolenCars = () => {
                 image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
             />
         <Box p={2}>
+            <Grid container spacing={3} mb={5}>
+                <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#367BE01A', borderRadius: '16px', px: 3, py: 5 }}>
+                        <Box>
+                            <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total Broadcast</Typography>
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.totalData}</Typography>
+                            )
+                            }
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                SAPS_Page_ObjData?.percentageObjData.totalData > 0 ? (
+
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.totalData}% from last month</Typography>
+                                ) : SAPS_Page_ObjData?.percentageObjData.totalData === 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.totalData}% from last month</Typography>
+                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.totalData}% from last month</Typography>
+
+                            )
+                            }
+                        </Box>
+                        <Box>
+                            <img src={SapsIcon1} alt="ReportIcon" />
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4, lg: 3 }} >
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#F973161A', borderRadius: '16px', px: 2, py: 5 }}>
+                        <Box>
+                            <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Sighting Submissions</Typography>
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.sightingSubmissions}</Typography>
+                            )
+                            }
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                SAPS_Page_ObjData?.percentageObjData.sightingSubmissions > 0 ? (
+
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+                                ) : SAPS_Page_ObjData?.percentageObjData.sightingSubmissions === 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+
+                            )
+                            }
+                        </Box>
+                        <Box>
+                            <img src={SapsIcon3} alt="ReportIcon" />
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4, lg: 3 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#F973161A', borderRadius: '16px', px: 3, py: 5 }}>
+                        <Box>
+                            <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Stolen Vehicles</Typography>
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.missingVehicle}</Typography>
+                            )
+                            }
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                SAPS_Page_ObjData?.percentageObjData.missingVehicle > 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.missingVehicle}% from last month</Typography>
+                                ) : SAPS_Page_ObjData?.percentageObjData.missingVehicle === 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '' }}>{SAPS_Page_ObjData?.percentageObjData.missingVehicle}% from last month</Typography>
+                                ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.missingVehicle}% from last month</Typography>
+
+                            )
+                            }
+                        </Box>
+                        <Box>
+                            <img src={SapsIcon5} alt="DangerIcon" />
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#0D94881A', borderRadius: '16px', px: 3, py: 5 }}>
+                        <Box>
+                            <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Found Vehicles</Typography>
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.totalFound}</Typography>
+                            )
+                            }
+                            {SAPS_Page_API_Data.isFetching ? (
+                                <Skeleton variant="text" width={60} height={40} />
+                            ) : (
+                                SAPS_Page_ObjData?.percentageObjData.totalFound > 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.totalFound}% from last month</Typography>
+                                ) : SAPS_Page_ObjData?.percentageObjData.totalFound === 0 ? (
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.totalFound}% from last month</Typography>
+                                ) : (<Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.totalFound}% from last month</Typography>)
+
+                            )
+                            }
+                        </Box>
+                        <Box>
+                            <img src={SapsIcon6} alt="DangerIcon" />
+                        </Box>
+                    </Box>
+                </Grid>
+            </Grid>
+        </Box>
+        <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                     <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
                         <Typography variant="h6" fontWeight={590}>Stolen Vehicle Broadcast</Typography>
                     </Grid>
+
                     <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', mt: { xs: 2, lg: 0 }, justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
 
                         <TextField

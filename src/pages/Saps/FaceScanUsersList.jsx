@@ -10,6 +10,7 @@ import {
     Skeleton,
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import search from '../../assets/images/search.svg';
 import nouser from "../../assets/images/NoUser.png";
@@ -19,7 +20,14 @@ import arrowup from '../../assets/images/arrowup.svg';
 import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 import ViewBtn from '../../assets/images/ViewBtn.svg'
-import { getImageLink } from '../../common/commonFn';
+import { formatDateTime, getImageLink } from '../../common/commonFn';
+
+const copyButtonStyles = {
+    color: '#4285F4 !important',
+    cursor: 'pointer',
+    padding: '4px',
+    borderRadius: '4px',
+};
 
 const FaceScanUsers = () => {
     const [page, setPage] = useState(1);
@@ -28,6 +36,7 @@ const FaceScanUsers = () => {
     const debouncedFilter = useDebounce(filter, 500);
     const [sortBy, setSortBy] = useState("first_name");
     const [sortOrder, setSortOrder] = useState("asc");
+    const [copied, setCopied] = useState(false);
     const params = useParams();
     const locationPath = useLocation();
     const locationId = params.id;
@@ -88,6 +97,12 @@ const FaceScanUsers = () => {
     if (locationData.isLoading) {
         return <Loader />;
     }
+
+    const handleCopy = async (textToCopy) => {
+        await navigator.clipboard.writeText(textToCopy);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     const isLoadingData = locationData.isLoading || (locationData.isFetching && !locationData.data);
 
@@ -172,6 +187,28 @@ const FaceScanUsers = () => {
                                 </TableCell>
                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
                                     <TableSortLabel
+                                        id="address"
+                                        active={sortBy === 'address'}
+                                        direction={sortOrder}
+                                        onClick={changeSortOrder}
+                                        IconComponent={() => <img src={sortBy === 'address' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                    >
+                                        Location
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                    <TableSortLabel
+                                        id="createdAt"
+                                        active={sortBy === 'createdAt'}
+                                        direction={sortOrder}
+                                        onClick={changeSortOrder}
+                                        IconComponent={() => <img src={sortBy === 'createdAt' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                    >
+                                        Date
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                    <TableSortLabel
                                         id="subscription_status"
                                         active={sortBy === 'subscription_status'}
                                         direction={sortOrder}
@@ -245,6 +282,55 @@ const FaceScanUsers = () => {
                                                 {user.email || '-'}
                                             </Typography>
                                         </TableCell>
+                                        <TableCell sx={{ color: '#4B5563' }}>
+
+                                            {user?.faceScan?.address ?
+                                            <Box sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                            }}>
+                                                {user?.faceScan?.address}
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between'
+                                                }}>
+                                                    <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                        <IconButton
+                                                            onClick={() => {
+                                                                handleCopy(`${user?.faceScan?.address}`);
+                                                            }}
+                                                            sx={copyButtonStyles}
+                                                            aria-label="copy address"
+                                                        >
+                                                            <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Typography sx={{ fontSize: "25px" }}>
+                                                        <Tooltip title={copied ? 'Copied!' : `Copy Coordinates`} placement="top">
+                                                            <IconButton
+                                                                onClick={() => {
+                                                                    handleCopy(`${user?.faceScan?.lat},${user?.faceScan?.long}`);
+                                                                }}
+                                                                sx={copyButtonStyles}
+                                                                aria-label="copy coordinate"
+                                                            >
+                                                                🌍
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </Typography>
+                                                </Box>
+                                            </Box>
+                                            :
+                                            "-"}
+                                        </TableCell>
+                                        <TableCell sx={{ color: '#4B5563' }}>
+                                            <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
+                                                {formatDateTime(user?.faceScan?.createdAt,"HH:mm:ss - DD/MM/YYYY") || '-'}
+                                            </Typography>
+                                        </TableCell>
+
                                         <TableCell sx={{ color: '#4B5563' }}>
                                             <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
                                                 <Chip

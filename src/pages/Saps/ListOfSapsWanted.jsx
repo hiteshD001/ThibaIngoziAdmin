@@ -724,7 +724,7 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
                                     ) : SAPS_Page_ObjData?.percentageObjData.usersReached === 0 ? (
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
 
                                 )
                                 }
@@ -752,7 +752,7 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.socialShares}% from last month</Typography>
                                     ) : SAPS_Page_ObjData?.percentageObjData.socialShares === 0 ? (
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.socialShares}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.socialShares}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.socialShares}% from last month</Typography>
 
                                 )
                                 }
@@ -780,7 +780,7 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
                                     ) : SAPS_Page_ObjData?.percentageObjData.sightingSubmissions === 0 ? (
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
 
                                 )
                                 }
@@ -808,7 +808,7 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate}% from last month</Typography>
                                     ) : SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate === 0 ? (
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate}% from last month</Typography>
                                 )
                                 }
                             </Box>
@@ -834,7 +834,7 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.wantedPeople}% from last month</Typography>
                                     ) : SAPS_Page_ObjData?.percentageObjData.wantedPeople === 0 ? (
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '' }}>{SAPS_Page_ObjData?.percentageObjData.wantedPeople}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.wantedPeople}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.wantedPeople}% from last month</Typography>
 
                                 )
                                 }
@@ -861,7 +861,7 @@ const ListOfSapsWanted = () => {
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.capturedPeople}% from last month</Typography>
                                     ) : SAPS_Page_ObjData?.percentageObjData.capturedPeople === 0 ? (
                                         <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.capturedPeople}% from last month</Typography>
-                                    ) : (<Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>-{SAPS_Page_ObjData?.percentageObjData.capturedPeople}% from last month</Typography>)
+                                    ) : (<Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.capturedPeople}% from last month</Typography>)
 
                                 )
                                 }
