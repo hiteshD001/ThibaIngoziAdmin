@@ -31,6 +31,14 @@ import { useGetSuspectSightingsList, useSuspectSightPutIsArchived, useGetSuspect
 import { getImageLink, formatDateTime } from '../../common/commonFn';
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import { toast } from "react-toastify";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+
+const copyButtonStyles = {
+    color: '#4285F4 !important',
+    cursor: 'pointer',
+    padding: '4px',
+    borderRadius: '4px',
+};
 
 const SuspectRequestUsers = () => {
 
@@ -56,6 +64,13 @@ const SuspectRequestUsers = () => {
     const endDate = range[0].endDate.toISOString();
     const [archived, setArchived] = useState(false)
     const [confirmation, setconfirmation] = useState("");
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = async (textToCopy) => {
+        await navigator.clipboard.writeText(textToCopy);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
     const changeSortOrder = (e) => {
         const field = e.target.id;
 
@@ -251,8 +266,47 @@ const SuspectRequestUsers = () => {
                                                     </Stack>
                                                 </Link>
                                             </TableCell>
-                                            <TableCell sx={{ color: '#4B5563' }}>
-                                                {obj.address || "-"}
+                                            <TableCell sx={{
+                                                color: '#4B5563',
+                                            }} >
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'space-between',
+                                                }}>
+                                                    {obj?.address}
+                                                    <Box sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'space-between'
+                                                    }}>
+                                                        <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
+                                                            <IconButton
+                                                                onClick={() => {
+                                                                    handleCopy(`${obj?.address}`);
+                                                                }}
+                                                                sx={copyButtonStyles}
+                                                                aria-label="copy address"
+                                                            >
+                                                                <ContentCopyIcon fontSize="medium" className="copy-btn" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Typography sx={{ fontSize: "25px" }}>
+                                                            <Tooltip title={copied ? 'Copied!' : `Copy Coordinates`} placement="top">
+                                                                <IconButton
+                                                                    onClick={() => {
+                                                                        handleCopy(`${obj?.lat},${obj?.long}`);
+                                                                    }}
+                                                                    sx={copyButtonStyles}
+                                                                    aria-label="copy coordinate"
+                                                                >
+                                                                    🌍
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Typography>
+                                                    </Box>
+                                                </Box>
+
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563', textAlign: 'center' }}>
                                                 {moment(obj.createdAt).isSame(moment(), "day")
