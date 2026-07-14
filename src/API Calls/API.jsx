@@ -3429,3 +3429,60 @@ export const useGetFaceScanUsers = (typeId, page = 1, limit = 10,type = "Locatio
     }
     return res;
 };
+
+// Subscription Module 
+// Get Police Units
+export const useGetSubscriptionTypesOfUsers = (
+    key,
+    role,
+    page,
+    limit,
+    filter,
+    typeOfSubscription,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/subscription/subscription-typesofusers`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                typeOfSubscription,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            typeOfSubscription,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
