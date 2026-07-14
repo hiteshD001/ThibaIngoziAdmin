@@ -299,7 +299,7 @@ const FaceScanUsers = () => {
                                                     <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
                                                         <IconButton
                                                             onClick={() => {
-                                                                handleCopy(`${user?.faceScan?.address}`);
+                                                                handleCopy(`${user?.faceScan?.address} View:https://api.thibaingozi.com/api/?sosId=${user?.faceScan?.face_scan_type_id}`);
                                                             }}
                                                             sx={copyButtonStyles}
                                                             aria-label="copy address"

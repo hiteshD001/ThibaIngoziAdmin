@@ -283,7 +283,7 @@ const SuspectRequestUsers = () => {
                                                         <Tooltip title={copied ? 'Copied!' : 'Copy'} placement="top">
                                                             <IconButton
                                                                 onClick={() => {
-                                                                    handleCopy(`${obj?.address}`);
+                                                                    handleCopy(`${obj?.address} View:https://api.thibaingozi.com/api/?sosId=${obj?._id}`);
                                                                 }}
                                                                 sx={copyButtonStyles}
                                                                 aria-label="copy address"
