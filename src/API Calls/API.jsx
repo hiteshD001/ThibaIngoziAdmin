@@ -3429,3 +3429,186 @@ export const useGetFaceScanUsers = (typeId, page = 1, limit = 10,type = "Locatio
     }
     return res;
 };
+
+// Subscription Module 
+export const useGetSubscriptionTypesOfUsers = (
+    key,
+    role,
+    page,
+    limit,
+    filter,
+    typeOfSubscription,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder,
+    locationFilter
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/subscription/subscription-typesofusers`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                typeOfSubscription,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder,
+                locationFilter
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            typeOfSubscription,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder,
+            locationFilter
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const usePutUserSubscriptionStatus = (onSucess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/subscription/subscription-status-change/${id}`,
+            data
+        );
+    };
+
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+
+    return res;
+}
+
+export const useGetSubscriptionDetailId = (id) => {
+
+    const nav = useNavigate();
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/subscription/subscription-details/${id}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["subscription list", id],
+        queryFn: queryFn,
+        staleTime: Infinity,
+        enabled: id !== undefined,
+    });
+    
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+
+    return res;
+};
+
+export const useGetSubscriptionPageData = (
+    locationFilter,
+    startDate,
+    endDate,
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/subscription/subscription-page-data`, {
+            params: {
+                locationFilter,
+                startDate,
+                endDate,
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            "subscription list",
+            locationFilter,
+            startDate,
+            endDate,
+        ],
+        queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetUserWiseTransactionHistory = (
+    key,
+    filter,
+    transaction_user_id,
+    page,
+    limit,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/subscription/transaction-history`, {
+            params: {
+                filter,
+                transaction_user_id,
+                page,
+                limit,
+                sortBy,
+                sortOrder
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            filter,
+            transaction_user_id,
+            page,
+            limit,
+            sortBy,
+            sortOrder
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};

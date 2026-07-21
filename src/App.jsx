@@ -84,6 +84,8 @@ const SOSDetail = lazy(() => import("./pages/capture-report/SOSDetail"));
 const SAPSMemberDetail = lazy(() => import("./pages/Saps/SAPSMemberDetail"));
 const SAPSWantedRequestUsers = lazy(() => import("./pages/Saps/SAPSRequestUsers"));
 const FaceScanUsers = lazy(() => import("./pages/Saps/FaceScanUsersList"));
+const SubscriptionManagement = lazy(() => import("./pages/subscription-management/SubscriptionManagement"));
+const SubscriptionDetails = lazy(() => import("./pages/subscription-management/SubscriptionInformation"));
 
 function App() {
 
@@ -482,6 +484,20 @@ function App() {
                                 },
                             ]
                         },
+                        {
+                            path: "subscription-management",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <SubscriptionManagement />
+                                },
+                                {
+                                    path: "subscription-information/:id",
+                                    element: <SubscriptionDetails />
+                                },
+                            ]
+                        },
+
                         {
                             path: "hardware-management",
                             element: <RouteGuard><HardwareManagement /></RouteGuard>
