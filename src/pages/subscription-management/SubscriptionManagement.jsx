@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
-    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Avatar, Stack, Select, MenuItem, Chip,
-    Tooltip,Skeleton,Tabs,Tab
+    Box, Typography, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, Avatar, Stack, Select, MenuItem, Chip,
+    Tooltip,Skeleton,Tabs,Tab,Menu,Dialog, DialogContent, Button,TableSortLabel
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import search from '../../assets/images/search.svg';
 import ViewBtn from '../../assets/images/ViewBtn.svg'
-import delBtn from '../../assets/images/delBtn.svg'
-import whiteplus from '../../assets/images/whiteplus.svg';
-import { useGetSubscriptionTypesOfUsers, usePutIsArchived, useGetSAPSWantedPageData } from "../../API Calls/API";
+import { useGetSubscriptionTypesOfUsers, useGetSubscriptionPageData, usePutUserSubscriptionStatus } from "../../API Calls/API";
 import Loader from "../../common/Loader";
 import CustomFilter from '../../common/Custom/CustomFilter'
 import ImportSheet from "../../common/ImportSheet";
@@ -22,19 +20,30 @@ import { autoTable } from 'jspdf-autotable'
 import * as XLSX from 'xlsx';
 import { toast } from "react-toastify";
 import { startOfYear } from "date-fns";
-import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import nouser from "../../assets/images/NoUser.png";
-import moment from "moment";
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
-import SapsIcon1 from '../../assets/images/SapsIcon1.svg'
-import SapsIcon2 from '../../assets/images/SapsIcon2.svg'
-import SapsIcon3 from '../../assets/images/SapsIcon3.svg'
-import SapsIcon4 from '../../assets/images/SapsIcon4.svg'
-import SapsIcon5 from '../../assets/images/SapsIcon5.svg'
-import SapsIcon6 from '../../assets/images/SapsIcon6.svg'
+import subscription_card_1 from '../../assets/images/subscription_card_1.svg'
+import subscription_card_2 from '../../assets/images/subscription_card_2.svg'
+import subscription_card_3 from '../../assets/images/subscription_card_3.svg'
+import subscription_card_4 from '../../assets/images/subscription_card_4.svg'
+import subscription_card_5 from '../../assets/images/subscription_card_5.svg'
+import subscription_card_6 from '../../assets/images/subscription_card_6.svg'
+import subscription_card_7 from '../../assets/images/subscription_card_7.svg'
 import ReloadIcn from '../../assets/images/reloadIcn.svg'
 import CancelIcn from '../../assets/images/cancelIcn.svg'
+import OutlinedView from '../../assets/images/OutlinedView.svg'
+import Outlinedactivitylog from '../../assets/images/Outlinedactivitylog.svg'
+import OutlinedPuase from '../../assets/images/OutlinedPuase.svg'
+import renew_popupIcn from '../../assets/images/renew_popup.svg'
+import cancel_popupIcn from '../../assets/images/cancel_popup.svg'
+import puase_popupIcn from '../../assets/images/puase_popup.svg'
 import {formatDateTime } from '../../common/commonFn';
+import { useQueryClient } from "@tanstack/react-query";
+import moment from "moment";
+import arrowup from '../../assets/images/arrowup.svg';
+import arrowdown from '../../assets/images/arrowdown.svg';
+import arrownuteral from '../../assets/images/arrownuteral.svg';
+import TransactionHistoryPopup from "./transactionHistory";
 
 const TAB_CONFIG = {
   ACTIVE_SUBSCRIPTION: "Most Active Advance Users",
@@ -46,6 +55,14 @@ const TAB_CONFIG = {
 
 const SubscriptionManagement = () => {
     const [popup, setpopup] = useState(false);
+    const client = useQueryClient();
+    const [isRenewPopup, setisRenewPopup] = useState(false);
+    const [isCancelPopup, setisCancelPopup] = useState(false);
+    const [isPuasePopup, setisPuasePopup] = useState(false);
+    const [isActivityLogPopup, setisActivityLogPopup] = useState(false);
+    const [isTransactionPopup, setIsTransactionPopup] = useState(false);
+    const [isReActivePopup, setisReActivePopup] = useState(false);
+    const [selectedPopupObj, setSelectedPopupObj] = useState(null);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
     const params = useParams();
@@ -62,14 +79,10 @@ const SubscriptionManagement = () => {
     const locationFilter = searchParams.get("locationFilter") || "";
     const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
     const [isExporting, setIsExporting] = useState(false);
-    const [confirmation, setconfirmation] = useState("");
-    const [archived, setArchived] = useState(false)
+    const [anchorEl, setAnchorEl] = useState(null);
 
-    const SAPS_Page_API_Data = useGetSAPSWantedPageData()
-    const SAPS_Page_ObjData = SAPS_Page_API_Data.data?.data || {}
-    
     // Sort
-    const [sortBy, setSortBy] = useState("createdAt");
+    const [sortBy, setSortBy] = useState("updatedAt");
     const [sortOrder, setSortOrder] = useState("asc");
     const [tab, setTab] = useState('ACTIVE_SUBSCRIPTION');
     const [SubHeader, setSubHeader] = useState(TAB_CONFIG.ACTIVE_SUBSCRIPTION);
@@ -89,94 +102,29 @@ const SubscriptionManagement = () => {
         }
     }
 
-    let companyId = localStorage.getItem("userID");
-    const paramId = role === "company" ? companyId : params.id;
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
 
-    const UserList = useGetSubscriptionTypesOfUsers("police unit list", "company", currentPage, rowsPerPage, filter,tab, startDate, endDate, sortBy, sortOrder);
+    const SAPS_Page_API_Data = useGetSubscriptionPageData(locationFilter,startDate,endDate)
+    const SAPS_Page_ObjData = SAPS_Page_API_Data.data?.data || {}
+    const UserList = useGetSubscriptionTypesOfUsers("subscription list", role, currentPage, rowsPerPage, filter,tab, startDate, endDate, sortBy, sortOrder,locationFilter);
 
     const totalpoliceUnitData = UserList.data?.data?.totaldata || 0;
     const totalPages = Math.ceil(totalpoliceUnitData / rowsPerPage);
-
-    const updateTripMutation = usePutIsArchived(
-        (id, data) => {
-            toast.success("Crime Report Archived Successfully")
-
-            UserList.refetch();
-        },
-        (error) => {
-            console.error('Error updating trip:', error);
-        }
-    );
-
-
-    const handleExport = async ({ startDate, endDate, exportFormat }) => {
-        try {
-            const data = UserList.data?.data
-
-            const allUsers = data?.data || [];
-
-            if (!allUsers.length) {
-                toast.warning("No Police Unit data found for this period.");
-                return;
-            }
-
-            const exportData = allUsers.map(user => ({
-                "Police Unit": `${user.police_unit_name || ''}` || '',
-                "Contact Name": user.contact_name || '',
-                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
-                "Contact Email": user.email || ''
-            }));
-
-            if (exportFormat === "xlsx") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
-                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
-                }));
-                worksheet['!cols'] = columnWidths;
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Police_Units");
-                XLSX.writeFile(workbook, "Ploice_Unit_List.xlsx");
-            }
-            else if (exportFormat === "csv") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const csv = XLSX.utils.sheet_to_csv(worksheet);
-                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'Ploice_Unit_list.csv';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-            else if (exportFormat === "pdf") {
-                const doc = new jsPDF();
-                doc.text('Police Unit List', 14, 16);
-                autoTable(doc, {
-                    head: [['Police Unit', 'Contact Name', 'Contact No.', 'Contact Email']],
-                    body: allUsers.map(user => [
-                        `${user.police_unit_name || ''}` ?? 'NA',
-                        user.contact_name ?? 'NA',
-                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
-                        user.email ?? 'NA'
-                    ]),
-                    startY: 20,
-                    theme: 'striped',
-                    headStyles: { fillColor: '#367BE0' },
-                    margin: { top: 20 },
-                    styles: { fontSize: 10 },
-                });
-                doc.save("Ploice_Unit_List.pdf");
-            }
-
-        } catch (err) {
-            console.error("Error exporting data:", err);
-            toast.error("Export failed.");
-        }
+    const onSuccess = () => {
+        toast.success("Subscription Status Updated Successfully.");
+        closePopup()
+        handleCloseMenu();
+        client.invalidateQueries("subscription list");
     };
+    const onError = (error) => {
+        toast.error(error.response.data.message || "Something went Wrong",);
+        closePopup()
+        handleCloseMenu();
+    };
+    const { mutate } = usePutUserSubscriptionStatus(onSuccess, onError);
 
-    const handleFilterData = (data) => {
+    const handleFilterApply = (data) => {
 
         const params = Object.fromEntries(
             Object.entries(data).filter(
@@ -186,6 +134,122 @@ const SubscriptionManagement = () => {
 
         const filterText = new URLSearchParams(params).toString();
         updateParams({locationFilter:filterText})
+    };
+
+    const handleExport = async ({ exportFormat }) => {
+        try {
+            const data = UserList.data?.data
+
+            const allUsers = data?.data || [];
+            if (!allUsers.length) {
+                toast.warning("No data found for this period.");
+                return;
+            }
+            if(tab === 'SOS_TYPES_REVENUE'){
+                const exportData = allUsers.map(user => ({
+                    "SOS Type": user?.display_title || '',
+                    "Description":user?.descitption || '',
+                    "Revenue": `R${Number(user?.totalAmount || 0).toLocaleString()}`,
+                   
+                }));
+    
+                if (exportFormat === "xlsx") {
+                    const worksheet = XLSX.utils.json_to_sheet(exportData);
+                    const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                        wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+                    }));
+                    worksheet['!cols'] = columnWidths;
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "Subscriptions");
+                    XLSX.writeFile(workbook, "Subscriptions_List.xlsx");
+                }
+                else if (exportFormat === "csv") {
+                    const worksheet = XLSX.utils.json_to_sheet(exportData);
+                    const csv = XLSX.utils.sheet_to_csv(worksheet);
+                    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'Subscriptions_list.csv';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+                else if (exportFormat === "pdf") {
+                    const doc = new jsPDF();
+                    doc.text('Subscription List', 14, 16);
+                    autoTable(doc, {
+                        head: [['SOS Type', 'Description', 'Revenue']],
+                        body: allUsers.map(user => [
+                            `${user?.display_title}` || '',
+                            `${user?.descitption  || ''}`,
+                            `R${Number(user?.totalAmount || 0).toLocaleString()}`,
+                        ]),
+                        startY: 20,
+                        theme: 'striped',
+                        headStyles: { fillColor: '#367BE0' },
+                        margin: { top: 20 },
+                        styles: { fontSize: 10 },
+                    });
+                    doc.save("Subscriptions_List.pdf");
+                }
+            }else{
+                const exportData = allUsers.map(user => ({
+                    "Subscriber": `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+                    "Status": user.subscription_status || '',
+                    "Start Date": `${user.EnrollStartDate ? formatDateTime(user.EnrollStartDate, "MMM DD, YYYY") : '-'}`,
+                    "Expiry Date": `${user.paymentDate ? formatDateTime(user.paymentDate, "MMM DD, YYYY") : '-'}`,
+                    "Amount": user.EnrollAmount || '',
+                    "Payment Method": user?.subscription?.paymentMethod || ''
+                }));
+    
+                if (exportFormat === "xlsx") {
+                    const worksheet = XLSX.utils.json_to_sheet(exportData);
+                    const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
+                        wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
+                    }));
+                    worksheet['!cols'] = columnWidths;
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "Subscriptions");
+                    XLSX.writeFile(workbook, "Subscriptions_List.xlsx");
+                }
+                else if (exportFormat === "csv") {
+                    const worksheet = XLSX.utils.json_to_sheet(exportData);
+                    const csv = XLSX.utils.sheet_to_csv(worksheet);
+                    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'Subscriptions_list.csv';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+                else if (exportFormat === "pdf") {
+                    const doc = new jsPDF();
+                    doc.text('Subscription List', 14, 16);
+                    autoTable(doc, {
+                        head: [['Subscriber', 'Status', 'Start Date', 'Expiry Date','Amount','Payment Method']],
+                        body: allUsers.map(user => [
+                            `${user?.first_name || ''} ${user?.last_name || ''}`.trim(),
+                            `${user.subscription_status}` || '',
+                            `${user.EnrollStartDate ? formatDateTime(user.EnrollStartDate, "MMM DD, YYYY") : '-'}`,
+                            `${user.paymentDate ? formatDateTime(user.paymentDate, "MMM DD, YYYY") : '-'}`,
+                            `${user.EnrollAmount}` || '',
+                            `${user?.subscription?.paymentMethod}` || ''
+                        ]),
+                        startY: 20,
+                        theme: 'striped',
+                        headStyles: { fillColor: '#367BE0' },
+                        margin: { top: 20 },
+                        styles: { fontSize: 10 },
+                    });
+                    doc.save("Subscriptions_List.pdf");
+                }
+            }
+
+        } catch (err) {
+            console.error("Error exporting data:", err);
+            toast.error("Export failed.");
+        }
     };
 
     const updateParams = (newParams) => {
@@ -200,10 +264,50 @@ const SubscriptionManagement = () => {
         });
     };
 
+    const openPopup = (Obj,type) => {
+        setSelectedPopupObj(Obj);
+        if(type === 'puase'){
+            setisPuasePopup(true);
+        }else if(type === 'renew'){
+            setisRenewPopup(true);
+        }else if(type === 'cancel'){
+            setisCancelPopup(true);
+        }else if(type === 'activitylog'){
+            setisActivityLogPopup(true);
+        }else if(type === 'transactions'){
+            setIsTransactionPopup(true);
+        }else if(type === 're-active'){
+            setisReActivePopup(true);
+        }
+    };
+
+    const closePopup = () => {
+        setisCancelPopup(false);
+        setisRenewPopup(false);
+        setisPuasePopup(false);
+        setisActivityLogPopup(false);
+        setisReActivePopup(false);
+        setSelectedPopupObj(null);
+    };
+
+    const handleOpenMenu = (event,data) => {
+        setAnchorEl(event.currentTarget);
+        setSelectedPopupObj(data)
+    };
+
+    const handleCloseMenu = () => {
+        setAnchorEl(null);
+        setSelectedPopupObj(null)
+    };
+
+    const handleConfirmation = (id,data) => {
+        mutate({ id:id, data});
+    };
+
     // Handle Scroll Event store 
     const handleView = (report) => {
         saveScrollPosition("subscriptionListScroll");
-        // nav(`/home/police-unit/police-unit-information/${report._id}`)
+        nav(`/home/subscription-management/subscription-information/${report._id}`)
     };
     useEffect(() => {
         if (UserList.data?.data.data.length) {
@@ -213,170 +317,226 @@ const SubscriptionManagement = () => {
 
     return (
         <Box>
+            <Grid sx={{ backgroundColor: 'white', p: 3, mt: '-25px' }} container justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
+                <Grid size={{ xs: 12, md: 5, lg: 6 }}>
+
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 7, lg: 6 }}>
+                    <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
+                        <Box display="flex" sx={{ justifyContent: { md: 'flex-end', sm: 'space-around' } }} gap={2} flexWrap="wrap">
+                            <CustomFilter onApply={handleFilterApply} isSuburbVisible={false} />
+                            <CustomDateRangePicker
+                                borderColor={'var(--light-gray)'}
+                                value={range}
+                                onChange={(nextRange) => {
+                                    setRange(nextRange);
+                                    updateParams({
+                                        startDate: new Date(nextRange[0].startDate).toISOString(),
+                                        endDate: new Date(nextRange[0].endDate).toISOString(),
+                                    });
+                                }}
+                                icon={calender}
+                            />
+                        </Box>
+                    </Box>
+                </Grid>
+            </Grid>
             <Box p={2}>
                 <Grid container spacing={3} mb={5}>
-                    <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#367BE01A', borderRadius: '16px', px: 3, py: 5 }}>
-                            <Box>
-                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Users Reached</Typography>
-                                {SAPS_Page_API_Data.isFetching ? (
-                                    <Skeleton variant="text" width={60} height={40} />
-                                ) : (
-                                    <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.usersReached}</Typography>
-                                )
-                                }
-                                {SAPS_Page_API_Data.isFetching ? (
-                                    <Skeleton variant="text" width={60} height={40} />
-                                ) : (
-                                    SAPS_Page_ObjData?.percentageObjData.usersReached > 0 ? (
-
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
-                                    ) : SAPS_Page_ObjData?.percentageObjData.usersReached === 0 ? (
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
-
-                                )
-                                }
-                            </Box>
-                            <Box>
-                                <img src={SapsIcon1} alt="ReportIcon" />
-                            </Box>
-                        </Box>
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4}} sx={{}}>
                         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#22C55E1A', borderRadius: '16px', px: 3, py: 5 }}>
                             <Box>
-                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Social Shares</Typography>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total Active Subscriptions</Typography>
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.socialShares}</Typography>
+                                    <Typography variant="h3" fontWeight={600}>{(SAPS_Page_ObjData?.totalActiveSubscriptions || 0).toFixed(2)}</Typography>
                                 )
                                 }
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    SAPS_Page_ObjData?.percentageObjData.socialShares > 0 ? (
+                                    SAPS_Page_ObjData?.percentageObjData.totalActiveSubscriptions > 0 ? (
 
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.socialShares}% from last month</Typography>
-                                    ) : SAPS_Page_ObjData?.percentageObjData.socialShares === 0 ? (
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.socialShares}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.socialShares}% from last month</Typography>
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{(SAPS_Page_ObjData?.percentageObjData.totalActiveSubscriptions || 0).toFixed(2)}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.totalActiveSubscriptions === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{(SAPS_Page_ObjData?.percentageObjData.totalActiveSubscriptions || 0).toFixed(2)}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{(SAPS_Page_ObjData?.percentageObjData.totalActiveSubscriptions || 0).toFixed(2)}% from last month</Typography>
 
                                 )
                                 }
                             </Box>
                             <Box>
-                                <img src={SapsIcon2} alt="ReportIcon" />
+                                <img src={subscription_card_6} alt="ReportIcon" />
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 4, lg: 3 }} >
-                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#F973161A', borderRadius: '16px', px: 2, py: 5 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4 }} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#EFF6FF', borderRadius: '16px', px: 3, py: 5 }}>
                             <Box>
-                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Sighting Submissions</Typography>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total Revenue from Subscriptions</Typography>
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.sightingSubmissions}</Typography>
+                                    <Typography variant="h3" fontWeight={600}>{(SAPS_Page_ObjData?.totalRevenueFromSubscriptions || 0).toFixed(2)}</Typography>
                                 )
                                 }
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    SAPS_Page_ObjData?.percentageObjData.sightingSubmissions > 0 ? (
+                                    SAPS_Page_ObjData?.percentageObjData.totalRevenueFromSubscriptions > 0 ? (
 
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
-                                    ) : SAPS_Page_ObjData?.percentageObjData.sightingSubmissions === 0 ? (
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.sightingSubmissions}% from last month</Typography>
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{(SAPS_Page_ObjData?.percentageObjData.totalRevenueFromSubscriptions || 0).toFixed(2)}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.totalRevenueFromSubscriptions === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{(SAPS_Page_ObjData?.percentageObjData.totalRevenueFromSubscriptions || 0).toFixed(2)}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{(SAPS_Page_ObjData?.percentageObjData.totalRevenueFromSubscriptions || 0).toFixed(2)}% from last month</Typography>
 
                                 )
                                 }
                             </Box>
                             <Box>
-                                <img src={SapsIcon3} alt="ReportIcon" />
+                                <img src={subscription_card_7} alt="ReportIcon" />
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 4, lg: 3 }}>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#A855F71A', borderRadius: '16px', px: 3, py: 5 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4 }} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#FFF7ED', borderRadius: '16px', px: 3, py: 5 }}>
                             <Box>
-                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Avg Alert Open Rate</Typography>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total Expired Subscriptions</Typography>
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.avgAlertOpenRate}</Typography>
+                                    <Typography variant="h3" fontWeight={600}>{(SAPS_Page_ObjData?.totalExpiredSubscriptions || 0).toFixed(2)}</Typography>
                                 )
                                 }
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate > 0 ? (
+                                    SAPS_Page_ObjData?.percentageObjData.totalExpiredSubscriptions > 0 ? (
 
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate}% from last month</Typography>
-                                    ) : SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate === 0 ? (
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.avgAlertOpenRate}% from last month</Typography>
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{(SAPS_Page_ObjData?.percentageObjData.totalExpiredSubscriptions || 0).toFixed(2)}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.totalExpiredSubscriptions === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{(SAPS_Page_ObjData?.percentageObjData.totalExpiredSubscriptions || 0).toFixed(2)}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{(SAPS_Page_ObjData?.percentageObjData.totalExpiredSubscriptions || 0).toFixed(2)}% from last month</Typography>
+
                                 )
                                 }
                             </Box>
                             <Box>
-                                <img src={SapsIcon4} alt="LocationIcon" />
+                                <img src={subscription_card_3} alt="ReportIcon" />
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 4, lg: 3 }}>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#F973161A', borderRadius: '16px', px: 3, py: 5 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4 }} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#FEF2F2', borderRadius: '16px', px: 3, py: 5 }}>
                             <Box>
-                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Wanted People</Typography>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Suspended Subscriptions</Typography>
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.wantedPeople}</Typography>
+                                    <Typography variant="h3" fontWeight={600}>{(SAPS_Page_ObjData?.suspendedSubscriptions || 0).toFixed(2)}</Typography>
                                 )
                                 }
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    SAPS_Page_ObjData?.percentageObjData.wantedPeople > 0 ? (
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.wantedPeople}% from last month</Typography>
-                                    ) : SAPS_Page_ObjData?.percentageObjData.wantedPeople === 0 ? (
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '' }}>{SAPS_Page_ObjData?.percentageObjData.wantedPeople}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.wantedPeople}% from last month</Typography>
+                                    SAPS_Page_ObjData?.percentageObjData.suspendedSubscriptions > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{(SAPS_Page_ObjData?.percentageObjData.suspendedSubscriptions || 0).toFixed(2)}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.suspendedSubscriptions === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{(SAPS_Page_ObjData?.percentageObjData.suspendedSubscriptions || 0).toFixed(2)}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{(SAPS_Page_ObjData?.percentageObjData.suspendedSubscriptions || 0).toFixed(2)}% from last month</Typography>
 
                                 )
                                 }
                             </Box>
                             <Box>
-                                <img src={SapsIcon5} alt="DangerIcon" />
+                                <img src={subscription_card_1} alt="ReportIcon" />
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#0D94881A', borderRadius: '16px', px: 3, py: 5 }}>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4 }} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#ECFEFF', borderRadius: '16px', px: 3, py: 5 }}>
                             <Box>
-                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Captured People</Typography>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Upcoming Renewals</Typography>
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.capturedPeople}</Typography>
+                                    <Typography variant="h3" fontWeight={600}>{(SAPS_Page_ObjData?.upcomingRenewals || 0).toFixed(2)}</Typography>
                                 )
                                 }
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    SAPS_Page_ObjData?.percentageObjData.capturedPeople > 0 ? (
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.capturedPeople}% from last month</Typography>
-                                    ) : SAPS_Page_ObjData?.percentageObjData.capturedPeople === 0 ? (
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.capturedPeople}% from last month</Typography>
-                                    ) : (<Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.capturedPeople}% from last month</Typography>)
+                                    SAPS_Page_ObjData?.percentageObjData.upcomingRenewals > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{(SAPS_Page_ObjData?.percentageObjData.upcomingRenewals || 0).toFixed(2)}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.upcomingRenewals === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{(SAPS_Page_ObjData?.percentageObjData.upcomingRenewals || 0).toFixed(2)}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{(SAPS_Page_ObjData?.percentageObjData.upcomingRenewals || 0).toFixed(2)}% from last month</Typography>
 
                                 )
                                 }
                             </Box>
                             <Box>
-                                <img src={SapsIcon6} alt="DangerIcon" />
+                                <img src={subscription_card_5} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4 }} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#F5F3FF', borderRadius: '16px', px: 3, py: 5 }}>
+                            <Box>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Average Subscription Value</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    <Typography variant="h3" fontWeight={600}>{(SAPS_Page_ObjData?.averageSubscriptionValue || 0).toFixed(2)}</Typography>
+                                )
+                                }
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.averageSubscriptionValue > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{(SAPS_Page_ObjData?.percentageObjData.averageSubscriptionValue || 0).toFixed(2)}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.averageSubscriptionValue === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{(SAPS_Page_ObjData?.percentageObjData.averageSubscriptionValue || 0).toFixed(2)}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{(SAPS_Page_ObjData?.percentageObjData.averageSubscriptionValue || 0).toFixed(2)}% from last month</Typography>
+
+                                )
+                                }
+                            </Box>
+                            <Box>
+                                <img src={subscription_card_2} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4 }} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#367BE01A', borderRadius: '16px', px: 3, py: 5 }}>
+                            <Box>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total SOS Types Revenue</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    <Typography variant="h3" fontWeight={600}>{(SAPS_Page_ObjData?.totalSOSTypesRevenue || 0).toFixed(2)}</Typography>
+                                )
+                                }
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.totalSOSTypesRevenue > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{(SAPS_Page_ObjData?.percentageObjData.totalSOSTypesRevenue || 0).toFixed(2)}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.totalSOSTypesRevenue === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{(SAPS_Page_ObjData?.percentageObjData.totalSOSTypesRevenue || 0).toFixed(2)}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{(SAPS_Page_ObjData?.percentageObjData.totalSOSTypesRevenue || 0).toFixed(2)}% from last month</Typography>
+
+                                )
+                                }
+                            </Box>
+                            <Box>
+                                <img src={subscription_card_4} alt="ReportIcon" />
                             </Box>
                         </Box>
                     </Grid>
@@ -390,7 +550,7 @@ const SubscriptionManagement = () => {
                         variant="scrollable"
                         scrollButtons="auto"
                     >
-                        <Tab label="Active Subscriptions" value="ACTIVE_SUBSCRIPTION"/>
+                        <Tab label="Subscriptions" value="ACTIVE_SUBSCRIPTION"/>
                         <Tab label="Suspended Subscriptions" value="SUSPENDED_SUBSCRIPTION" />
                         <Tab label="Expired Subscriptions" value="EXPIRED_SUBSCRIPTION"/>
                         <Tab label="Cancel Subscriptions" value="CANCEL_SUBSCRIPTION"/>
@@ -442,24 +602,6 @@ const SubscriptionManagement = () => {
                                 }}
                             /> */}
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
-                                {/* <CustomFilter onApply={handleFilterData} isSuburbVisible ={false} />
-                                <CustomDateRangePicker
-                                    borderColor={'var(--light-gray)'}
-                                    value={range}
-                                    onChange={(nextRange) => {
-                                        setRange(nextRange);
-                                        updateParams({
-                                            startDate: new Date(nextRange[0].startDate).toISOString(),
-                                            endDate: new Date(nextRange[0].endDate).toISOString(),
-                                        });
-                                    }}
-                                    icon={calender}
-                                />
-
-                                <Button variant="contained" onClick={() => nav("/home/police-unit/add-police-unit")} sx={{ height: '40px', fontSize: '0.8rem', width: '150px', borderRadius: '8px' }}
-                                    startIcon={<img src={whiteplus} alt='white plus' />}>
-                                    Add Police Unit
-                                </Button> */}
                                 <CustomExportMenu onExport={handleExport} />
                             </Box>
 
@@ -470,11 +612,46 @@ const SubscriptionManagement = () => {
                             {tab !== 'SOS_TYPES_REVENUE' && <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
                                 <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                                     <TableRow >
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Subscriber</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Start Date</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Expiry Date</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Amount Paid</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                            <TableSortLabel
+                                                id="first_name"
+                                                active={sortBy === 'first_name'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Subscriber</TableSortLabel></TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="subscription_status"
+                                                active={sortBy === 'subscription_status'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'subscription_status' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Status</TableSortLabel></TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="EnrollStartDate"
+                                                active={sortBy === 'EnrollStartDate'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'EnrollStartDate' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Start Date</TableSortLabel></TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="paymentDate"
+                                                active={sortBy === 'paymentDate'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'paymentDate' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Expiry Date</TableSortLabel></TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="EnrollAmount"
+                                                active={sortBy === 'EnrollAmount'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'EnrollAmount' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Amount Paid</TableSortLabel></TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Payment Method</TableCell>
                                         <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                     </TableRow>
@@ -504,24 +681,23 @@ const SubscriptionManagement = () => {
                                                         <Chip
                                                             label={
                                                                 report.subscription_status === 'active' ? 'Active' :
+                                                                report.subscription_status === 'inactive' ? 'InActive' :
                                                                     report.subscription_status === 'inactive' ? 'Expired' :
                                                                         report.subscription_status == 'suspended' ? 'Suspended' :
-                                                                            report.isCancelEnroll ? 'Cancel' : '-'
+                                                                            report.subscription_status == 'cancel' ? 'Cancel' : '-'
                                                             }
                                                             sx={{
                                                                 backgroundColor:
                                                                     report.subscription_status === 'active' ? '#DCFCE7' :
                                                                         report.subscription_status === 'inactive' ? '#E5393533' :
                                                                             report.subscription_status == 'suspended' ? '#FFA72633' :
-                                                                                report.isCancelEnroll ? '#F3F4F6' :
-                                                                                    '#FEF9C3',
+                                                                                report.subscription_status == 'cancel' ? '#dac9e9' : '#FEF9C3',
                                                                 '& .MuiChip-label': {
                                                                     textTransform: 'capitalize',
                                                                     color: report.subscription_status === 'active' ? 'green' :
                                                                         report.subscription_status === 'inactive' ? '#E53935' :
                                                                             report.subscription_status == 'suspended' ? '#FFA726' :
-                                                                                report.isCancelEnroll ? '#1F2937' :
-                                                                                    'black',
+                                                                                report.subscription_status == 'cancel' ? '#4a4358' : 'black',
                                                                 }
                                                             }}
                                                         />
@@ -542,35 +718,88 @@ const SubscriptionManagement = () => {
                                                         {report?.subscription?.paymentMethod}
 
                                                     </TableCell>
-                                                    <TableCell >
+                                                    {tab !== 'ACTIVE_SUBSCRIPTION' && (<TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
                                                                 <IconButton onClick={() => handleView(report)}>
                                                                     <img src={ViewBtn} alt="flagged button" />
                                                                 </IconButton>
                                                             </Tooltip>
-                                                            <Tooltip title="Delete" arrow placement="top">
-                                                                <IconButton onClick={() => setconfirmation(report?._id)}>
-                                                                    <img src={delBtn} alt="delete button" />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Renew" arrow placement="top">
-                                                                <IconButton onClick={() => setconfirmation(report?._id)}>
+                                                            {tab === 'EXPIRED_SUBSCRIPTION' && <Tooltip title="Renew" arrow placement="top">
+                                                                <IconButton onClick={() => openPopup(report,'renew')}>
                                                                     <img src={ReloadIcn} alt="Renew button" />
                                                                 </IconButton>
-                                                            </Tooltip>
-                                                            <Tooltip title="Cancel" arrow placement="top">
-                                                                <IconButton onClick={() => setconfirmation(report?._id)}>
+                                                            </Tooltip>}
+                                                            {(tab === 'SUSPENDED_SUBSCRIPTION' || tab === 'EXPIRED_SUBSCRIPTION') && <Tooltip title="Cancel" arrow placement="top">
+                                                                <IconButton onClick={() => openPopup(report, 'cancel')}>
                                                                     <img src={CancelIcn} alt="Cancel button" />
                                                                 </IconButton>
-                                                            </Tooltip>
-                                                            {confirmation === report?._id && (
-                                                                <DeleteConfirm id={report?._id} trip={"policeUnit"} setconfirmation={setconfirmation} />
-                                                            )}
+                                                            </Tooltip>}
+                                                            {tab === 'SUSPENDED_SUBSCRIPTION' &&
+                                                                <Tooltip title="Re-Active" arrow placement="top">
+                                                                    <IconButton onClick={() => openPopup(report, 're-active')}>
+                                                                        <img src={ReloadIcn} alt="Re-Active button" />
+                                                                    </IconButton>
+                                                                </Tooltip>}
                                                         </Box>
-                                                    </TableCell>
+                                                    </TableCell>)}
+                                                    {tab === 'ACTIVE_SUBSCRIPTION' &&
+                                                        (
+                                                            <>
+                                                            <TableCell
+                                                                sx={{
+                                                                    position: 'sticky',
+                                                                    right: 0,
+                                                                    backgroundColor: 'white',
+                                                                    zIndex: 1
+                                                                }}
+                                                            >
+                                                                <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
+                                                                    <IconButton onClick={(e) => handleOpenMenu(e,report)}>
+                                                                        <MoreVertIcon />
+                                                                    </IconButton>
+
+                                                                </Box>
+                                                            </TableCell>
+                                                            <Menu
+                                                                anchorEl={anchorEl}
+                                                                open={Boolean(anchorEl)}
+                                                                onClose={handleCloseMenu}
+                                                                anchorOrigin={{
+                                                                    vertical: "bottom",
+                                                                    horizontal: "right",
+                                                                }}
+                                                                transformOrigin={{
+                                                                    vertical: "top",
+                                                                    horizontal: "right",
+                                                                }}
+                                                            >
+                                                                <MenuItem
+                                                                    onClick={() => {
+                                                                        openPopup(selectedPopupObj,'transactions')
+                                                                    }}
+                                                                >
+                                                                    <img src={OutlinedView} alt="view button" /> &nbsp; View Transactions
+                                                                </MenuItem>
+                                                                <MenuItem
+                                                                    onClick={() => {
+                                                                        openPopup(selectedPopupObj,'puase')
+                                                                    }}
+                                                                >
+                                                                    <img src={OutlinedPuase} alt="Puase button" /> &nbsp; Suspend
+                                                                </MenuItem>
+                                                                <MenuItem
+                                                                    onClick={() => {
+                                                                        openPopup(selectedPopupObj,'activitylog')
+                                                                    }}
+                                                                >
+                                                                    <img src={Outlinedactivitylog} alt="Activity log" /> &nbsp; Activity Log
+                                                                </MenuItem>
+                                                            </Menu>
+                                                            </>
+                                                        )
+                                                    }
                                                 </TableRow>
-                                                
                                             )) : (
                                                 <TableRow>
                                                     <TableCell colSpan={10} align="center">
@@ -587,9 +816,23 @@ const SubscriptionManagement = () => {
                             {tab === 'SOS_TYPES_REVENUE' && <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
                                 <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                                     <TableRow >
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>SOS Type</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                            <TableSortLabel
+                                                id="display_title"
+                                                active={sortBy === 'display_title'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'display_title' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >SOS Type</TableSortLabel></TableCell>
                                         <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Description</TableCell>
-                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Revenue</TableCell>
+                                        <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                            <TableSortLabel
+                                                id="totalAmount"
+                                                active={sortBy === 'totalAmount'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'totalAmount' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Revenue</TableSortLabel></TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -693,6 +936,487 @@ const SubscriptionManagement = () => {
                 </Paper>
                 {popup && <ImportSheet setpopup={setpopup} type="user" />}
             </Box>
+            
+            {isRenewPopup &&
+                <Dialog
+                    open={isRenewPopup}
+                    onClose={() => setisRenewPopup(false)}
+                    maxWidth="sm" 
+                    fullWidth
+                    PaperProps={{
+                        sx: {
+                            borderRadius: "24px",
+                            padding: "30px",
+                            textAlign: "center",
+                        },
+                    }}
+                >
+                    <DialogContent sx={{ p: 0 }}>
+                        {/* Icon */}
+                        <Box display="flex" justifyContent="center" mb={3}>
+                            <Box
+                                sx={{
+                                    width: 100,
+                                    height: 100,
+                                    borderRadius: "50%",
+                                    background: "#EAF2FF",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <img src={renew_popupIcn} alt="renew" width={50} />
+                            </Box>
+                        </Box>
+
+                        {/* Title */}
+                        <Typography
+                            variant="h4"
+                            fontWeight={700}
+                            sx={{ mb: 2 }}
+                        >
+                            Renew Subscription
+                        </Typography>
+
+                        {/* Description */}
+                        <Typography
+                            sx={{
+                                color: "#6B7280",
+                                fontSize: "20px",
+                                lineHeight: 1.5,
+                                mb: 4,
+                            }}
+                        >
+                            Are you sure you want to renew  subscription for the
+                            2 Months Entry Plan? A renewal fee of <b>R500</b> will be charged.
+                        </Typography>
+
+                        {/* Buttons */}
+                        <Box display="flex" flexDirection="column" gap={2}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                onClick={() => handleConfirmation(selectedPopupObj?._id,{type:'active',})}
+                                sx={{
+                                    background: "#2F80ED",
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    fontSize: "20px",
+                                    fontWeight: 600,
+                                    textTransform: "none",
+                                    "&:hover": {
+                                        background: "#2569d9",
+                                    },
+                                }}
+                            >
+                                Renew Now
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                fullWidth
+                                onClick={() => setisRenewPopup(false)}
+                                sx={{
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    color: "#111",
+                                    borderColor: "#D1D5DB",
+                                    fontSize: "20px",
+                                    fontWeight: 500,
+                                    textTransform: "none",
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>
+                    </DialogContent>
+                </Dialog>
+            }
+            {isCancelPopup &&
+                <Dialog
+                    open={isCancelPopup}
+                    onClose={() => setisCancelPopup(false)}
+                    maxWidth="sm" 
+                    fullWidth
+                    PaperProps={{
+                        sx: {
+                            borderRadius: "24px",
+                            padding: "30px",
+                            textAlign: "center",
+                        },
+                    }}
+                >
+                    <DialogContent sx={{ p: 0 }}>
+                        {/* Icon */}
+                        <Box display="flex" justifyContent="center" mb={3}>
+                            <Box
+                                sx={{
+                                    width: 100,
+                                    height: 100,
+                                    borderRadius: "50%",
+                                    background: "#EAF2FF",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <img src={cancel_popupIcn} alt="renew" width={50} />
+                            </Box>
+                        </Box>
+
+                        {/* Title */}
+                        <Typography
+                            variant="h4"
+                            fontWeight={700}
+                            sx={{ mb: 2 }}
+                        >
+                            Cancel Subscription
+                        </Typography>
+
+                        {/* Description */}
+                        <Typography
+                            sx={{
+                                color: "#6B7280",
+                                fontSize: "20px",
+                                lineHeight: 1.5,
+                                mb: 4,
+                            }}
+                        >
+                            Are you sure you want to cancel  subscription? The user will immediately lose access to Thiba Ingozi features linked to this plan
+                        </Typography>
+
+                        {/* Buttons */}
+                        <Box display="flex" flexDirection="column" gap={2}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                onClick={() => handleConfirmation(selectedPopupObj?._id,{type:'cancel'})}
+                                sx={{
+                                    background: "#2F80ED",
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    fontSize: "20px",
+                                    fontWeight: 600,
+                                    textTransform: "none",
+                                    "&:hover": {
+                                        background: "#2569d9",
+                                    },
+                                }}
+                            >
+                                Confirm Cancellation
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                fullWidth
+                                onClick={() => setisCancelPopup(false)}
+                                sx={{
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    color: "#111",
+                                    borderColor: "#D1D5DB",
+                                    fontSize: "20px",
+                                    fontWeight: 500,
+                                    textTransform: "none",
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>
+                    </DialogContent>
+                </Dialog>
+            }
+            {isPuasePopup &&
+                <Dialog
+                    open={isPuasePopup}
+                    onClose={() => setisPuasePopup(false)}
+                    maxWidth="sm" 
+                    fullWidth
+                    PaperProps={{
+                        sx: {
+                            borderRadius: "24px",
+                            padding: "30px",
+                            textAlign: "center",
+                        },
+                    }}
+                >
+                    <DialogContent sx={{ p: 0 }}>
+                        {/* Icon */}
+                        <Box display="flex" justifyContent="center" mb={3}>
+                            <Box
+                                sx={{
+                                    width: 100,
+                                    height: 100,
+                                    borderRadius: "50%",
+                                    background: "#EAF2FF",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <img src={puase_popupIcn} alt="puase" width={50} />
+                            </Box>
+                        </Box>
+
+                        {/* Title */}
+                        <Typography
+                            variant="h4"
+                            fontWeight={700}
+                            sx={{ mb: 2 }}
+                        >
+                            Puase User Account
+                        </Typography>
+
+                        {/* Description */}
+                        <Typography
+                            sx={{
+                                color: "#6B7280",
+                                fontSize: "20px",
+                                lineHeight: 1.5,
+                                mb: 4,
+                            }}
+                        >
+                            Are you sure you want to pause  account? The user will not be able to access Thiba Ingozi features.
+                        </Typography>
+
+                        {/* Buttons */}
+                        <Box display="flex" flexDirection="column" gap={2}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                onClick={() => handleConfirmation(selectedPopupObj?._id,{type:'suspended'})}
+                                sx={{
+                                    background: "#2F80ED",
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    fontSize: "20px",
+                                    fontWeight: 600,
+                                    textTransform: "none",
+                                    "&:hover": {
+                                        background: "#2569d9",
+                                    },
+                                }}
+                            >
+                                Puase User Account
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                fullWidth
+                                onClick={() => setisPuasePopup(false)}
+                                sx={{
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    color: "#111",
+                                    borderColor: "#D1D5DB",
+                                    fontSize: "20px",
+                                    fontWeight: 500,
+                                    textTransform: "none",
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>
+                    </DialogContent>
+                </Dialog>
+            }
+            {isReActivePopup &&
+                <Dialog
+                    open={isReActivePopup}
+                    onClose={() => setisReActivePopup(false)}
+                    maxWidth="sm" 
+                    fullWidth
+                    PaperProps={{
+                        sx: {
+                            borderRadius: "24px",
+                            padding: "30px",
+                            textAlign: "center",
+                        },
+                    }}
+                >
+                    <DialogContent sx={{ p: 0 }}>
+                        {/* Icon */}
+                        <Box display="flex" justifyContent="center" mb={3}>
+                            <Box
+                                sx={{
+                                    width: 100,
+                                    height: 100,
+                                    borderRadius: "50%",
+                                    background: "#EAF2FF",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <img src={puase_popupIcn} alt="puase" width={50} />
+                            </Box>
+                        </Box>
+
+                        {/* Title */}
+                        <Typography
+                            variant="h4"
+                            fontWeight={700}
+                            sx={{ mb: 2 }}
+                        >
+                            Re-Active User Account
+                        </Typography>
+
+                        {/* Description */}
+                        <Typography
+                            sx={{
+                                color: "#6B7280",
+                                fontSize: "20px",
+                                lineHeight: 1.5,
+                                mb: 4,
+                            }}
+                        >
+                            Are you sure you want to re-active account? The user will Thiba Ingozi features.
+                        </Typography>
+
+                        {/* Buttons */}
+                        <Box display="flex" flexDirection="column" gap={2}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                onClick={() => handleConfirmation(selectedPopupObj?._id,{type:'re-active'})}
+                                sx={{
+                                    background: "#2F80ED",
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    fontSize: "20px",
+                                    fontWeight: 600,
+                                    textTransform: "none",
+                                    "&:hover": {
+                                        background: "#2569d9",
+                                    },
+                                }}
+                            >
+                               Re-Active User Account
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                fullWidth
+                                onClick={() => setisReActivePopup(false)}
+                                sx={{
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    color: "#111",
+                                    borderColor: "#D1D5DB",
+                                    fontSize: "20px",
+                                    fontWeight: 500,
+                                    textTransform: "none",
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>
+                    </DialogContent>
+                </Dialog>
+            }
+            {isActivityLogPopup &&
+                <Dialog
+                    open={isActivityLogPopup}
+                    onClose={() => setisActivityLogPopup(false)}
+                    maxWidth="md"
+                    fullWidth
+                    PaperProps={{
+                        sx: {
+                            borderRadius: "14px",
+                            p: 3,
+                            maxWidth: 540,
+                        },
+                    }}
+                >
+                    <DialogContent sx={{ p: 0 }}>
+                        {/* Title */}
+                        <Typography
+                            sx={{
+                                fontSize: "32px",
+                                fontWeight: 700,
+                                color: "#111827",
+                                mb: 1,
+                            }}
+                        >
+                            Activity Log
+                        </Typography>
+
+                        {/* Subtitle */}
+                        <Typography
+                            sx={{
+                                fontSize: "16px",
+                                color: "#6B7280",
+                                mb: 3,
+                            }}
+                        >
+                            Recent activity for <strong>{selectedPopupObj?.first_name + ' ' + selectedPopupObj?.last_name}</strong>.
+                        </Typography>
+
+                        {/* Activity List */}
+                        <Box
+                            component="ul"
+                            sx={{
+                                pl: 3,
+                                mb: 4,
+                                color: "#374151",
+                                "& li": {
+                                    mb: 1.2,
+                                    fontSize: "17px",
+                                    lineHeight: 1.6,
+                                },
+                            }}
+                        >
+                            {selectedPopupObj?.notifications?.map(data =>
+                                <>
+                                    <li>{moment(data.createdAt).format("DD MMM, YYYY")} – {moment(data?.createdAt).format("hh:mm A")} → {data?.notification_data?.type}</li>
+                                </>
+                            )
+                            }
+                        </Box>
+
+                        {/* Buttons */}
+                        <Box
+                            display="flex"
+                            justifyContent="flex-end"
+                            gap={2}
+                        >
+                            <Button
+                                variant="outlined"
+                                onClick={() => setisActivityLogPopup(false)}
+                                sx={{
+                                    textTransform: "none",
+                                    borderRadius: "8px",
+                                    minWidth: 90,
+                                    height: 40,
+                                    color: "#374151",
+                                    borderColor: "#D1D5DB",
+                                }}
+                            >
+                                Cancel
+                            </Button>
+
+                            {/* <Button
+                                variant="contained"
+                                sx={{
+                                    textTransform: "none",
+                                    borderRadius: "8px",
+                                    minWidth: 130,
+                                    height: 40,
+                                    background: "#2563EB",
+                                    "&:hover": {
+                                        background: "#1D4ED8",
+                                    },
+                                }}
+                            >
+                                View Full Log
+                            </Button> */}
+                        </Box>
+                    </DialogContent>
+                </Dialog>
+            }
+            
+            {isTransactionPopup && <TransactionHistoryPopup open={isTransactionPopup} onClose={() => setIsTransactionPopup(false)} user={selectedPopupObj} />}                                  
+
         </Box>
     );
 }
