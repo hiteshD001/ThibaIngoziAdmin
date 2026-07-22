@@ -682,7 +682,7 @@ const SubscriptionManagement = () => {
                                                             label={
                                                                 report.subscription_status === 'active' ? 'Active' :
                                                                 report.subscription_status === 'inactive' ? 'InActive' :
-                                                                    report.subscription_status === 'inactive' ? 'Expired' :
+                                                                    report.subscription_status === 'expired' ? 'Expired' :
                                                                         report.subscription_status == 'suspended' ? 'Suspended' :
                                                                             report.subscription_status == 'cancel' ? 'Cancel' : '-'
                                                             }
@@ -690,12 +690,14 @@ const SubscriptionManagement = () => {
                                                                 backgroundColor:
                                                                     report.subscription_status === 'active' ? '#DCFCE7' :
                                                                         report.subscription_status === 'inactive' ? '#E5393533' :
+                                                                        report.subscription_status === 'expired' ? '#E5393533' :
                                                                             report.subscription_status == 'suspended' ? '#FFA72633' :
                                                                                 report.subscription_status == 'cancel' ? '#dac9e9' : '#FEF9C3',
                                                                 '& .MuiChip-label': {
                                                                     textTransform: 'capitalize',
                                                                     color: report.subscription_status === 'active' ? 'green' :
                                                                         report.subscription_status === 'inactive' ? '#E53935' :
+                                                                        report.subscription_status === 'expired' ? '#E53935' :
                                                                             report.subscription_status == 'suspended' ? '#FFA726' :
                                                                                 report.subscription_status == 'cancel' ? '#4a4358' : 'black',
                                                                 }
