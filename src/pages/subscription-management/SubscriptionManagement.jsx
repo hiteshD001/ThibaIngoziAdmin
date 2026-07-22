@@ -717,7 +717,7 @@ const SubscriptionManagement = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'black' }}>
 
-                                                        {report?.subscription?.paymentMethod}
+                                                        {report?.subscriptions?.paymentMethod}
 
                                                     </TableCell>
                                                     {tab !== 'ACTIVE_SUBSCRIPTION' && (<TableCell >
@@ -774,6 +774,15 @@ const SubscriptionManagement = () => {
                                                                 transformOrigin={{
                                                                     vertical: "top",
                                                                     horizontal: "right",
+                                                                }}
+                                                                slotProps={{
+                                                                    paper: {
+                                                                        sx: {
+                                                                            border: "1px solid #E5E7EB",
+                                                                            borderRadius: "10px",
+                                                                            boxShadow: "0px 4px 12px rgba(0,0,0,0.08)", // lighter shadow
+                                                                        },
+                                                                    },
                                                                 }}
                                                             >
                                                                 <MenuItem
