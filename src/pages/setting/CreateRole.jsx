@@ -32,6 +32,7 @@ import ehailing from "../../assets/images/permission/e-hailing-view.svg"
 import application from "../../assets/images/permission/home.svg"
 import policeUnitIcn from "../../assets/images/permission/total-saps-wanted.svg"
 import verificationViewIcn from "../../assets/images/permission/view-verification.png"
+import subscriptionMenuImg from '../../assets/images/subscriptionMenuImg.svg'
 
 const CreateRole = ({ editRoleId, setEditRoleId }) => {
     const client = useQueryClient()
@@ -589,5 +590,9 @@ const icons = [
     {
         name: "Verification View",
         icon: verificationViewIcn
+    },
+    {
+        name: "Subscription Management",
+        icon: subscriptionMenuImg
     }
 ]
