@@ -18,6 +18,7 @@ import SuspectIcon from '../assets/images/SuspectIcon.svg'
 import changePasswordIcon from '../assets/images/changePasswordIcon.svg'
 import verificationView from '../assets/images/verificationView.png'
 import policestation from '../assets/images/SAPS.svg'
+import subscriptionMenuImg from '../assets/images/subscriptionMenuImg.svg'
 import profile from "../assets/images/profile.png";
 import Logout from "../assets/images/Logout.svg";
 import Company from "../assets/images/Company.svg";
@@ -178,6 +179,13 @@ export const allMenuItems = [
         path: "/home/total-saps-wanted",
         image: policestation,
         permission: "SAPS Wanted"
+    },
+    {
+        id: "subscription-management",
+        name: "Subscription Management",
+        path: "/home/subscription-management",
+        image: subscriptionMenuImg,
+        permission: "Subscription Management"
     },
     {
         id: "logout",
