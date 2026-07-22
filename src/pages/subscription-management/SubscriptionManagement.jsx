@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams,Link } from "react-router-dom";
 import {
     Box, Typography, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, Avatar, Stack, Select, MenuItem, Chip,
     Tooltip,Skeleton,Tabs,Tab,Menu,Dialog, DialogContent, Button,TableSortLabel
@@ -305,9 +305,9 @@ const SubscriptionManagement = () => {
     };
 
     // Handle Scroll Event store 
-    const handleView = (report) => {
+    const handleView = (redirect) => {
         saveScrollPosition("subscriptionListScroll");
-        nav(`/home/subscription-management/subscription-information/${report._id}`)
+        nav(redirect)
     };
     useEffect(() => {
         if (UserList.data?.data.data.length) {
@@ -668,14 +668,16 @@ const SubscriptionManagement = () => {
 
                                                 <TableRow key={report._id}>
                                                     <TableCell sx={{ color: 'var(--Blue)' }}>
-                                                        <Stack direction="row" alignItems="center" gap={1}>
-                                                            <Avatar
-                                                                src={report?.selfieImage || nouser}
-                                                                alt="User"
-                                                            />
+                                                        <Link onClick={() => handleView(report?.role === "driver" ? `/home/total-drivers/driver-information/${report._id}` : `/home/total-users/user-information/${report._id}`)} className="link2">
+                                                            <Stack direction="row" alignItems="center" gap={1}>
+                                                                <Avatar
+                                                                    src={report?.selfieImage || nouser}
+                                                                    alt="User"
+                                                                />
 
-                                                            {report.first_name} {report.last_name}
-                                                        </Stack>
+                                                                {report.first_name} {report.last_name}
+                                                            </Stack>
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         <Chip
@@ -723,7 +725,7 @@ const SubscriptionManagement = () => {
                                                     {tab !== 'ACTIVE_SUBSCRIPTION' && (<TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
-                                                                <IconButton onClick={() => handleView(report)}>
+                                                                <IconButton onClick={() => handleView(`/home/subscription-management/subscription-information/${report._id}`)}>
                                                                     <img src={ViewBtn} alt="flagged button" />
                                                                 </IconButton>
                                                             </Tooltip>
