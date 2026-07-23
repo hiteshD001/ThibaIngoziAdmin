@@ -731,7 +731,7 @@ const SubscriptionManagement = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'black' }}>
 
-                                                        {report?.subscriptions?.paymentMethod}
+                                                        {report?.subscriptions?.paymentMethod || 'Card'}
 
                                                     </TableCell>
                                                     {tab !== 'ACTIVE_SUBSCRIPTION' && (<TableCell >
