@@ -89,6 +89,9 @@ const SubscriptionManagement = () => {
     const handleTabsSelection = (event, newValue) => {
         setTab(newValue);
         setSubHeader(TAB_CONFIG[newValue]);
+        updateParams({
+            currentPage: 1, // Reset page
+        });
     };
 
     const changeSortOrder = (e) => {
@@ -306,9 +309,18 @@ const SubscriptionManagement = () => {
 
     // Handle Scroll Event store 
     const handleView = (redirect) => {
+        sessionStorage.setItem("subscriptionTab", tab);
         saveScrollPosition("subscriptionListScroll");
         nav(redirect)
     };
+    useEffect(() => {
+        const savedTab = sessionStorage.getItem("subscriptionTab");
+
+        if (savedTab) {
+            setTab(savedTab);
+            setSubHeader(TAB_CONFIG[savedTab]);
+        }
+    }, []);
     useEffect(() => {
         if (UserList.data?.data.data.length) {
             restoreScrollPosition("subscriptionListScroll");
@@ -799,7 +811,7 @@ const SubscriptionManagement = () => {
                                                                         openPopup(selectedPopupObj,'puase')
                                                                     }}
                                                                 >
-                                                                    <img src={OutlinedPuase} alt="Puase button" /> &nbsp; Suspend
+                                                                    <img src={OutlinedPuase} alt="Pause button" /> &nbsp; Suspend
                                                                 </MenuItem>
                                                                 <MenuItem
                                                                     onClick={() => {
@@ -1177,7 +1189,7 @@ const SubscriptionManagement = () => {
                             fontWeight={700}
                             sx={{ mb: 2 }}
                         >
-                            Puase User Account
+                            Pause User Account
                         </Typography>
 
                         {/* Description */}
