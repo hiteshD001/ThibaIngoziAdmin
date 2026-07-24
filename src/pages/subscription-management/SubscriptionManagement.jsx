@@ -734,7 +734,7 @@ const SubscriptionManagement = () => {
                                                         {report?.subscriptions?.paymentMethod || 'Card'}
 
                                                     </TableCell>
-                                                    {tab !== 'ACTIVE_SUBSCRIPTION' && (<TableCell >
+                                                    {tab !== 'a' && (<TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
                                                                 <IconButton onClick={() => handleView(`/home/subscription-management/subscription-information/${report._id}`)}>
@@ -1189,7 +1189,7 @@ const SubscriptionManagement = () => {
                             fontWeight={700}
                             sx={{ mb: 2 }}
                         >
-                            Pause User Account
+                            Suspend User Account
                         </Typography>
 
                         {/* Description */}
@@ -1201,7 +1201,7 @@ const SubscriptionManagement = () => {
                                 mb: 4,
                             }}
                         >
-                            Are you sure you want to pause  account? The user will not be able to access Thiba Ingozi features.
+                            Are you sure you want to Suspend account? The user will not be able to access Thiba Ingozi features.
                         </Typography>
 
                         {/* Buttons */}
@@ -1222,7 +1222,7 @@ const SubscriptionManagement = () => {
                                     },
                                 }}
                             >
-                                Puase User Account
+                                Suspend User Account
                             </Button>
 
                             <Button
