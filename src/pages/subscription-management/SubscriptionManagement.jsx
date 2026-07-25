@@ -48,7 +48,7 @@ import arrownuteral from '../../assets/images/arrownuteral.svg';
 import TransactionHistoryPopup from "./transactionHistory";
 
 const TAB_CONFIG = {
-  ACTIVE_SUBSCRIPTION: "Most Active Advance Users",
+  ACTIVE_SUBSCRIPTION: "Active Users",
   SUSPENDED_SUBSCRIPTION: "Suspended Users",
   EXPIRED_SUBSCRIPTION: "Expired Users",
   CANCEL_SUBSCRIPTION: "Cancel Subscription Users",
