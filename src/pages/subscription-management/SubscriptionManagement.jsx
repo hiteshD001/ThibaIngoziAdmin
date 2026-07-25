@@ -793,7 +793,7 @@ const SubscriptionManagement = () => {
                                                         {report?.subscriptions?.paymentMethod || 'Card'}
 
                                                     </TableCell>
-                                                    {tab !== 'a' && (<TableCell >
+                                                    {tab !== 'ACTIVE_SUBSCRIPTION' && (<TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
                                                                 <IconButton onClick={() => handleView(`/home/subscription-management/subscription-information/${report._id}`)}>
