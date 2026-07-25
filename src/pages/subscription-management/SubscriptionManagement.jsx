@@ -29,6 +29,8 @@ import subscription_card_4 from '../../assets/images/subscription_card_4.svg'
 import subscription_card_5 from '../../assets/images/subscription_card_5.svg'
 import subscription_card_6 from '../../assets/images/subscription_card_6.svg'
 import subscription_card_7 from '../../assets/images/subscription_card_7.svg'
+import SapsIcon3 from '../../assets/images/SapsIcon3.svg'
+import SapsIcon1 from '../../assets/images/SapsIcon1.svg'
 import ReloadIcn from '../../assets/images/reloadIcn.svg'
 import CancelIcn from '../../assets/images/cancelIcn.svg'
 import OutlinedView from '../../assets/images/OutlinedView.svg'
@@ -357,6 +359,62 @@ const SubscriptionManagement = () => {
             <Box p={2}>
                 <Grid container spacing={3} mb={5}>
                     <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4}} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#367BE01A', borderRadius: '16px', px: 3, py: 5 }}>
+                            <Box>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total Users</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.totalUsers}</Typography>
+                                )
+                                }
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.totalUsers > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.totalUsers}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.totalUsers === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.totalUsers}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.totalUsers}% from last month</Typography>
+
+                                )
+                                }
+                            </Box>
+                            <Box>
+                                <img src={SapsIcon1} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4}} >
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#F973161A', borderRadius: '16px', px: 2, py: 5 }}>
+                            <Box>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total InActive Subscriptions</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.totalInActiveSubscriptions}</Typography>
+                                )
+                                }
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.totalInActiveSubscriptions > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.totalInActiveSubscriptions}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.totalInActiveSubscriptions === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.totalInActiveSubscriptions}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.totalInActiveSubscriptions}% from last month</Typography>
+
+                                )
+                                }
+                            </Box>
+                            <Box>
+                                <img src={SapsIcon3} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4}} sx={{}}>
                         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#22C55E1A', borderRadius: '16px', px: 3, py: 5 }}>
                             <Box>
                                 <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total Active Subscriptions</Typography>
@@ -562,7 +620,8 @@ const SubscriptionManagement = () => {
                         variant="scrollable"
                         scrollButtons="auto"
                     >
-                        <Tab label="Subscriptions" value="ACTIVE_SUBSCRIPTION"/>
+                        <Tab label="Active Subscriptions" value="ACTIVE_SUBSCRIPTION"/>
+                        <Tab label="In-Active Subscriptions" value="INACTIVE_SUBSCRIPTION"/>
                         <Tab label="Suspended Subscriptions" value="SUSPENDED_SUBSCRIPTION" />
                         <Tab label="Expired Subscriptions" value="EXPIRED_SUBSCRIPTION"/>
                         <Tab label="Cancel Subscriptions" value="CANCEL_SUBSCRIPTION"/>
