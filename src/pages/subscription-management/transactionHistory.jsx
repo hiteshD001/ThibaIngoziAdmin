@@ -255,9 +255,9 @@ export default function TransactionHistoryPopup({ open, onClose, user }) {
 
                   <Typography
                     variant="caption"
-                    color={item.status === "Success"? "success.main": "error.main"}
+                    color={item.status === "payment-suceed"? "success.main": "error.main"}
                   >
-                    {item.status}
+                    {item.status === "payment-suceed" ? 'Success' : 'Pending' }
                   </Typography>
 
                 </Box>

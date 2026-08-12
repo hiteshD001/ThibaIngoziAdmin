@@ -86,6 +86,8 @@ const SAPSWantedRequestUsers = lazy(() => import("./pages/Saps/SAPSRequestUsers"
 const FaceScanUsers = lazy(() => import("./pages/Saps/FaceScanUsersList"));
 const SubscriptionManagement = lazy(() => import("./pages/subscription-management/SubscriptionManagement"));
 const SubscriptionDetails = lazy(() => import("./pages/subscription-management/SubscriptionInformation"));
+const AddFamilyMember = lazy(() => import("./pages/familyMembers/AddFamilyMember"));
+const FamilyMemberInformation = lazy(() => import("./pages/familyMembers/FamilyMemberInformation"));
 
 function App() {
 
@@ -273,8 +275,22 @@ function App() {
                                 },
                                 {
                                     path: "user-information/:id",
-                                    element: <PassangerInformation />
+                                    children: [
+                                        {
+                                            path: "",
+                                            element: <PassangerInformation />
+                                        },
+                                        {
+                                            path: "add-family-member",
+                                            element: <AddFamilyMember />
+                                        },
+                                        {
+                                            path: "family-member-information/:family_member_id",
+                                            element: <FamilyMemberInformation />
+                                        },
+                                    ]
                                 },
+                                
                             ]
                         },
                         {

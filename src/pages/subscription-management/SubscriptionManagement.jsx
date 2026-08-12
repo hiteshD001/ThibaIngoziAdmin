@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams,Link } from "react-router-dom";
 import {
     Box, Typography, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, Avatar, Stack, Select, MenuItem, Chip,
     Tooltip,Skeleton,Tabs,Tab,Menu,Dialog, DialogContent, Button,TableSortLabel
@@ -29,6 +29,8 @@ import subscription_card_4 from '../../assets/images/subscription_card_4.svg'
 import subscription_card_5 from '../../assets/images/subscription_card_5.svg'
 import subscription_card_6 from '../../assets/images/subscription_card_6.svg'
 import subscription_card_7 from '../../assets/images/subscription_card_7.svg'
+import SapsIcon3 from '../../assets/images/SapsIcon3.svg'
+import SapsIcon1 from '../../assets/images/SapsIcon1.svg'
 import ReloadIcn from '../../assets/images/reloadIcn.svg'
 import CancelIcn from '../../assets/images/cancelIcn.svg'
 import OutlinedView from '../../assets/images/OutlinedView.svg'
@@ -46,7 +48,7 @@ import arrownuteral from '../../assets/images/arrownuteral.svg';
 import TransactionHistoryPopup from "./transactionHistory";
 
 const TAB_CONFIG = {
-  ACTIVE_SUBSCRIPTION: "Most Active Advance Users",
+  ACTIVE_SUBSCRIPTION: "Active Users",
   SUSPENDED_SUBSCRIPTION: "Suspended Users",
   EXPIRED_SUBSCRIPTION: "Expired Users",
   CANCEL_SUBSCRIPTION: "Cancel Subscription Users",
@@ -89,6 +91,9 @@ const SubscriptionManagement = () => {
     const handleTabsSelection = (event, newValue) => {
         setTab(newValue);
         setSubHeader(TAB_CONFIG[newValue]);
+        updateParams({
+            currentPage: 1, // Reset page
+        });
     };
 
     const changeSortOrder = (e) => {
@@ -305,10 +310,19 @@ const SubscriptionManagement = () => {
     };
 
     // Handle Scroll Event store 
-    const handleView = (report) => {
+    const handleView = (redirect) => {
+        sessionStorage.setItem("subscriptionTab", tab);
         saveScrollPosition("subscriptionListScroll");
-        nav(`/home/subscription-management/subscription-information/${report._id}`)
+        nav(redirect)
     };
+    useEffect(() => {
+        const savedTab = sessionStorage.getItem("subscriptionTab");
+
+        if (savedTab) {
+            setTab(savedTab);
+            setSubHeader(TAB_CONFIG[savedTab]);
+        }
+    }, []);
     useEffect(() => {
         if (UserList.data?.data.data.length) {
             restoreScrollPosition("subscriptionListScroll");
@@ -344,6 +358,62 @@ const SubscriptionManagement = () => {
             </Grid>
             <Box p={2}>
                 <Grid container spacing={3} mb={5}>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4}} sx={{}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#367BE01A', borderRadius: '16px', px: 3, py: 5 }}>
+                            <Box>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total Users</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.totalUsers}</Typography>
+                                )
+                                }
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.totalUsers > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.totalUsers}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.totalUsers === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.totalUsers}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.totalUsers}% from last month</Typography>
+
+                                )
+                                }
+                            </Box>
+                            <Box>
+                                <img src={SapsIcon1} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4}} >
+                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#F973161A', borderRadius: '16px', px: 2, py: 5 }}>
+                            <Box>
+                                <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px" }}>Total InActive Subscriptions</Typography>
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.totalInActiveSubscriptions}</Typography>
+                                )
+                                }
+                                {SAPS_Page_API_Data.isFetching ? (
+                                    <Skeleton variant="text" width={60} height={40} />
+                                ) : (
+                                    SAPS_Page_ObjData?.percentageObjData.totalInActiveSubscriptions > 0 ? (
+
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.totalInActiveSubscriptions}% from last month</Typography>
+                                    ) : SAPS_Page_ObjData?.percentageObjData.totalInActiveSubscriptions === 0 ? (
+                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.totalInActiveSubscriptions}% from last month</Typography>
+                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.totalInActiveSubscriptions}% from last month</Typography>
+
+                                )
+                                }
+                            </Box>
+                            <Box>
+                                <img src={SapsIcon3} alt="ReportIcon" />
+                            </Box>
+                        </Box>
+                    </Grid>
                     <Grid size={{ xs: 12, sm: 6, md: 6, lg: 4}} sx={{}}>
                         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#22C55E1A', borderRadius: '16px', px: 3, py: 5 }}>
                             <Box>
@@ -550,7 +620,8 @@ const SubscriptionManagement = () => {
                         variant="scrollable"
                         scrollButtons="auto"
                     >
-                        <Tab label="Subscriptions" value="ACTIVE_SUBSCRIPTION"/>
+                        <Tab label="Active Subscriptions" value="ACTIVE_SUBSCRIPTION"/>
+                        <Tab label="In-Active Subscriptions" value="INACTIVE_SUBSCRIPTION"/>
                         <Tab label="Suspended Subscriptions" value="SUSPENDED_SUBSCRIPTION" />
                         <Tab label="Expired Subscriptions" value="EXPIRED_SUBSCRIPTION"/>
                         <Tab label="Cancel Subscriptions" value="CANCEL_SUBSCRIPTION"/>
@@ -668,14 +739,16 @@ const SubscriptionManagement = () => {
 
                                                 <TableRow key={report._id}>
                                                     <TableCell sx={{ color: 'var(--Blue)' }}>
-                                                        <Stack direction="row" alignItems="center" gap={1}>
-                                                            <Avatar
-                                                                src={report?.selfieImage || nouser}
-                                                                alt="User"
-                                                            />
+                                                        <Link onClick={() => handleView(report?.role === "driver" ? `/home/total-drivers/driver-information/${report._id}` : `/home/total-users/user-information/${report._id}`)} className="link2">
+                                                            <Stack direction="row" alignItems="center" gap={1}>
+                                                                <Avatar
+                                                                    src={report?.selfieImage || nouser}
+                                                                    alt="User"
+                                                                />
 
-                                                            {report.first_name} {report.last_name}
-                                                        </Stack>
+                                                                {report.first_name} {report.last_name}
+                                                            </Stack>
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         <Chip
@@ -717,13 +790,13 @@ const SubscriptionManagement = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'black' }}>
 
-                                                        {report?.subscriptions?.paymentMethod}
+                                                        {report?.subscriptions?.paymentMethod || 'Card'}
 
                                                     </TableCell>
                                                     {tab !== 'ACTIVE_SUBSCRIPTION' && (<TableCell >
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                             <Tooltip title="View" arrow placement="top">
-                                                                <IconButton onClick={() => handleView(report)}>
+                                                                <IconButton onClick={() => handleView(`/home/subscription-management/subscription-information/${report._id}`)}>
                                                                     <img src={ViewBtn} alt="flagged button" />
                                                                 </IconButton>
                                                             </Tooltip>
@@ -797,7 +870,7 @@ const SubscriptionManagement = () => {
                                                                         openPopup(selectedPopupObj,'puase')
                                                                     }}
                                                                 >
-                                                                    <img src={OutlinedPuase} alt="Puase button" /> &nbsp; Suspend
+                                                                    <img src={OutlinedPuase} alt="Pause button" /> &nbsp; Suspend
                                                                 </MenuItem>
                                                                 <MenuItem
                                                                     onClick={() => {
@@ -1175,7 +1248,7 @@ const SubscriptionManagement = () => {
                             fontWeight={700}
                             sx={{ mb: 2 }}
                         >
-                            Puase User Account
+                            Suspend User Account
                         </Typography>
 
                         {/* Description */}
@@ -1187,7 +1260,7 @@ const SubscriptionManagement = () => {
                                 mb: 4,
                             }}
                         >
-                            Are you sure you want to pause  account? The user will not be able to access Thiba Ingozi features.
+                            Are you sure you want to Suspend account? The user will not be able to access Thiba Ingozi features.
                         </Typography>
 
                         {/* Buttons */}
@@ -1208,7 +1281,7 @@ const SubscriptionManagement = () => {
                                     },
                                 }}
                             >
-                                Puase User Account
+                                Suspend User Account
                             </Button>
 
                             <Button

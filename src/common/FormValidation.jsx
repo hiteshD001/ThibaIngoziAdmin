@@ -266,3 +266,16 @@ export const SAPSWantedEditValidation = yup.object({
     crime_information_description: String,
     current_status: String,
 })
+
+export const familyMemberValidation = yup.object({
+    first_name:yup.string().required("This is a required field"),
+    last_name:yup.string().required("This is a required field"),
+    relationship:yup.string().required("This is a required field"),
+    passport_no:yup.string().required("This is a required field"),
+    medical_aid_name:yup.string().required("This is a required field"),
+    medical_plan:yup.string().required("This is a required field"),
+    member_number:yup.string().required("This is a required field"),
+    medical_conditions:yup.array().min(1, "Please select at least one medical condition").required("This is a required field"),
+    allergies:yup.array().min(1, "Please select at least one allergy").required("This is a required field"),
+    emergency_contacts:yup.array().min(1, "Please select at least one emergency contact").required("This is a required field"),
+})

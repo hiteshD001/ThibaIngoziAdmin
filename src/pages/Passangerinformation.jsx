@@ -26,6 +26,7 @@ import vehicleIcon5 from '../assets/images/vehicleIcon5.svg'
 import vehicleIcon6 from '../assets/images/vehicleIcon6.svg'
 import camera from '../assets/images/camera.svg'
 import Loader from "../common/Loader"
+import FamilyMember from "./familyMembers/FamilyMembers";
 
 const PassangerInformation = () => {
     const [editInfo, setEditInfo] = useState(false);
@@ -1292,6 +1293,8 @@ const PassangerInformation = () => {
                         </form>
                     </Paper >
                 ) : null}
+
+                <FamilyMember userDetail={params.id} />
 
             </Box>
 
