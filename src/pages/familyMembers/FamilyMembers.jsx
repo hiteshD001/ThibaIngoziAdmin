@@ -167,7 +167,7 @@ const FamilyMembers = ({ userDetail }) => {
                                                         </Tooltip>
 
                                                         {confirmation === report?._id && (
-                                                            <DeleteConfirm id={report?._id} trip={"policeUnit"} setconfirmation={setconfirmation} />
+                                                            <DeleteConfirm id={report?._id} trip={"familymember"} setconfirmation={setconfirmation} />
                                                         )}
                                                     </Box>
                                                 </TableCell>
