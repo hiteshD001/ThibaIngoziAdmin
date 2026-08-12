@@ -3762,3 +3762,19 @@ export const useEditFamilyMember = (onSuccess, onError) => {
 
     return mutation;
 };
+
+export const useDeleteFamilyMember = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/users/delete-family-member/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
