@@ -3612,3 +3612,153 @@ export const useGetUserWiseTransactionHistory = (
     }
     return res;
 };
+
+export const useGetUserFamilMembers = (
+    key,
+    user_id,
+    filter,
+    page,
+    limit,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/users/get-family-members/${user_id}`, {
+            params: {
+                filter,
+                user_id,
+                page,
+                limit,
+                sortBy,
+                sortOrder
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            filter,
+            user_id,
+            page,
+            limit,
+            sortBy,
+            sortOrder
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useAddFamilyMember = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/users/add-family-member`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useGetRelationshipList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/relationship`);
+    };
+
+    const res = useQuery({
+        queryKey: ["Relationship List"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    return res;
+};
+
+export const useGetAllergiesList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/medical-aid/allergies`);
+    };
+
+    const res = useQuery({
+        queryKey: ["allergies-list"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+    
+    return res;
+};
+
+export const useGetMedicalConditionList = () => {
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/medical-aid/medical-condition`);
+    };
+
+    const res = useQuery({
+        queryKey: ["medical-condition-list"],
+        queryFn: queryFn,
+        staleTime: 15 * 60 * 1000,
+        retry: false,
+    });
+
+    return res;
+};
+
+export const useGetFamilyMemberDetailId = (id) => {
+    const nav = useNavigate();
+
+   const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/users/get-family-member/${id}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["family member detail", id],
+        queryFn: queryFn,
+        staleTime: Infinity,
+        enabled: id !== undefined,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+
+
+}
+
+export const useEditFamilyMember = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/users/edit-family-member/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
