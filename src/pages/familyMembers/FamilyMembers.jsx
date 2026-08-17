@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Avatar, Stack, Select, MenuItem, Chip,
     Tooltip
@@ -62,9 +62,10 @@ const FamilyMembers = ({ userDetail }) => {
     };
 
     // Handle Scroll Event store 
-    const handleView = (report) => {
+    const handleView = (url) => {
         saveScrollPosition("familyMemberScroll");
-        nav(`/home/total-users/user-information/${userDetail}/family-member-information/${report._id}`)
+        // nav(`/home/total-users/user-information/${userDetail}/family-member-information/${report._id}`)
+        nav(url)
     };
     useEffect(() => {
         if (UserList.data?.data.user) {
@@ -99,6 +100,7 @@ const FamilyMembers = ({ userDetail }) => {
                                 <TableRow >
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Name</TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Relationship</TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Face Matched</TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Status</TableCell>
                                     <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Image</TableCell>
                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
@@ -122,6 +124,11 @@ const FamilyMembers = ({ userDetail }) => {
 
                                                     {report?.relationship?.name || "-"}
 
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
+                                                    <Link onClick={() => handleView(`/home/total-missing-person/face-scan-users/${report?._id}`)} state={{ type: "MedicalAidDetails" }} className="link2">
+                                                        {report?.countOfUserScanMedicalDetails || 0}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Chip
@@ -156,7 +163,7 @@ const FamilyMembers = ({ userDetail }) => {
                                                 <TableCell >
                                                     <Box align="center">
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => handleView(report)}>
+                                                            <IconButton onClick={() => handleView(`/home/total-users/user-information/${userDetail}/family-member-information/${report._id}`)}>
                                                                 <img src={ViewBtn} alt="flagged button" />
                                                             </IconButton>
                                                         </Tooltip>
