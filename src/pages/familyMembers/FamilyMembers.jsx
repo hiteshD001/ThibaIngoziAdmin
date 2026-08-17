@@ -126,7 +126,7 @@ const FamilyMembers = ({ userDetail }) => {
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
-                                                    <Link onClick={() => handleView(`/home/total-missing-person/face-scan-users/${report?._id}`)} state={{ type: "MedicalAidDetails" }} className="link2">
+                                                    <Link onClick={() => handleView(`/home/total-users/user-information/${userDetail}/family-member-information/face-scan-users/${report?._id}`)} state={{ type: "MedicalAidDetails" }} className="link2">
                                                         {report?.countOfUserScanMedicalDetails || 0}
                                                     </Link>
                                                 </TableCell>
