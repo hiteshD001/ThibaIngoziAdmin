@@ -288,6 +288,10 @@ function App() {
                                             path: "family-member-information/:family_member_id",
                                             element: <FamilyMemberInformation />
                                         },
+                                        {
+                                            path: "family-member-information/face-scan-users/:id",
+                                            element: <FaceScanUsers />
+                                        },
                                     ]
                                 },
                                 
