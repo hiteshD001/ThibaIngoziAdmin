@@ -44,6 +44,7 @@ import { toastOption } from "../common/ToastOptions";
 import PhoneInput from "react-phone-input-2";
 import SingleImagePreview from "../common/SingleImagePreview";
 import Loader from "../common/Loader";
+import FamilyMember from "./familyMembers/FamilyMembers";
 
 const VehicleInformation = () => {
     const [editInfo, setEditInfo] = useState(false);
@@ -1840,6 +1841,10 @@ const VehicleInformation = () => {
                         {renderPopup()}
                     </Box>
                 </Paper>
+
+                {/* Family Member */}
+                <FamilyMember userDetail={params.id} user_type='Driver'/>
+
             </Box >
 
             {/* Enrolment Payment Dialog */}

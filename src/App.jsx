@@ -212,8 +212,27 @@ function App() {
                                 },
                                 {
                                     path: "driver-information/:id",
-                                    element: <VehicleInformation />
+                                    children: [
+                                        {
+                                            path: "",
+                                            element: <VehicleInformation />
+                                        },
+                                        {
+                                            path: "add-family-member",
+                                            element: <AddFamilyMember />
+                                        },
+                                        {
+                                            path: "family-member-information/:family_member_id",
+                                            element: <FamilyMemberInformation />
+                                        },
+                                        {
+                                            path: "family-member-information/face-scan-users/:id",
+                                            element: <FaceScanUsers />
+                                        },
+                                    ]
+
                                 },
+
                                 {
                                     path: "sos-information/:id",
                                     element: <SosInformation />
