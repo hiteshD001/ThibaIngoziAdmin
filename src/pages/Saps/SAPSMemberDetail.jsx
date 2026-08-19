@@ -162,7 +162,6 @@ const SAPSMemberDetail = () => {
                 image={previewImage.src ? { src: previewImage.src, label: previewImage.label } : null}
             />
             <Box p={2}>
-                {/* driver information */}
                 <Paper elevation={0} sx={{ p: 3, borderRadius: '10px', mb: 3 }}>
                     <form>
                         <Grid container spacing={editInfo ? 3 : 1}>

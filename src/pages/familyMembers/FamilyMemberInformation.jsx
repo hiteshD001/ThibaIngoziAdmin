@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Box, Typography, TextField, Button, Paper,Grid, Select as MuiSelect, Autocomplete,Chip,FormControl,InputLabel } from "@mui/material";
+import { Box, Typography, TextField, Button, Paper, Grid, Select as MuiSelect, Autocomplete, Chip, FormControl, InputLabel } from "@mui/material";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
 import { familyMemberValidation } from "../../common/FormValidation";
-import { useGetRelationshipList, useGetMedicalConditionList, useGetAllergiesList,useGetFamilyMemberDetailId,useEditFamilyMember } from "../../API Calls/API";
+import { useGetRelationshipList, useGetMedicalConditionList, useGetAllergiesList, useGetFamilyMemberDetailId, useEditFamilyMember } from "../../API Calls/API";
 import CustomSelect from "../../common/Custom/CustomSelect";
 import { BootstrapInput } from "../../common/BootstrapInput";
 import GrayPlus from '../../assets/images/GrayPlus.svg';
@@ -30,20 +30,20 @@ const FamilyMemberInformation = () => {
     // companyedit
     const CompanyForm = useFormik({
         initialValues: {
-            first_name:"",
-			last_name:"",
-			relationship:"",
-			passport_no:"",
-			medical_aid_name:"",
-			medical_plan:"",
-			member_number:"",
-			allergies:[],
-			medical_conditions:[],
-			emergency_contacts: [{
-				name: "",
-				relationship: "",
-				mobile_number: "",
-			},]
+            first_name: "",
+            last_name: "",
+            relationship: "",
+            passport_no: "",
+            medical_aid_name: "",
+            medical_plan: "",
+            member_number: "",
+            allergies: [],
+            medical_conditions: [],
+            emergency_contacts: [{
+                name: "",
+                relationship: "",
+                mobile_number: "",
+            },]
         },
         validationSchema: familyMemberValidation,
         onSubmit: (values) => {
@@ -60,7 +60,7 @@ const FamilyMemberInformation = () => {
                 } else {
                     formData.append(key, value ?? "");
                 }
-    });
+            });
 
             mutate({ id: params.family_member_id, data: formData });
         },
@@ -71,16 +71,16 @@ const FamilyMemberInformation = () => {
         const user = companyInfo?.data?.data?.user;
         if (user) {
             CompanyForm.setValues({
-                first_name:user.first_name || "",
-                last_name:user.last_name || "",
-                relationship:user.relationship?._id || "",
-                passport_no:user.passport_no || "",
-                medical_aid_name:user?.medicalAidDetail?.medical_aid_name || "",
-                medical_plan:user?.medicalAidDetail?.medical_plan || "",
-                member_number:user?.medicalAidDetail?.member_number || "",
-                medical_conditions:user?.medicalAidDetail?.medical_conditions?.map((item) => item._id) || [],
-                allergies:user?.medicalAidDetail?.allergies?.map((item) => item._id) || [],
-                emergency_contacts:user?.medicalAidDetail?.emergency_contacts || [],
+                first_name: user.first_name || "",
+                last_name: user.last_name || "",
+                relationship: user.relationship?._id || "",
+                passport_no: user.passport_no || "",
+                medical_aid_name: user?.medicalAidDetail?.medical_aid_name || "",
+                medical_plan: user?.medicalAidDetail?.medical_plan || "",
+                member_number: user?.medicalAidDetail?.member_number || "",
+                medical_conditions: user?.medicalAidDetail?.medical_conditions?.map((item) => item.medical_conditions_name) || [],
+                allergies: user?.medicalAidDetail?.allergies?.map((item) => item.allergy_name) || [],
+                emergency_contacts: user?.medicalAidDetail?.emergency_contacts || [],
                 selfieImage: user?.selfieImage || "",
                 fullImage: user?.fullImage || "",
             });
@@ -150,7 +150,7 @@ const FamilyMemberInformation = () => {
                                 <Typography >{details?.last_name}</Typography>
                             )}
                         </Grid>
-                            
+
                         <Grid size={{ xs: 12, md: 4 }}>
                             <Typography sx={{ pb: 1 }} variant="body1" color="text.secondary">
                                 Id/Passport Number
@@ -386,43 +386,52 @@ const FamilyMemberInformation = () => {
                             {edit ? (
                                 <Autocomplete
                                     multiple
-                                    options={medicalConditionsList?.data?.data}
-                                    getOptionLabel={(option) => option.medical_conditions_name}
-                                    value={medicalConditionsList?.data?.data.filter((item) =>
-                                        (CompanyForm.values.medical_conditions || []).includes(item._id)
-                                    ) || []}
-                                    onInputChange={(event, newInputValue) => {
-                                        // setInputValue(newInputValue);
-                                    }}
+                                    freeSolo
+                                    options={medicalConditionsList?.data?.data || []}
+                                    getOptionLabel={(option) =>
+                                        typeof option === "string" ? option : option.medical_conditions_name
+                                    }
+                                    value={
+                                        (CompanyForm.values.medical_conditions || []).map((name) => {
+                                            // try to match an existing option by name so chips render with bgColor etc.
+                                            const found = medicalConditionsList?.data?.data?.find(
+                                                (item) => item.medical_conditions_name === name
+                                            );
+                                            return found || name; // fallback to plain string if it's a new/free-typed entry
+                                        })
+                                    }
                                     onChange={(event, newValue) => {
-                                        CompanyForm.setFieldValue(
-                                            "medical_conditions",
-                                            newValue.map((item) => item._id)
+                                        const names = newValue.map((item) =>
+                                            typeof item === "string" ? item : item.medical_conditions_name
                                         );
+                                        CompanyForm.setFieldValue("medical_conditions", names);
                                     }}
-                                    isOptionEqualToValue={(option, value) => option._id === value._id}
+                                    isOptionEqualToValue={(option, value) =>
+                                        typeof value === "string"
+                                            ? option.medical_conditions_name === value
+                                            : option._id === value._id
+                                    }
                                     renderTags={(value, getTagProps) =>
                                         value.map((option, index) => {
                                             const { key, ...tagProps } = getTagProps({ index });
-    
+                                            const isExisting = typeof option !== "string";
+                                            const label = isExisting ? option.medical_conditions_name : option;
+                                            const bgColor = '#367BE0' // fallback color for new entries
+
                                             return (
                                                 <Chip
                                                     key={key}
                                                     {...tagProps}
-                                                    label={option.medical_conditions_name}
+                                                    label={label}
                                                     size="small"
                                                     sx={{
-                                                        backgroundColor: `color-mix(in srgb, ${option.bgColor} 30%, transparent)`,
-                                                        color: option.bgColor,
+                                                        backgroundColor: `color-mix(in srgb, ${bgColor} 30%, transparent)`,
+                                                        color: bgColor,
                                                         height: "28px",
                                                         borderRadius: "16px",
                                                         fontSize: "12px",
                                                         fontWeight: 400,
-    
-                                                        "& .MuiChip-label": {
-                                                            px: "10px",
-                                                        },
-    
+                                                        "& .MuiChip-label": { px: "10px" },
                                                         "& .MuiChip-deleteIcon": {
                                                             fontSize: "17px",
                                                             color: "#A7A7A7",
@@ -433,14 +442,13 @@ const FamilyMemberInformation = () => {
                                             );
                                         })
                                     }
-    
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
                                             placeholder={
                                                 CompanyForm.values.medical_conditions?.length
                                                     ? ""
-                                                    : "Search & Select Medical Condition"
+                                                    : "Search, Select or Type New Medical Condition"
                                             }
                                             error={
                                                 CompanyForm.touched.medical_conditions &&
@@ -457,29 +465,18 @@ const FamilyMemberInformation = () => {
                                                     height: "auto",
                                                     padding: "5px 40px 5px 8px !important",
                                                     alignItems: "center",
-    
-                                                    "& fieldset": {
-                                                        borderColor: "#E0E3E7",
-                                                    },
-    
-                                                    "&:hover fieldset": {
-                                                        borderColor: "#1976d2",
-                                                    },
-    
+                                                    "& fieldset": { borderColor: "#E0E3E7" },
+                                                    "&:hover fieldset": { borderColor: "#1976d2" },
                                                     "&.Mui-focused fieldset": {
                                                         borderColor: "#1976d2",
                                                         borderWidth: "1.5px",
                                                     },
                                                 },
-    
                                                 "& .MuiAutocomplete-input": {
                                                     padding: "6px 4px !important",
                                                     fontSize: "14px",
                                                 },
-    
-                                                "& .MuiAutocomplete-tag": {
-                                                    margin: "2px 4px 2px 0",
-                                                },
+                                                "& .MuiAutocomplete-tag": { margin: "2px 4px 2px 0" },
                                             }}
                                         />
                                     )}
@@ -487,36 +484,27 @@ const FamilyMemberInformation = () => {
                                 />
                             ) : (
                                 <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                                    {(medicalConditionsList?.data?.data || [])
-                                        .filter((item) =>
-                                            (CompanyForm.values.medical_conditions || []).includes(
-                                                item._id
-                                            )
-                                        )
-                                        .map((option) => (
+                                    {(CompanyForm.values.medical_conditions || []).map((name) => {
+                                        return (
                                             <Chip
-                                                key={option._id}
-                                                label={option.medical_conditions_name}
+                                                key={name}
+                                                label={name}
                                                 size="small"
                                                 sx={{
-                                                    backgroundColor: `color-mix(in srgb, ${option.bgColor} 30%, transparent)`,
-                                                    color: option.bgColor,
+                                                    backgroundColor: `color-mix(in srgb, #367BE0 30%, transparent)`,
+                                                    color: '#367BE0',
                                                     height: "28px",
                                                     borderRadius: "16px",
                                                     fontSize: "12px",
                                                     fontWeight: 400,
-
-                                                    "& .MuiChip-label": {
-                                                        px: "10px",
-                                                    },
+                                                    "& .MuiChip-label": { px: "10px" },
                                                 }}
                                             />
-                                        ))}
+                                        );
+                                    })}
 
                                     {!CompanyForm.values.medical_conditions?.length && (
-                                        <Typography color="text.secondary">
-                                            -
-                                        </Typography>
+                                        <Typography color="text.secondary">-</Typography>
                                     )}
                                 </Box>
                             )}
@@ -524,48 +512,56 @@ const FamilyMemberInformation = () => {
 
                         <Grid size={{ xs: 12, sm: 6 }}>
                             <Typography variant="body1" fontWeight={500} fontSize={"16px"} mb={1}>
-                               Allergies
+                                Allergies
                             </Typography>
                             {edit ? (
                                 <Autocomplete
                                     multiple
-                                    options={allergiesList?.data?.data}
-                                    getOptionLabel={(option) => option.allergy_name}
-                                    value={allergiesList?.data?.data.filter((item) =>
-                                        (CompanyForm.values.allergies || []).includes(item._id)
-                                    ) || []}
-                                    onInputChange={(event, newInputValue) => {
-                                        // setInputValue(newInputValue);
-                                    }}
+                                    freeSolo
+                                    options={allergiesList?.data?.data || []}
+                                    getOptionLabel={(option) =>
+                                        typeof option === "string" ? option : option.allergy_name
+                                    }
+                                    value={
+                                        (CompanyForm.values.allergies || []).map((name) => {
+                                            const found = allergiesList?.data?.data?.find(
+                                                (item) => item.allergy_name === name
+                                            );
+                                            return found || name; // fallback to plain string for new/free-typed entries
+                                        })
+                                    }
                                     onChange={(event, newValue) => {
-                                        CompanyForm.setFieldValue(
-                                            "allergies",
-                                            newValue.map((item) => item._id)
+                                        const names = newValue.map((item) =>
+                                            typeof item === "string" ? item : item.allergy_name
                                         );
+                                        CompanyForm.setFieldValue("allergies", names);
                                     }}
-                                    isOptionEqualToValue={(option, value) => option._id === value._id}
+                                    isOptionEqualToValue={(option, value) =>
+                                        typeof value === "string"
+                                            ? option.allergy_name === value
+                                            : option._id === value._id
+                                    }
                                     renderTags={(value, getTagProps) =>
                                         value.map((option, index) => {
                                             const { key, ...tagProps } = getTagProps({ index });
-    
+                                            const isExisting = typeof option !== "string";
+                                            const label = isExisting ? option.allergy_name : option;
+                                            const bgColor = "#367BE0";
+
                                             return (
                                                 <Chip
                                                     key={key}
                                                     {...tagProps}
-                                                    label={option.allergy_name}
+                                                    label={label}
                                                     size="small"
                                                     sx={{
-                                                        backgroundColor: `color-mix(in srgb, ${option.bgColor} 30%, transparent)`,
-                                                        color: option.bgColor,
+                                                        backgroundColor: `color-mix(in srgb, ${bgColor} 30%, transparent)`,
+                                                        color: bgColor,
                                                         height: "28px",
                                                         borderRadius: "16px",
                                                         fontSize: "12px",
                                                         fontWeight: 400,
-    
-                                                        "& .MuiChip-label": {
-                                                            px: "10px",
-                                                        },
-    
+                                                        "& .MuiChip-label": { px: "10px" },
                                                         "& .MuiChip-deleteIcon": {
                                                             fontSize: "17px",
                                                             color: "#A7A7A7",
@@ -576,14 +572,13 @@ const FamilyMemberInformation = () => {
                                             );
                                         })
                                     }
-    
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
                                             placeholder={
                                                 CompanyForm.values.allergies?.length
                                                     ? ""
-                                                    : "Search & Select Medical Condition"
+                                                    : "Search, Select or Type New Allergy"
                                             }
                                             error={
                                                 CompanyForm.touched.allergies &&
@@ -600,29 +595,18 @@ const FamilyMemberInformation = () => {
                                                     height: "auto",
                                                     padding: "5px 40px 5px 8px !important",
                                                     alignItems: "center",
-    
-                                                    "& fieldset": {
-                                                        borderColor: "#E0E3E7",
-                                                    },
-    
-                                                    "&:hover fieldset": {
-                                                        borderColor: "#1976d2",
-                                                    },
-    
+                                                    "& fieldset": { borderColor: "#E0E3E7" },
+                                                    "&:hover fieldset": { borderColor: "#1976d2" },
                                                     "&.Mui-focused fieldset": {
                                                         borderColor: "#1976d2",
                                                         borderWidth: "1.5px",
                                                     },
                                                 },
-    
                                                 "& .MuiAutocomplete-input": {
                                                     padding: "6px 4px !important",
                                                     fontSize: "14px",
                                                 },
-    
-                                                "& .MuiAutocomplete-tag": {
-                                                    margin: "2px 4px 2px 0",
-                                                },
+                                                "& .MuiAutocomplete-tag": { margin: "2px 4px 2px 0" },
                                             }}
                                         />
                                     )}
@@ -630,44 +614,35 @@ const FamilyMemberInformation = () => {
                                 />
                             ) : (
                                 <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                                    {(allergiesList?.data?.data || [])
-                                        .filter((item) =>
-                                            (CompanyForm.values.allergies || []).includes(
-                                                item._id
-                                            )
-                                        )
-                                        .map((option) => (
+                                    {(CompanyForm.values.allergies || []).map((name) => {
+                                        return (
                                             <Chip
-                                                key={option._id}
-                                                label={option.allergy_name}
+                                                key={name}
+                                                label={name}
                                                 size="small"
                                                 sx={{
-                                                    backgroundColor: `color-mix(in srgb, ${option.bgColor} 30%, transparent)`,
-                                                    color: option.bgColor,
+                                                    backgroundColor: `color-mix(in srgb, #367BE0 30%, transparent)`,
+                                                    color: "#367BE0",
                                                     height: "28px",
                                                     borderRadius: "16px",
                                                     fontSize: "12px",
                                                     fontWeight: 400,
-
-                                                    "& .MuiChip-label": {
-                                                        px: "10px",
-                                                    },
+                                                    "& .MuiChip-label": { px: "10px" },
                                                 }}
                                             />
-                                        ))}
+                                        );
+                                    })}
 
                                     {!CompanyForm.values.allergies?.length && (
-                                        <Typography color="text.secondary">
-                                            -
-                                        </Typography>
+                                        <Typography color="text.secondary">-</Typography>
                                     )}
                                 </Box>
                             )}
                         </Grid>
-                        
-                        <Grid size={{ xs: 12}}>
+
+                        <Grid size={{ xs: 12 }}>
                             <Typography variant="body1" fontWeight={500} fontSize={"16px"} mb={1}>
-                               Emergency Contacts
+                                Emergency Contacts
                             </Typography>
                             {CompanyForm.values.emergency_contacts?.length > 0 ? (
                                 CompanyForm.values.emergency_contacts.map((contact, index) => (
@@ -832,7 +807,7 @@ const FamilyMemberInformation = () => {
                                 </Grid>
                             )}
                         </Grid>
-                       
+
 
                     </Grid>
                     {edit && (

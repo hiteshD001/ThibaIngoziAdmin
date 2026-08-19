@@ -344,43 +344,51 @@ const AddFamilyMember = () => {
 							</Typography>
 							<Autocomplete
 								multiple
-								options={medicalConditionsList?.data?.data}
-								getOptionLabel={(option) => option.medical_conditions_name}
-								value={medicalConditionsList?.data?.data.filter((item) =>
-									(companyForm.values.medical_conditions || []).includes(item._id)
-								) || []}
-								onInputChange={(event, newInputValue) => {
-									// setInputValue(newInputValue);
-								}}
+								freeSolo
+								options={medicalConditionsList?.data?.data || []}
+								getOptionLabel={(option) =>
+									typeof option === "string" ? option : option.medical_conditions_name
+								}
+								value={
+									(companyForm.values.medical_conditions || []).map((name) => {
+										const found = medicalConditionsList?.data?.data?.find(
+											(item) => item.medical_conditions_name === name
+										);
+										return found || name;
+									})
+								}
 								onChange={(event, newValue) => {
-									companyForm.setFieldValue(
-										"medical_conditions",
-										newValue.map((item) => item._id)
+									const names = newValue.map((item) =>
+										typeof item === "string" ? item : item.medical_conditions_name
 									);
+									companyForm.setFieldValue("medical_conditions", names);
 								}}
-								isOptionEqualToValue={(option, value) => option._id === value._id}
+								isOptionEqualToValue={(option, value) =>
+									typeof value === "string"
+										? option.medical_conditions_name === value
+										: option._id === value._id
+								}
 								renderTags={(value, getTagProps) =>
 									value.map((option, index) => {
 										const { key, ...tagProps } = getTagProps({ index });
+										const isExisting = typeof option !== "string";
+										const label = isExisting ? option.medical_conditions_name : option;
+										const bgColor = "#367BE0";
 
 										return (
 											<Chip
 												key={key}
 												{...tagProps}
-												label={option.medical_conditions_name}
+												label={label}
 												size="small"
 												sx={{
-													backgroundColor:  `color-mix(in srgb, ${option.bgColor} 30%, transparent)`,
-													color: option.bgColor,
+													backgroundColor: `color-mix(in srgb, ${bgColor} 30%, transparent)`,
+													color: bgColor,
 													height: "28px",
 													borderRadius: "16px",
 													fontSize: "12px",
 													fontWeight: 400,
-
-													"& .MuiChip-label": {
-														px: "10px",
-													},
-
+													"& .MuiChip-label": { px: "10px" },
 													"& .MuiChip-deleteIcon": {
 														fontSize: "17px",
 														color: "#A7A7A7",
@@ -391,14 +399,13 @@ const AddFamilyMember = () => {
 										);
 									})
 								}
-
 								renderInput={(params) => (
 									<TextField
 										{...params}
 										placeholder={
 											companyForm.values.medical_conditions?.length
 												? ""
-												: "Search & Select Medical Condition"
+												: "Search, Select or Type New Medical Condition"
 										}
 										error={
 											companyForm.touched.medical_conditions &&
@@ -415,78 +422,76 @@ const AddFamilyMember = () => {
 												height: "auto",
 												padding: "5px 40px 5px 8px !important",
 												alignItems: "center",
-
-												"& fieldset": {
-													borderColor: "#E0E3E7",
-												},
-
-												"&:hover fieldset": {
-													borderColor: "#1976d2",
-												},
-
+												"& fieldset": { borderColor: "#E0E3E7" },
+												"&:hover fieldset": { borderColor: "#1976d2" },
 												"&.Mui-focused fieldset": {
 													borderColor: "#1976d2",
 													borderWidth: "1.5px",
 												},
 											},
-
 											"& .MuiAutocomplete-input": {
 												padding: "6px 4px !important",
 												fontSize: "14px",
 											},
-
-											"& .MuiAutocomplete-tag": {
-												margin: "2px 4px 2px 0",
-											},
+											"& .MuiAutocomplete-tag": { margin: "2px 4px 2px 0" },
 										}}
 									/>
 								)}
 								fullWidth
 							/>
 						</Grid>
+
 						<Grid size={{ xs: 12, sm: 6 }}>
 							<Typography variant="body1" fontWeight={500} fontSize={"16px"} mb={1}>
 								Allergies
 							</Typography>
 							<Autocomplete
 								multiple
+								freeSolo
 								options={allergiesList?.data?.data || []}
-								getOptionLabel={(option) => option.allergy_name}
-								value={allergiesList?.data?.data.filter((item) =>
-									(companyForm.values.allergies || []).includes(item._id)
-								) || []}
-								onInputChange={(event, newInputValue) => {
-									// setInputValue(newInputValue);
-								}}
+								getOptionLabel={(option) =>
+									typeof option === "string" ? option : option.allergy_name
+								}
+								value={
+									(companyForm.values.allergies || []).map((name) => {
+										const found = allergiesList?.data?.data?.find(
+											(item) => item.allergy_name === name
+										);
+										return found || name;
+									})
+								}
 								onChange={(event, newValue) => {
-									companyForm.setFieldValue(
-										"allergies",
-										newValue.map((item) => item._id)
+									const names = newValue.map((item) =>
+										typeof item === "string" ? item : item.allergy_name
 									);
+									companyForm.setFieldValue("allergies", names);
 								}}
-								isOptionEqualToValue={(option, value) => option._id === value._id}
+								isOptionEqualToValue={(option, value) =>
+									typeof value === "string"
+										? option.allergy_name === value
+										: option._id === value._id
+								}
 								renderTags={(value, getTagProps) =>
 									value.map((option, index) => {
 										const { key, ...tagProps } = getTagProps({ index });
+										const isExisting = typeof option !== "string";
+										const label = isExisting ? option.allergy_name : option;
+										const bgColor = '#367BE0';
 
 										return (
 											<Chip
 												key={key}
 												{...tagProps}
-												label={option.allergy_name}
+												label={label}
 												size="small"
 												sx={{
-													backgroundColor: `color-mix(in srgb, ${option.bgColor} 30%, transparent)`,
-													color: option.bgColor,
+													backgroundColor: `color-mix(in srgb, ${bgColor} 30%, transparent)`,
+													color: bgColor,
 													height: "28px",
 													borderRadius: "16px",
 													fontSize: "12px",
 													fontWeight: 400,
-
-													"& .MuiChip-label": {
-														px: "10px",
-													},
-
+													"& .MuiChip-label": { px: "10px" },
 													"& .MuiChip-deleteIcon": {
 														fontSize: "17px",
 														color: "#A7A7A7",
@@ -497,14 +502,13 @@ const AddFamilyMember = () => {
 										);
 									})
 								}
-
 								renderInput={(params) => (
 									<TextField
 										{...params}
 										placeholder={
 											companyForm.values.allergies?.length
 												? ""
-												: "Search & Select Allergies"
+												: "Search, Select or Type New Allergy"
 										}
 										error={
 											companyForm.touched.allergies &&
@@ -521,33 +525,21 @@ const AddFamilyMember = () => {
 												height: "auto",
 												padding: "5px 40px 5px 8px !important",
 												alignItems: "center",
-
-												"& fieldset": {
-													borderColor: "#E0E3E7",
-												},
-
-												"&:hover fieldset": {
-													borderColor: "#1976d2",
-												},
-
+												"& fieldset": { borderColor: "#E0E3E7" },
+												"&:hover fieldset": { borderColor: "#1976d2" },
 												"&.Mui-focused fieldset": {
 													borderColor: "#1976d2",
 													borderWidth: "1.5px",
 												},
 											},
-
 											"& .MuiAutocomplete-input": {
 												padding: "6px 4px !important",
 												fontSize: "14px",
 											},
-
-											"& .MuiAutocomplete-tag": {
-												margin: "2px 4px 2px 0",
-											},
+											"& .MuiAutocomplete-tag": { margin: "2px 4px 2px 0" },
 										}}
 									/>
 								)}
-
 								fullWidth
 							/>
 						</Grid>

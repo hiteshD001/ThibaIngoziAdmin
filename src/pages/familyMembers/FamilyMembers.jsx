@@ -18,7 +18,7 @@ import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import nouser from "../../assets/images/NoUser.png";
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 
-const FamilyMembers = ({ userDetail }) => {
+const FamilyMembers = ({ userDetail,user_type }) => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -64,7 +64,6 @@ const FamilyMembers = ({ userDetail }) => {
     // Handle Scroll Event store 
     const handleView = (url) => {
         saveScrollPosition("familyMemberScroll");
-        // nav(`/home/total-users/user-information/${userDetail}/family-member-information/${report._id}`)
         nav(url)
     };
     useEffect(() => {
@@ -85,7 +84,7 @@ const FamilyMembers = ({ userDetail }) => {
                     </Grid>
                     <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
                         <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} >
-                            <Button variant="contained" onClick={() => nav(`/home/total-users/user-information/${userDetail}/add-family-member`)} sx={{  borderRadius: '8px' }}
+                            <Button variant="contained" onClick={() => nav( user_type === 'Driver' ? `/home/total-drivers/driver-information/${userDetail}/add-family-member` : `/home/total-users/user-information/${userDetail}/add-family-member`)} sx={{  borderRadius: '8px' }}
                                 startIcon={<img src={whiteplus} alt='white plus' />}>
                                 Add Family Membre
                             </Button>
@@ -126,7 +125,7 @@ const FamilyMembers = ({ userDetail }) => {
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
-                                                    <Link onClick={() => handleView(`/home/total-users/user-information/${userDetail}/family-member-information/face-scan-users/${report?._id}`)} state={{ type: "MedicalAidDetails" }} className="link2">
+                                                    <Link onClick={() => handleView( user_type === 'Driver' ? `/home/total-drivers/driver-information/${userDetail}/family-member-information/face-scan-users/${report?.medical_aid_details?._id}`:`/home/total-users/user-information/${userDetail}/family-member-information/face-scan-users/${report?.medical_aid_details?._id}`)} state={{ type: "MedicalAidDetails" }} className="link2">
                                                         {report?.countOfUserScanMedicalDetails || 0}
                                                     </Link>
                                                 </TableCell>
@@ -163,7 +162,7 @@ const FamilyMembers = ({ userDetail }) => {
                                                 <TableCell >
                                                     <Box align="center">
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => handleView(`/home/total-users/user-information/${userDetail}/family-member-information/${report._id}`)}>
+                                                            <IconButton onClick={() => handleView(user_type === 'Driver' ? `/home/total-drivers/driver-information/${userDetail}/family-member-information/${report._id}` : `/home/total-users/user-information/${userDetail}/family-member-information/${report._id}`)}>
                                                                 <img src={ViewBtn} alt="flagged button" />
                                                             </IconButton>
                                                         </Tooltip>

@@ -28,6 +28,7 @@ import camera from '../assets/images/camera.svg'
 import Loader from "../common/Loader"
 import FamilyMember from "./familyMembers/FamilyMembers";
 
+
 const PassangerInformation = () => {
     const [editInfo, setEditInfo] = useState(false);
     const [editAddress, setEditAddress] = useState(false);
@@ -1294,7 +1295,7 @@ const PassangerInformation = () => {
                     </Paper >
                 ) : null}
 
-                <FamilyMember userDetail={params.id} />
+                <FamilyMember userDetail={params.id} user_type='User'/>
 
             </Box>
 
