@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
-import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent, useDeleteCrimeReport,useRemovePoliceUnit, useDeleteCaptureReport, useDeleteSuspectSighting,useDeleteSAPSMember,useDeleteSAPSWanted } from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent, useDeleteCrimeReport,useRemovePoliceUnit, useDeleteCaptureReport, useDeleteSuspectSighting,useDeleteSAPSMember,useDeleteSAPSWanted ,useDeleteFamilyMember} from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useState } from "react";
@@ -75,6 +75,12 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
     setconfirmation("");
   }
 
+  const onSuccessFamilyMember = () => {
+    toast.success("Family Member deleted successfully");
+    client.invalidateQueries("family members");
+    setconfirmation("");
+  }
+
 
   const deleteDriver = useDeleteUser(onSuccess, onError)
   const deleteTrip = useDeleteUserTrip(onSuccessTrip, onError)
@@ -87,6 +93,7 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
   const deleteuseSuspectReport = useDeleteSuspectSighting(onSuccessSuspectSighting, onError)
   const deleteuseSAPSWanted = useDeleteSAPSWanted(onSuccessSAPSWanted, onError)
   const deleteuseSAPSMember = useDeleteSAPSMember(onSuccessSAPSMember, onError)
+  const deleteuseFamilyMember = useDeleteFamilyMember(onSuccessFamilyMember, onError)
 
   const handleConfirm = () => {
     if (trip === "trip") {
@@ -109,6 +116,8 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
       deleteuseSAPSWanted.mutate(id);
     } else if (trip === "sapsmember") {
       deleteuseSAPSMember.mutate(id);
+    }else if(trip === 'familymember'){
+      deleteuseFamilyMember.mutate(id);
     }else {
       deleteDriver.mutate(id);
     }

@@ -363,7 +363,7 @@ const FaceScanUsers = () => {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={4} align="center">
+                                    <TableCell sx={{ color: '#4B5563', borderBottom: 'none' }} colSpan={7} align="center">
                                         <Box sx={{ py: 4, textAlign: 'center' }}>
                                             <Avatar
                                                 src={nouser}
