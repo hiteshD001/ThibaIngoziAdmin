@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams,Link } from "react-router-dom";
 import {
     Box, Typography, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, Avatar, Stack, Select, MenuItem, Chip,
-    Tooltip,Skeleton,Tabs,Tab,Menu,Dialog, DialogContent, Button,TableSortLabel
+    Tooltip,Skeleton,Tabs,Tab,Menu,Dialog, DialogContent, Button,TableSortLabel,TextField,InputAdornment 
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -46,6 +46,7 @@ import arrowup from '../../assets/images/arrowup.svg';
 import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 import TransactionHistoryPopup from "./transactionHistory";
+import search from '../../assets/images/search.svg';
 
 const TAB_CONFIG = {
   ACTIVE_SUBSCRIPTION: "Active Users",
@@ -635,7 +636,7 @@ const SubscriptionManagement = () => {
                         </Grid>
                         <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
 
-                            {/* <TextField
+                            {tab !== 'SOS_TYPES_REVENUE' && <TextField
                                 variant="outlined"
                                 placeholder="Search"
                                 value={filter}
@@ -671,7 +672,7 @@ const SubscriptionManagement = () => {
                                         </InputAdornment>
                                     ),
                                 }}
-                            /> */}
+                            />}
                             <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} gap={1}>
                                 <CustomExportMenu onExport={handleExport} />
                             </Box>
