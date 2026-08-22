@@ -86,7 +86,7 @@ const FamilyMembers = ({ userDetail,user_type }) => {
                         <Box display="flex" sx={{ justifyContent: { xs: 'space-between' } }} >
                             <Button variant="contained" onClick={() => nav( user_type === 'Driver' ? `/home/total-drivers/driver-information/${userDetail}/add-family-member` : `/home/total-users/user-information/${userDetail}/add-family-member`)} sx={{  borderRadius: '8px' }}
                                 startIcon={<img src={whiteplus} alt='white plus' />}>
-                                Add Family Membre
+                                Add Family Member
                             </Button>
                         </Box>
 
