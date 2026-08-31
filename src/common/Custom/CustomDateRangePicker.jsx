@@ -23,6 +23,7 @@ const CustomDateRangePicker = ({
     buttonSx = {},
 }) => {
     const [anchorEl, setAnchorEl] = useState(null);
+    const [isAllSelected, setIsAllSelected] = useState(false);
     const popperOpen = Boolean(anchorEl);
     const buttonRef = useRef(null);
 
@@ -60,7 +61,11 @@ const CustomDateRangePicker = ({
                     >
                         {icon && <img src={icon} alt="calendar" style={{ marginRight: 4 }} />}
                         <Typography variant="body2" sx={{ textTransform: 'none' }}>
-                            {`${value[0].startDate ? format(value[0].startDate, 'dd MMM yy') : "Start"} - ${value[0].endDate ? format(value[0].endDate, 'dd MMM yy') : "End"}`}
+                            {/* {`${value[0].startDate ? format(value[0].startDate, 'dd MMM yy') : "Start"} - ${value[0].endDate ? format(value[0].endDate, 'dd MMM yy') : "End"}`} */}
+                            {isAllSelected
+                                ? 'All'
+                                : `${value[0].startDate ? format(value[0].startDate, 'dd MMM yy') : "Start"} - ${value[0].endDate ? format(value[0].endDate, 'dd MMM yy') : "End"}`
+                            }
                         </Typography>
                     </Button>
 
@@ -75,12 +80,12 @@ const CustomDateRangePicker = ({
                             <Box display="flex" flexDirection={'column'} justifyContent={'space-between'} flexWrap="wrap" gap={1} mb={2}>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     {[
-                                        { label: 'All', type: 'all' },
                                         { label: "Last Week", days: 7 },
                                         { label: "Last Month", days: 30 },
                                         { label: "Last 3 Months", days: 90 },
                                         { label: "Last 6 Months", days: 180 },
                                         { label: "Last 12 Months", days: 365 },
+                                        { label: 'All', type: 'all' },
                                     ].map((option) => (
                                         <Button
                                             key={option.label}
@@ -89,6 +94,7 @@ const CustomDateRangePicker = ({
                                             size="small"
                                             onClick={() => {
                                                 if (option.type === 'all') {
+                                                    setIsAllSelected(true);
                                                     const end = new Date();
                                                     const start = new Date(0);
 
@@ -105,6 +111,7 @@ const CustomDateRangePicker = ({
                                                 }
                                                 const end = new Date();
                                                 const start = new Date();
+                                                setIsAllSelected(false);
                                                 start.setDate(end.getDate() - option.days);
                                                 onChange([{ startDate: start, endDate: end, key: 'selection' }]);
                                                 setAnchorEl(null); // optional: auto-close
@@ -123,6 +130,7 @@ const CustomDateRangePicker = ({
                                         const start = startOfYear(today);
                                         onChange([{ startDate: start, endDate: today, key: 'selection' }]);
                                         setAnchorEl(null);
+                                        setIsAllSelected(false);
                                     }}
                                 >
                                     Reset
