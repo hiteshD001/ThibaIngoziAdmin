@@ -75,6 +75,7 @@ const CustomDateRangePicker = ({
                             <Box display="flex" flexDirection={'column'} justifyContent={'space-between'} flexWrap="wrap" gap={1} mb={2}>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     {[
+                                        { label: 'All', type: 'all' },
                                         { label: "Last Week", days: 7 },
                                         { label: "Last Month", days: 30 },
                                         { label: "Last 3 Months", days: 90 },
@@ -87,6 +88,21 @@ const CustomDateRangePicker = ({
                                             sx={{ color: 'black', justifyContent: 'flex-start' }}
                                             size="small"
                                             onClick={() => {
+                                                if (option.type === 'all') {
+                                                    const end = new Date();
+                                                    const start = new Date(0);
+
+                                                    onChange([
+                                                        {
+                                                            startDate: start,
+                                                            endDate: end,
+                                                            key: 'selection'
+                                                        }
+                                                    ]);
+
+                                                    setAnchorEl(null);
+                                                    return;
+                                                }
                                                 const end = new Date();
                                                 const start = new Date();
                                                 start.setDate(end.getDate() - option.days);
