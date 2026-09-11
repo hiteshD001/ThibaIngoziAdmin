@@ -88,6 +88,10 @@ const SubscriptionManagement = lazy(() => import("./pages/subscription-managemen
 const SubscriptionDetails = lazy(() => import("./pages/subscription-management/SubscriptionInformation"));
 const AddFamilyMember = lazy(() => import("./pages/familyMembers/AddFamilyMember"));
 const FamilyMemberInformation = lazy(() => import("./pages/familyMembers/FamilyMemberInformation"));
+const AddChatGroup = lazy(() => import("./pages/group-chat/AddChatGroup"));
+const ListOfChatGroups = lazy(() => import("./pages/group-chat/ListOfChatGroups"));
+const ChatGroupDetails = lazy(() => import("./pages/group-chat/ChatGroupDetails"));
+
 
 function App() {
 
@@ -534,6 +538,23 @@ function App() {
                                     path: "subscription-information/:id",
                                     element: <SubscriptionDetails />
                                 },
+                            ]
+                        },
+                        {
+                            path: "chat-group",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfChatGroups />
+                                },
+                                {
+                                    path: "add-chat-group",
+                                    element: <AddChatGroup />
+                                },
+                                {
+                                    path: "chat-group-detail/:id",
+                                    element: <ChatGroupDetails />
+                                }
                             ]
                         },
 
