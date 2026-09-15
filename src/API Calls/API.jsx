@@ -3921,3 +3921,115 @@ export const useChatGroupEdit = (onSuccess, onError) => {
 
     return mutation;
 };
+
+export const useGetChatGroupsMembers = (
+    key,
+    role,
+    group_id,
+    page,
+    limit,
+    filter,
+    locationFilter,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/group-chat/groupchat-members/${group_id}`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                locationFilter,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            locationFilter,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetChatGroupsMessageList = (
+    key,
+    role,
+    group_id,
+    page,
+    limit,
+    filter,
+    locationFilter,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/group-chat/groupchat-admin-message/${group_id}`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                locationFilter,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            locationFilter,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};

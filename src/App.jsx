@@ -91,6 +91,7 @@ const FamilyMemberInformation = lazy(() => import("./pages/familyMembers/FamilyM
 const AddChatGroup = lazy(() => import("./pages/group-chat/AddChatGroup"));
 const ListOfChatGroups = lazy(() => import("./pages/group-chat/ListOfChatGroups"));
 const ChatGroupDetails = lazy(() => import("./pages/group-chat/ChatGroupDetails"));
+const ChatGroupMemberList = lazy(() => import("./pages/group-chat/ChatGroupMemberList"));
 
 
 function App() {
@@ -554,6 +555,10 @@ function App() {
                                 {
                                     path: "chat-group-detail/:id",
                                     element: <ChatGroupDetails />
+                                },
+                                {
+                                    path: "chat-group-member-and-message-detail/:id",
+                                    element: <ChatGroupMemberList />
                                 }
                             ]
                         },

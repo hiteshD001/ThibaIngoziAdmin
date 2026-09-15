@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
     Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody,TableSortLabel, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Avatar, Stack, Select, MenuItem, Chip,
     Tooltip
@@ -323,7 +323,9 @@ const ListOfChatGroups = () => {
 
                                             <TableRow key={report._id}>
                                                 <TableCell >
-                                                    {report.group_name}
+                                                    <Link onClick={() => handleView(`/home/chat-group/chat-group-member-and-message-detail/${report?._id}`)} state={{ type: "Location" }} className="link2">
+                                                        {report.group_name}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
 
