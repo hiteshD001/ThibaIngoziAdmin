@@ -32,6 +32,7 @@ import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 import { loadListPageState, saveListPageState } from "../common/ListPageState";
+import { toISO } from "../utils/dateUtils";
 
 const ListOfTrips = () => {
 	const nav = useNavigate();
@@ -79,8 +80,8 @@ const ListOfTrips = () => {
 	const companyId = role === 'company' ? localStorage.getItem("userID") : null;
 
 	const [confirmation, setConfirmation] = useState("");
-	const startDate = range[0].startDate.toISOString();
-	const endDate = range[0].endDate.toISOString();
+	const startDate = toISO(range[0].startDate);
+	const endDate = toISO(range[0].endDate);
 	const trip = useGetTripList("Trip list", page, rowsPerPage, debouncedFilter, startDate, endDate, archived, sortBy, sortOrder, companyId);
 	const tripList = trip?.data?.data?.tripData || [];
 	const totalTrips = trip?.data?.data?.totalTripData || 0;
@@ -310,8 +311,8 @@ const ListOfTrips = () => {
 								onChange={(nextRange) => {
 									setRange(nextRange);
 									updateParams({
-										startDate: new Date(nextRange[0].startDate).toISOString(),
-										endDate: new Date(nextRange[0].endDate).toISOString(),
+										startDate: toISO(nextRange[0].startDate),
+										endDate: toISO(nextRange[0].endDate),
 										page: 1,
 									});
 								}}

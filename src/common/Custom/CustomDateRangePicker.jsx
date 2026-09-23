@@ -95,13 +95,11 @@ const CustomDateRangePicker = ({
                                             onClick={() => {
                                                 if (option.type === 'all') {
                                                     setIsAllSelected(true);
-                                                    const end = new Date();
-                                                    const start = new Date(0);
 
                                                     onChange([
                                                         {
-                                                            startDate: start,
-                                                            endDate: end,
+                                                            startDate: '',
+                                                            endDate: '',
                                                             key: 'selection'
                                                         }
                                                     ]);
@@ -142,7 +140,11 @@ const CustomDateRangePicker = ({
                                 editableDateInputs
                                 onChange={(item) => onChange([item.selection])}
                                 moveRangeOnFirstSelection={false}
-                                ranges={value}
+                                ranges={value.map((r) => ({
+                                    ...r,
+                                    startDate: r.startDate || new Date(),
+                                    endDate: r.endDate || new Date(),
+                                }))}
                                 rangeColors={["#1976d2"]}
                             />
                         </Box>

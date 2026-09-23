@@ -23,6 +23,7 @@ import CustomDateRangePicker from './CustomDateRangePicker';
 import calender from '../../assets/images/calender.svg';
 import { startOfYear } from "date-fns";
 import exportdiv from '../../assets/images/exportdiv.svg';
+import { toISO } from "../../utils/dateUtils";
 // import exportIcon from '../assets/images/exportIcon.svg';
 
 
@@ -57,8 +58,8 @@ const CustomExportMenu = ({ role, onExport, loading }) => {
         setLocationWiseFilter(filterText)
     };
     const handleExport = () => {
-        const startDate = range[0].startDate.toISOString();
-        const endDate = range[0].endDate.toISOString();
+        const startDate = toISO(range[0].startDate);
+        const endDate = toISO(range[0].endDate);
         onExport({ startDate, endDate, exportFormat, province, category,crimeType, locationWiseFilter});
         setAnchorEl(null);
     };

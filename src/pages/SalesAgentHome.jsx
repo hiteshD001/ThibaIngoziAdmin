@@ -25,6 +25,7 @@ import sales5 from '../assets/images/sales5.svg'
 import sales6 from '../assets/images/sales6.svg'
 import payIcon from '../assets/images/payIcon.svg';
 import PayoutPopup from "../common/Popup";
+import { toISO } from "../utils/dateUtils";
 // import search from "../assets/images/search.svg";
 // import nouser from "../assets/images/NoUser.png";
 // import calender from '../assets/images/calender.svg';
@@ -114,8 +115,8 @@ const SalesAgentHome = () => {
         }
     ]);
 
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
 
     const userinfo = useGetAgent(localStorage.getItem("userID"));
     const listOfSalesAgentUsers = useGetUserByInfluncer(page, 10, startDate, endDate, userinfo?.data?.data?.data?._id)

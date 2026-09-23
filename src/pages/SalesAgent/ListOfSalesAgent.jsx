@@ -46,6 +46,7 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
+import { toISO } from "../../utils/dateUtils";
 
 const ListOfSalesAgent = () => {
     const buttonRefs = useRef({});
@@ -89,8 +90,8 @@ const ListOfSalesAgent = () => {
         }
     }
 
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
     let UserList = useGetSalesAgent(page, rowsPerPage, debouncedFilter, startDate, endDate, sortBy, sortOrder)
     const agentList = UserList?.data?.data?.data?.influencersData
     const totalPages = UserList?.data?.data?.data?.totalPages
@@ -556,8 +557,8 @@ const ListOfSalesAgent = () => {
                                         onChange={(nextRange) => {
                                             setRange(nextRange);
                                             updateParams({
-                                                startDate: nextRange[0].startDate.toISOString(),
-                                                endDate: nextRange[0].endDate.toISOString(),
+                                                startDate: toISO(nextRange[0].startDate),
+                                                endDate: toISO(nextRange[0].endDate),
                                             });
                                         }}
                                         icon={calender}

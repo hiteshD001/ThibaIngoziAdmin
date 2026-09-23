@@ -33,6 +33,7 @@ import fileBtn from '../../assets/images/fileBtn.svg'
 import arrowup from '../../assets/images/arrowup.svg';
 import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
+import { toISO } from "../../utils/dateUtils";
 
 const ListOfArcheivedcaptureReports = () => {
 
@@ -77,8 +78,8 @@ const ListOfArcheivedcaptureReports = () => {
             key: 'selection'
         }
     ]);
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
     
     const UserList = useGetCaptureReportList("capture report list", getQueryParams.get("location_id"), role, currentPage, rowsPerPage, filter, startDate, endDate, archived,sortBy, sortOrder);
     const totalData = UserList.data?.data?.totalData || 0;
