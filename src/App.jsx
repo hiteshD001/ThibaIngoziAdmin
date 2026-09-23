@@ -92,6 +92,7 @@ const AddChatGroup = lazy(() => import("./pages/group-chat/AddChatGroup"));
 const ListOfChatGroups = lazy(() => import("./pages/group-chat/ListOfChatGroups"));
 const ChatGroupDetails = lazy(() => import("./pages/group-chat/ChatGroupDetails"));
 const ChatGroupMemberList = lazy(() => import("./pages/group-chat/ChatGroupMemberList"));
+const ListOfArcheivedChatGroups = lazy(() => import("./pages/group-chat/ListOfArcheivedChatGroups"));
 
 
 function App() {
@@ -547,6 +548,10 @@ function App() {
                                 {
                                     path: "",
                                     element: <ListOfChatGroups />
+                                },
+                                {
+                                    path: "view-archeived-chat-group",
+                                    element: <ListOfArcheivedChatGroups />
                                 },
                                 {
                                     path: "add-chat-group",

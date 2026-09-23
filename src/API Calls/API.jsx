@@ -3808,7 +3808,8 @@ export const useGetChatGroups = (
     startDate,
     endDate,
     sortBy,
-    sortOrder
+    sortOrder,
+    archived
 ) => {
     const nav = useNavigate();
 
@@ -3823,7 +3824,7 @@ export const useGetChatGroups = (
                 startDate,
                 endDate,
                 sortBy,
-                sortOrder
+                sortOrder,archived
             },
         });
     };
@@ -3839,7 +3840,7 @@ export const useGetChatGroups = (
             startDate,
             endDate,
             sortBy,
-            sortOrder
+            sortOrder,archived
         ],
         queryFn: queryFn,
         placeholderData: keepPreviousData,
@@ -4033,3 +4034,79 @@ export const useGetChatGroupsMessageList = (
     }
     return res;
 };
+
+export const useGetGroupChatMemberPageData = (group_id) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/group-chat/groupchat-admin-member-detail-page/${group_id}`, {
+            params: {
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: ["groupChatMemberPageData",group_id],
+        queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const usePutGroupchatMemberBlock = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/group-chat/member-change-status/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const usePutGroupchatMessageWarning = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/group-chat/message-warning/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useGroupChatputIsArchived = (onSucess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/group-chat/isArchived/${id}`,
+            data
+        );
+    };
+
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+
+    return res;
+}

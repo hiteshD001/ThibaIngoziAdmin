@@ -1,53 +1,32 @@
 import { useEffect, useState } from "react";
-import { useGetChatGroupsMembers,useGetChatGroupsMessageList,useGetSAPSWantedPageData} from "../../API Calls/API";
+import { useGetChatGroupsMembers,useGetChatGroupsMessageList,useGetGroupChatMemberPageData,usePutGroupchatMemberBlock,usePutGroupchatMessageWarning} from "../../API Calls/API";
 import {
-    Grid, Typography, Select, Box, TextField, InputAdornment, MenuItem, FormControl, InputLabel, IconButton, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Stack, Avatar, Chip, Paper, Button, Menu,
-    Tooltip,TableSortLabel,Skeleton
+    Grid, Typography, Select, Box, TextField, InputAdornment, MenuItem,IconButton, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Stack, Avatar, Chip, Paper, Button, Menu,
+    Tooltip,TableSortLabel,Skeleton, Dialog, DialogContent
 } from "@mui/material";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import plus from '../../assets/images/plus.svg'
-import whiteplus from '../../assets/images/whiteplus.svg';
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import search from '../../assets/images/search.svg';
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import jsPDF from 'jspdf';
-import { autoTable } from 'jspdf-autotable'
-import * as XLSX from 'xlsx';
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
-import OutlinedView from '../../assets/images/OutlinedView.svg'
-import outlinedDustbin from '../../assets/images/outlinedDustbin.svg'
-import outlinedEdit from '../../assets/images/outlinedEdit.svg'
 import delBtn from '../../assets/images/delBtn.svg'
+import warn_btn from '../../assets/images/warn_btn.svg'
+import block_btn from '../../assets/images/block_btn.svg'
 import nouser from "../../assets/images/NoUser.png";
-import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
-import calender from '../../assets/images/calender.svg';
 import Loader from "../../common/Loader";
-import CustomFilter from "../../common/Custom/CustomFilter";
-import CustomChart from "../../common/Custom/CustomChart2";
 import { startOfYear } from "date-fns";
-import CustomExportMenu from "../../common/Custom/CustomExport";
-import CustomPie from "../../common/Custom/CustomPie";
-import SapsIcon1 from '../../assets/images/SapsIcon1.svg'
-import SapsIcon2 from '../../assets/images/SapsIcon2.svg'
-import SapsIcon3 from '../../assets/images/SapsIcon3.svg'
-import SapsIcon4 from '../../assets/images/SapsIcon4.svg'
-import SapsIcon5 from '../../assets/images/SapsIcon5.svg'
-import SapsIcon6 from '../../assets/images/SapsIcon6.svg'
-import SapsIcon7 from '../../assets/images/SapsIcon7.svg'
-import SapsIcon8 from '../../assets/images/SapsIcon8.svg'
-import SapsIcon9 from '../../assets/images/SapsIcon9.svg'
-import CustomBar from "../../common/Custom/CustomBar";
+import groupchat_total_users from '../../assets/images/groupchat_total_users.svg'
+import groupchat_report from '../../assets/images/groupchat_report.svg'
+import groupchat_today_message from '../../assets/images/groupchat_today_message.svg'
+import groupchat_active_user from '../../assets/images/groupchat_active_user.svg'
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 import arrowup from '../../assets/images/arrowup.svg';
 import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
-import apiClient from "../../API Calls/APIClient";
 import moment from "moment";
 import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { toast } from "react-toastify";
-import ImportSheet from "../../common/ImportSheet";
 
 const ChatGroupMemberList = () => {
 
@@ -66,8 +45,6 @@ const ChatGroupMemberList = () => {
     const locationFilter = searchParams.get("locationFilter") || "";
     const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 5;
     const [confirmation, setconfirmation] = useState("");
-    const [confirmationwanted, setconfirmationwanted] = useState("");
-    const [selectedProvince, setSelectedProvince] = useState('all');
     const startDate = range[0].startDate.toISOString();
     const endDate = range[0].endDate.toISOString();
     const [sortBy, setSortBy] = useState("createdAt");
@@ -83,37 +60,17 @@ const ChatGroupMemberList = () => {
             setSortOrder(p => p === 'asc' ? 'desc' : 'asc')
         }
     }
-    const [sapsWantedPageFilter, setSapsWantedPageFilter] = useState("");
-    const handleFilterApply = (data) => {
-
-        const params = Object.fromEntries(
-            Object.entries(data).filter(
-                ([_, value]) => value !== "" && value !== undefined && value !== null
-            )
-        );
-
-        const filterText = new URLSearchParams(params).toString();
-        setSapsWantedPageFilter(filterText)
-    };
-    const [anchorEl, setAnchorEl] = useState(null);
-    const [selectedWantedObj, setSelectedWantedObj] = useState(null);
-
-    const handleOpenMenu = (event,selectedObj) => {
-        setAnchorEl(event.currentTarget);
-        setSelectedWantedObj(selectedObj)
-    };
-
-    const handleCloseMenu = () => {
-        setAnchorEl(null);
-        setSelectedWantedObj(null);
-    };
-    const handleProvinceChange = (event) => {
-        setSelectedProvince(event.target.value);
-    };
 
     const [searchParamsMember, setSearchParamsMember] = useSearchParams();
-    const startDateParamMember = searchParamsMember.get("startDateMember") || startOfYear(new Date()).toISOString();
-    const endDateParamMember = searchParamsMember.get("endDateMember") || new Date().toISOString();
+    const now = new Date();
+
+    const startDateParamMember = new Date(now);
+    startDateParamMember.setHours(0, 0, 0, 0);
+
+    const endDateParamMember = new Date(now);
+    endDateParamMember.setHours(23, 59, 59, 999);
+    // const startDateParamMember = searchParamsMember.get("startDateMember") || startOfYear(new Date()).toISOString();
+    // const endDateParamMember = searchParamsMember.get("endDateMember") || new Date().toISOString();
     const [rangeMember, setRangeMember] = useState([{
         startDate: new Date(startDateParamMember),
         endDate: new Date(endDateParamMember),
@@ -138,17 +95,15 @@ const ChatGroupMemberList = () => {
             setSortOrderMember(p => p === 'asc' ? 'desc' : 'asc')
         }
     }
-    const SAPS_Page_API_Data = useGetSAPSWantedPageData(sapsWantedPageFilter)
+    const SAPS_Page_API_Data = useGetGroupChatMemberPageData(group_id)
     const SAPS_Page_ObjData = SAPS_Page_API_Data.data?.data || {}
 
-    const chartData = SAPS_Page_ObjData?.CriminalCapturedVsWantedVsSightings || [];
-
     const SAPS_Wanted_Responce = useGetChatGroupsMembers("group member list", "",group_id, currentPage, rowsPerPage, filter, locationFilter, startDate, endDate, sortBy, sortOrder);
-    const totalData = SAPS_Wanted_Responce.data?.data?.totaldata || 0;
+    const totalData = SAPS_Wanted_Responce.data?.data?.totalData || 0;
     const totalPages = Math.ceil(totalData / rowsPerPage);
     
     const SAPS_Members_Responce = useGetChatGroupsMessageList("group message list", "",group_id, currentPageMember, rowsPerPageMember, filterMember, locationFilterMember, startDateMember, endDateMember, sortByMember, sortOrderMember);
-    const totalMemberData = SAPS_Members_Responce.data?.data?.totaldata || 0;
+    const totalMemberData = SAPS_Members_Responce.data?.data?.totalData || 0;
     const totalMemberPages = Math.ceil(totalMemberData / rowsPerPage);
     
     const updateParams = (newParams) => {
@@ -175,59 +130,128 @@ const ChatGroupMemberList = () => {
 
     const [isLoading, setIsLoading] = useState(false);
 
+    const [blockPopup, setBlockPopup] = useState(null);
+    const [warningPopup, setWarningPopup] = useState(null);
+
+    const blockMutation = usePutGroupchatMemberBlock(
+        () => {
+            toast.success("Member blocked successfully");
+            setBlockPopup(null);
+            SAPS_Wanted_Responce.refetch();
+            SAPS_Members_Responce.refetch();
+        },
+        (err) => {
+            toast.error(err?.response?.data?.message || "Something went wrong");
+        }
+    );
+
+    const warningMutation = usePutGroupchatMessageWarning(
+        () => {
+            toast.success("Warning sent successfully");
+            setWarningPopup(null);
+            SAPS_Members_Responce.refetch();
+        },
+        (err) => {
+            toast.error(err?.response?.data?.message || "Something went wrong");
+        }
+    );
+
     const handleView = (url) => {
         saveScrollPosition("GroupMemberListScroll");
         nav(url);
     };
     useEffect(() => {
-        if (SAPS_Wanted_Responce.data?.data?.totaldata) {
+        if (SAPS_Wanted_Responce.data?.data?.totalData) {
             restoreScrollPosition("GroupMemberListScroll");
         }
-        if (SAPS_Members_Responce.data?.data?.totaldata) {
+        if (SAPS_Members_Responce.data?.data?.totalData) {
             restoreScrollPosition("GroupMemberListScroll");
         }
-    }, [SAPS_Wanted_Responce.data?.data?.totaldata,SAPS_Members_Responce.data?.data?.totaldata]);
+    }, [SAPS_Wanted_Responce.data?.data?.totalData,SAPS_Members_Responce.data?.data?.totalData]);
 
 
     return (
         <Box>
-            <Grid sx={{ backgroundColor: 'white', p: 3, mt: '-25px' }} container justifyContent="space-between" alignItems="center" spacing={2} mb={3}>
-                <Grid size={{ xs: 12, md: 5, lg: 6 }}>
-
-                </Grid>
-            </Grid>
             <Box p={2}>
-                <Grid container spacing={3} mb={5}>
+                <Grid container spacing={3} mb={2}>
                     <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
-                        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: { xs: 5, lg: 1 }, backgroundColor: '#367BE01A', borderRadius: '16px', px: 3, py: 5 }}>
-                            <Box>
-                                <Typography variant="body2" fontWeight={400} sx={{fontSize:"14px"}}>Users Reached</Typography>
-                                {SAPS_Page_API_Data.isFetching ? (
+                        <Box sx={{ backgroundColor: '#FFFFFF', border: '1px solid #EEF0F3', borderRadius: '16px', px: 2.5, py: 2.5 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                                <Box sx={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#E8F0FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <img src={groupchat_total_users} alt="ReportIcon" style={{ width: 40, height: 40, }} />
+                                </Box>
+                                <Box>
+
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#6B7280' }}>Total Users</Typography>
+                                    {SAPS_Page_API_Data.isFetching ? (
                                         <Skeleton variant="text" width={60} height={40} />
                                     ) : (
-                                        <Typography variant="h3" fontWeight={600}>{SAPS_Page_ObjData?.usersReached}</Typography>
+                                        <Typography variant="h4" fontWeight={700}>{SAPS_Page_ObjData?.totalUsers}</Typography>
                                     )
-                                }
-                                {SAPS_Page_API_Data.isFetching ? (
-                                    <Skeleton variant="text" width={60} height={40} />
-                                ) : (
-                                    SAPS_Page_ObjData?.percentageObjData.usersReached > 0 ? (
-
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>+{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
-                                    ) : SAPS_Page_ObjData?.percentageObjData.usersReached === 0 ? (
-                                        <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#22C55E' }}>{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
-                                    ) : <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#e5565a' }}>{SAPS_Page_ObjData?.percentageObjData.usersReached}% from last month</Typography>
-
-                                )
-                                }
+                                    }
+                                </Box>
                             </Box>
-                            <Box>
-                                <img src={SapsIcon1} alt="ReportIcon" />
+                        </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
+                        <Box sx={{ backgroundColor: '#FFFFFF', border: '1px solid #EEF0F3', borderRadius: '16px', px: 2.5, py: 2.5 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                                <Box sx={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#E5F7EC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <img src={groupchat_active_user} alt="ReportIcon" style={{ width: 40, height: 40, }} />
+                                </Box>
+                                <Box>
+
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#6B7280' }}>Active Now</Typography>
+                                    {SAPS_Page_API_Data.isFetching ? (
+                                        <Skeleton variant="text" width={60} height={40} />
+                                    ) : (
+                                        <Typography variant="h4" fontWeight={700}>{SAPS_Page_ObjData?.activeNow}</Typography>
+                                    )
+                                    }
+                                </Box>
+                            </Box>
+                        </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
+                        <Box sx={{ backgroundColor: '#FFFFFF', border: '1px solid #EEF0F3', borderRadius: '16px', px: 2.5, py: 2.5 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                                <Box sx={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#F1E9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <img src={groupchat_today_message} alt="ReportIcon" style={{ width: 40, height: 40, }} />
+                                </Box>
+                                <Box>
+
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#6B7280' }}>Messages Today</Typography>
+                                    {SAPS_Page_API_Data.isFetching ? (
+                                        <Skeleton variant="text" width={60} height={40} />
+                                    ) : (
+                                        <Typography variant="h4" fontWeight={700}>{SAPS_Page_ObjData?.messagesToday}</Typography>
+                                    )
+                                    }
+                                </Box>
+                            </Box>
+                        </Box>
+                    </Grid>
+                    <Grid size={{ xs: 12, md: 4, lg: 3 }} sx={{}}>
+                        <Box sx={{ backgroundColor: '#FFFFFF', border: '1px solid #EEF0F3', borderRadius: '16px', px: 2.5, py: 2.5 }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                                <Box sx={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#FCE7E8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <img src={groupchat_report} alt="ReportIcon" style={{ width: 40, height: 40, }} />
+                                </Box>
+                                <Box>
+
+                                    <Typography variant="body2" fontWeight={400} sx={{ fontSize: "14px", color: '#6B7280' }}>Flagged Reports</Typography>
+                                    {SAPS_Page_API_Data.isFetching ? (
+                                        <Skeleton variant="text" width={60} height={40} />
+                                    ) : (
+                                        <Typography variant="h4" fontWeight={700}>{SAPS_Page_ObjData?.flaggedReports}</Typography>
+                                    )
+                                    }
+                                </Box>
                             </Box>
                         </Box>
                     </Grid>
                 </Grid>
-                <Box p={2}>
+                <Box mb={2}>
                     <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                         <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                             <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
@@ -238,7 +262,7 @@ const ChatGroupMemberList = () => {
                                     variant="outlined"
                                     placeholder="Search"
                                     value={filter}
-                                    onChange={(e) => updateParams({filter:e.target.value})}
+                                    onChange={(e) => updateParams({ filter: e.target.value })}
                                     fullWidth
                                     sx={{
                                         width: '60%',
@@ -273,47 +297,47 @@ const ChatGroupMemberList = () => {
                                             <TableRow >
                                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px', minWidth: 150 }}>
                                                     <TableSortLabel
-                                                        id="full_name"
-                                                        active={sortBy === 'full_name'}
+                                                        id="user_code"
+                                                        active={sortBy === 'user_code'}
                                                         direction={sortOrder}
                                                         onClick={changeSortOrder}
-                                                        IconComponent={() => <img src={sortBy === 'full_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                        IconComponent={() => <img src={sortBy === 'user_code' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                     >User Code
                                                     </TableSortLabel></TableCell>
                                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
                                                     <TableSortLabel
-                                                        id="aliases"
-                                                        active={sortBy === 'aliases'}
+                                                        id="first_name"
+                                                        active={sortBy === 'first_name'}
                                                         direction={sortOrder}
                                                         onClick={changeSortOrder}
-                                                        IconComponent={() => <img src={sortBy === 'aliases' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                        IconComponent={() => <img src={sortBy === 'first_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                     >Real Name (Admin Only)
                                                     </TableSortLabel></TableCell>
                                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
                                                     <TableSortLabel
-                                                        id="case_number"
-                                                        active={sortBy === 'case_number'}
+                                                        id="created_at"
+                                                        active={sortBy === 'created_at'}
                                                         direction={sortOrder}
                                                         onClick={changeSortOrder}
-                                                        IconComponent={() => <img src={sortBy === 'case_number' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                        IconComponent={() => <img src={sortBy === 'created_at' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                     >Join Time
                                                     </TableSortLabel></TableCell>
                                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
                                                     <TableSortLabel
-                                                        id="investigating_officer_name"
-                                                        active={sortBy === 'investigating_officer_name'}
+                                                        id="create_at"
+                                                        active={sortBy === 'create_at'}
                                                         direction={sortOrder}
                                                         onClick={changeSortOrder}
-                                                        IconComponent={() => <img src={sortBy === 'investigating_officer_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                        IconComponent={() => <img src={sortBy === 'create_at' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                     >Last Active
                                                     </TableSortLabel></TableCell>
                                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
                                                     <TableSortLabel
-                                                        id="police_unit_id"
-                                                        active={sortBy === 'police_unit_id'}
+                                                        id="total_message"
+                                                        active={sortBy === 'total_message'}
                                                         direction={sortOrder}
                                                         onClick={changeSortOrder}
-                                                        IconComponent={() => <img src={sortBy === 'police_unit_id' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                        IconComponent={() => <img src={sortBy === 'total_message' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                     >Message Count
                                                     </TableSortLabel></TableCell>
                                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
@@ -335,23 +359,26 @@ const ChatGroupMemberList = () => {
                                                         {user.user_code || "-"}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        <Stack direction="row" alignItems="center" gap={1}>
-                                                            <Avatar
-                                                                src={user?.user?.profile_image || nouser}
-                                                                alt="User"
-                                                            />
-                                                            {user?.user?.first_name} {user?.user?.last_name}
-                                                        </Stack>
+                                                        <Link onClick={() => handleView(user.user?.role === "driver" ? `/home/total-drivers/driver-information/${user.user_id}` : `/home/total-users/user-information/${user.user_id}`)} className="link2">
+                                                            <Stack direction="row" alignItems="center" gap={1}>
+                                                                <Avatar
+                                                                    src={getImageLink(user.user?.selfieImage)}
+                                                                    sx={{ '&:hover': { textDecoration: 'none' } }}
+                                                                    alt="User"
+                                                                />
+                                                                {user.user?.first_name + ' ' + user.user?.last_name || "-"}
+                                                            </Stack>
+                                                        </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {moment(user.crime_date).isSame(moment(), "day")
                                                             ? `Today, ${moment(user.crime_date).format("hh:mm A")}`
-                                                            : formatDateTime(user.crime_date,"HH:mm:ss - DD/MM/YYYY")}
+                                                            : formatDateTime(user.crime_date, "HH:mm:ss - DD/MM/YYYY")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {moment(user.crime_date).isSame(moment(), "day")
                                                             ? `Today, ${moment(user.crime_date).format("hh:mm A")}`
-                                                            : formatDateTime(user.crime_date,"HH:mm:ss - DD/MM/YYYY")}
+                                                            : formatDateTime(user.crime_date, "HH:mm:ss - DD/MM/YYYY")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         0
@@ -372,22 +399,15 @@ const ChatGroupMemberList = () => {
                                                     <TableCell>
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
                                                             <Tooltip title="View" arrow placement="top">
-                                                                <IconButton onClick={() => handleView(`/home/total-saps-wanted/saps-member-inforamtion/${user._id}`)}>
+                                                                <IconButton onClick={() => handleView(user.user?.role === "driver" ? `/home/total-drivers/driver-information/${user.user_id}` : `/home/total-users/user-information/${user.user_id}`)}>
                                                                     <img src={ViewBtn} alt="view button" />
                                                                 </IconButton>
                                                             </Tooltip>
-                                                            <Tooltip title="Delete" arrow placement="top">
-                                                                <IconButton onClick={() => setconfirmation(user._id)}>
-                                                                    <img src={delBtn} alt="delete button" />
+                                                            <Tooltip title="Block" arrow placement="top">
+                                                                <IconButton onClick={() => setBlockPopup(user._id)}>
+                                                                    <img src={block_btn} alt="block button" />
                                                                 </IconButton>
                                                             </Tooltip>
-                                                            {confirmation === user._id && (
-                                                                <DeleteConfirm
-                                                                    id={user._id}
-                                                                    setconfirmation={setconfirmation}
-                                                                    trip="sapsmember"
-                                                                />
-                                                            )}
 
                                                         </Box>
                                                     </TableCell>
@@ -423,7 +443,7 @@ const ChatGroupMemberList = () => {
                                                 }}
                                                 value={rowsPerPage}
                                                 onChange={(e) => {
-                                                    updateParams({rowsPerPage:Number(e.target.value),currentPage:1});
+                                                    updateParams({ rowsPerPage: Number(e.target.value), currentPage: 1 });
                                                 }}
                                             >
                                                 {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -441,7 +461,7 @@ const ChatGroupMemberList = () => {
                                             </Typography>
                                             <IconButton
                                                 disabled={currentPage === 1}
-                                                onClick={() => updateParams({currentPage:currentPage - 1})}
+                                                onClick={() => updateParams({ currentPage: currentPage - 1 })}
                                             >
                                                 <NavigateBeforeIcon fontSize="small" sx={{
                                                     color: currentPage === 1 ? '#BDBDBD' : '#1976d2'
@@ -449,7 +469,7 @@ const ChatGroupMemberList = () => {
                                             </IconButton>
                                             <IconButton
                                                 disabled={currentPage === totalPages}
-                                                onClick={() => updateParams({currentPage:currentPage + 1})}
+                                                onClick={() => updateParams({ currentPage: currentPage + 1 })}
                                             >
                                                 <NavigateNextIcon fontSize="small" />
                                             </IconButton>
@@ -466,7 +486,7 @@ const ChatGroupMemberList = () => {
 
                     </Paper>
                 </Box>
-                <Box p={2}>
+                <Box >
                     <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                         <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                             <Grid size={{ xs: 12, md: 4 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
@@ -478,7 +498,7 @@ const ChatGroupMemberList = () => {
                                     variant="outlined"
                                     placeholder="Search"
                                     value={filterMember}
-                                    onChange={(e) => updateMembersParams({filterMember:e.target.value})}
+                                    onChange={(e) => updateMembersParams({ filterMember: e.target.value })}
                                     fullWidth
                                     sx={{
                                         width: '100%',
@@ -513,56 +533,56 @@ const ChatGroupMemberList = () => {
                                             <TableRow >
                                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px', minWidth: 150 }}>
                                                     <TableSortLabel
+                                                        id="message"
+                                                        active={sortByMember === 'message'}
+                                                        direction={sortOrderMember}
+                                                        onClick={changeSortOrderMember}
+                                                        IconComponent={() => <img src={sortByMember === 'message' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    >Message</TableSortLabel>
+                                                </TableCell>
+                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
+                                                    <TableSortLabel
+                                                        id="group_name"
+                                                        active={sortByMember === 'group_name'}
+                                                        direction={sortOrderMember}
+                                                        onClick={changeSortOrderMember}
+                                                        IconComponent={() => <img src={sortByMember === 'group_name' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    >Group Name</TableSortLabel>
+                                                </TableCell>
+                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
+                                                    <TableSortLabel
+                                                        id="user_code"
+                                                        active={sortByMember === 'user_code'}
+                                                        direction={sortOrderMember}
+                                                        onClick={changeSortOrderMember}
+                                                        IconComponent={() => <img src={sortByMember === 'user_code' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                    >User Code</TableSortLabel>
+                                                </TableCell>
+                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
+                                                    <TableSortLabel
                                                         id="first_name"
                                                         active={sortByMember === 'first_name'}
                                                         direction={sortOrderMember}
                                                         onClick={changeSortOrderMember}
                                                         IconComponent={() => <img src={sortByMember === 'first_name' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-                                                    >Message</TableSortLabel>
-                                                </TableCell>
-                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
-                                                    <TableSortLabel
-                                                        id="police_unit"
-                                                        active={sortByMember === 'police_unit'}
-                                                        direction={sortOrderMember}
-                                                        onClick={changeSortOrderMember}
-                                                        IconComponent={() => <img src={sortByMember === 'police_unit' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-                                                    >Group Name</TableSortLabel>
-                                                </TableCell>
-                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
-                                                    <TableSortLabel
-                                                        id="mobile_no"
-                                                        active={sortByMember === 'mobile_no'}
-                                                        direction={sortOrderMember}
-                                                        onClick={changeSortOrderMember}
-                                                        IconComponent={() => <img src={sortByMember === 'mobile_no' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
-                                                    >User Code</TableSortLabel>
-                                                </TableCell>
-                                                <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
-                                                    <TableSortLabel
-                                                        id="email"
-                                                        active={sortByMember === 'email'}
-                                                        direction={sortOrderMember}
-                                                        onClick={changeSortOrderMember}
-                                                        IconComponent={() => <img src={sortByMember === 'email' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                     >Real Name</TableSortLabel>
                                                 </TableCell>
                                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
                                                     <TableSortLabel
-                                                        id="email"
-                                                        active={sortByMember === 'email'}
+                                                        id="created_at"
+                                                        active={sortByMember === 'created_at'}
                                                         direction={sortOrderMember}
                                                         onClick={changeSortOrderMember}
-                                                        IconComponent={() => <img src={sortByMember === 'email' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                        IconComponent={() => <img src={sortByMember === 'created_at' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                     >Timestamp</TableSortLabel>
                                                 </TableCell>
                                                 <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', minWidth: 150 }}>
                                                     <TableSortLabel
-                                                        id="email"
-                                                        active={sortByMember === 'email'}
+                                                        id="flagged"
+                                                        active={sortByMember === 'flagged'}
                                                         direction={sortOrderMember}
                                                         onClick={changeSortOrderMember}
-                                                        IconComponent={() => <img src={sortByMember === 'email' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                                        IconComponent={() => <img src={sortByMember === 'flagged' ? sortOrderMember === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
                                                     >Falgged</TableSortLabel>
                                                 </TableCell>
                                                 <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
@@ -610,7 +630,7 @@ const ChatGroupMemberList = () => {
                                                     <TableCell>
                                                         <Box align="center" sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
                                                             <Tooltip title="View" arrow placement="top">
-                                                                <IconButton onClick={() => handleView(`/home/total-saps-wanted/saps-member-inforamtion/${user._id}`)}>
+                                                                <IconButton onClick={() => handleView()}>
                                                                     <img src={ViewBtn} alt="view button" />
                                                                 </IconButton>
                                                             </Tooltip>
@@ -626,6 +646,16 @@ const ChatGroupMemberList = () => {
                                                                     trip="sapsmember"
                                                                 />
                                                             )}
+                                                            <Tooltip title="Block" arrow placement="top">
+                                                                <IconButton onClick={() => setBlockPopup(user._id)}>
+                                                                    <img src={block_btn} alt="block button" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                            <Tooltip title="Warning" arrow placement="top">
+                                                                <IconButton onClick={() => setWarningPopup(user._id)}>
+                                                                    <img src={warn_btn} alt="warn button" />
+                                                                </IconButton>
+                                                            </Tooltip>
 
                                                         </Box>
                                                     </TableCell>
@@ -662,7 +692,7 @@ const ChatGroupMemberList = () => {
                                                 }}
                                                 value={rowsPerPageMember}
                                                 onChange={(e) => {
-                                                    updateMembersParams({rowsPerPageMember:Number(e.target.value),currentPageMember:1});
+                                                    updateMembersParams({ rowsPerPageMember: Number(e.target.value), currentPageMember: 1 });
                                                 }}
                                             >
                                                 {[5, 10, 15, 20, 50, 100].map((num) => (
@@ -680,7 +710,7 @@ const ChatGroupMemberList = () => {
                                             </Typography>
                                             <IconButton
                                                 disabled={currentPageMember === 1}
-                                                onClick={() => updateMembersParams({currentPageMember:currentPageMember - 1})}
+                                                onClick={() => updateMembersParams({ currentPageMember: currentPageMember - 1 })}
                                             >
                                                 <NavigateBeforeIcon fontSize="small" sx={{
                                                     color: currentPageMember === 1 ? '#BDBDBD' : '#1976d2'
@@ -688,7 +718,7 @@ const ChatGroupMemberList = () => {
                                             </IconButton>
                                             <IconButton
                                                 disabled={currentPageMember === totalMemberPages}
-                                                onClick={() => updateMembersParams({currentPageMember:currentPageMember + 1})}
+                                                onClick={() => updateMembersParams({ currentPageMember: currentPageMember + 1 })}
                                             >
                                                 <NavigateNextIcon fontSize="small" />
                                             </IconButton>
@@ -705,8 +735,199 @@ const ChatGroupMemberList = () => {
 
                     </Paper>
                 </Box>
-                {popup && <ImportSheet setpopup={setpopup} type="saps-member" />}
             </Box>
+
+            {blockPopup &&
+                <Dialog
+                    open={!!blockPopup}
+                    onClose={() => setBlockPopup(null)}
+                    maxWidth="sm"
+                    fullWidth
+                    PaperProps={{
+                        sx: {
+                            borderRadius: "24px",
+                            padding: "30px",
+                            textAlign: "center",
+                        },
+                    }}
+                >
+                    <DialogContent sx={{ p: 0 }}>
+                        {/* Icon */}
+                        <Box display="flex" justifyContent="center" mb={3}>
+                            <Box
+                                sx={{
+                                    width: 100,
+                                    height: 100,
+                                    borderRadius: "50%",
+                                    background: "#FCE7E8",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <img src={block_btn} alt="block" width={40} />
+                            </Box>
+                        </Box>
+
+                        {/* Title */}
+                        <Typography
+                            variant="h4"
+                            fontWeight={700}
+                            sx={{ mb: 2 }}
+                        >
+                            Block User
+                        </Typography>
+
+                        {/* Description */}
+                        <Typography
+                            sx={{
+                                color: "#6B7280",
+                                fontSize: "20px",
+                                lineHeight: 1.5,
+                                mb: 4,
+                            }}
+                        >
+                            Are you sure you want to block this user? They will no longer be able to send messages in this group.
+                        </Typography>
+
+                        {/* Buttons */}
+                        <Box display="flex" flexDirection="column" gap={2}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                disabled={blockMutation.isPending}
+                                onClick={() => blockMutation.mutate({ id: blockPopup, data: { status: 'block' } })}
+                                sx={{
+                                    background: "#DC2626",
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    fontSize: "20px",
+                                    fontWeight: 600,
+                                    textTransform: "none",
+                                    "&:hover": {
+                                        background: "#b91c1c",
+                                    },
+                                }}
+                            >
+                                Block User
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                fullWidth
+                                onClick={() => setBlockPopup(null)}
+                                sx={{
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    color: "#111",
+                                    borderColor: "#D1D5DB",
+                                    fontSize: "20px",
+                                    fontWeight: 500,
+                                    textTransform: "none",
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>
+                    </DialogContent>
+                </Dialog>
+            }
+            {warningPopup &&
+                <Dialog
+                    open={!!warningPopup}
+                    onClose={() => setWarningPopup(null)}
+                    maxWidth="sm"
+                    fullWidth
+                    PaperProps={{
+                        sx: {
+                            borderRadius: "24px",
+                            padding: "30px",
+                            textAlign: "center",
+                        },
+                    }}
+                >
+                    <DialogContent sx={{ p: 0 }}>
+                        {/* Icon */}
+                        <Box display="flex" justifyContent="center" mb={3}>
+                            <Box
+                                sx={{
+                                    width: 100,
+                                    height: 100,
+                                    borderRadius: "50%",
+                                    background: "#FFF7E6",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                            >
+                                <img src={warn_btn} alt="warning" width={40} />
+                            </Box>
+                        </Box>
+
+                        {/* Title */}
+                        <Typography
+                            variant="h4"
+                            fontWeight={700}
+                            sx={{ mb: 2 }}
+                        >
+                            Send Warning
+                        </Typography>
+
+                        {/* Description */}
+                        <Typography
+                            sx={{
+                                color: "#6B7280",
+                                fontSize: "20px",
+                                lineHeight: 1.5,
+                                mb: 4,
+                            }}
+                        >
+                            Are you sure you want to send a warning to this user for this message?
+                        </Typography>
+
+                        {/* Buttons */}
+                        <Box display="flex" flexDirection="column" gap={2}>
+                            <Button
+                                variant="contained"
+                                fullWidth
+                                disabled={warningMutation.isPending}
+                                onClick={() => warningMutation.mutate({ id: warningPopup, data: { flagged: true } })}
+                                sx={{
+                                    background: "#2F80ED",
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    fontSize: "20px",
+                                    fontWeight: 600,
+                                    textTransform: "none",
+                                    "&:hover": {
+                                        background: "#2569d9",
+                                    },
+                                }}
+                            >
+                                Send Warning
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                fullWidth
+                                onClick={() => setWarningPopup(null)}
+                                sx={{
+                                    borderRadius: "12px",
+                                    height: 56,
+                                    color: "#111",
+                                    borderColor: "#D1D5DB",
+                                    fontSize: "20px",
+                                    fontWeight: 500,
+                                    textTransform: "none",
+                                }}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>
+                    </DialogContent>
+                </Dialog>
+            }
+
         </Box>
     )
 }

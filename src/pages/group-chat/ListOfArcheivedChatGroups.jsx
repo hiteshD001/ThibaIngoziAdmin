@@ -26,7 +26,7 @@ import arrownuteral from '../../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 
 
-const ListOfChatGroups = () => {
+const ListOfArcheivedChatGroups = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
@@ -44,7 +44,7 @@ const ListOfChatGroups = () => {
     const locationFilter = searchParams.get("locationFilter") || "";
     const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
     const [confirmation, setconfirmation] = useState("");
-    const [archived, setArchived] = useState(false)
+    const [archived, setArchived] = useState(true)
 
     // Sort
     const [sortBy, setSortBy] = useState("createdAt");
@@ -294,7 +294,7 @@ const ListOfChatGroups = () => {
                                                             <IconButton onClick={() => {
                                                                 updateTripMutation.mutate({
                                                                     id: report?._id,
-                                                                    data: { isArchived: true }
+                                                                    data: { isArchived: false }
                                                                 });
                                                             }}>
                                                                 <img src={Listtrip} alt="view button" />
@@ -390,4 +390,4 @@ const ListOfChatGroups = () => {
         </Box>
     );
 }
-export default ListOfChatGroups;
+export default ListOfArcheivedChatGroups;
