@@ -27,6 +27,7 @@ import arrownuteral from '../../assets/images/arrownuteral.svg';
 import moment from "moment";
 import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { toast } from "react-toastify";
+import { toISO } from "../../utils/dateUtils";
 
 const ChatGroupMemberList = () => {
 
@@ -45,8 +46,8 @@ const ChatGroupMemberList = () => {
     const locationFilter = searchParams.get("locationFilter") || "";
     const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 5;
     const [confirmation, setconfirmation] = useState("");
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
     const nav = useNavigate()
@@ -80,8 +81,8 @@ const ChatGroupMemberList = () => {
     const filterMember = searchParamsMember.get("filterMember") || "";
     const locationFilterMember = searchParamsMember.get("locationFilterMember") || "";
     const rowsPerPageMember = Number(searchParamsMember.get("rowsPerPageMember")) || 5;
-    const startDateMember = rangeMember[0].startDate.toISOString();
-    const endDateMember = rangeMember[0].endDate.toISOString();
+    const startDateMember = toISO(rangeMember[0].startDate);
+    const endDateMember = toISO(rangeMember[0].endDate);
     const [sortByMember, setSortByMember] = useState("createdAt");
     const [sortOrderMember, setSortOrderMember] = useState("desc");
     const [popup, setpopup] = useState(false);

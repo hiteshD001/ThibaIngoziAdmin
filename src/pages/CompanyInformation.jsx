@@ -65,6 +65,7 @@ import nouser from "../assets/images/NoUser.png";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
+import { toISO } from "../utils/dateUtils";
 
 const CompanyInformation = () => {
     // useStates
@@ -118,8 +119,8 @@ const CompanyInformation = () => {
             key: 'selection'
         }
     ]);
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
     const changeSortOrder = (e) => {
         const field = e.target.id;
         if (field !== sortBy) {

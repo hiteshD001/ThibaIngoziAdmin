@@ -36,6 +36,7 @@ import * as XLSX from 'xlsx';
 import { getImageLink, formatDateTime } from '../../common/commonFn';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 import SingleImagePreview from "../../common/SingleImagePreview";
+import { toISO } from "../../utils/dateUtils";
 
 const ListOfViewArcheivedMissingPerson = () => {
     const [popup, setpopup] = useState(false);
@@ -310,8 +311,8 @@ const ListOfViewArcheivedMissingPerson = () => {
                                     onChange={(nextRange) => {
                                         setRange(nextRange);
                                         updateParams({
-                                            startDate: new Date(nextRange[0].startDate).toISOString(),
-                                            endDate: new Date(nextRange[0].endDate).toISOString(),
+                                            startDate: toISO(nextRange[0].startDate),
+                                            endDate: toISO(nextRange[0].endDate),
                                         });
                                     }}
                                     icon={calender}
