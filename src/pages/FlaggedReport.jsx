@@ -21,6 +21,7 @@ import * as XLSX from 'xlsx';
 import { toast } from "react-toastify";
 import apiClient from '../API Calls/APIClient'
 import { startOfYear } from "date-fns";
+import { toISO } from "../utils/dateUtils";
 
 
 const FlaggedReport = () => {
@@ -43,8 +44,8 @@ const FlaggedReport = () => {
             key: 'selection'
         }
     ]);
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
 
     const UserList = useGetUserList("user list", "passanger", paramId, currentPage, rowsPerPage, filter, "", startDate, endDate);
     const totalUsers = UserList.data?.data?.totalUsers || 0;

@@ -88,6 +88,12 @@ const SubscriptionManagement = lazy(() => import("./pages/subscription-managemen
 const SubscriptionDetails = lazy(() => import("./pages/subscription-management/SubscriptionInformation"));
 const AddFamilyMember = lazy(() => import("./pages/familyMembers/AddFamilyMember"));
 const FamilyMemberInformation = lazy(() => import("./pages/familyMembers/FamilyMemberInformation"));
+const AddChatGroup = lazy(() => import("./pages/group-chat/AddChatGroup"));
+const ListOfChatGroups = lazy(() => import("./pages/group-chat/ListOfChatGroups"));
+const ChatGroupDetails = lazy(() => import("./pages/group-chat/ChatGroupDetails"));
+const ChatGroupMemberList = lazy(() => import("./pages/group-chat/ChatGroupMemberList"));
+const ListOfArcheivedChatGroups = lazy(() => import("./pages/group-chat/ListOfArcheivedChatGroups"));
+
 
 function App() {
 
@@ -534,6 +540,31 @@ function App() {
                                     path: "subscription-information/:id",
                                     element: <SubscriptionDetails />
                                 },
+                            ]
+                        },
+                        {
+                            path: "chat-group",
+                            children: [
+                                {
+                                    path: "",
+                                    element: <ListOfChatGroups />
+                                },
+                                {
+                                    path: "view-archeived-chat-group",
+                                    element: <ListOfArcheivedChatGroups />
+                                },
+                                {
+                                    path: "add-chat-group",
+                                    element: <AddChatGroup />
+                                },
+                                {
+                                    path: "chat-group-detail/:id",
+                                    element: <ChatGroupDetails />
+                                },
+                                {
+                                    path: "chat-group-member-and-message-detail/:id",
+                                    element: <ChatGroupMemberList />
+                                }
                             ]
                         },
 

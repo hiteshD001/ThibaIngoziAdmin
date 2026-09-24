@@ -279,3 +279,10 @@ export const familyMemberValidation = yup.object({
     allergies:yup.array().min(1, "Please select at least one allergy").required("This is a required field"),
     emergency_contacts:yup.array().min(1, "Please select at least one emergency contact").required("This is a required field"),
 })
+
+export const chatGrouValidation = yup.object({
+    group_name: String,
+    city: String,
+    suburb: String,
+    country: String,
+})
