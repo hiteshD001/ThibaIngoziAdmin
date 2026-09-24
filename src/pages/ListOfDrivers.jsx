@@ -57,6 +57,7 @@ import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 import { clearListPageState, loadListPageState, saveListPageState } from "../common/ListPageState";
+import { toISO } from "../utils/dateUtils";
 
 const ListOfDrivers = () => {
     const [edit, setedit] = useState(false);
@@ -84,8 +85,8 @@ const ListOfDrivers = () => {
         endDate: new Date(endDateParam),
         key: 'selection'
     }]);
-    const startDate = new Date(range[0].startDate).toISOString();
-    const endDate = new Date(range[0].endDate).toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
     
     const page = Number(searchParams.get("page")) || 1;
     const filter = searchParams.get("filter") || "";
@@ -141,8 +142,8 @@ const ListOfDrivers = () => {
             sortOrder,
             range: [
                 {
-                    startDate: range[0].startDate.toISOString(),
-                    endDate: range[0].endDate.toISOString(),
+                    startDate: toISO(range[0].startDate),
+                    endDate: toISO(range[0].endDate),
                     key: "selection"
                 }
             ]
@@ -998,8 +999,8 @@ const ListOfDrivers = () => {
                                 onChange={(nextRange) => {
                                     setRange(nextRange);
                                     updateParams({
-                                        startDate: nextRange[0].startDate.toISOString(),
-                                        endDate: nextRange[0].endDate.toISOString(),
+                                        startDate: toISO(nextRange[0].startDate),
+                                        endDate: toISO(nextRange[0].endDate),
                                         page: 1,
                                     });
                                 }}
