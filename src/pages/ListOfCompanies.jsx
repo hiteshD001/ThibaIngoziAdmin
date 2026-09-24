@@ -39,6 +39,7 @@ import apiClient from '../API Calls/APIClient'
 import calender from '../assets/images/calender.svg';
 import { startOfYear } from "date-fns";
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
+import { toISO } from "../utils/dateUtils";
 
 const ListOfCompanies = () => {
   const nav = useNavigate();
@@ -75,8 +76,8 @@ const ListOfCompanies = () => {
   const [selectedId, setSelectedId] = useState("");
   const [statusConfirmation, setStatusConfirmation] = useState({ show: false, userId: null, newStatus: null });
   const [isRange, setIsRange] = useState(false);
-  const startDate = isRange ? "" : new Date(range[0].startDate).toISOString()
-  const endDate = isRange ? "" : new Date(range[0].endDate).toISOString()
+  const startDate = isRange ? "" : toISO(range[0].startDate)
+  const endDate = isRange ? "" : toISO(range[0].endDate)
   const currentPage = Number(searchParams.get("currentPage")) || 1;
   const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
   const companyList = useGetUserList("company list", "company", "", currentPage, rowsPerPage, debouncedFilter, "", startDate, endDate, sortBy, sortOrder)
@@ -118,8 +119,8 @@ const ListOfCompanies = () => {
   const handleDateRangeChange = (newRange) => {
     setRange(newRange);
     updateParams({
-      startDate: newRange[0].startDate.toISOString(),
-      endDate: newRange[0].endDate.toISOString(),
+      startDate: toISO(newRange[0].startDate),
+      endDate: toISO(newRange[0].endDate),
       page: 1,
     });
     setIsRange(false); // Reset isRange when specific dates are selected

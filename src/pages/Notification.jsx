@@ -24,6 +24,7 @@ import { useNavigate, useSearchParams,Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useQueryClient } from "@tanstack/react-query";
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
+import { toISO } from "../utils/dateUtils";
 
 const Notification = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -63,7 +64,7 @@ const Notification = () => {
     };
 
     // API call
-    const Notification_API_Data = useGetNotificationList('notification list',role,currentPage,rowsPerPage,filter,locationFilter,filterType,range[0].startDate.toISOString(), range[0].endDate.toISOString())
+    const Notification_API_Data = useGetNotificationList('notification list',role,currentPage,rowsPerPage,filter,locationFilter,filterType,toISO(range[0].startDate), toISO(range[0].endDate))
     const Notification_List = Notification_API_Data?.data?.data || {}
 
     const onSuccess = (variables) => {
@@ -259,8 +260,8 @@ const Notification = () => {
                                 onChange={(nextRange) => {
                                     setRange(nextRange);
                                     updateParams({
-                                        startDate: new Date(nextRange[0].startDate).toISOString(),
-                                        endDate: new Date(nextRange[0].endDate).toISOString(),
+                                        startDate: toISO(nextRange[0].startDate),
+                                        endDate: toISO(nextRange[0].endDate),
                                     });
                                 }}
                                 icon={calender}

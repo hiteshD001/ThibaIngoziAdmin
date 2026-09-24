@@ -58,6 +58,7 @@ import tone from "../assets/audio/notification.mp3"
 import { enable2FA } from "../API Calls/authAPI";
 import QRCode from 'qrcode';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
+import { toISO } from "../utils/dateUtils";
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -146,10 +147,10 @@ const Home = () => {
     const [is2FAEnabled, setIs2FAEnabled] = useState(false);
     const [is2FALoading, setIs2FALoading] = useState(false);
 
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
-    const startDateSos = rangeSos[0].startDate.toISOString();
-    const endDateSos = rangeSos[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
+    const startDateSos = toISO(rangeSos[0].startDate);
+    const endDateSos = toISO(rangeSos[0].endDate);
 
     // Sort
     const [sortBy, setSortBy] = useState("createdAt");
@@ -705,8 +706,8 @@ const Home = () => {
             setSortOrderCrimeActive(p => p === 'asc' ? 'desc' : 'asc')
         }
     }
-    const startDateFilterCrimeActive = rangeCrimeActive[0].startDate.toISOString();
-    const endDateFilterCrimeActive = rangeCrimeActive[0].endDate.toISOString();
+    const startDateFilterCrimeActive = toISO(rangeCrimeActive[0].startDate);
+    const endDateFilterCrimeActive = toISO(rangeCrimeActive[0].endDate);
     const shortText = (text, limit = 30) =>
         text.length > limit ? text.substring(0, limit) + '...' : text;
     const updateParamsCrimeActive = (newParams) => {
@@ -757,8 +758,8 @@ const Home = () => {
             setSortOrderCrimeRecent(p => p === 'asc' ? 'desc' : 'asc')
         }
     }
-    const startDateFilterCrimeRecent = rangeCrimeRecent[0].startDate.toISOString();
-    const endDateFilterCrimeRecent = rangeCrimeRecent[0].endDate.toISOString();
+    const startDateFilterCrimeRecent = toISO(rangeCrimeRecent[0].startDate);
+    const endDateFilterCrimeRecent = toISO(rangeCrimeRecent[0].endDate);
     const updateParamsCrimeRecent = (newParams) => {
         setSearchParamsCrimeReportRecent({
             currentPageCrimeRecent,
@@ -917,8 +918,8 @@ const Home = () => {
                                     onChange={(nextRange) => {
                                         setRangeSos(nextRange);
                                         updateParams({
-                                            startDate: nextRange[0].startDate.toISOString(),
-                                            endDate: nextRange[0].endDate.toISOString(),
+                                            startDate: toISO(nextRange[0].startDate),
+                                            endDate: toISO(nextRange[0].endDate),
                                             page: 1,
                                         });
                                     }}
@@ -1467,8 +1468,8 @@ const Home = () => {
                                     onChange={(nextRange) => {
                                         setRangeCrimeActive(nextRange);
                                         updateParamsCrimeActive({
-                                            startDateCrimeActive: nextRange[0].startDate.toISOString(),
-                                            endDateCrimeActive: nextRange[0].endDate.toISOString(),
+                                            startDateCrimeActive: toISO(nextRange[0].startDate),
+                                            endDateCrimeActive: toISO(nextRange[0].endDate),
                                             currentPageCrimeActive: 1,
                                         });
                                     }}
@@ -1868,8 +1869,8 @@ const Home = () => {
                                     onChange={(nextRange) => {
                                         setRange(nextRange);
                                         updateRecentParams({
-                                            startDate: nextRange[0].startDate.toISOString(),
-                                            endDate: nextRange[0].endDate.toISOString(),
+                                            startDate: toISO(nextRange[0].startDate),
+                                            endDate: toISO(nextRange[0].endDate),
                                             page: 1,
                                         });
                                     }}
@@ -2338,8 +2339,8 @@ const Home = () => {
                                     onChange={(nextRange) => {
                                         setRangeCrimeRecent(nextRange);
                                         updateParamsCrimeRecent({
-                                            startDateCrimeRecent: nextRange[0].startDate.toISOString(),
-                                            endDateCrimeRecent: nextRange[0].endDate.toISOString(),
+                                            startDateCrimeRecent: toISO(nextRange[0].startDate),
+                                            endDateCrimeRecent: toISO(nextRange[0].endDate),
                                             currentPageCrimeRecent: 1,
                                         });
                                     }}

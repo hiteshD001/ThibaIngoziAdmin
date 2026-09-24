@@ -30,6 +30,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
+import { toISO } from "../utils/dateUtils";
 
 const ListOfMeetingLinkTrips = () => {
   const nav = useNavigate();
@@ -69,8 +70,8 @@ const ListOfMeetingLinkTrips = () => {
   };
 
   const [confirmation, setConfirmation] = useState("");
-  const startDate = range[0].startDate.toISOString();
-  const endDate = range[0].endDate.toISOString();
+  const startDate = toISO(range[0].startDate);
+  const endDate = toISO(range[0].endDate);
   const trip = useGetMeetingLinkTripList("Meeting Link Trip list", page, rowsPerPage, debouncedFilter, startDate, endDate, isArchived, sortBy, sortOrder, companyId);
   const tripList = trip?.data?.data?.tripData || [];
   const totalTrips = trip?.data?.data?.totalMeetingLinkTripData || 0;
@@ -223,8 +224,8 @@ const ListOfMeetingLinkTrips = () => {
                 onChange={(nextRange) => {
 									setRange(nextRange);
 									updateParams({
-										startDate: new Date(nextRange[0].startDate).toISOString(),
-										endDate: new Date(nextRange[0].endDate).toISOString(),
+										startDate: toISO(nextRange[0].startDate),
+										endDate: toISO(nextRange[0].endDate),
 										page: 1,
 									});
 								}}

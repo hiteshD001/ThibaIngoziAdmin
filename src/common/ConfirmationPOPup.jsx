@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
-import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent, useDeleteCrimeReport,useRemovePoliceUnit, useDeleteCaptureReport, useDeleteSuspectSighting,useDeleteSAPSMember,useDeleteSAPSWanted ,useDeleteFamilyMember} from "../API Calls/API";
+import { useDeleteUser, useDeleteUserTrip, useDeleteUserMeetingTripTrip, useDeleteSosAmount, useDeleteMissingPerson, useDeleteMissingVehicale, useDeleteSalesAgent, useDeleteCrimeReport,useRemovePoliceUnit, useDeleteCaptureReport, useDeleteSuspectSighting,useDeleteSAPSMember,useDeleteSAPSWanted ,useDeleteFamilyMember,useDeleteChatGroup} from "../API Calls/API";
 import { toast } from "react-toastify";
 import { toastOption } from "./ToastOptions";
 import { useState } from "react";
@@ -81,6 +81,12 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
     setconfirmation("");
   }
 
+  const onSuccessChatGroup = () => {
+    toast.success("Chat Group deleted successfully");
+    client.invalidateQueries("chat group list");
+    setconfirmation("");
+  }
+
 
   const deleteDriver = useDeleteUser(onSuccess, onError)
   const deleteTrip = useDeleteUserTrip(onSuccessTrip, onError)
@@ -94,6 +100,7 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
   const deleteuseSAPSWanted = useDeleteSAPSWanted(onSuccessSAPSWanted, onError)
   const deleteuseSAPSMember = useDeleteSAPSMember(onSuccessSAPSMember, onError)
   const deleteuseFamilyMember = useDeleteFamilyMember(onSuccessFamilyMember, onError)
+  const deleteuseChatGroup = useDeleteChatGroup(onSuccessChatGroup, onError)
 
   const handleConfirm = () => {
     if (trip === "trip") {
@@ -118,6 +125,8 @@ export const DeleteConfirm = ({ id, trip, setconfirmation }) => {
       deleteuseSAPSMember.mutate(id);
     }else if(trip === 'familymember'){
       deleteuseFamilyMember.mutate(id);
+    }else if(trip === 'chatgroup'){
+      deleteuseChatGroup.mutate(id);
     }else {
       deleteDriver.mutate(id);
     }

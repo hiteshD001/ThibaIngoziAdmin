@@ -30,6 +30,7 @@ import arrowup from '../../assets/images/arrowup.svg';
 import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
+import { toISO } from "../../utils/dateUtils";
 
 const ListOfArcheivedCrimeReports = () => {
     const [popup, setpopup] = useState(false);
@@ -69,8 +70,8 @@ const ListOfArcheivedCrimeReports = () => {
 
     let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
 
     const UserList = useGetCrimeReportList("crime report list", role, currentPage, rowsPerPage, filter,locationFilter ,startDate, endDate, archived,sortBy, sortOrder);
     const totalCrimeReportData = UserList.data?.data?.totalCrimeReportData || 0;
@@ -281,8 +282,8 @@ const ListOfArcheivedCrimeReports = () => {
                                 onChange={(nextRange) => {
 									setRange(nextRange);
 									updateParams({
-										startDate: new Date(nextRange[0].startDate).toISOString(),
-										endDate: new Date(nextRange[0].endDate).toISOString(),
+										startDate: toISO(nextRange[0].startDate),
+										endDate: toISO(nextRange[0].endDate),
 									});
 								}}
                                 icon={calender}

@@ -1005,6 +1005,24 @@ export const useGetCityList = (id) => {
     return res;
 };
 
+export const useGetsurbubList = (id) => {
+    const queryFn = async (queryId) => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/surbub?city_id=${queryId}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["surbub List", id],
+        queryFn: () => queryFn(id),
+        staleTime: 15 * 60 * 1000,
+        enabled: Boolean(id),
+        retry: false,
+    });
+
+    return res;
+};
+
 // get list of Country
 export const useGetCountryList = () => {
     const queryFn = async () => {
@@ -3777,4 +3795,318 @@ export const useDeleteFamilyMember = (onSuccess, onError) => {
     });
 
     return mutation;
+}
+
+// Group chat
+export const useGetChatGroups = (
+    key,
+    role,
+    page,
+    limit,
+    filter,
+    locationFilter,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder,
+    archived
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/group-chat`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                locationFilter,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder,archived
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            locationFilter,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder,archived
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+
+export const useAddChatGroup = (onSuccess, onError) => {
+    const mutationFn = async (data) => {
+        return await apiClient.post(
+            `${import.meta.env.VITE_BASEURL}/group-chat`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+// get single data
+export const useGetChatGroupById = (userId) => {
+    const queryFn = async () => {
+        return await apiClient.get(
+            `${import.meta.env.VITE_BASEURL}/group-chat/${userId}`
+        );
+    };
+
+    const res = useQuery({
+        queryKey: ["group", userId],
+        queryFn: queryFn,
+        staleTime: Infinity,
+        enabled: userId !== undefined,
+    });
+
+    return res;
+};
+
+export const useDeleteChatGroup = (onSuccess, onError) => {
+    const mutationFn = async (id) => {
+        return await apiClient.delete(
+            `${import.meta.env.VITE_BASEURL}/group-chat/${id}`
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useChatGroupEdit = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/group-chat/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+};
+
+export const useGetChatGroupsMembers = (
+    key,
+    role,
+    group_id,
+    page,
+    limit,
+    filter,
+    locationFilter,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/group-chat/groupchat-members/${group_id}`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                locationFilter,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            locationFilter,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetChatGroupsMessageList = (
+    key,
+    role,
+    group_id,
+    page,
+    limit,
+    filter,
+    locationFilter,
+    startDate,
+    endDate,
+    sortBy,
+    sortOrder
+) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/group-chat/groupchat-admin-message/${group_id}`, {
+            params: {
+                role,
+                page,
+                limit,
+                filter,
+                locationFilter,
+                startDate,
+                endDate,
+                sortBy,
+                sortOrder
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: [
+            key,
+            role,
+            page,
+            limit,
+            filter,
+            locationFilter,
+            startDate,
+            endDate,
+            sortBy,
+            sortOrder
+        ],
+        queryFn: queryFn,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const useGetGroupChatMemberPageData = (group_id) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/group-chat/groupchat-admin-member-detail-page/${group_id}`, {
+            params: {
+            },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: ["groupChatMemberPageData",group_id],
+        queryFn: queryFn,
+        ...LIST_CACHE_OPTIONS,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
+export const usePutGroupchatMemberBlock = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/group-chat/member-change-status/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const usePutGroupchatMessageWarning = (onSuccess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/group-chat/message-warning/${id}`,
+            data
+        );
+    };
+
+    const mutation = useMutation({
+        mutationFn,
+        onSuccess,
+        onError,
+    });
+
+    return mutation;
+}
+
+export const useGroupChatputIsArchived = (onSucess, onError) => {
+    const mutationFn = async ({ id, data }) => {
+        return await apiClient.put(
+            `${import.meta.env.VITE_BASEURL}/group-chat/isArchived/${id}`,
+            data
+        );
+    };
+
+    const res = useMutation({
+        mutationFn: mutationFn,
+        onSuccess: () => onSucess(),
+        onError: (err) => onError(err),
+    });
+
+    return res;
 }

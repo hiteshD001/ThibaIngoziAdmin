@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import {
-    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Avatar, Stack, Select, MenuItem, Chip,
+    Box, Typography, TextField, Button, IconButton, Paper, Table, TableBody,TableSortLabel, TableCell, TableContainer, TableHead, TableRow, Grid, InputAdornment, Avatar, Stack, Select, MenuItem, Chip,
     Tooltip
 } from "@mui/material";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
@@ -9,27 +9,25 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import search from '../../assets/images/search.svg';
 import ViewBtn from '../../assets/images/ViewBtn.svg'
 import delBtn from '../../assets/images/delBtn.svg'
+import Listtrip from '../../assets/images/Listtrip.svg'
 import whiteplus from '../../assets/images/whiteplus.svg';
-import { useGetPoliceUnits, usePutIsArchived } from "../../API Calls/API";
+import { useGetChatGroups, useGroupChatputIsArchived } from "../../API Calls/API";
 import Loader from "../../common/Loader";
 import CustomFilter from '../../common/Custom/CustomFilter'
 import ImportSheet from "../../common/ImportSheet";
-import CustomExportMenu from '../../common/Custom/CustomExport'
 import CustomDateRangePicker from "../../common/Custom/CustomDateRangePicker";
 import calender from '../../assets/images/calender.svg';
-import jsPDF from 'jspdf';
-import { autoTable } from 'jspdf-autotable'
-import * as XLSX from 'xlsx';
 import { toast } from "react-toastify";
-import apiClient from '../../API Calls/APIClient'
 import { startOfYear } from "date-fns";
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
-import nouser from "../../assets/images/NoUser.png";
+import arrowup from '../../assets/images/arrowup.svg';
+import arrowdown from '../../assets/images/arrowdown.svg';
+import arrownuteral from '../../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 import { toISO } from "../../utils/dateUtils";
 
 
-const ListOfPoliceUnits = () => {
+const ListOfChatGroups = () => {
     const [popup, setpopup] = useState(false);
     const nav = useNavigate();
     const [role] = useState(localStorage.getItem("role"));
@@ -46,7 +44,6 @@ const ListOfPoliceUnits = () => {
     const filter = searchParams.get("filter") || "";
     const locationFilter = searchParams.get("locationFilter") || "";
     const rowsPerPage = Number(searchParams.get("rowsPerPage")) || 10;
-    const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
     const [archived, setArchived] = useState(false)
 
@@ -70,15 +67,14 @@ const ListOfPoliceUnits = () => {
     const startDate = toISO(range[0].startDate);
     const endDate = toISO(range[0].endDate);
 
-    const UserList = useGetPoliceUnits("police unit list", "company", currentPage, rowsPerPage, filter,locationFilter, startDate, endDate, sortBy, sortOrder);
+    const UserList = useGetChatGroups("chat group list", role, currentPage, rowsPerPage, filter,locationFilter, startDate, endDate, sortBy, sortOrder,archived);
 
-
-    const totalpoliceUnitData = UserList.data?.data?.totalpoliceUnitData || 0;
+    const totalpoliceUnitData = UserList.data?.data?.totalData || 0;
     const totalPages = Math.ceil(totalpoliceUnitData / rowsPerPage);
 
-    const updateTripMutation = usePutIsArchived(
+    const updateTripMutation = useGroupChatputIsArchived(
         (id, data) => {
-            toast.success("Crime Report Archived Successfully")
+            toast.success("Group Chat Archived Successfully")
 
             UserList.refetch();
         },
@@ -86,73 +82,6 @@ const ListOfPoliceUnits = () => {
             console.error('Error updating trip:', error);
         }
     );
-    const shortText = (text, limit = 30) =>
-        text.length > limit ? text.substring(0, limit) + '...' : text;
-
-    const handleExport = async ({ startDate, endDate, exportFormat }) => {
-        try {
-            const data = UserList.data?.data
-
-            const allUsers = data?.policeUnitData || [];
-
-            if (!allUsers.length) {
-                toast.warning("No Police Unit data found for this period.");
-                return;
-            }
-
-            const exportData = allUsers.map(user => ({
-                "Police Unit": `${user.police_unit_name || ''}` || '',
-                "Contact Name": user.contact_name || '',
-                "Contact No.": `${user.mobile_no_country_code || ''}${user.mobile_no || ''}`,
-                "Contact Email": user.email || ''
-            }));
-
-            if (exportFormat === "xlsx") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const columnWidths = Object.keys(exportData[0] || {}).map((key) => ({
-                    wch: Math.max(key.length, ...exportData.map((row) => String(row[key] ?? 'NA').length)) + 2
-                }));
-                worksheet['!cols'] = columnWidths;
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Police_Units");
-                XLSX.writeFile(workbook, "Ploice_Unit_List.xlsx");
-            }
-            else if (exportFormat === "csv") {
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const csv = XLSX.utils.sheet_to_csv(worksheet);
-                const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'Ploice_Unit_list.csv';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-            else if (exportFormat === "pdf") {
-                const doc = new jsPDF();
-                doc.text('Police Unit List', 14, 16);
-                autoTable(doc, {
-                    head: [['Police Unit', 'Contact Name', 'Contact No.', 'Contact Email']],
-                    body: allUsers.map(user => [
-                        `${user.police_unit_name || ''}` ?? 'NA',
-                        user.contact_name ?? 'NA',
-                        `${user.mobile_no_country_code || ''}${user.mobile_no || ''}` ?? 'NA',
-                        user.email ?? 'NA'
-                    ]),
-                    startY: 20,
-                    theme: 'striped',
-                    headStyles: { fillColor: '#367BE0' },
-                    margin: { top: 20 },
-                    styles: { fontSize: 10 },
-                });
-                doc.save("Ploice_Unit_List.pdf");
-            }
-
-        } catch (err) {
-            console.error("Error exporting data:", err);
-            toast.error("Export failed.");
-        }
-    };
 
     const handleFilterData = (data) => {
 
@@ -179,24 +108,24 @@ const ListOfPoliceUnits = () => {
     };
 
     // Handle Scroll Event store 
-    const handleView = (report) => {
-        saveScrollPosition("policeUnitListScroll");
-        nav(`/home/police-unit/police-unit-information/${report._id}`)
+    const handleView = (url) => {
+        saveScrollPosition("chatGroupsScroll");
+        nav(url)
     };
     useEffect(() => {
-        if (UserList.data?.data.policeUnitData.length) {
-            restoreScrollPosition("policeUnitListScroll");
+        if (UserList.data?.data.data.length) {
+            restoreScrollPosition("chatGroupsScroll");
         }
-    }, [UserList.data?.data.policeUnitData]);
+    }, [UserList.data?.data.data]);
 
     return (
         <Box p={2}>
             <Paper elevation={3} sx={{ backgroundColor: "rgb(253, 253, 253)", padding: 2, borderRadius: '10px' }}>
                 <Grid container justifyContent="space-between" alignItems="center" mb={2}>
                     <Grid size={{ xs: 12, lg: 3 }} sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: { xs: 1, md: 0 } }}>
-                        <Typography variant="h6" fontWeight={590}>Police Units</Typography>
+                        <Typography variant="h6" fontWeight={590}>Chat Groups</Typography>
                         <Typography variant="h6" fontWeight={550}>
-                            {UserList.isSuccess ? UserList.data?.data?.totalpoliceUnitData : 0}
+                            {UserList.isSuccess ? UserList.data?.data?.totalData : 0}
                         </Typography>
                     </Grid>
                     <Grid size={{ xs: 12, lg: 9 }} sx={{ display: 'flex', justifyContent: 'flex-end', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mt: { xs: 2, lg: 0 } }}>
@@ -253,18 +182,17 @@ const ListOfPoliceUnits = () => {
                                 icon={calender}
                             />
 
-                            <Button variant="contained" onClick={() => nav("/home/police-unit/add-police-unit")} sx={{ height: '40px', fontSize: '0.8rem', width: '150px', borderRadius: '8px' }}
+                            <Button variant="contained" onClick={() => nav("/home/chat-group/add-chat-group")} sx={{ height: '40px', fontSize: '0.8rem', width: '150px', borderRadius: '8px' }}
                                 startIcon={<img src={whiteplus} alt='white plus' />}>
-                                Add Police Unit
+                                Create New Group
                             </Button>
-                            <CustomExportMenu onExport={handleExport} />
-                            {/* <Button
-                                onClick={() => nav('/home/crime-reports/view-archeived-crime-report')}
+                            <Button
+                                onClick={() => nav('/home/chat-group/view-archeived-chat-group')}
                                 variant="contained"
                                 sx={{ height: '40px', fontSize: '0.8rem', backgroundColor: '#367BE0', width: '180px', borderRadius: '8px' }}
                                 startIcon={<img src={ViewBtn} alt="View" />}>
                                 View Archeived
-                            </Button> */}
+                            </Button>
                         </Box>
 
                     </Grid>
@@ -274,10 +202,42 @@ const ListOfPoliceUnits = () => {
                         <Table sx={{ '& .MuiTableCell-root': { fontSize: '15px' } }}>
                             <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
                                 <TableRow >
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>Police Unit</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Contact Name</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Email</TableCell>
-                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>Contact No.</TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563', borderTopLeftRadius: '10px' }}>
+                                        <TableSortLabel
+                                            id="group_name"
+                                            active={sortBy === 'group_name'}
+                                            direction={sortOrder}
+                                            onClick={changeSortOrder}
+                                            IconComponent={() => <img src={sortBy === 'group_name' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                        >Group Name</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="total_users"
+                                                active={sortBy === 'total_users'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'total_users' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >No.of Users</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="total_messages"
+                                                active={sortBy === 'total_messages'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'total_messages' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Messages Today</TableSortLabel>
+                                    </TableCell>
+                                    <TableCell sx={{ backgroundColor: '#F9FAFB', color: '#4B5563' }}>
+                                        <TableSortLabel
+                                                id="total_reports_flag"
+                                                active={sortBy === 'total_reports_flag'}
+                                                direction={sortOrder}
+                                                onClick={changeSortOrder}
+                                                IconComponent={() => <img src={sortBy === 'total_reports_flag' ? sortOrder === 'asc' ? arrowup : arrowdown : arrownuteral} style={{ marginLeft: 5 }} />}
+                                            >Reports Flagged</TableSortLabel>
+                                    </TableCell>
                                     <TableCell align="center" sx={{ backgroundColor: '#F9FAFB', borderTopRightRadius: '10px', color: '#4B5563' }}>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -288,38 +248,41 @@ const ListOfPoliceUnits = () => {
                                             <Loader />
                                         </TableCell>
                                     </TableRow>)
-                                    : (UserList.data?.data.policeUnitData?.length > 0 ?
-                                        UserList.data?.data.policeUnitData.map((report) => (
+                                    : (UserList.data?.data.data?.length > 0 ?
+                                        UserList.data?.data.data.map((report) => (
 
                                             <TableRow key={report._id}>
-                                                <TableCell sx={{ color: 'var(--Blue)' }}>
-                                                    {report.police_unit_name}
-                                                </TableCell>
-                                                <TableCell sx={{ color: '#4B5563' }}>
-                                                    <Stack direction="row" alignItems="center" gap={1}>
-                                                        <Avatar
-                                                            src={report?.selfieImage || nouser}
-                                                            alt="User"
-                                                        />
-
-                                                        {report?.contact_name || "-"}
-
-                                                    </Stack>
+                                                <TableCell >
+                                                    <Link onClick={() => handleView(`/home/chat-group/chat-group-member-and-message-detail/${report?._id}`)} state={{ type: "Location" }} className="link2">
+                                                        {report.group_name}
+                                                    </Link>
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
 
-                                                    {report.email || "-"}
+                                                    {report.total_users}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'black' }}>
 
-                                                    {report.mobile_no_country_code}-{report.mobile_no}
+                                                    {report.todayMessageCount || 0}
 
+                                                </TableCell>
+                                                <TableCell sx={{ color: '#4B5563',}}>
+                                                    <Chip
+                                                        label={report.total_reports_flag}
+                                                        sx={{
+                                                            backgroundColor:'#FEE2E2',
+                                                            '& .MuiChip-label': {
+                                                                textTransform: 'capitalize',
+                                                                color: report.total_reports_flag > 0 ? '#DC2626' : 'black',
+                                                            }
+                                                        }}
+                                                    />
                                                 </TableCell>
                                                 <TableCell >
                                                     <Box align="center" sx={{ display: 'flex', flexDirection: 'row' }}>
                                                         <Tooltip title="View" arrow placement="top">
-                                                            <IconButton onClick={() => handleView(report)}>
+                                                            <IconButton onClick={() => handleView(`/home/chat-group/chat-group-detail/${report._id}`)}>
                                                                 <img src={ViewBtn} alt="flagged button" />
                                                             </IconButton>
                                                         </Tooltip>
@@ -328,7 +291,7 @@ const ListOfPoliceUnits = () => {
                                                                 <img src={delBtn} alt="delete button" />
                                                             </IconButton>
                                                         </Tooltip>
-                                                        {/* <Tooltip title="Archive" arrow placement="top">
+                                                        <Tooltip title="Archive" arrow placement="top">
                                                             <IconButton onClick={() => {
                                                                 updateTripMutation.mutate({
                                                                     id: report?._id,
@@ -337,10 +300,10 @@ const ListOfPoliceUnits = () => {
                                                             }}>
                                                                 <img src={Listtrip} alt="view button" />
                                                             </IconButton>
-                                                        </Tooltip> */}
+                                                        </Tooltip>
 
                                                         {confirmation === report?._id && (
-                                                            <DeleteConfirm id={report?._id} trip={"policeUnit"} setconfirmation={setconfirmation} />
+                                                            <DeleteConfirm id={report?._id} trip={"chatgroup"} setconfirmation={setconfirmation} />
                                                         )}
                                                     </Box>
 
@@ -362,7 +325,7 @@ const ListOfPoliceUnits = () => {
 
                     </TableContainer>
 
-                    {!UserList.isFetching && UserList.data?.data.policeUnitData.length > 0 &&
+                    {!UserList.isFetching && UserList.data?.data.data.length > 0 &&
                         <Grid container sx={{ px: { xs: 0, sm: 3 } }} justifyContent="space-between" alignItems="center" mt={2}>
                             <Grid>
                                 <Typography variant="body2">
@@ -428,4 +391,4 @@ const ListOfPoliceUnits = () => {
         </Box>
     );
 }
-export default ListOfPoliceUnits;
+export default ListOfChatGroups;

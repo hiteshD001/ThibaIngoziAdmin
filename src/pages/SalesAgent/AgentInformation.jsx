@@ -38,6 +38,7 @@ import ViewBtn from '../../assets/images/ViewBtn.svg'
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { toISO } from "../../utils/dateUtils";
 
 const AgentInformation = () => {
     const [edit, setEdit] = useState(false)
@@ -96,8 +97,8 @@ const AgentInformation = () => {
             key: 'selection'
         }
     ]);
-    const startDate = range[0].startDate?.toISOString();
-    const endDate = range[0].endDate?.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
     const driverList = useGetUserByInfluncer(page, 10, startDate, endDate, params.id, filter, sortBy, sortOrder)
     const totalUsers = driverList.data?.data?.data?.totalCount || 0;
     const totalPages = Math.ceil(totalUsers / rowsPerPage);
