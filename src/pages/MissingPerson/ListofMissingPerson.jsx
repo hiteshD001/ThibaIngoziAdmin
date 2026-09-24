@@ -40,6 +40,7 @@ import SapsIcon1 from '../../assets/images/SapsIcon1.svg'
 import SapsIcon3 from '../../assets/images/SapsIcon3.svg'
 import SapsIcon5 from '../../assets/images/SapsIcon5.svg'
 import SapsIcon6 from '../../assets/images/SapsIcon6.svg'
+import { toISO } from "../../utils/dateUtils";
 
 const ListofMissingPerson = () => {
     const [popup, setpopup] = useState(false);
@@ -431,8 +432,8 @@ const ListofMissingPerson = () => {
                                 onChange={(nextRange) => {
                                     setRange(nextRange);
                                     updateParams({
-                                        startDate: new Date(nextRange[0].startDate).toISOString(),
-                                        endDate: new Date(nextRange[0].endDate).toISOString(),
+                                        startDate: toISO(nextRange[0].startDate),
+                                        endDate: toISO(nextRange[0].endDate),
                                     });
                                 }}
                                 icon={calender}

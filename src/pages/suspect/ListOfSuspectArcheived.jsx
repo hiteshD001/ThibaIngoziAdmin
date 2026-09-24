@@ -31,6 +31,7 @@ import { useGetSuspectSightingsList, useSuspectSightPutIsArchived, useGetSuspect
 import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import { toast } from "react-toastify";
+import { toISO } from "../../utils/dateUtils";
 
 const ListOfSuspectArcheived = () => {
     const [popup, setpopup] = useState(false);
@@ -52,8 +53,8 @@ const ListOfSuspectArcheived = () => {
     const totalUsers = 10;
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
     const [archived, setArchived] = useState(true)
     const [isExporting, setIsExporting] = useState(false);
     const [confirmation, setconfirmation] = useState("");
@@ -291,8 +292,8 @@ const ListOfSuspectArcheived = () => {
                                     onChange={(nextRange) => {
                                         setRange(nextRange);
                                         updateParams({
-                                            startDate: new Date(nextRange[0].startDate).toISOString(),
-                                            endDate: new Date(nextRange[0].endDate).toISOString(),
+                                            startDate: toISO(nextRange[0].startDate),
+                                            endDate: toISO(nextRange[0].endDate),
                                         });
                                     }}
                                     icon={calender}

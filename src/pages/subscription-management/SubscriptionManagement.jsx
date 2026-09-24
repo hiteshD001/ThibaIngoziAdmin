@@ -47,6 +47,7 @@ import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 import TransactionHistoryPopup from "./transactionHistory";
 import search from '../../assets/images/search.svg';
+import { toISO } from "../../utils/dateUtils";
 
 const TAB_CONFIG = {
   ACTIVE_SUBSCRIPTION: "Active Users",
@@ -108,8 +109,8 @@ const SubscriptionManagement = () => {
         }
     }
 
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
 
     const SAPS_Page_API_Data = useGetSubscriptionPageData(locationFilter,startDate,endDate)
     const SAPS_Page_ObjData = SAPS_Page_API_Data.data?.data || {}
@@ -347,8 +348,8 @@ const SubscriptionManagement = () => {
                                 onChange={(nextRange) => {
                                     setRange(nextRange);
                                     updateParams({
-                                        startDate: new Date(nextRange[0].startDate).toISOString(),
-                                        endDate: new Date(nextRange[0].endDate).toISOString(),
+                                        startDate: toISO(nextRange[0].startDate),
+                                        endDate: toISO(nextRange[0].endDate),
                                     });
                                 }}
                                 icon={calender}
@@ -450,7 +451,7 @@ const SubscriptionManagement = () => {
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    <Typography variant="h3" fontWeight={600}>{(SAPS_Page_ObjData?.totalRevenueFromSubscriptions || 0).toFixed(2)}</Typography>
+                                    <Typography variant="h3" fontWeight={600}>R{(SAPS_Page_ObjData?.totalRevenueFromSubscriptions || 0).toFixed(2)}</Typography>
                                 )
                                 }
                                 {SAPS_Page_API_Data.isFetching ? (
@@ -562,7 +563,7 @@ const SubscriptionManagement = () => {
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    <Typography variant="h3" fontWeight={600}>{(SAPS_Page_ObjData?.averageSubscriptionValue || 0).toFixed(2)}</Typography>
+                                    <Typography variant="h3" fontWeight={600}>R{(SAPS_Page_ObjData?.averageSubscriptionValue || 0).toFixed(2)}</Typography>
                                 )
                                 }
                                 {SAPS_Page_API_Data.isFetching ? (
@@ -590,7 +591,7 @@ const SubscriptionManagement = () => {
                                 {SAPS_Page_API_Data.isFetching ? (
                                     <Skeleton variant="text" width={60} height={40} />
                                 ) : (
-                                    <Typography variant="h3" fontWeight={600}>{(SAPS_Page_ObjData?.totalSOSTypesRevenue || 0).toFixed(2)}</Typography>
+                                    <Typography variant="h3" fontWeight={600}>R{(SAPS_Page_ObjData?.totalSOSTypesRevenue || 0).toFixed(2)}</Typography>
                                 )
                                 }
                                 {SAPS_Page_API_Data.isFetching ? (

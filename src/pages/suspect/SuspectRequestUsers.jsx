@@ -32,6 +32,7 @@ import { getImageLink, formatDateTime } from '../../common/commonFn';
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import { toast } from "react-toastify";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { toISO } from "../../utils/dateUtils";
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -60,8 +61,8 @@ const SuspectRequestUsers = () => {
     const totalUsers = 10;
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortOrder, setSortOrder] = useState("desc");
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
     const [archived, setArchived] = useState(false)
     const [confirmation, setconfirmation] = useState("");
     const [copied, setCopied] = useState(false);
@@ -173,8 +174,8 @@ const SuspectRequestUsers = () => {
                                     onChange={(nextRange) => {
                                         setRange(nextRange);
                                         updateParams({
-                                            startDate: new Date(nextRange[0].startDate).toISOString(),
-                                            endDate: new Date(nextRange[0].endDate).toISOString(),
+                                            startDate: toISO(nextRange[0].startDate),
+                                            endDate: toISO(nextRange[0].endDate),
                                         });
                                     }}
                                     icon={calender}
