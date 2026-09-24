@@ -19,6 +19,7 @@ import changePasswordIcon from '../assets/images/changePasswordIcon.svg'
 import verificationView from '../assets/images/verificationView.png'
 import policestation from '../assets/images/SAPS.svg'
 import subscriptionMenuImg from '../assets/images/subscriptionMenuImg.svg'
+import chat_group_img from '../assets/images/chat_group.svg'
 import profile from "../assets/images/profile.png";
 import Logout from "../assets/images/Logout.svg";
 import Company from "../assets/images/Company.svg";
@@ -191,7 +192,7 @@ export const allMenuItems = [
         id: "chat-group",
         name: "Chat Groups",
         path: "/home/chat-group",
-        image: subscriptionMenuImg,
+        image: chat_group_img,
         permission: "Chat Groups"
     },
     {
