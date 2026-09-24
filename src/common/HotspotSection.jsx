@@ -29,6 +29,7 @@ import CustomDateRangePicker from "./Custom/CustomDateRangePicker";
 // Import the Hotspot Map component
 import HotspotMap from './HotspotMap';
 import { useMaps } from '../contexts/MapsContext';
+import { toISO } from "../utils/dateUtils";
 
 function HotspotSection({ hideCategories = false, company_id = null, companyIds = [], ehailing = false }) {
   const nav = useNavigate();
@@ -43,8 +44,8 @@ function HotspotSection({ hideCategories = false, company_id = null, companyIds 
       key: 'selection'
     }
   ]);
-  const startDate = range[0].startDate.toISOString();
-  const endDate = range[0].endDate.toISOString();
+  const startDate = toISO(range[0].startDate);
+  const endDate = toISO(range[0].endDate);
 
   const notificationTypes = useGetNotificationType();
 

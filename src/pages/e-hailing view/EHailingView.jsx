@@ -31,6 +31,7 @@ import { SOSStatusUpdate } from '../../common/ConfirmationPOPup';
 import CustomDateRangePicker from '../../common/Custom/CustomDateRangePicker';
 import TimeFilter from '../../common/Custom/TimeFilter';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
+import { toISO } from "../../utils/dateUtils";
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -644,10 +645,10 @@ const EHialingView = () => {
     //     //     key: 'selection'
     //     // }
     // ]);
-    const startDate = range[0].startDate?.toISOString();
-    const endDate = range[0].endDate?.toISOString();
-    const startDateSos = rangeSos[0].startDate?.toISOString();
-    const endDateSos = rangeSos[0].endDate?.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
+    const startDateSos = toISO(rangeSos[0].startDate);
+    const endDateSos = toISO(rangeSos[0].endDate);
 
     const userinfo = useGetUser(localStorage.getItem("userID"));
     const activeSos = useGetActiveSosDataEhailing({ page: activePage, limit: activeLimit, startDate: startDateSos, endDate: endDateSos, sortBy: sortBy2, sortOrder: sortOrder2, companyIds: ehailingCompanyIds });
@@ -1079,8 +1080,8 @@ const EHialingView = () => {
                                 onChange={(nextRange) => {
                                     setRange(nextRange);
                                     updateRecentParams({
-                                        startDate: nextRange[0].startDate.toISOString(),
-                                        endDate: nextRange[0].endDate.toISOString(),
+                                        startDate: toISO(nextRange[0].startDate),
+                                        endDate: toISO(nextRange[0].endDate),
                                         page: 1,
                                     });
                                 }}
@@ -1112,8 +1113,8 @@ const EHialingView = () => {
                                 onChange={(nextRange) => {
                                     setRangeSos(nextRange);
                                     updateParams({
-                                        startDate: nextRange[0].startDate.toISOString(),
-                                        endDate: nextRange[0].endDate.toISOString(),
+                                        startDate: toISO(nextRange[0].startDate),
+                                        endDate: toISO(nextRange[0].endDate),
                                         page: 1,
                                     });
                                 }}
@@ -1351,8 +1352,8 @@ const EHialingView = () => {
                                 onChange={(nextRange) => {
                                     setRange(nextRange);
                                     updateRecentParams({
-                                        startDate: nextRange[0].startDate.toISOString(),
-                                        endDate: nextRange[0].endDate.toISOString(),
+                                        startDate: toISO(nextRange[0].startDate),
+                                        endDate: toISO(nextRange[0].endDate),
                                         page: 1,
                                     });
                                 }}

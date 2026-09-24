@@ -33,6 +33,7 @@ import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 import { clearListPageState, loadListPageState, saveListPageState } from "../common/ListPageState";
+import { toISO } from "../utils/dateUtils";
 
 const ListOfUsers = () => {
     const [popup, setpopup] = useState(false);
@@ -118,8 +119,8 @@ const ListOfUsers = () => {
     const handleDateRangeChange = (newRange) => {
         setRange(newRange);
         updateParams({
-            startDate: new Date(newRange[0].startDate).toISOString(),
-            endDate: new Date(newRange[0].endDate).toISOString(),
+            startDate: toISO(newRange[0].startDate),
+            endDate: toISO(newRange[0].endDate),
         });
         setIsRange(false); // Reset isRange when specific dates are selected
     }

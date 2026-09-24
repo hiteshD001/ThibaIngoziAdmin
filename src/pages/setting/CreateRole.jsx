@@ -33,6 +33,7 @@ import application from "../../assets/images/permission/home.svg"
 import policeUnitIcn from "../../assets/images/permission/total-saps-wanted.svg"
 import verificationViewIcn from "../../assets/images/permission/view-verification.png"
 import subscriptionMenuImg from '../../assets/images/subscriptionMenuImg.svg'
+import chat_group_img_grey from '../../assets/images/chat_group_img_grey.svg'
 
 const CreateRole = ({ editRoleId, setEditRoleId }) => {
     const client = useQueryClient()
@@ -594,5 +595,9 @@ const icons = [
     {
         name: "Subscription Management",
         icon: subscriptionMenuImg
+    },
+    {
+        name: "Chat Groups",
+        icon: chat_group_img_grey
     }
 ]

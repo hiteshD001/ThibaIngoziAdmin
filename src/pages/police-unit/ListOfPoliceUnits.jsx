@@ -26,6 +26,7 @@ import { startOfYear } from "date-fns";
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import nouser from "../../assets/images/NoUser.png";
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
+import { toISO } from "../../utils/dateUtils";
 
 
 const ListOfPoliceUnits = () => {
@@ -66,8 +67,8 @@ const ListOfPoliceUnits = () => {
 
     let companyId = localStorage.getItem("userID");
     const paramId = role === "company" ? companyId : params.id;
-    const startDate = range[0].startDate.toISOString();
-    const endDate = range[0].endDate.toISOString();
+    const startDate = toISO(range[0].startDate);
+    const endDate = toISO(range[0].endDate);
 
     const UserList = useGetPoliceUnits("police unit list", "company", currentPage, rowsPerPage, filter,locationFilter, startDate, endDate, sortBy, sortOrder);
 
@@ -245,8 +246,8 @@ const ListOfPoliceUnits = () => {
                                 onChange={(nextRange) => {
 									setRange(nextRange);
 									updateParams({
-										startDate: new Date(nextRange[0].startDate).toISOString(),
-										endDate: new Date(nextRange[0].endDate).toISOString(),
+										startDate: toISO(nextRange[0].startDate),
+										endDate: toISO(nextRange[0].endDate),
 									});
 								}}
                                 icon={calender}
