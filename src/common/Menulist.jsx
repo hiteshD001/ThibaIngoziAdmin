@@ -188,11 +188,11 @@ export const allMenuItems = [
         permission: "Subscription Management"
     },
     {
-        id: "subscription-management",
+        id: "chat-group",
         name: "Chat Groups",
         path: "/home/chat-group",
         image: subscriptionMenuImg,
-        permission: "Subscription Management"
+        permission: "Chat Groups"
     },
     {
         id: "logout",
