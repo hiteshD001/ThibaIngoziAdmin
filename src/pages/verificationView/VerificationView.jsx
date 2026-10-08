@@ -18,6 +18,7 @@ import { useGetViewVerification } from "../../API Calls/API";
 import UserDetail from "./UserDetail";
 import CarDetail from "./CarDetail";
 import UserImages from "./UserImage";
+import NetworkIdentity from "./NetworkIndentity";
 import { toast } from "react-toastify";
 
 const VerificationView = () => {
@@ -136,6 +137,7 @@ const VerificationView = () => {
                                             </Grid>
                                         </Paper>
                                         <UserDetail user={userDetails?.contact} />
+                                        <NetworkIdentity />
                                     </Box>
                                 </Grid>
                                 <Grid size={9}>
