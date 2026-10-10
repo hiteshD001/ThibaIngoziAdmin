@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Paper, Typography } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 import PhoneAndroidOutlinedIcon from "@mui/icons-material/PhoneAndroidOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import SignalCellularAltOutlinedIcon from "@mui/icons-material/SignalCellularAltOutlined";
@@ -19,19 +20,51 @@ const GREEN = { bg: "#ECFDF3", color: "#166534", border: "#BBF7D0" };
 const RED = { bg: "#EF444426", color: "#EF4444", border: "#EF444426" };
 const NEUTRAL = { bg: "#367BE026", color: "#367BE0", border: "#E2E8F0" };
 
-const rows = [
-  { icon: PhoneAndroidOutlinedIcon, label: "Phone Number Verified", badge: "Passed", tone: GREEN },
-  { icon: BadgeOutlinedIcon, label: "Identity Match", badge: "Passed", tone: GREEN },
-  { icon: SignalCellularAltOutlinedIcon, label: "RICA / network status", badge: "Verified", tone: GREEN },
-  { icon: SimCardOutlinedIcon, label: "IMEI/Phone Number Match", badge: "Pass", tone: GREEN },
-  { icon: HomeOutlinedIcon, label: "Address recorded", badge: "Confirmed", tone: GREEN },
-  { icon: WifiTetheringOutlinedIcon, label: "Network", value: "Vodacom" },
-  { icon: TaskOutlinedIcon, label: "Verification reference", value: "TI-DRV-20384" },
-  { icon: CalendarMonthOutlinedIcon, label: "Verified on", value: "29 Sep 2026" },
-  { icon: SyncOutlinedIcon, label: "Last Sim Swap Date", value: "10 Oct 2026" },
-  { icon: SmartphoneOutlinedIcon, label: "Device Description", value: "iPhone 15 Pro Max" },
-  { icon: SimCardOutlinedIcon, label: "SIM Identifier (IMSI)", value: "X4325" },
-  { icon: WarningAmberOutlinedIcon, label: "Risk Score", badge: "Very High Risk", tone: RED, iconTone: RED },
+const formatDate = (date) => {
+  if (!date) return "-";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return String(date);
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+};
+
+const buildRows = (data = {}) => [
+  {
+    icon: PhoneAndroidOutlinedIcon,
+    label: "Phone Number Verified",
+    badge: data.mobile_number_verified ? "Passed" : "Failed",
+    tone: data.mobile_number_verified ? GREEN : RED,
+  },
+  {
+    icon: BadgeOutlinedIcon,
+    label: "Identity Match",
+    badge: data.mobile_number_verified ? "Passed" : "Failed",
+    tone: data.mobile_number_verified ? GREEN : RED,
+  },
+  {
+    icon: SignalCellularAltOutlinedIcon,
+    label: "RICA / network status",
+    badge: data.rica_network_status ? "Verified" : "Not Verified",
+    tone: data.rica_network_status ? GREEN : RED,
+  },
+  {
+    icon: SimCardOutlinedIcon,
+    label: "IMEI/Phone Number Match",
+    badge: data.IMEI_number_is_match ? "Pass" : "Fail",
+    tone: data.IMEI_number_is_match ? GREEN : RED,
+  },
+  {
+    icon: HomeOutlinedIcon,
+    label: "Address recorded",
+    badge: data.address_recorded ? "Confirmed" : "Not Recorded",
+    tone: data.address_recorded ? GREEN : RED,
+  },
+  { icon: WifiTetheringOutlinedIcon, label: "Network", value: data.network || "-" },
+  { icon: TaskOutlinedIcon, label: "Verification reference", value: data.verification_reference || "-" },
+  { icon: CalendarMonthOutlinedIcon, label: "Verified on", value: formatDate(data.verified_on) },
+  { icon: SyncOutlinedIcon, label: "Last Sim Swap Date", value: formatDate(data.swapDate) },
+  { icon: SmartphoneOutlinedIcon, label: "Device Description", value: data.device || "-" },
+  { icon: SimCardOutlinedIcon, label: "SIM Identifier (IMSI)", value: data.imsi || "-" },
+  { icon: WarningAmberOutlinedIcon, label: "Risk Score", value: data.score !== "" && data.score != null ? String(data.score) : "-", iconTone: RED },
 ];
 
 const Badge = ({ text, tone }) => (
@@ -52,13 +85,17 @@ const Badge = ({ text, tone }) => (
   </Box>
 );
 
-export default function NetworkIdentity() {
+export default function NetworkIdentity({ user }) {
+  const isVerified = !!user?.isUerNetworkIdentify;
+  const rows = buildRows(user?.networkIdentify);
+  const pdfUrl = user?.networkIdentify?.pdfUrl;
+
   return (
     <Paper
       elevation={2}
       sx={{ backgroundColor: "#FFFFFF", p: 2, borderRadius: "12px", fontFamily: "Montserrat" }}
     >
-      {/* Verified banner */}
+      {/* Verified / Not verified banner */}
       <Box
         sx={{
           display: "flex",
@@ -66,17 +103,23 @@ export default function NetworkIdentity() {
           justifyContent: "center",
           gap: 1,
           py: 0.75,
-          mb: 2,
+          mb: isVerified ? 2 : 0,
           borderRadius: "8px",
-          backgroundColor: "#ECFDF3",
-          border: "1px solid #A7F3D0",
+          backgroundColor: isVerified ? "#ECFDF3" : RED.bg,
+          border: `1px solid ${isVerified ? "#A7F3D0" : RED.border}`,
         }}
       >
-        <CheckCircleIcon sx={{ fontSize: 16, color: '#166534' }} />
-        <Typography fontSize="12px" fontWeight={600} color="#166534">
-          Network Identity Verified
+        {isVerified ? (
+          <CheckCircleIcon sx={{ fontSize: 16, color: "#166534" }} />
+        ) : (
+          <CancelIcon sx={{ fontSize: 16, color: RED.color }} />
+        )}
+        <Typography fontSize="12px" fontWeight={600} color={isVerified ? "#166534" : RED.color}>
+          {isVerified ? "Network Identity Verified" : "Network Identity Not Verified"}
         </Typography>
       </Box>
+
+      {isVerified && (<>
 
       {/* Check rows */}
       <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -134,8 +177,9 @@ export default function NetworkIdentity() {
           gap: 1.5,
           borderRadius: "10px",
           backgroundColor: "#F3F4F6",
-          cursor: "pointer",
+          cursor: pdfUrl ? "pointer" : "default",
         }}
+        onClick={() => pdfUrl && window.open(pdfUrl, "_blank", "noopener,noreferrer")}
       >
         <Box
           sx={{
@@ -162,6 +206,7 @@ export default function NetworkIdentity() {
         </Box>
         <ChevronRightIcon sx={{ fontSize: 18, color: "#94A3B8" }} />
       </Box>
+      </>)}
     </Paper>
   );
 }

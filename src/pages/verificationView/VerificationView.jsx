@@ -137,7 +137,7 @@ const VerificationView = () => {
                                             </Grid>
                                         </Paper>
                                         <UserDetail user={userDetails?.contact} />
-                                        <NetworkIdentity />
+                                        <NetworkIdentity user={userDetails}/>
                                     </Box>
                                 </Grid>
                                 <Grid size={9}>
