@@ -27,7 +27,23 @@ const formatDate = (date) => {
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 };
 
-const buildRows = (data = {}) => [
+const RISK_LEVELS = {
+  0: { text: "0 Very High Risk", tone: RED },
+  1: { text: "1 High Risk", tone: RED },
+  2: { text: "2 Medium Risk", tone: { bg: "#F9731626", color: "#EA580C", border: "#F9731626" } },
+  3: { text: "3 Low Risk", tone: { bg: "#F59E0B26", color: "#D97706", border: "#F59E0B26" } },
+  4: { text: "4 Very Low Risk", tone: { bg: "#84CC1626", color: "#65A30D", border: "#84CC1626" } },
+  5: { text: "5 Minimal Risk", tone: GREEN },
+};
+const RISK_UNKNOWN = { text: "Unknown", tone: { bg: "#F3F4F6", color: "#6B7280", border: "#E5E7EB" } };
+
+const getRiskBadge = (score) => {
+  const level = score === "" || score == null ? undefined : RISK_LEVELS[Number(score)];
+  const { text, tone } = level || RISK_UNKNOWN;
+  return { badge: text, tone, iconTone: tone, plainBadge: true };
+};
+
+const buildRows =(data = {}) => [
   {
     icon: PhoneAndroidOutlinedIcon,
     label: "Phone Number Verified",
@@ -64,7 +80,7 @@ const buildRows = (data = {}) => [
   { icon: SyncOutlinedIcon, label: "Last Sim Swap Date", value: formatDate(data.swapDate) },
   { icon: SmartphoneOutlinedIcon, label: "Device Description", value: data.device || "-" },
   { icon: SimCardOutlinedIcon, label: "SIM Identifier (IMSI)", value: data.imsi || "-" },
-  { icon: WarningAmberOutlinedIcon, label: "Risk Score", value: data.score !== "" && data.score != null ? String(data.score) : "-", iconTone: RED },
+  { icon: WarningAmberOutlinedIcon, label: "Risk Score", ...getRiskBadge(data.score) },
 ];
 
 const Badge = ({ text, tone }) => (
@@ -156,9 +172,9 @@ export default function NetworkIdentity({ user }) {
                 {row.label}
               </Typography>
               {row.badge ? (
-                <Badge text={'✓ ' + row.badge} tone={row.tone} />
+                <Badge text={row.plainBadge ? row.badge : '✓ ' + row.badge} tone={row.tone} />
               ) : (
-                <Typography fontSize="10px" fontWeight={600} color="#4B5563" sx={{ whiteSpace: "nowrap" }}>
+                <Typography fontSize="10px" fontWeight={600} color="#4B5563" sx={{ maxWidth: "55%", textAlign: "right", whiteSpace: "normal", wordBreak: "break-word" }}>
                   {row.value}
                 </Typography>
               )}
