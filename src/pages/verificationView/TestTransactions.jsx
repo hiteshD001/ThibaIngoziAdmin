@@ -22,7 +22,7 @@ const formatDateTime = (date) => {
 
 export default function TestTransaction({ user }) {
   const [page, setPage] = useState(1);
-  const { data: response, isFetching } = useGetTestSosTransactions(user?._id, page, LIMIT);
+  const { data: response, isFetching } = useGetTestSosTransactions(user?.user_id, page, LIMIT);
 
   const result = response?.data;
   const total = result?.totaldata || 0;
