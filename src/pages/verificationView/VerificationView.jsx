@@ -16,8 +16,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import SubscriptionDetails from "./SubscriptionDetail";
 import { useGetViewVerification } from "../../API Calls/API";
 import UserDetail from "./UserDetail";
+import TestTransactions from "./TestTransactions";
 import CarDetail from "./CarDetail";
 import UserImages from "./UserImage";
+import NetworkIdentity from "./NetworkIndentity";
 import { toast } from "react-toastify";
 
 const VerificationView = () => {
@@ -136,6 +138,7 @@ const VerificationView = () => {
                                             </Grid>
                                         </Paper>
                                         <UserDetail user={userDetails?.contact} />
+                                        <NetworkIdentity user={userDetails}/>
                                     </Box>
                                 </Grid>
                                 <Grid size={9}>
@@ -146,6 +149,7 @@ const VerificationView = () => {
                                         >
                                             <SubscriptionDetails subscriptionDetailsProps={userDetails?.subscriptionDetails} />
                                         </Paper>
+                                        <TestTransactions user={userDetails?.contact} />
                                         <UserImages user={userDetails?.contact} />
                                         <CarDetail vehicleDetails={userDetails?.vehicleDetails} />
                                     </Box>
