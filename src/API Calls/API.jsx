@@ -2472,6 +2472,31 @@ export const useGetPoliceUnitsByCity = (id) => {
     return res;
 };
 
+export const useGetTestSosTransactions = (user_id, page, limit) => {
+    const nav = useNavigate();
+
+    const queryFn = async () => {
+        return await apiClient.get(`${import.meta.env.VITE_BASEURL}/test-sos-transaction`, {
+            params: { user_id, page, limit },
+        });
+    };
+
+    const res = useQuery({
+        queryKey: ["test-sos-transaction", user_id, page, limit],
+        queryFn,
+        enabled: !!user_id,
+        staleTime: 15 * 60 * 1000,
+        placeholderData: keepPreviousData,
+        retry: false,
+    });
+
+    if (res.error && res.error.response?.status === 401) {
+        localStorage.clear();
+        nav("/");
+    }
+    return res;
+};
+
 export const useGetViewVerification = (onSuccess, onError) => {
      const mutationFn = async ({ id }) => {
         return await apiClient.get(
