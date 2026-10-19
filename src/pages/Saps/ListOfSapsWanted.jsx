@@ -48,7 +48,7 @@ import moment from "moment";
 import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { toast } from "react-toastify";
 import ImportSheet from "../../common/ImportSheet";
-import { toISO } from "../../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../../utils/dateUtils";
 
 const ListOfSapsWanted = () => {
 
@@ -1269,8 +1269,8 @@ const ListOfSapsWanted = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {moment(user.createdAt).isSame(moment(), "day")
-                                                            ? `Today, ${moment(user.createdAt).format("hh:mm A")}`
-                                                            : formatDateTime(user.createdAt,"HH:mm:ss - DD/MM/YYYY")}
+                                                            ? `Today, ${toLocalDateTime(user.createdAt, "hh:mm A")}`
+                                                            : toLocalDateTime(user.createdAt)}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {moment(user.captured_date).isSame(moment(), "day")

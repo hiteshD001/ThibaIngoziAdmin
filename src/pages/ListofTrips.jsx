@@ -32,7 +32,7 @@ import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
 import { loadListPageState, saveListPageState } from "../common/ListPageState";
-import { toISO } from "../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../utils/dateUtils";
 
 const ListOfTrips = () => {
 	const nav = useNavigate();
@@ -192,7 +192,7 @@ const ListOfTrips = () => {
 				"Driver": user.driver.first_name || '',
 				"Passanger": user.passenger.first_name || '',
 				"Trip Type": user.trip_type?.tripTypeName || '',
-				"Started At": user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : '',
+				"Started At": user?.createdAt ? toLocalDateTime(user.createdAt) : '',
 				"Ended At": user.trip_status === 'ended' && user?.endedAt ? format(new Date(user.endedAt), "HH:mm:ss - dd/MM/yyyy") : '---',
 				"Ended By": formatEndedBy(user.ended_by),
 				"Status": user.trip_status || '',
@@ -252,7 +252,7 @@ const ListOfTrips = () => {
 						user.driver?.first_name ?? 'NA',
 						user.passenger?.first_name ?? 'NA',
 						user.trip_type?.tripTypeName ?? 'NA',
-						format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") ?? 'NA',
+						toLocalDateTime(user.createdAt) ?? 'NA',
 						user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
 						user.ended_by ?? 'NA',
 						user.trip_status ?? 'NA'

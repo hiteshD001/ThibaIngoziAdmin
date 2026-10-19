@@ -47,7 +47,7 @@ import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 import TransactionHistoryPopup from "./transactionHistory";
 import search from '../../assets/images/search.svg';
-import { toISO } from "../../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../../utils/dateUtils";
 
 const TAB_CONFIG = {
   ACTIVE_SUBSCRIPTION: "Active Users",
@@ -1454,7 +1454,7 @@ const SubscriptionManagement = () => {
                         >
                             {selectedPopupObj?.notifications?.map(data =>
                                 <>
-                                    <li>{moment(data.createdAt).format("DD MMM, YYYY")} – {moment(data?.createdAt).format("hh:mm A")} → {data?.notification_data?.type}</li>
+                                    <li>{moment(data.createdAt).format("DD MMM, YYYY")} – {toLocalDateTime(data?.createdAt, "hh:mm A")} → {data?.notification_data?.type}</li>
                                 </>
                             )
                             }

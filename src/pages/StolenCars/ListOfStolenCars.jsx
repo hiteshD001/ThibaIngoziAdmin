@@ -40,7 +40,7 @@ import SapsIcon1 from '../../assets/images/SapsIcon1.svg'
 import SapsIcon3 from '../../assets/images/SapsIcon3.svg'
 import SapsIcon5 from '../../assets/images/SapsIcon5.svg'
 import SapsIcon6 from '../../assets/images/SapsIcon6.svg'
-import { toISO } from "../../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../../utils/dateUtils";
 
 
 const ListOfStolenCars = () => {
@@ -130,7 +130,7 @@ const ListOfStolenCars = () => {
             const exportData = allUsers.map(user => ({
                 "SOS Id": (user?.sosNumber || ''),
                 "Last Seen Location": user.address || '',
-                "Date": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
+                "Date": toLocalDateTime(user.createdAt) || '',
                 "Request Reached": user.req_reach || '',
                 "Request Accepted": user.req_accept || '',
                 "Status": user.help_received === "help_received" ? 'Found' : 'Not Found',
@@ -197,7 +197,7 @@ const ListOfStolenCars = () => {
                     body: allUsers.map(user => [
                         (user?.sosNumber || ''),
                         user.address || '',
-                        format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
+                        toLocalDateTime(user.createdAt) || '',
                         user.req_reach || '',
                         user.req_accept || '',
                         user.help_received === "help_received" ? 'Found' : 'Not Found',
@@ -618,8 +618,8 @@ const ListOfStolenCars = () => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {moment(obj.createdAt).isSame(moment(), "day")
-                                                        ? `Today, ${moment(obj.createdAt).format("hh:mm A")}`
-                                                        : formatDateTime(obj.createdAt, "HH:mm:ss - DD/MM/YYYY")}
+                                                        ? `Today, ${toLocalDateTime(obj.createdAt, "hh:mm A")}`
+                                                        : toLocalDateTime(obj.createdAt)}
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: 'var(--orange)' }}>

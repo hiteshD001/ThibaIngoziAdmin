@@ -31,7 +31,7 @@ import { useGetSuspectSightingsList, useSuspectSightPutIsArchived, useGetSuspect
 import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import { toast } from "react-toastify";
-import { toISO } from "../../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../../utils/dateUtils";
 
 const ListOfSuspectArcheived = () => {
     const [popup, setpopup] = useState(false);
@@ -417,8 +417,8 @@ const ListOfSuspectArcheived = () => {
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563', textAlign: 'center' }}>
                                                 {moment(obj.createdAt).isSame(moment(), "day")
-                                                    ? `Today, ${moment(obj.createdAt).format("hh:mm A")}`
-                                                    : formatDateTime(obj.createdAt,"HH:mm:ss - DD/MM/YYYY")}
+                                                    ? `Today, ${toLocalDateTime(obj.createdAt, "hh:mm A")}`
+                                                    : toLocalDateTime(obj.createdAt)}
                                             </TableCell>
                                             <TableCell sx={{ color: '#367BE0', textAlign: 'center' }}>
                                                 <Link onClick={() => handleView(obj?.linked_case_type === 'crimereports' ? `/home/crime-reports/crime-report/${obj?.linked_case_data?._id}` : `/home/capture-reports?location_id=${obj?.linked_case_data?._id}&sosId=${obj?.linked_case_data?.sosNumber}`)} className="link2">

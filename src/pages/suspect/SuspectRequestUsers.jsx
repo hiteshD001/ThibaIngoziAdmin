@@ -32,7 +32,7 @@ import { getImageLink, formatDateTime } from '../../common/commonFn';
 import { DeleteConfirm } from "../../common/ConfirmationPOPup";
 import { toast } from "react-toastify";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { toISO } from "../../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../../utils/dateUtils";
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -311,8 +311,8 @@ const SuspectRequestUsers = () => {
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563', textAlign: 'center' }}>
                                                 {moment(obj.createdAt).isSame(moment(), "day")
-                                                    ? `Today, ${moment(obj.createdAt).format("hh:mm A")}`
-                                                    : formatDateTime(obj.createdAt, "HH:mm:ss - DD/MM/YYYY")}
+                                                    ? `Today, ${toLocalDateTime(obj.createdAt, "hh:mm A")}`
+                                                    : toLocalDateTime(obj.createdAt)}
                                             </TableCell>
                                             <TableCell sx={{ color: '#4B5563', textAlign: 'center' }}>
 

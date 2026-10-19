@@ -31,7 +31,7 @@ import { SOSStatusUpdate } from '../../common/ConfirmationPOPup';
 import CustomDateRangePicker from '../../common/Custom/CustomDateRangePicker';
 import TimeFilter from '../../common/Custom/TimeFilter';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
-import { toISO } from "../../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../../utils/dateUtils";
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -246,7 +246,7 @@ const ActiveSOSTableRow = memo(({ user, userinfo, nav, copied, handleCopy, setTe
                 {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.type?.display_title || "-")}
             </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
-                {user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : "-"}
+                {user?.createdAt ? toLocalDateTime(user.createdAt) : "-"}
             </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
                 {user?.deepLinks?.notification_data?.trip?.trip_type_id?.tripTypeName || "-"}
@@ -437,7 +437,7 @@ const RecentSOSTableRow = memo(({ row, copied, handleCopy, setTextToCopy, nav, u
                 </Link>
             </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
-                {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+                {toLocalDateTime(row?.createdAt)}
             </TableCell>
             <TableCell sx={{ color: '#4B5563' }}>
                 {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}

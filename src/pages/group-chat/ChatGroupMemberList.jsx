@@ -27,7 +27,7 @@ import arrownuteral from '../../assets/images/arrownuteral.svg';
 import moment from "moment";
 import {getImageLink,formatDateTime } from '../../common/commonFn';
 import { toast } from "react-toastify";
-import { toISO } from "../../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../../utils/dateUtils";
 
 const ChatGroupMemberList = () => {
 
@@ -613,7 +613,7 @@ const ChatGroupMemberList = () => {
                                                         </Stack>
                                                     </TableCell>
                                                     <TableCell sx={{ color: user.colorCode }}>
-                                                        {user.createdAt || "-"}
+                                                        {toLocalDateTime(user.createdAt)}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         <Chip
