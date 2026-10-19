@@ -9,16 +9,9 @@ import {
 import { useGetTestSosTransactions } from "../../API Calls/API";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import moment from "moment";
 
 const LIMIT = 4;
-
-const formatDateTime = (date) => {
-  const d = new Date(date);
-  if (isNaN(d.getTime())) return "-";
-  const day = d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-  const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-  return `${day} at ${time}`;
-};
 
 export default function TestTransaction({ user }) {
   const [page, setPage] = useState(1);
@@ -29,7 +22,8 @@ export default function TestTransaction({ user }) {
   const totalPages = result?.totalPages || 1;
   const transactions = (result?.data || []).map((item) => ({
     title: item.test_device_type || "Panic Button Hardware Test",
-    date: formatDateTime(item.createdAt),
+    date: moment(item.createdAt).isSame(moment(), "day") ? 
+          `Today, ${moment(item.createdAt).format("hh:mm A")}` : moment(item.createdAt).format("HH:mm:ss - DD/MM/YYYY"),
     status: item.status === "success" ? "Success" : "Failed",
   }));
   const rangeStart = total ? (page - 1) * LIMIT + 1 : 0;
