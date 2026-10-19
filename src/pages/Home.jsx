@@ -58,7 +58,7 @@ import tone from "../assets/audio/notification.mp3"
 import { enable2FA } from "../API Calls/authAPI";
 import QRCode from 'qrcode';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
-import { toISO } from "../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../utils/dateUtils";
 
 const copyButtonStyles = {
     color: '#4285F4 !important',
@@ -1245,7 +1245,7 @@ const Home = () => {
                                                         {user?.sosType === 'ARMED_SOS' ? "Armed Response" : (user?.type?.display_title || "-")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : "-"}
+                                                        {user?.createdAt ? toLocalDateTime(user.createdAt) : "-"}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563', minWidth: '110px' }}>
                                                         {(!(user?.sosType === 'ARMED_SOS' ? user?.armedSosstatus : user?.help_received)) &&
@@ -1696,8 +1696,8 @@ const Home = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {moment(report.createdAt).isSame(moment(), "day")
-                                                            ? `Today, ${moment(report.createdAt).format("hh:mm A")}`
-                                                            : moment(report.createdAt).format("HH:mm:ss - DD/MM/YYYY")}
+                                                            ? `Today, ${toLocalDateTime(report.createdAt, "hh:mm A")}`
+                                                            : toLocalDateTime(report.createdAt)}
                                                     </TableCell>
 
                                                     <TableCell sx={{ color: '#4B5563' }}>
@@ -2161,7 +2161,7 @@ const Home = () => {
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                        {toLocalDateTime(row?.createdAt)}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
@@ -2566,8 +2566,8 @@ const Home = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {moment(report.createdAt).isSame(moment(), "day")
-                                                            ? `Today, ${moment(report.createdAt).format("hh:mm A")}`
-                                                            : moment(report.createdAt).format("HH:mm:ss - DD/MM/YYYY")}
+                                                            ? `Today, ${toLocalDateTime(report.createdAt, "hh:mm A")}`
+                                                            : toLocalDateTime(report.createdAt)}
                                                     </TableCell>
 
                                                     <TableCell sx={{ color: '#4B5563' }}>

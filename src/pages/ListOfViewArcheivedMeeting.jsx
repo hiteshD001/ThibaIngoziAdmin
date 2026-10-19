@@ -30,7 +30,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
-import { toISO } from "../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../utils/dateUtils";
 
 const ListOfMeetingLinkTrips = () => {
   const nav = useNavigate();
@@ -111,7 +111,7 @@ const ListOfMeetingLinkTrips = () => {
       const exportData = allUsers.map(user => ({
         "User1": user.user1.first_name || '',
         "User2": user.user2.first_name || '',
-        "Started At": user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : '',
+        "Started At": user?.createdAt ? toLocalDateTime(user.createdAt) : '',
         "Ended At": user.trip_status === 'ended' && user?.endedAt ? format(new Date(user.endedAt), "HH:mm:ss - dd/MM/yyyy") : '---',
         // "Ended By": user.ended_by || '',
         "Status": user.trip_status || '',
@@ -146,7 +146,7 @@ const ListOfMeetingLinkTrips = () => {
           body: allUsers.map(user => [
             user.user1.first_name ?? 'NA',
             user.user2.first_name ?? 'NA',
-            user?.createdAt ? format(new Date(user.createdAt), "HH:mm:ss - dd/MM/yyyy") : 'NA',
+            user?.createdAt ? toLocalDateTime(user.createdAt) : 'NA',
             user.trip_status === 'ended' && user?.endedAt ? format(new Date(user.endedAt), "HH:mm:ss - dd/MM/yyyy") : '---',
             user.trip_status ?? 'NA'
           ]),
@@ -381,7 +381,7 @@ const ListOfMeetingLinkTrips = () => {
 
                           <TableCell>
                             {data?.createdAt
-                              ? format(new Date(data.createdAt), "HH:mm:ss - dd/MM/yyyy")
+                              ? toLocalDateTime(data.createdAt)
                               : "-"}
                           </TableCell>
                           <TableCell>

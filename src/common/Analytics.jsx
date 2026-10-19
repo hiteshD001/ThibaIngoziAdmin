@@ -1,3 +1,4 @@
+import { toLocalDateTime } from "../utils/dateUtils";
 import { useEffect, useState } from "react";
 import {
     useGetUser,
@@ -257,7 +258,7 @@ const Analytics = ({ id, activePage,
                     "User Name": row?.user?.first_name + ' ' + row?.user?.last_name,
                     "Company": row?.user?.company_name,
                     "Last Active Status": row?.createdAt,
-                    "Start Time Stamp": format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy"),
+                    "Start Time Stamp": toLocalDateTime(row?.createdAt),
                     "End Time Stamp": format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy"),
                     "Type": row?.type?.type || "",
                     "Status": row?.help_received,

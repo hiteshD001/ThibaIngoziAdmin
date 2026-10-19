@@ -36,7 +36,7 @@ import * as XLSX from 'xlsx';
 import { getImageLink, formatDateTime } from '../../common/commonFn';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
 import SingleImagePreview from "../../common/SingleImagePreview";
-import { toISO } from "../../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../../utils/dateUtils";
 
 const ListOfViewArcheivedMissingPerson = () => {
     const [popup, setpopup] = useState(false);
@@ -123,7 +123,7 @@ const ListOfViewArcheivedMissingPerson = () => {
                 "SOS Id": (user?.sosNumber || ''),
                 "Name": (user?.notification_details?.notification_data?.lostPerson?.first_name || "") + " " + (user?.notification_details?.notification_data?.lostPerson?.last_name || ''),
                 "Last Seen Location": user.address || '',
-                "Date": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
+                "Date": toLocalDateTime(user.createdAt) || '',
                 "Request Reached": user.req_reach || '',
                 "Request Accepted": user.req_accept || '',
                 "Status": user.help_received === "help_received" ? 'Found' : 'Not Found',
@@ -191,7 +191,7 @@ const ListOfViewArcheivedMissingPerson = () => {
                         (user?.sosNumber || ''),
                         (user?.notification_details?.notification_data?.lostPerson?.first_name || "") + " " + (user?.notification_details?.notification_data?.lostPerson?.last_name || ''),
                         user.address || '',
-                        format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
+                        toLocalDateTime(user.createdAt) || '',
                         user.req_reach || '',
                         user.req_accept || '',
                         user.help_received === "help_received" ? 'Found' : 'Not Found',
@@ -463,8 +463,8 @@ const ListOfViewArcheivedMissingPerson = () => {
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         {moment(obj.createdAt).isSame(moment(), "day")
-                                                            ? `Today, ${moment(obj.createdAt).format("hh:mm A")}`
-                                                            : formatDateTime(obj.createdAt, "HH:mm:ss - DD/MM/YYYY")}
+                                                            ? `Today, ${toLocalDateTime(obj.createdAt, "hh:mm A")}`
+                                                            : toLocalDateTime(obj.createdAt)}
 
                                                     </TableCell>
                                                     <TableCell sx={{ color: 'var(--orange)' }}>

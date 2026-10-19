@@ -30,7 +30,7 @@ import arrowup from '../../assets/images/arrowup.svg';
 import arrowdown from '../../assets/images/arrowdown.svg';
 import arrownuteral from '../../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../../common/ScrollPosition";
-import { toISO } from "../../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../../utils/dateUtils";
 
 const ListOfArcheivedCrimeReports = () => {
     const [popup, setpopup] = useState(false);
@@ -496,8 +496,8 @@ const ListOfArcheivedCrimeReports = () => {
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {moment(report.createdAt).isSame(moment(), "day")
-                                                        ? `Today, ${moment(report.createdAt).format("hh:mm A")}`
-                                                        : moment(report.createdAt).format("HH:mm:ss - DD/MM/YYYY")}
+                                                        ? `Today, ${toLocalDateTime(report.createdAt, "hh:mm A")}`
+                                                        : toLocalDateTime(report.createdAt)}
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     <Chip

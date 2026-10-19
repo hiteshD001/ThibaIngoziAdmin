@@ -29,7 +29,7 @@ import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
 import { saveScrollPosition, restoreScrollPosition } from "../common/ScrollPosition";
-import { toISO } from "../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../utils/dateUtils";
 
 const ListOfViewArcheived = () => {
   const nav = useNavigate();
@@ -154,7 +154,7 @@ const ListOfViewArcheived = () => {
       const exportData = allUsers.map(user => ({
         "Driver": user.driver.first_name || '',
         "Passanger": user.passenger.first_name || '',
-        "Started At": format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") || '',
+        "Started At": toLocalDateTime(user.createdAt) || '',
         "Ended At": user.trip_status === 'ended' && user.endedAt ? format(new Date(user.endedAt), "HH:mm:ss - dd/MM/yyyy") : '---',
         "Ended By": formatEndedBy(user.ended_by),
         "Status": user.trip_status || '',
@@ -189,7 +189,7 @@ const ListOfViewArcheived = () => {
           body: allUsers.map(user => [
             user.driver.first_name ?? 'NA',
             user.passenger.first_name ?? 'NA',
-            format(user.createdAt, "HH:mm:ss - dd/MM/yyyy") ?? 'NA',
+            toLocalDateTime(user.createdAt) ?? 'NA',
             user.trip_status === 'ended' ? format(user.endedAt, "HH:mm:ss - dd/MM/yyyy") : '---',
             user.ended_by ?? 'NA',
             user.trip_status ?? 'NA'
@@ -420,7 +420,7 @@ const ListOfViewArcheived = () => {
 
                           <TableCell>
                             {data?.createdAt
-                              ? format(new Date(data.createdAt), "HH:mm:ss - dd/MM/yyyy")
+                              ? toLocalDateTime(data.createdAt)
                               : "-"}
                           </TableCell>
                           <TableCell>

@@ -65,7 +65,7 @@ import nouser from "../assets/images/NoUser.png";
 import arrowup from '../assets/images/arrowup.svg';
 import arrowdown from '../assets/images/arrowdown.svg';
 import arrownuteral from '../assets/images/arrownuteral.svg';
-import { toISO } from "../utils/dateUtils";
+import { toISO, toLocalDateTime } from "../utils/dateUtils";
 
 const CompanyInformation = () => {
     // useStates
@@ -1656,7 +1656,7 @@ const CompanyInformation = () => {
 
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
-                                                    {format(row?.createdAt, "HH:mm:ss - dd/MM/yyyy")}
+                                                    {toLocalDateTime(row?.createdAt)}
                                                 </TableCell>
                                                 <TableCell sx={{ color: '#4B5563' }}>
                                                     {format(row?.updatedAt, "HH:mm:ss - dd/MM/yyyy")}
