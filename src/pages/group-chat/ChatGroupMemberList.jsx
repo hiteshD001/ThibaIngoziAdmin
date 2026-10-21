@@ -372,14 +372,14 @@ const ChatGroupMemberList = () => {
                                                         </Link>
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {moment(user.crime_date).isSame(moment(), "day")
-                                                            ? `Today, ${moment(user.crime_date).format("hh:mm A")}`
-                                                            : formatDateTime(user.crime_date, "HH:mm:ss - DD/MM/YYYY")}
+                                                        {moment(user.createdAt).isSame(moment(), "day")
+                                                            ? `Today, ${moment(user.createdAt).format("hh:mm A")}`
+                                                            : formatDateTime(user.createdAt, "HH:mm:ss - DD/MM/YYYY")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
-                                                        {moment(user.crime_date).isSame(moment(), "day")
-                                                            ? `Today, ${moment(user.crime_date).format("hh:mm A")}`
-                                                            : formatDateTime(user.crime_date, "HH:mm:ss - DD/MM/YYYY")}
+                                                        {moment(user.last_active_date || user.createdAt).isSame(moment(), "day")
+                                                            ? `Today, ${moment(user.last_active_date || user.createdAt).format("hh:mm A")}`
+                                                            : formatDateTime(user.last_active_date || user.createdAt, "HH:mm:ss - DD/MM/YYYY")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         0
@@ -613,7 +613,9 @@ const ChatGroupMemberList = () => {
                                                         </Stack>
                                                     </TableCell>
                                                     <TableCell sx={{ color: user.colorCode }}>
-                                                        {user.createdAt || "-"}
+                                                        {moment(user.createdAt).isSame(moment(), "day")
+                                                            ? `Today, ${moment(user.createdAt).format("hh:mm A")}`
+                                                            : formatDateTime(user.createdAt, "HH:mm:ss - DD/MM/YYYY")}
                                                     </TableCell>
                                                     <TableCell sx={{ color: '#4B5563' }}>
                                                         <Chip
